@@ -373,6 +373,9 @@
 
     // Patient Profile
     pushSection(out, "রোগীর পরিচিতি", [
+      fieldItem('কেস নম্বর', getVal('caseNo')),
+      fieldItem('তারিখ', getVal('visitDate')),
+      fieldItem('পরামর্শের ধরন', getVal('visitType')),
       fieldItem('নাম', getVal('patientName')),
       fieldItem('বয়স', getVal('age')),
       fieldItem('লিঙ্গ', getVal('gender')),
@@ -384,10 +387,8 @@
       fieldItem('উচ্চতা', getVal('height')),
       fieldItem('রক্তের গ্রুপ', getVal('bloodGroup')),
       fieldItem('প্রধান রোগের বিভাগ', getVal('mainCategory')),
-      fieldItem('তারিখ', getVal('visitDate')),
-      fieldItem('কেস নম্বর', getVal('caseNo')),
-      fieldItem('পরামর্শের ধরন', getVal('visitType')),
-      fieldItem('আগের রোগ নির্ণয়', getVal('previousDiagnosis'))
+      fieldItem('আগের রোগ নির্ণয়', getVal('previousDiagnosis')),
+      fieldItem('সম্মতি', getVal('consent') ? 'রোগীর তথ্য কেস বিশ্লেষণের জন্য ব্যবহারের সম্মতি আছে' : '')
     ]);
 
     // Complaints
