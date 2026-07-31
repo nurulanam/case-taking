@@ -38,8 +38,6 @@
       addComplaint();
     }
     
-    // Load Draft
-    loadDraft();
 
     // Set default date to today's local date if not already filled
     const visitDate = document.querySelector('input[name="visitDate"]');
@@ -49,7 +47,6 @@
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
       visitDate.value = `${yyyy}-${mm}-${dd}`;
-      saveDraft();
     }
 
     updateUI();
@@ -157,7 +154,6 @@
         // Add active class toggle for styling
         checkbox.addEventListener('change', () => {
           label.classList.toggle('active', checkbox.checked);
-          saveDraft();
         });
       });
     });
@@ -186,7 +182,6 @@
   window._removeComp = function(id) {
     const el = document.getElementById(`comp-${id}`);
     if (el) el.remove();
-    saveDraft();
   };
 
   // --- Event Bindings ---
@@ -229,76 +224,15 @@
       URL.revokeObjectURL(url);
     });
 
-    // Auto-save on change
-    form.addEventListener('input', saveDraft);
-    form.addEventListener('change', saveDraft);
     resetBtn.addEventListener('click', () => {
       if(confirm('সব তথ্য মুছে যাবে। আপনি কি নিশ্চিত?')) {
-        localStorage.removeItem('homeoCaseDraft');
+        form.reset();
         location.reload();
       }
     });
   }
 
-  // --- Data Persistence (Auto-save) ---
-  function saveDraft() {
-    const data = new FormData(form);
-    const obj = {};
-    for (let [key, val] of data.entries()) {
-      if (obj[key] !== undefined) {
-        if (!Array.isArray(obj[key])) obj[key] = [obj[key]];
-        obj[key].push(val);
-      } else {
-        obj[key] = val;
-      }
-    }
-    // save dynamic complaints count
-    obj._complaintCount = complaintCount;
-    localStorage.setItem('homeoCaseDraft', JSON.stringify(obj));
-    
-    const badge = document.getElementById('autosaveStatus');
-    badge.textContent = 'সংরক্ষিত';
-    badge.style.opacity = '1';
-    setTimeout(() => badge.style.opacity = '0.5', 1000);
-  }
 
-  function loadDraft() {
-    const saved = localStorage.getItem('homeoCaseDraft');
-    if (!saved) return;
-    try {
-      const obj = JSON.parse(saved);
-      
-      // Restore dynamic complaints
-      if (obj._complaintCount) {
-        while (complaintCount < obj._complaintCount) {
-          addComplaint();
-        }
-      }
-
-      for (let key in obj) {
-        if (key === '_complaintCount') continue;
-        const val = obj[key];
-        const inputs = form.querySelectorAll(`[name="${key}"]`);
-        if (!inputs.length) continue;
-        
-        const type = inputs[0].type;
-        if (type === 'checkbox' || type === 'radio') {
-          const valArray = Array.isArray(val) ? val : [val];
-          inputs.forEach(input => {
-            if (valArray.includes(input.value)) {
-              input.checked = true;
-              // trigger change for chip active state
-              input.dispatchEvent(new Event('change'));
-            }
-          });
-        } else {
-          inputs[0].value = val;
-        }
-      }
-    } catch(e) {
-      console.error('Draft load error', e);
-    }
-  }
 
   // --- Report Generation logic ---
   function getVal(name) {
