@@ -42,7 +42,16 @@
 <div class="section-heading"><span class="section-number">১</span><div><h3>রোগীর পরিচিতি</h3><p>মূল তথ্য, যোগাযোগ এবং কেসের ধরন লিখুন।</p></div></div>
 <div class="grid two">
 <label class="field"><span>কেস নম্বর</span><input name="caseNo" placeholder="যেমন: ২০২৬-০০১"/></label>
-<label class="field"><span>তারিখ</span><input name="visitDate" type="date"/></label>
+<label class="field"><span>তারিখ</span><input id="visitDate" name="visitDate" type="date"/></label>
+<script>
+  (function() {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    document.getElementById('visitDate').value = `${yyyy}-${mm}-${dd}`;
+  })();
+</script>
 <label class="field"><span>পরামর্শের ধরন</span><select name="visitType"><option value="">নির্বাচন করুন</option><option>প্রথমবার</option><option>ফলোআপ</option><option>অনলাইন</option><option>চেম্বার</option><option>জরুরি পরামর্শ</option></select></label>
 <label class="field"><span>রোগীর নাম <b>*</b></span><input name="patientName" placeholder="পূর্ণ নাম" required=""/></label>
 <label class="field"><span>বয়স <b>*</b></span><input name="age" placeholder="যেমন: ৩৫ বছর" required=""/></label>
