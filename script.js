@@ -33,10 +33,6 @@
     initChips();
     bindEvents();
     
-    // Set default date
-    const visitDate = document.querySelector('input[name="visitDate"]');
-    if (visitDate && !visitDate.value) visitDate.valueAsDate = new Date();
-    
     // Default 1 complaint
     if(complaintsContainer.children.length === 0) {
       addComplaint();
@@ -44,6 +40,18 @@
     
     // Load Draft
     loadDraft();
+
+    // Set default date to today's local date if not already filled
+    const visitDate = document.querySelector('input[name="visitDate"]');
+    if (visitDate && !visitDate.value) {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      visitDate.value = `${yyyy}-${mm}-${dd}`;
+      saveDraft();
+    }
+
     updateUI();
     updateGenderPanels();
   }
