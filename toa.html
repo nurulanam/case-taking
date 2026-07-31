@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>তীব্র রোগের তত্ত্ব (Theory of Acutes) — ডাঃ প্রফুল বিজয়কর</title>
+<meta content="ডাঃ প্রফুল বিজয়কর-এর Theory of Acutes অনুযায়ী হোমিওপ্যাথি ওষুধ নির্বাচন সহায়ক।" name="description"/>
+<link href="styles.css" rel="stylesheet"/>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+  /* TOA-specific styles */
+  :root {
+    --toa-amber: #d97706;
+    --toa-amber-bg: #fffbeb;
+    --toa-amber-border: #fcd34d;
+    --toa-indigo: #4f46e5;
+    --toa-indigo-bg: #eef2ff;
+    --toa-rose: #e11d48;
+    --toa-rose-bg: #fff1f2;
+  }
+
+  .page-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .page-tabs::-webkit-scrollbar { display: none; }
+  .page-tab-btn {
+    flex: 0 0 auto;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .page-tab-btn:hover { color: var(--primary); }
+  .page-tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  .page-panel { display: none; animation: fadeIn 0.3s ease; }
+  .page-panel.active { display: block; }
+
+  /* Selection Wizard */
+  .wizard-step {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .wizard-step.active { display: block; }
+
+  .axis-question {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .axis-question i { color: var(--primary); font-size: 1.25rem; }
+
+  .radio-card-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .radio-card {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface);
+    user-select: none;
+  }
+  .radio-card:hover {
+    border-color: var(--primary-light);
+    background: var(--primary-bg);
+  }
+  .radio-card input {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+  .radio-card .radio-label {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+  }
+  .radio-card.selected {
+    border-color: var(--primary);
+    background: var(--primary-bg);
+    box-shadow: 0 0 0 3px rgba(15,118,110,0.12);
+  }
+  .radio-card.selected .radio-label { color: var(--primary); font-weight: 600; }
+
+  /* Wizard progress stepper */
+  .wizard-progress {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 2rem;
+  }
+  .wp-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    position: relative;
+  }
+  .wp-step::before {
+    content: '';
+    position: absolute;
+    top: 16px;
+    right: 50%;
+    width: 100%;
+    height: 2px;
+    background: var(--border);
+    z-index: 0;
+  }
+  .wp-step:first-child::before { display: none; }
+  .wp-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    z-index: 1;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .wp-step.done .wp-dot {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+  }
+  .wp-step.active .wp-dot {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(15,118,110,0.15);
+  }
+  .wp-step.done::before { background: var(--primary); }
+  .wp-label {
+    font-size: 0.625rem;
+    color: var(--text-muted);
+    text-align: center;
+    font-weight: 500;
+  }
+  .wp-step.active .wp-label, .wp-step.done .wp-label { color: var(--primary); }
+
+  /* Results */
+  .result-card {
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+  }
+  .result-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow); }
+  .result-card.match-full { border-color: var(--primary); }
+  .result-card.match-high { border-color: var(--primary-light); }
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    cursor: pointer;
+    justify-content: space-between;
+  }
+  .result-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+  }
+  .remedy-score {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .score-4 { background: var(--primary); color: white; }
+  .score-3 { background: var(--primary-light); color: white; }
+  .score-2 { background: var(--toa-amber-bg); color: var(--toa-amber); border: 1px solid var(--toa-amber-border); }
+  .score-1 { background: var(--surface2); color: var(--text-muted); }
+  .remedy-name-block .rname { font-size: 1rem; font-weight: 700; color: var(--text); }
+  .remedy-name-block .rname-en { font-size: 0.75rem; color: var(--text-muted); }
+  .remedy-name-block .rshort { font-size: 0.8125rem; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+  .result-badges {
+    display: flex;
+    gap: 0.375rem;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 0.2rem 0.625rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge-match { background: var(--primary); color: white; }
+  .badge-partial { background: var(--toa-amber-bg); color: var(--toa-amber); border: 1px solid var(--toa-amber-border); }
+  .badge-miss { background: var(--toa-rose-bg); color: var(--toa-rose); }
+
+  .result-body {
+    display: none;
+    padding: 0 1.25rem 1.25rem;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+  .result-body.open { display: block; animation: fadeIn 0.2s ease; }
+
+  .detail-section { margin-top: 1rem; }
+  .detail-section h5 {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+  .keynote-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  .keynote-list li {
+    font-size: 0.9rem;
+    padding: 0.375rem 0.75rem;
+    background: var(--primary-bg);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--primary);
+    color: var(--text);
+  }
+
+  .mod-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .mod-block {
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+  }
+  .mod-agg { background: var(--toa-rose-bg); border-left: 3px solid var(--toa-rose); }
+  .mod-agg strong { color: var(--toa-rose); }
+  .mod-amel { background: var(--success-bg); border-left: 3px solid var(--success); }
+  .mod-amel strong { color: var(--success); }
+  .mod-block ul { margin-top: 0.375rem; padding-left: 1rem; }
+  .mod-block li { margin-bottom: 0.25rem; color: var(--text-muted); }
+
+  .potency-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--toa-indigo-bg);
+    color: var(--toa-indigo);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-top: 1rem;
+  }
+
+  .expand-icon {
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    transition: transform 0.2s;
+  }
+  .result-card.open .expand-icon { transform: rotate(180deg); }
+
+  /* Remedy Browser */
+  .remedy-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .filter-btn {
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .filter-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+  /* Info sections */
+  .info-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .info-list li {
+    padding: 0.75rem 1rem;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    font-size: 0.9375rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    line-height: 1.5;
+  }
+  .info-list li::before {
+    content: '৷';
+    color: var(--primary);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .principle-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--primary);
+  }
+  .principle-num {
+    background: var(--primary);
+    color: white;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .principle-card h4 { font-size: 0.9375rem; color: var(--text); margin-bottom: 0.25rem; }
+  .principle-card p { font-size: 0.8375rem; color: var(--text-muted); }
+
+  .axis-card {
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .axis-card h4 { font-size: 0.9375rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem; }
+  .axis-card p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+  .axis-option-list { display: flex; flex-direction: column; gap: 0.375rem; }
+  .axis-opt {
+    display: inline-flex;
+    padding: 0.35rem 0.75rem;
+    background: var(--primary-bg);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--primary);
+    font-weight: 500;
+  }
+
+  .hering-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background: var(--success-bg);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--success);
+  }
+  .hering-item i { color: var(--success); font-size: 1.25rem; flex-shrink: 0; margin-top: 2px; }
+  .hering-item h4 { font-size: 0.9375rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+  .hering-item p { font-size: 0.85rem; color: var(--text-muted); }
+
+  .miasm-card {
+    padding: 1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .miasm-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 4px;
+  }
+  .miasm-psora::before { background: var(--success); }
+  .miasm-sycosis::before { background: var(--toa-amber); }
+  .miasm-syphilis::before { background: var(--toa-rose); }
+  .miasm-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.375rem; }
+  .miasm-psora h4 { color: var(--success); }
+  .miasm-sycosis h4 { color: var(--toa-amber); }
+  .miasm-syphilis h4 { color: var(--toa-rose); }
+
+  .no-results {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+  }
+  .no-results i { font-size: 3rem; margin-bottom: 1rem; color: var(--border); }
+
+  .disclaimer {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 1rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+    line-height: 1.6;
+  }
+
+  .selection-summary {
+    background: var(--primary-bg);
+    border: 1px solid var(--primary-light);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .sel-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); width: 100%; }
+  .sel-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: white;
+    border: 1px solid var(--primary-light);
+    border-radius: 20px;
+    padding: 0.2rem 0.625rem;
+    font-size: 0.8125rem;
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .results-count {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+
+  .remedy-browser-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .remedy-browser-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .remedy-browser-card:hover { box-shadow: var(--shadow); }
+  .rbc-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    background: var(--surface);
+    cursor: pointer;
+    justify-content: space-between;
+  }
+  .rbc-abbr {
+    background: var(--primary);
+    color: white;
+    border-radius: var(--radius-sm);
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .rbc-body {
+    display: none;
+    padding: 0 1.25rem 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+  .rbc-body.open { display: block; animation: fadeIn 0.2s ease; }
+
+  .tag-group { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 0.75rem; }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 0.2rem 0.625rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .tag-activity-inc { background: #fef9c3; color: #a16207; }
+  .tag-activity-dec { background: #fce7f3; color: #9d174d; }
+  .tag-activity-nc { background: #dbeafe; color: #1e40af; }
+  .tag-hot { background: #fee2e2; color: #b91c1c; }
+  .tag-chilly { background: #dbeafe; color: #1d4ed8; }
+  .tag-thirsty { background: #fef3c7; color: #92400e; }
+  .tag-thirstless { background: #e0f2fe; color: #0369a1; }
+
+  .link-to-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+  }
+  .link-to-form:hover { background: var(--primary); color: white; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="container header-inner">
+    <div>
+      <p class="eyebrow">Predictive Homoeopathy · Part II</p>
+      <h1>তীব্র রোগের তত্ত্ব (Theory of Acutes)</h1>
+      <p class="subtitle">ডাঃ প্রফুল বিজয়কর · Activity–Thermal–Thirst–Mental অক্ষ অনুযায়ী ওষুধ নির্বাচন</p>
+    </div>
+    <div style="margin-top:0.5rem">
+      <a href="index.html" class="link-to-form"><i class='bx bx-arrow-back'></i> কেস ফর্ম</a>
+    </div>
+  </div>
+</header>
+
+<main class="container app-shell">
+
+  <div class="page-tabs" role="tablist">
+    <button class="page-tab-btn active" data-panel="wizard" role="tab"><i class='bx bx-search-alt-2'></i> ওষুধ খুঁজুন</button>
+    <button class="page-tab-btn" data-panel="remedies" role="tab"><i class='bx bx-capsule'></i> ওষুধের তালিকা</button>
+    <button class="page-tab-btn" data-panel="theory" role="tab"><i class='bx bx-book-open'></i> তত্ত্ব</button>
+    <button class="page-tab-btn" data-panel="hering" role="tab"><i class='bx bx-check-circle'></i> হেরিং-এর সূত্র</button>
+  </div>
+
+  <!-- PANEL 1: Wizard -->
+  <div id="panel-wizard" class="page-panel active">
+
+    <!-- Wizard Progress -->
+    <div class="wizard-progress" id="wizardProgress">
+      <div class="wp-step active" data-wstep="1">
+        <div class="wp-dot">১</div>
+        <div class="wp-label">ক্রিয়া</div>
+      </div>
+      <div class="wp-step" data-wstep="2">
+        <div class="wp-dot">২</div>
+        <div class="wp-label">উষ্ণতা</div>
+      </div>
+      <div class="wp-step" data-wstep="3">
+        <div class="wp-dot">৩</div>
+        <div class="wp-label">তৃষ্ণা</div>
+      </div>
+      <div class="wp-step" data-wstep="4">
+        <div class="wp-dot">৪</div>
+        <div class="wp-label">মানসিক</div>
+      </div>
+      <div class="wp-step" data-wstep="5">
+        <div class="wp-dot"><i class='bx bx-check' style="font-size:1rem"></i></div>
+        <div class="wp-label">ফলাফল</div>
+      </div>
+    </div>
+
+    <div class="card">
+
+      <!-- Step 1: Activity -->
+      <div class="wizard-step active" id="wstep-1">
+        <div class="axis-question"><i class='bx bx-run'></i> ধাপ ১ · ক্রিয়া-কলাপ (Activity)</div>
+        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1.25rem;">অসুস্থতার সময় রোগীর কাজ/হালচাল — কেমন?</p>
+        <div class="radio-card-group" id="activity-group">
+          <label class="radio-card" data-value="increase">
+            <input type="radio" name="axis_activity" value="increase"/>
+            <div class="radio-label">
+              <strong>বৃদ্ধি (Increased)</strong><br>
+              <span style="font-size:0.8125rem;color:var(--text-muted)">অস্থির, ছটফট, এদিক-ওদিক করে, শান্ত হয়ে থাকতে পারে না</span>
+            </div>
+            <i class='bx bx-move' style="color:var(--text-muted)"></i>
+          </label>
+          <label class="radio-card" data-value="decrease">
+            <input type="radio" name="axis_activity" value="decrease"/>
+            <div class="radio-label">
+              <strong>হ্রাস (Decreased)</strong><br>
+              <span style="font-size:0.8125rem;color:var(--text-muted)">নিস্তেজ, অলস, না নড়তে চায়, শুয়ে থাকতে চায়</span>
+            </div>
+            <i class='bx bx-bed' style="color:var(--text-muted)"></i>
+          </label>
+          <label class="radio-card" data-value="no_change">
+            <input type="radio" name="axis_activity" value="no_change"/>
+            <div class="radio-label">
+              <strong>অপরিবর্তিত (No Change)</strong><br>
+              <span style="font-size:0.8125rem;color:var(--text-muted)">স্বাভাবিক, সচেতন, হালচালে পরিবর্তন নেই</span>
+            </div>
+            <i class='bx bx-user-check' style="color:var(--text-muted)"></i>
+          </label>
+        </div>
+        <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+          <button class="btn primary" id="activityNext" disabled>পরের ধাপ <i class='bx bx-chevron-right'></i></button>
+        </div>
+      </div>
+
+      <!-- Step 2: Thermal -->
+      <div class="wizard-step" id="wstep-2">
+        <div class="axis-question"><i class='bx bx-sun'></i> ধাপ ২ · উষ্ণতা (Thermal)</div>
+        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1.25rem;">রোগী গরম নাকি ঠান্ডা অনুভব করে? গরম/ফ্যান পছন্দ নাকি কম্বল/গরম পছন্দ?</p>
+        <div class="radio-card-group" id="thermal-group">
+          <label class="radio-card" data-value="hot">
+            <input type="radio" name="axis_thermal" value="hot"/>
+            <div class="radio-label">
+              <strong>গরম রোগী (Hot)</strong><br>
+              <span style="font-size:0.8125rem;color:var(--text-muted)">গরমে অস্বস্তি, ঠান্ডা/ফ্যান পছন্দ, গরমে আরও খারাপ</span>
+            </div>
+            <i class='bx bx-sun' style="color:#f97316"></i>
+          </label>
+          <label class="radio-card" data-value="chilly">
+            <input type="radio" name="axis_thermal" value="chilly"/>
+            <div class="radio-label">
+              <strong>ঠান্ডা রোগী (Chilly)</strong><br>
+              <span style="font-size:0.8125rem;color:var(--text-muted)">ঠান্ডায় অস্বস্তি, গরম/কম্বল পছন্দ, গরমে আরাম</span>
+            </div>
+            <i class='bx bx-cloud-snow' style="color:#3b82f6"></i>
+          </label>
+        </div>
+        <div style="margin-top:1.5rem;display:flex;justify-content:space-between;">
+          <button class="btn ghost" id="thermalBack"><i class='bx bx-chevron-left'></i> আগে</button>
+          <button class="btn primary" id="thermalNext" disabled>পরের ধাপ <i class='bx bx-chevron-right'></i></button>
+        </div>
+      </div>
+
+      <!-- Step 3: Thirst -->
+      <div class="wizard-step" id="wstep-3">
+        <div class="axis-question"><i class='bx bx-droplet'></i> ধাপ ৩ · তৃষ্ণা (Thirst)</div>
+        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1.25rem;">জ্বর/অসুস্থতায় পানি/তরল খেতে ইচ্ছা করে কি?</p>
+        <div class="radio-card-group" id="thirst-group">
+          <label class="radio-card" data-value="thirsty">
+            <input type="radio" name="axis_thirst" value="thirsty"/>
+            <div class="radio-label">
+              <strong>তৃষ্ণাযুক্ত (Thirsty)</strong><br>
+              <span style="font-size:0.8125rem;color:var(--text-muted)">বারবার পানি খায় — অল্প চুমুকে বা বড় গ্লাসে</span>
+            </div>
+            <i class='bx bx-droplet' style="color:#3b82f6"></i>
+          </label>
+          <label class="radio-card" data-value="thirstless">
+            <input type="radio" name="axis_thirst" value="thirstless"/>
+            <div class="radio-label">
+              <strong>তৃষ্ণাহীন (Thirstless)</strong><br>
+              <span style="font-size:0.8125rem;color:var(--text-muted)">পানি খেতে ইচ্ছা করে না, জ্বর থাকা সত্ত্বেও</span>
+            </div>
+            <i class='bx bxs-droplet-half' style="color:#94a3b8"></i>
+          </label>
+        </div>
+        <div style="margin-top:1.5rem;display:flex;justify-content:space-between;">
+          <button class="btn ghost" id="thirstBack"><i class='bx bx-chevron-left'></i> আগে</button>
+          <button class="btn primary" id="thirstNext" disabled>পরের ধাপ <i class='bx bx-chevron-right'></i></button>
+        </div>
+      </div>
+
+      <!-- Step 4: Mental -->
+      <div class="wizard-step" id="wstep-4">
+        <div class="axis-question"><i class='bx bx-brain'></i> ধাপ ৪ · মানসিক অবস্থা (Mental State)</div>
+        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1.25rem;">রোগীর মনমেজাজ ও ব্যবহার কেমন? (একাধিক বেছে নিতে পারেন)</p>
+        <div class="radio-card-group" id="mental-group">
+          <label class="radio-card" data-value="fearful" data-multi="true">
+            <input type="checkbox" name="axis_mental" value="fearful"/>
+            <div class="radio-label">
+              <strong>ভীত/আতঙ্কিত</strong><br>
+              <span style="font-size:0.8125rem;color:var(--text-muted)">মৃত্যুভয়, ভবিষ্যৎ ভয়, আতঙ্কিত</span>
+            </div>
+            <i class='bx bx-shocked' style="color:var(--text-muted)"></i>
+          </label>
+          <label class="radio-card" data-value="irritable" data-multi="true">
+            <input type="checkbox" name="axis_mental" value="irritable"/>
+            <div class="radio-label">
+              <strong>বিরক্ত/রাগী</strong><br>
+              <span style="font-size:0.8125rem;color:var(--text-muted)">সবকিছুতে বিরক্ত, একা থাকতে চায় না, খিটখিটে</span>
+            </div>
+            <i class='bx bx-angry' style="color:var(--text-muted)"></i>
+          </label>
+          <label class="radio-card" data-value="mild_weeping" data-multi="true">
+            <input type="checkbox" name="axis_mental" value="mild_weeping"/>
+            <div class="radio-label">
+              <strong>নরম/কাঁদাখুশি</strong><br>
+              <span style="font-size:0.8125rem;color:var(--text-muted)">সান্ত্বনা চায়, মায়াবী, কান্নাপ্রবণ</span>
+            </div>
+            <i class='bx bx-sad' style="color:var(--text-muted)"></i>
+          </label>
+          <label class="radio-card" data-value="dull_drowsy" data-multi="true">
+            <input type="checkbox" name="axis_mental" value="dull_drowsy"/>
+            <div class="radio-label">
+              <strong>নিস্তেজ/ঘুমঘুম</strong><br>
+              <span style="font-size:0.8125rem;color:var(--text-muted)">কথা বলতে চায় না, একা থাকতে চায়, ঘুমঘুম</span>
+            </div>
+            <i class='bx bx-sleepy' style="color:var(--text-muted)"></i>
+          </label>
+          <label class="radio-card" data-value="delirious_violent" data-multi="true">
+            <input type="checkbox" name="axis_mental" value="delirious_violent"/>
+            <div class="radio-label">
+              <strong>প্রলাপ/হিংস্র</strong><br>
+              <span style="font-size:0.8125rem;color:var(--text-muted)">আঁকড়ে ধরে, ভয় দেখায়, কামড়ে ধরে, প্রলাপ</span>
+            </div>
+            <i class='bx bx-error' style="color:var(--text-muted)"></i>
+          </label>
+          <label class="radio-card" data-value="sociable_clingy" data-multi="true">
+            <input type="checkbox" name="axis_mental" value="sociable_clingy"/>
+            <div class="radio-label">
+              <strong>মিশুক/আঁকড়ে ধরে</strong><br>
+              <span style="font-size:0.8125rem;color:var(--text-muted)">সঙ্গ চায়, সবার সাথে মেশে</span>
+            </div>
+            <i class='bx bx-smile' style="color:var(--text-muted)"></i>
+          </label>
+        </div>
+        <div style="margin-top:1.5rem;display:flex;justify-content:space-between;">
+          <button class="btn ghost" id="mentalBack"><i class='bx bx-chevron-left'></i> আগে</button>
+          <button class="btn primary" id="mentalNext" disabled>ফলাফল দেখুন <i class='bx bx-search-alt-2'></i></button>
+        </div>
+      </div>
+
+      <!-- Step 5: Results -->
+      <div class="wizard-step" id="wstep-5">
+        <div class="selection-summary" id="selectionSummary" style="display:none;"></div>
+        <div class="results-header">
+          <div class="axis-question" style="margin-bottom:0"><i class='bx bx-capsule'></i> মিলে যাওয়া ওষুধ</div>
+          <span class="results-count" id="resultsCount"></span>
+        </div>
+        <div id="resultsContainer"></div>
+        <div style="margin-top:1.5rem;text-align:center;">
+          <button class="btn ghost" id="restartWizard"><i class='bx bx-refresh'></i> নতুন করে খুঁজুন</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PANEL 2: Remedy Browser -->
+  <div id="panel-remedies" class="page-panel">
+    <div class="card">
+      <div class="section-heading">
+        <span class="section-number"><i class='bx bx-capsule' style="font-size:1rem"></i></span>
+        <div><h3>সকল ওষুধের তালিকা</h3><p>ফিল্টার করে নির্দিষ্ট ধরনের ওষুধ দেখুন।</p></div>
+      </div>
+
+      <div class="remedy-filters">
+        <button class="filter-btn active" data-filter="all">সব</button>
+        <button class="filter-btn" data-filter-activity="increase">ক্রিয়া বৃদ্ধি</button>
+        <button class="filter-btn" data-filter-activity="decrease">ক্রিয়া হ্রাস</button>
+        <button class="filter-btn" data-filter-activity="no_change">অপরিবর্তিত</button>
+        <button class="filter-btn" data-filter-thermal="hot">গরম রোগী</button>
+        <button class="filter-btn" data-filter-thermal="chilly">ঠান্ডা রোগী</button>
+        <button class="filter-btn" data-filter-thirst="thirsty">তৃষ্ণাযুক্ত</button>
+        <button class="filter-btn" data-filter-thirst="thirstless">তৃষ্ণাহীন</button>
+      </div>
+
+      <div class="remedy-browser-grid" id="remedyBrowserList"></div>
+    </div>
+  </div>
+
+  <!-- PANEL 3: Theory -->
+  <div id="panel-theory" class="page-panel">
+    <!-- Overview -->
+    <div class="card">
+      <div class="section-heading">
+        <span class="section-number">১</span>
+        <div><h3>তীব্র রোগে হোমিওপ্যাথি</h3><p>ডাঃ বিজয়কর-এর মূল ভাবনা</p></div>
+      </div>
+      <div class="sub-card" style="background:var(--primary-bg);border-left:4px solid var(--primary);">
+        <p id="overviewIntro" style="font-size:0.9375rem;line-height:1.7;"></p>
+      </div>
+      <div class="sub-card" style="margin-top:1rem;background:var(--toa-amber-bg);border-left:4px solid var(--toa-amber);">
+        <h4 style="color:var(--toa-amber);margin-bottom:0.5rem;">মূল ধারণা</h4>
+        <p id="overviewCore" style="font-size:0.9375rem;line-height:1.7;"></p>
+      </div>
+      <div class="sub-card" style="margin-top:1rem;">
+        <h4 style="margin-bottom:0.5rem;">পুরাতন বনাম নতুন ধারণা</h4>
+        <p id="overviewOldVsNew" style="font-size:0.9375rem;line-height:1.7;color:var(--text-muted);"></p>
+      </div>
+    </div>
+
+    <!-- 4 Axes -->
+    <div class="card">
+      <div class="section-heading">
+        <span class="section-number">২</span>
+        <div><h3>৪টি মূল অক্ষ (Activity–Thermal–Thirst–Mental)</h3><p>এই ৪টি দিয়েই সিমিলিমামে পৌঁছানো যায়।</p></div>
+      </div>
+      <div class="grid two" id="axesGrid" style="gap:1rem;"></div>
+    </div>
+
+    <!-- 7 Principles -->
+    <div class="card">
+      <div class="section-heading">
+        <span class="section-number">৩</span>
+        <div><h3>হোমিওপ্যাথির ৭টি মূলনীতি</h3><p>Cardinal Principles যা প্রতিটি প্রেসক্রিপশনের ভিত্তি।</p></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.625rem;" id="principlesList"></div>
+    </div>
+
+    <!-- Golden Rules -->
+    <div class="card">
+      <div class="section-heading">
+        <span class="section-number">৪</span>
+        <div><h3>প্রেসক্রিপশনের সোনারী নিয়ম</h3><p>Golden Rules of Prescribing</p></div>
+      </div>
+      <ul class="info-list" id="goldenRulesList"></ul>
+    </div>
+
+    <!-- Helpful Hints -->
+    <div class="card">
+      <div class="section-heading">
+        <span class="section-number">৫</span>
+        <div><h3>উপযোগী ইঙ্গিত</h3><p>Helpful Hints — দ্রুত সিদ্ধান্ত নিতে সাহায্য করবে।</p></div>
+      </div>
+      <ul class="info-list" id="hintsList"></ul>
+    </div>
+
+    <!-- Miasms -->
+    <div class="card">
+      <div class="section-heading">
+        <span class="section-number">৬</span>
+        <div><h3>মায়াজম (Miasms)</h3><p>রোগের গভীরতা বোঝার চাবি</p></div>
+      </div>
+      <div class="grid two" style="gap:1rem;" id="miasmGrid"></div>
+    </div>
+
+  </div>
+
+  <!-- PANEL 4: Hering's Law -->
+  <div id="panel-hering" class="page-panel">
+    <div class="card">
+      <div class="section-heading">
+        <span class="section-number"><i class='bx bx-check-double' style="font-size:1rem"></i></span>
+        <div><h3>হেরিং-এর আরোগ্যের সূত্র</h3><p>Hering's Law of Cure — সঠিক ওষুধের প্রমাণ যাচাই</p></div>
+      </div>
+      <div class="sub-card" style="background:var(--primary-bg);border-left:4px solid var(--primary);">
+        <p id="heringDesc" style="font-size:0.9375rem;line-height:1.7;"></p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:1.5rem;" id="heringRulesList"></div>
+
+      <div class="sub-card warning-card" style="margin-top:1.5rem;">
+        <h4>⚠️ দমন (Suppression) থেকে সাবধান</h4>
+        <p style="font-size:0.875rem;margin-top:0.5rem;line-height:1.6;" id="suppressionWarning"></p>
+      </div>
+
+      <div style="background:var(--success-bg);padding:1rem;border-radius:var(--radius-sm);margin-top:1rem;border-left:4px solid var(--success);">
+        <h4 style="color:var(--success);margin-bottom:0.5rem;">আরোগ্যের ক্রম (শ্বাসকষ্টের উদাহরণ)</h4>
+        <p style="font-size:0.875rem;line-height:1.7;color:var(--text-muted);" id="acuteCureSequence"></p>
+      </div>
+    </div>
+  </div>
+
+  <p class="disclaimer" id="disclaimerText"></p>
+</main>
+
+<script>
+// ===== Load & Parse JSON =====
+let DATA = null;
+
+async function loadData() {
+  try {
+    const resp = await fetch('theory_of_acutes_data.json');
+    DATA = await resp.json();
+    renderAll();
+  } catch (e) {
+    console.error('Could not load TOA data', e);
+  }
+}
+
+// ===== Selections =====
+let selections = { activity: null, thermal: null, thirst: null, mental: [] };
+let currentWizardStep = 1;
+
+// ===== Render All =====
+function renderAll() {
+  renderTheory();
+  renderHering();
+  renderRemedyBrowser();
+  renderWizardListeners();
+}
+
+// ===== Theory Panel =====
+function renderTheory() {
+  document.getElementById('overviewIntro').textContent = DATA.overview.intro_bn;
+  document.getElementById('overviewCore').textContent = DATA.overview.core_concept_bn;
+  document.getElementById('overviewOldVsNew').textContent = DATA.overview.old_vs_new_concept_bn;
+
+  // Axes
+  const axesGrid = document.getElementById('axesGrid');
+  DATA.acute_axis.axes.forEach(axis => {
+    const div = document.createElement('div');
+    div.className = 'axis-card';
+    div.innerHTML = `<h4>${axis.name_bn}</h4><p>${axis.question_bn}</p>
+      <div class="axis-option-list">${axis.options.map(o => `<span class="axis-opt">${o.label_bn}</span>`).join('')}</div>`;
+    axesGrid.appendChild(div);
+  });
+
+  // Principles
+  const principlesList = document.getElementById('principlesList');
+  DATA.cardinal_principles.principles_bn.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'principle-card';
+    div.innerHTML = `<div class="principle-num">${i+1}</div><div><h4>${p.name_bn}</h4><p>${p.desc_bn}</p></div>`;
+    principlesList.appendChild(div);
+  });
+
+  // Golden Rules
+  const goldenList = document.getElementById('goldenRulesList');
+  DATA.golden_rules.rules_bn.forEach(r => {
+    const li = document.createElement('li');
+    li.textContent = r;
+    goldenList.appendChild(li);
+  });
+
+  // Hints
+  const hintsList = document.getElementById('hintsList');
+  DATA.helpful_hints.hints_bn.forEach(h => {
+    const li = document.createElement('li');
+    li.textContent = h;
+    hintsList.appendChild(li);
+  });
+
+  // Miasms
+  const miasmGrid = document.getElementById('miasmGrid');
+  const miasmColors = { psora: 'success', sycosis: 'toa-amber', syphilis: 'toa-rose' };
+  const miasmClass = ['miasm-psora', 'miasm-sycosis', 'miasm-syphilis'];
+  DATA.miasms.levels_bn.forEach((m, i) => {
+    const div = document.createElement('div');
+    div.className = `miasm-card ${miasmClass[i]}`;
+    div.innerHTML = `<h4>${m.name_bn}</h4><p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin-top:0.25rem;">${m.desc_bn}</p>`;
+    miasmGrid.appendChild(div);
+  });
+}
+
+// ===== Hering Panel =====
+function renderHering() {
+  document.getElementById('heringDesc').textContent = DATA.herings_law.desc_bn;
+  document.getElementById('suppressionWarning').textContent = DATA.herings_law.suppression_warning_bn;
+  document.getElementById('acuteCureSequence').textContent = DATA.herings_law.acute_cure_sequence_bn;
+
+  const icons = ['bx-arrow-from-top', 'bx-export', 'bx-sort-down', 'bx-revision'];
+  const rulesList = document.getElementById('heringRulesList');
+  DATA.herings_law.rules_bn.forEach((r, i) => {
+    const div = document.createElement('div');
+    div.className = 'hering-item';
+    div.innerHTML = `<i class="bx ${icons[i] || 'bx-check'}"></i><div><h4>${r.name_bn}</h4><p>${r.desc_bn}</p></div>`;
+    rulesList.appendChild(div);
+  });
+
+  document.getElementById('disclaimerText').textContent = DATA.disclaimer_bn;
+}
+
+// ===== Remedy Browser =====
+function renderRemedyBrowser(filterActivity = null, filterThermal = null, filterThirst = null) {
+  const container = document.getElementById('remedyBrowserList');
+  container.innerHTML = '';
+  const remedies = DATA.remedies.filter(r => {
+    if (filterActivity && r.activity !== filterActivity) return false;
+    if (filterThermal && r.thermal !== filterThermal) return false;
+    if (filterThirst && r.thirst !== filterThirst) return false;
+    return true;
+  });
+  remedies.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'remedy-browser-card';
+    const actLabel = { increase: 'ক্রিয়া বৃদ্ধি', decrease: 'ক্রিয়া হ্রাস', no_change: 'অপরিবর্তিত' };
+    const actClass = { increase: 'tag-activity-inc', decrease: 'tag-activity-dec', no_change: 'tag-activity-nc' };
+    div.innerHTML = `
+      <div class="rbc-header" onclick="toggleRBC(this)">
+        <div style="display:flex;align-items:center;gap:0.75rem;min-width:0;">
+          <span class="rbc-abbr">${r.abbr}</span>
+          <div style="min-width:0;">
+            <div style="font-weight:700;font-size:0.9375rem;color:var(--text);">${r.name_bn}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);font-style:italic;">${r.name_en}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
+          <div class="tag-group" style="margin:0;">
+            <span class="tag ${actClass[r.activity]}">${actLabel[r.activity]}</span>
+            <span class="tag ${r.thermal === 'hot' ? 'tag-hot' : 'tag-chilly'}">${r.thermal === 'hot' ? 'গরম' : 'ঠান্ডা'}</span>
+            <span class="tag ${r.thirst === 'thirsty' ? 'tag-thirsty' : 'tag-thirstless'}">${r.thirst === 'thirsty' ? 'তৃষ্ণাযুক্ত' : 'তৃষ্ণাহীন'}</span>
+          </div>
+          <i class='bx bx-chevron-down expand-icon' style="color:var(--text-muted);font-size:1.25rem;"></i>
+        </div>
+      </div>
+      <div class="rbc-body">
+        <p style="font-size:0.875rem;color:var(--text-muted);margin-top:1rem;margin-bottom:0.75rem;font-style:italic;">${r.short_bn}</p>
+        <p style="font-size:0.9375rem;line-height:1.65;color:var(--text);margin-bottom:1rem;">${r.indication_bn}</p>
+        <div class="detail-section">
+          <h5>মূল চাবিকাঠি</h5>
+          <ul class="keynote-list">${r.keynotes_bn.map(k => `<li>${k}</li>`).join('')}</ul>
+        </div>
+        <div class="mod-grid" style="margin-top:1rem;">
+          <div class="mod-block mod-agg">
+            <strong>বৃদ্ধি কারণ</strong>
+            <ul>${r.aggravation_bn.map(a => `<li>${a}</li>`).join('')}</ul>
+          </div>
+          <div class="mod-block mod-amel">
+            <strong>উপশম কারণ</strong>
+            <ul>${r.amelioration_bn.map(a => `<li>${a}</li>`).join('')}</ul>
+          </div>
+        </div>
+        <div class="potency-box"><i class='bx bx-injection'></i>${r.potency_bn}</div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function toggleRBC(header) {
+  const card = header.closest('.remedy-browser-card');
+  const body = card.querySelector('.rbc-body');
+  const icon = card.querySelector('.expand-icon');
+  const isOpen = body.classList.contains('open');
+  document.querySelectorAll('.rbc-body.open').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.expand-icon').forEach(ic => ic.style.transform = '');
+  if (!isOpen) {
+    body.classList.add('open');
+    icon.style.transform = 'rotate(180deg)';
+  }
+}
+
+// Filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const fa = btn.dataset.filterActivity || null;
+    const ft = btn.dataset.filterThermal || null;
+    const fth = btn.dataset.filterThirst || null;
+    if (btn.dataset.filter === 'all') {
+      renderRemedyBrowser();
+    } else {
+      renderRemedyBrowser(fa, ft, fth);
+    }
+  });
+});
+
+// ===== Wizard =====
+function renderWizardListeners() {
+  // Radio cards
+  document.querySelectorAll('.radio-card:not([data-multi])').forEach(card => {
+    card.addEventListener('click', () => {
+      const radio = card.querySelector('input[type="radio"]');
+      radio.checked = true;
+      const group = card.closest('.radio-card-group');
+      group.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      // Enable the corresponding next button
+      const step = card.closest('.wizard-step');
+      const nextBtn = step.querySelector('button[id$="Next"]');
+      if (nextBtn) nextBtn.disabled = false;
+    });
+  });
+
+  // Multi checkbox (mental)
+  document.querySelectorAll('.radio-card[data-multi]').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (e.target.tagName === 'INPUT') return; // native click handles it
+      const cb = card.querySelector('input[type="checkbox"]');
+      cb.checked = !cb.checked;
+    });
+    const cb = card.querySelector('input[type="checkbox"]');
+    cb.addEventListener('change', () => {
+      card.classList.toggle('selected', cb.checked);
+      const anyChecked = document.querySelectorAll('input[name="axis_mental"]:checked').length > 0;
+      document.getElementById('mentalNext').disabled = !anyChecked;
+    });
+  });
+
+  // Navigation
+  document.getElementById('activityNext').addEventListener('click', () => {
+    selections.activity = document.querySelector('input[name="axis_activity"]:checked')?.value;
+    goWizardStep(2);
+  });
+  document.getElementById('thermalBack').addEventListener('click', () => goWizardStep(1));
+  document.getElementById('thermalNext').addEventListener('click', () => {
+    selections.thermal = document.querySelector('input[name="axis_thermal"]:checked')?.value;
+    goWizardStep(3);
+  });
+  document.getElementById('thirstBack').addEventListener('click', () => goWizardStep(2));
+  document.getElementById('thirstNext').addEventListener('click', () => {
+    selections.thirst = document.querySelector('input[name="axis_thirst"]:checked')?.value;
+    goWizardStep(4);
+  });
+  document.getElementById('mentalBack').addEventListener('click', () => goWizardStep(3));
+  document.getElementById('mentalNext').addEventListener('click', () => {
+    selections.mental = Array.from(document.querySelectorAll('input[name="axis_mental"]:checked')).map(c => c.value);
+    showResults();
+    goWizardStep(5);
+  });
+  document.getElementById('restartWizard').addEventListener('click', () => {
+    // Reset
+    selections = { activity: null, thermal: null, thirst: null, mental: [] };
+    document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+    document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+    document.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('button[id$="Next"]').forEach(b => b.disabled = true);
+    goWizardStep(1);
+  });
+
+  document.querySelectorAll('input[name="axis_thermal"]').forEach(r => {
+    r.closest('.radio-card').addEventListener('click', () => {
+      document.getElementById('thermalNext').disabled = false;
+    });
+  });
+  document.querySelectorAll('input[name="axis_thirst"]').forEach(r => {
+    r.closest('.radio-card').addEventListener('click', () => {
+      document.getElementById('thirstNext').disabled = false;
+    });
+  });
+}
+
+function goWizardStep(n) {
+  currentWizardStep = n;
+  document.querySelectorAll('.wizard-step').forEach((s, i) => {
+    s.classList.toggle('active', (i + 1) === n);
+  });
+  // Update progress dots
+  document.querySelectorAll('.wp-step').forEach((dot, i) => {
+    dot.classList.remove('active', 'done');
+    if ((i + 1) < n) dot.classList.add('done');
+    if ((i + 1) === n) dot.classList.add('active');
+  });
+}
+
+function scoreRemedy(r) {
+  let score = 0;
+  let matches = [];
+  let misses = [];
+  if (selections.activity && r.activity === selections.activity) { score += 3; matches.push('ক্রিয়া'); } 
+  else if (selections.activity) { misses.push('ক্রিয়া'); }
+  if (selections.thermal && r.thermal === selections.thermal) { score += 2; matches.push('উষ্ণতা'); } 
+  else if (selections.thermal) { misses.push('উষ্ণতা'); }
+  if (selections.thirst && r.thirst === selections.thirst) { score += 2; matches.push('তৃষ্ণা'); } 
+  else if (selections.thirst) { misses.push('তৃষ্ণা'); }
+  if (selections.mental.length > 0) {
+    const mentalMatches = selections.mental.filter(m => r.mental.includes(m));
+    if (mentalMatches.length > 0) { score += mentalMatches.length * 2; matches.push('মানসিক'); }
+    else { misses.push('মানসিক'); }
+  }
+  return { score, matches, misses };
+}
+
+function showResults() {
+  const container = document.getElementById('resultsContainer');
+  container.innerHTML = '';
+
+  // Summary
+  const summary = document.getElementById('selectionSummary');
+  const actLabels = { increase: 'ক্রিয়া বৃদ্ধি', decrease: 'ক্রিয়া হ্রাস', no_change: 'অপরিবর্তিত' };
+  const mentalLabels = { fearful: 'ভীত', irritable: 'বিরক্ত', mild_weeping: 'নরম/কাঁদা', dull_drowsy: 'নিস্তেজ', delirious_violent: 'প্রলাপ', sociable_clingy: 'মিশুক' };
+  summary.style.display = 'flex';
+  summary.innerHTML = `<span class="sel-label">আপনার নির্বাচন</span>
+    ${selections.activity ? `<span class="sel-item"><i class='bx bx-run'></i>${actLabels[selections.activity]}</span>` : ''}
+    ${selections.thermal ? `<span class="sel-item"><i class='bx bx-sun'></i>${selections.thermal === 'hot' ? 'গরম' : 'ঠান্ডা'}</span>` : ''}
+    ${selections.thirst ? `<span class="sel-item"><i class='bx bx-droplet'></i>${selections.thirst === 'thirsty' ? 'তৃষ্ণাযুক্ত' : 'তৃষ্ণাহীন'}</span>` : ''}
+    ${selections.mental.map(m => `<span class="sel-item"><i class='bx bx-brain'></i>${mentalLabels[m] || m}</span>`).join('')}`;
+
+  // Score & sort
+  const scored = DATA.remedies.map(r => ({ ...r, ...scoreRemedy(r) })).filter(r => r.score > 0).sort((a, b) => b.score - a.score);
+
+  document.getElementById('resultsCount').textContent = `${scored.length}টি ওষুধ পাওয়া গেছে`;
+
+  if (scored.length === 0) {
+    container.innerHTML = `<div class="no-results"><i class='bx bx-search-alt'></i><p>কোনো ওষুধ মেলেনি। নতুন করে খুঁজুন।</p></div>`;
+    return;
+  }
+
+  const maxScore = scored[0].score;
+  scored.forEach(r => {
+    const matchClass = r.score === maxScore ? 'match-full' : r.score >= maxScore * 0.6 ? 'match-high' : '';
+    const scoreNum = Math.min(4, Math.round(r.score / 2));
+    const card = document.createElement('div');
+    card.className = `result-card ${matchClass}`;
+    card.innerHTML = `
+      <div class="result-header" onclick="toggleResult(this)">
+        <div class="result-header-left">
+          <div class="remedy-score score-${scoreNum}">${r.score}</div>
+          <div class="remedy-name-block">
+            <div class="rname">${r.name_bn} <span style="font-size:0.8125rem;color:var(--text-muted);font-weight:400;">${r.abbr}</span></div>
+            <div class="rshort">${r.short_bn}</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem;flex-shrink:0;">
+          <div class="result-badges">
+            ${r.matches.map(m => `<span class="badge badge-match">✓ ${m}</span>`).join('')}
+            ${r.misses.map(m => `<span class="badge badge-miss">✗ ${m}</span>`).join('')}
+          </div>
+          <i class='bx bx-chevron-down expand-icon'></i>
+        </div>
+      </div>
+      <div class="result-body">
+        <div class="detail-section">
+          <h5>বিস্তারিত ইঙ্গিত</h5>
+          <p style="font-size:0.9375rem;line-height:1.65;color:var(--text);">${r.indication_bn}</p>
+        </div>
+        <div class="detail-section">
+          <h5>মূল চাবিকাঠি</h5>
+          <ul class="keynote-list">${r.keynotes_bn.map(k => `<li>${k}</li>`).join('')}</ul>
+        </div>
+        <div class="mod-grid" style="margin-top:1rem;">
+          <div class="mod-block mod-agg">
+            <strong>বৃদ্ধি কারণ</strong>
+            <ul>${r.aggravation_bn.map(a => `<li>${a}</li>`).join('')}</ul>
+          </div>
+          <div class="mod-block mod-amel">
+            <strong>উপশম কারণ</strong>
+            <ul>${r.amelioration_bn.map(a => `<li>${a}</li>`).join('')}</ul>
+          </div>
+        </div>
+        <div class="potency-box"><i class='bx bx-injection'></i>${r.potency_bn}</div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function toggleResult(header) {
+  const card = header.closest('.result-card');
+  const body = card.querySelector('.result-body');
+  const isOpen = card.classList.contains('open');
+  document.querySelectorAll('.result-card.open').forEach(c => { c.classList.remove('open'); c.querySelector('.result-body').classList.remove('open'); });
+  if (!isOpen) {
+    card.classList.add('open');
+    body.classList.add('open');
+  }
+}
+
+// ===== Page Tabs =====
+document.querySelectorAll('.page-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.page-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const panelId = `panel-${btn.dataset.panel}`;
+    document.getElementById(panelId).classList.add('active');
+  });
+});
+
+// ===== Init =====
+loadData();
+</script>
+</body>
+</html>
