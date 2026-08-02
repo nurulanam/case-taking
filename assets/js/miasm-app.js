@@ -46,6 +46,7 @@ function loadSel() {
 
 // ===================== Scoring engine =====================
 // tuning targets now live in miasm.json → scoring_model (editable without touching code)
+const MIN_SYMPTOMS = 3;
 const CFG = () => DB.scoring_model || {};
 const target = id => {
   const c = (CFG().confidence_components || []).find(x => x.id === id);
@@ -247,12 +248,45 @@ function init() {
   initTopbar();
   refreshSelectionUI();
   openPanelFromHash();
+  sizeWorkspace();
+  // fonts/icons landing late can shift the header a few px
+  window.addEventListener('load', sizeWorkspace);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeWorkspace);
 }
+
+// keep the split workspace exactly one screen tall on desktop
+function sizeWorkspace() {
+  const grid = document.getElementById('wsGrid');
+  if (!grid) return;
+  if (window.innerWidth < 1024 || !document.getElementById('panel-analyse').classList.contains('active')) {
+    grid.style.height = '';
+    return;
+  }
+  const top = grid.getBoundingClientRect().top + window.scrollY;
+  const footer = document.querySelector('.app-footer');
+  const fh = footer ? footer.getBoundingClientRect().height : 0;
+  const content = document.querySelector('.app-content');
+  const padBottom = content ? parseFloat(getComputedStyle(content).paddingBottom) || 0 : 0;
+  let h = Math.round(window.innerHeight - top - fh - padBottom);
+  // too little room to split the screen — fall back to normal page flow
+  if (h < 430) { grid.style.height = ''; return; }
+  grid.style.height = h + 'px';
+  // self-correct against any chrome the maths missed — the page must not scroll
+  const over = document.documentElement.scrollHeight - window.innerHeight;
+  if (over > 0) grid.style.height = Math.max(430, h - over) + 'px';
+}
+
+let sizeTimer = null;
+window.addEventListener('resize', () => { clearTimeout(sizeTimer); sizeTimer = setTimeout(sizeWorkspace, 120); });
 
 function initTopbar() {
   if (typeof Shell === 'undefined') return;
-  const btn = Shell.addAction(`<button class="tb-btn primary" id="tbAnalyse"><i class='bx bx-bar-chart-alt-2'></i><span class="tb-label">বিশ্লেষণ</span></button>`);
-  if (btn) btn.addEventListener('click', () => document.getElementById('analyseBtn').click());
+  const btn = Shell.addAction(`<button class="tb-btn" id="tbResult"><i class='bx bx-bar-chart-alt-2'></i><span class="tb-label">ফলাফল</span></button>`);
+  if (btn) btn.addEventListener('click', () => {
+    const rightBtn = document.querySelector('.ws-sw-btn[data-pane="right"]');
+    if (rightBtn && getComputedStyle(rightBtn).display !== 'none') rightBtn.click();
+    else document.getElementById('wsRight').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 }
 
 function renderFilters() {
@@ -288,7 +322,19 @@ function matches(r) {
   return true;
 }
 
+function updateFilterState() {
+  const el = document.getElementById('filterState');
+  if (!el) return;
+  const bits = [];
+  if (STATE.cat !== 'all') bits.push((DB.rubic_categories.categories.find(c => c.id === STATE.cat) || {}).name_bn);
+  if (STATE.miasm !== 'all') bits.push(M(STATE.miasm).name_bn.replace(' মায়াজম', ''));
+  if (STATE.type === 'pqrs') bits.push('PQRS');
+  else if (STATE.type !== 'all') bits.push((CFG().symptom_types[STATE.type] || {}).bn || STATE.type);
+  el.textContent = bits.length ? '· ' + bits.join(', ') : '';
+}
+
 function renderRubrics() {
+  updateFilterState();
   const area = document.getElementById('rubricArea');
   const filtering = STATE.search.trim() || STATE.cat !== 'all' || STATE.miasm !== 'all' || STATE.type !== 'all';
   let html = '';
@@ -352,21 +398,51 @@ function updateCatCounts() {
 
 function refreshSelectionUI() {
   const n = STATE.selected.size;
-  const enough = n >= 3;
+  const enough = n >= MIN_SYMPTOMS;
   document.getElementById('actCount').innerHTML =
-    `${bnNum(n)}টি লক্ষণ নির্বাচিত<small>${enough ? 'বিশ্লেষণ করতে পারেন — বেশি লক্ষণে ফলাফল আরও নির্ভরযোগ্য' : 'বিশ্লেষণের জন্য অন্তত ৩টি বেছে নিন'}</small>`;
-  document.getElementById('analyseBtn').disabled = !enough;
+    `${bnNum(n)}টি লক্ষণ নির্বাচিত<small>${enough ? 'ডান পাশে লাইভ বিশ্লেষণ চলছে' : `বিশ্লেষণ শুরু হতে আরও ${bnNum(MIN_SYMPTOMS - n)}টি লাগবে`}</small>`;
+
+  const sw = document.getElementById('swCount');
+  if (sw) sw.textContent = bnNum(n);
 
   if (typeof Shell !== 'undefined') {
     Shell.setChip(n ? `${bnNum(n)}টি লক্ষণ নির্বাচিত` : 'কোনো লক্ষণ নির্বাচিত নয়', n ? 'bx-list-check' : 'bx-list-ul', !n);
-    const tb = document.getElementById('tbAnalyse');
-    if (tb) tb.disabled = !enough;
   }
+
   const live = document.getElementById('liveCard');
-  if (!n) { live.style.display = 'none'; return; }
+  if (!n) {
+    live.style.display = 'none';
+    STATE.analysis = null;
+    showEmptyResult();
+    return;
+  }
   live.style.display = '';
   const a = analyse();
+  STATE.analysis = a;
   document.getElementById('liveBars').innerHTML = a.ranked.map(x => barRow(x, a)).join('');
+
+  if (enough) scheduleResult(a); else showEmptyResult();
+}
+
+// ---- live result: recompute on every tick, without fighting the scroll ----
+let resultTimer = null;
+function scheduleResult(a) {
+  clearTimeout(resultTimer);
+  const right = document.getElementById('wsRight');
+  if (right) right.classList.add('updating');
+  resultTimer = setTimeout(() => {
+    renderResults(a);
+    if (right) right.classList.remove('updating');
+  }, 140);
+}
+
+function showEmptyResult() {
+  clearTimeout(resultTimer);
+  const right = document.getElementById('wsRight');
+  if (right) right.classList.remove('updating');
+  document.getElementById('resultEmpty').style.display = '';
+  document.getElementById('resultBody').style.display = 'none';
+  document.getElementById('resultBody').innerHTML = '';
 }
 
 function barRow(x, a) {
@@ -414,17 +490,17 @@ function bindEvents() {
     if (!STATE.selected.size) return;
     STATE.selected.clear(); saveSel();
     STATE.analysis = null;
-    document.getElementById('resultBody').style.display = 'none';
-    document.getElementById('resultEmpty').style.display = '';
-    document.getElementById('resultBadge').style.display = 'none';
     renderRubrics(); refreshSelectionUI();
+    if (typeof Shell !== 'undefined') Shell.toast('সব নির্বাচন মুছে ফেলা হয়েছে।', 'ok');
   });
 
-  document.getElementById('analyseBtn').addEventListener('click', () => {
-    STATE.analysis = analyse();
-    renderResults(STATE.analysis);
-    showPanel('result');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // mobile pane switcher
+  document.querySelectorAll('.ws-sw-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.ws-sw-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.getElementById('wsGrid').dataset.pane = btn.dataset.pane;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   });
 
   document.querySelectorAll('.page-tab-btn').forEach(btn => {
@@ -435,6 +511,7 @@ function bindEvents() {
 function showPanel(name) {
   document.querySelectorAll('.page-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.panel === name));
   document.querySelectorAll('.page-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+  sizeWorkspace();
 }
 
 // ===================== Results =====================
@@ -443,8 +520,11 @@ function renderResults(a) {
   const box = document.getElementById('resultBody');
   box.style.display = '';
 
-  const badge = document.getElementById('resultBadge');
-  badge.style.display = ''; badge.textContent = bnNum(a.chosen.length);
+  // remember what the user had open / where they were, so a live refresh is not jarring
+  const pane = document.getElementById('wsRight');
+  const keepScroll = pane ? pane.scrollTop : 0;
+  const openEvidence = new Set([...box.querySelectorAll('.ev-block[open]')].map(d => d.dataset.miasm));
+  const wasCardOpen = box.querySelector('.export-box') ? true : false;
 
   const dom = a.dominant, sec = a.secondary;
   const dm = M(dom.id), sm = M(sec.id);
@@ -577,7 +657,7 @@ function renderResults(a) {
         <div><h3>সহায়ক প্রমাণ</h3><p>কোন লক্ষণ কোন মায়াজমে কত যোগ করল</p></div>
       </div>
       ${a.ranked.filter(x => x.items.length).map(x => `
-        <details class="ev-block"${x.rank === 1 ? ' open' : ''}>
+        <details class="ev-block" data-miasm="${x.id}"${x.rank === 1 ? ' open' : ''}>
           <summary>
             <span class="mdot" style="background:${M(x.id).color_code}"></span>
             ${M(x.id).name_bn}
@@ -625,6 +705,12 @@ function renderResults(a) {
     </div>
   `;
 
+  // restore the previous open/scroll state
+  if (openEvidence.size) {
+    box.querySelectorAll('.ev-block').forEach(d => { d.open = openEvidence.has(d.dataset.miasm); });
+  }
+  if (pane && keepScroll) pane.scrollTop = keepScroll;
+
   const payload = exportPayload(a);
   document.getElementById('exportBox').textContent = JSON.stringify(payload, null, 2);
   document.getElementById('copyJson').addEventListener('click', function () {
@@ -641,8 +727,9 @@ function renderResults(a) {
     URL.revokeObjectURL(url);
   });
   document.getElementById('backToSel').addEventListener('click', () => {
-    showPanel('analyse');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const leftBtn = document.querySelector('.ws-sw-btn[data-pane="left"]');
+    if (leftBtn) leftBtn.click();
+    document.getElementById('searchBox').focus();
   });
 }
 
