@@ -12,13 +12,36 @@
       "language": "বাংলা + English",
       "icon": "bx-book-bookmark",
       "color": "#0f766e",
-      "desc_bn": "ধ্রুপদী রিপার্টরির মানদণ্ড — মন থেকে শুরু করে সাধারণ লক্ষণ পর্যন্ত অধ্যায়ভিত্তিক সাজানো, ১–৩ গ্রেডে ওষুধ চিহ্নিত।",
-      "status": "draft"
+      "desc_bn": "ধ্রুপদী রিপার্টরির মানদণ্ড — কেন্টের ৩৭টি অধ্যায় ধরে সাজানো, প্রতিটি ওষুধ ১–৩ গ্রেডে চিহ্নিত। মন থেকে সাধারণ লক্ষণ পর্যন্ত ৭৬৯টি রুব্রিক ও ৫২০৪টি গ্রেড এন্ট্রি।",
+      "status": "curated"
+    },
+    {
+      "id": "kent-generated",
+      "file": "kent_remedies_full.json",
+      "name_bn": "কেন্ট — জেনারেটেড সংস্করণ",
+      "name_en": "Kent (auto-generated scaffold, 69,360 rubrics)",
+      "author": "build_database.py (স্বয়ংক্রিয়)",
+      "year": "—",
+      "language": "বাংলা + English",
+      "icon": "bx-data",
+      "color": "#b45309",
+      "desc_bn": "৩৯ অধ্যায়ে ৬৯,৩৬০টি রুব্রিক — কিন্তু ৪৮% ওষুধ প্লেসহোল্ডার (remedy-template-…) এবং একই রুব্রিক বহুবার ফিরে এসেছে। কাঠামো দেখার জন্য রাখা; বিশ্লেষণে ব্যবহার করবেন না।",
+      "status": "generated",
+      "size_note": "≈২৩ MB — লোড হতে সময় লাগবে"
     }
   ],
   "planned": [
-    { "name_bn": "বোরিক রিপার্টরী", "name_en": "Boericke's Repertory" },
-    { "name_bn": "বোজার্কি (Boger–Bönninghausen)", "name_en": "Boger–Bönninghausen's Characteristics & Repertory" },
-    { "name_bn": "ফাটাক", "name_en": "Phatak's Concise Repertory" }
+    {
+      "name_bn": "বোরিক রিপার্টরী",
+      "name_en": "Boericke's Repertory"
+    },
+    {
+      "name_bn": "বোজার্কি (Boger–Bönninghausen)",
+      "name_en": "Boger–Bönninghausen's Characteristics & Repertory"
+    },
+    {
+      "name_bn": "ফাটাক",
+      "name_en": "Phatak's Concise Repertory"
+    }
   ]
 }
