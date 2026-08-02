@@ -37,7 +37,18 @@
   };
 
   /* ==================== load ==================== */
+  // one fetch for the whole chapter glyph set; inlined so <use href="#ch-…"> resolves
+  async function loadSprite() {
+    const host = document.getElementById('iconSprite');
+    if (!host) return;
+    try {
+      const r = await fetch('assets/img/chapter-icons.svg');
+      if (r.ok) host.innerHTML = await r.text();
+    } catch (e) { /* chips fall back to the number badge */ }
+  }
+
   async function boot() {
+    loadSprite();
     try {
       const r = await fetch(DIR + 'index.json');
       S.manifest = await r.json();
@@ -91,8 +102,9 @@
       const chapter = {
         id: 'c' + ci,
         num: ch.number || (ci + 1),
-        en: parts[0] ? parts[0].trim() : label,
-        bn: parts[1] ? parts[1].trim() : '',
+        icon: ch.icon || '',
+        en: ch.name_en || (parts[0] ? parts[0].trim() : label),
+        bn: ch.name_bn || (parts[1] ? parts[1].trim() : ''),
         label: label,
         rubrics: []
       };
@@ -112,6 +124,7 @@
           chapterId: chapter.id,
           chapterNum: chapter.num,
           chapterLabel: label,
+          chapterShort: chapter.bn || chapter.en,
           remedies: list.sort((a, b) => b.grade - a.grade)
         };
         chapter.rubrics.push(rubric);
@@ -285,13 +298,41 @@
   function renderChapters() {
     if (!S.book) return;
     document.getElementById('chapterChips').innerHTML =
-      `<button class="rp-ch ${S.chapter === 'all' ? 'active' : ''}" data-ch="all">সব <span>${bn(S.book.stats.rubrics)}</span></button>` +
+      `<button class="rp-ch ${S.chapter === 'all' ? 'active' : ''}" data-ch="all">
+         <svg class="ch-ic" aria-hidden="true"><use href="#ch-generalities"></use></svg><span class="ch-nm">সব অধ্যায়<span class="ch-en">All chapters</span></span>
+         <span class="ch-n">${bn(S.book.stats.rubrics)}</span></button>` +
       S.book.chapters.map(c => `<button class="rp-ch ${S.chapter === c.id ? 'active' : ''}" data-ch="${c.id}"
-          title="${esc(c.en)} — অধ্যায় ${bn(c.num)}">
-        <b style="font-weight:700;opacity:0.55;">${bn(c.num)}.</b> ${esc(c.bn || c.en)} <span>${bn(c.rubrics.length)}</span></button>`).join('');
+          title="${bn(c.num)}. ${esc(c.en)}${c.bn ? ' — ' + esc(c.bn) : ''} · ${bn(c.rubrics.length)}টি রুব্রিক">
+        ${c.icon ? `<svg class="ch-ic" aria-hidden="true"><use href="#ch-${esc(c.icon)}"></use></svg>` : ''}
+        <span class="ch-no">${bn(c.num)}</span>
+        <span class="ch-nm">${esc(c.bn || c.en)}${c.bn && c.en ? `<span class="ch-en">${esc(c.en)}</span>` : ''}</span>
+        <span class="ch-n">${bn(c.rubrics.length)}</span>
+      </button>`).join('');
     document.querySelectorAll('#chapterChips .rp-ch').forEach(b => {
       b.addEventListener('click', () => { S.chapter = b.dataset.ch; renderChapters(); renderRubrics(); });
     });
+    sizeChapterBar();
+  }
+
+  // only offer the expand toggle when the chips actually overflow two rows
+  function sizeChapterBar() {
+    const bar = document.getElementById('chapterBar');
+    const chips = document.getElementById('chapterChips');
+    if (!bar || !chips) return;
+    // a hidden pane measures 0 — decide only once it is actually laid out
+    if (!chips.clientHeight) return;
+    const expanded = bar.classList.contains('open');
+    bar.classList.remove('no-toggle');
+    if (!expanded) {
+      const fits = chips.scrollHeight <= chips.clientHeight + 2;
+      bar.classList.toggle('no-toggle', fits);
+    }
+    // keep the active chapter visible when the bar is collapsed
+    const active = chips.querySelector('.rp-ch.active');
+    if (active && !bar.classList.contains('open')) {
+      const top = active.offsetTop;
+      if (top > chips.clientHeight - 8) bar.classList.add('open');
+    }
   }
 
   function visibleRubrics() {
@@ -321,7 +362,7 @@
         <span class="rub-plus"><i class='bx ${S.picked.has(rb.id) ? 'bx-check' : 'bx-plus'}'></i></span>
         <span class="rub-txt">
           <span class="rub-name">${esc(rb.name)}${rb.bn ? ` <span style="color:var(--text-muted);font-size:0.8125rem;">${esc(rb.bn)}</span>` : ''}</span>
-          <span class="rub-ch">${rb.chapterNum ? bn(rb.chapterNum) + '. ' : ''}${esc(rb.chapterLabel)}</span>
+          <span class="rub-ch">${rb.chapterNum ? bn(rb.chapterNum) + '. ' : ''}${esc(rb.chapterShort || rb.chapterLabel)}</span>
         </span>
         <span class="rub-n">${bn(rb.remedies.length)} ওষুধ</span>
       </div>`).join('') + (all.length > rows.length
@@ -628,6 +669,7 @@
       b.classList.toggle('done', s < n);
       b.disabled = (s === 2 && !S.book) || (s >= 3 && !S.picked.size);
     });
+    if (n === 2) requestAnimationFrame(sizeChapterBar);
     if (n === 3) renderGrid();
     if (n === 4) { renderGrid(); renderTop(); renderDetail(); renderExport(); }
     updateNav();
@@ -693,6 +735,13 @@
       document.getElementById('rubSearchClear').style.display = 'none';
       renderRubrics();
     });
+
+    const cbToggle = document.getElementById('chapterToggle');
+    if (cbToggle) cbToggle.addEventListener('click', () => {
+      document.getElementById('chapterBar').classList.toggle('open');
+      sizeChapterBar();
+    });
+    window.addEventListener('resize', () => sizeChapterBar());
 
     document.getElementById('trayClear').addEventListener('click', () => {
       if (!S.picked.size) return;

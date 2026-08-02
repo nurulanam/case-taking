@@ -14,6 +14,9 @@ import json, sys, os, collections
 
 BN = lambda v: str(v).translate(str.maketrans('0123456789', '০১২৩৪৫৬৭৮৯'))
 THERMAL_BN = {'chilly': 'শীতার্ত', 'hot': 'গরম', 'mixed': 'মিশ্র — গরম ও ঠান্ডা দুটোতেই কষ্ট'}
+
+# icon key per Kent chapter — resolved to an SVG symbol (assets/img/chapter-icons.svg)
+CHAPTER_ICON = {1: 'mind', 2: 'vertigo', 3: 'head', 4: 'eye', 5: 'vision', 6: 'ear', 7: 'hearing', 8: 'nose', 9: 'face', 10: 'mouth', 11: 'teeth', 12: 'throat', 13: 'neck', 14: 'stomach', 15: 'abdomen', 16: 'rectum', 17: 'stool', 18: 'bladder', 19: 'kidneys', 20: 'prostate', 21: 'urethra', 22: 'urine', 23: 'male', 24: 'female', 25: 'larynx', 26: 'respiration', 27: 'cough', 28: 'expectoration', 29: 'chest', 30: 'back', 31: 'extremities', 32: 'sleep', 33: 'chill', 34: 'fever', 35: 'perspiration', 36: 'skin', 37: 'generalities'}
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from r_remedies import R
 from r_materia import MM
@@ -112,7 +115,15 @@ for num, ch, rubs in CHAPTERS:
         size_hist[len(pairs)] += 1
         pattern_set.add(tuple(g for k, g in pairs))
         for k, g in pairs: grade_hist[g] += 1
-    rubric_chapters.append({'number': num, 'chapter': ch, 'rubrics': out_rubs})
+    parts = [x.strip() for x in ch.split('-', 1)]
+    rubric_chapters.append({
+        'number': num,
+        'chapter': ch,
+        'name_en': parts[0],
+        'name_bn': parts[1] if len(parts) > 1 else '',
+        'icon': CHAPTER_ICON.get(num, ''),
+        'rubrics': out_rubs,
+    })
 
 # ---------------- search index ----------------
 search = []

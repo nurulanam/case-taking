@@ -58,7 +58,9 @@ python3 -m http.server 8000
 │   │       ├── kent_remidies.json  কেন্ট — ৩৭ অধ্যায়, ৭৬৯ রুব্রিক, ৩৮৭ ওষুধ (যাচাই করা)
 │   │       └── kent_remedies_full.json  স্বয়ংক্রিয় খসড়া — ৬৯,৩৬০ রুব্রিক (৪৮% প্লেসহোল্ডার)
 │   │
-│   ├── img/acute-flowchart.webp    ডাঃ বিজয়কর-এর মূল চার্ট
+│   ├── img/
+│   │   ├── acute-flowchart.webp    ডাঃ বিজয়কর-এর মূল চার্ট
+│   │   └── chapter-icons.svg       কেন্টের ৩৭ অধ্যায়ের অঙ্গ-আইকন (SVG স্প্রাইট)
 │   └── vendor/                     লোকাল ফন্ট ও আইকন (boxicons, Hind Siliguri)
 │
 ├── tools/                  কেন্ট ডেটার বিল্ড সোর্স (python3 tools/build.py)
@@ -157,6 +159,13 @@ python3 -m http.server 8000
 নতুন পেজ যোগ করতে: `shell.js`-এর `NAV` অ্যারেতে একটি আইটেম দিন, আর পেজে
 `<body data-page="…" data-title="…" data-crumb="…">` এবং শেল স্কেলিটন (`#appSidebar`,
 `#appTopbar`, `.app-content`) রাখুন।
+
+---
+
+## কৃতজ্ঞতা
+
+অধ্যায়ের অঙ্গ-আইকনগুলো [Health Icons](https://healthicons.org) থেকে নেওয়া —
+MIT লাইসেন্স, © Resolve to Save Lives। ফন্ট: Hind Siliguri (SIL OFL), আইকন: Boxicons (MIT)।
 
 ---
 

@@ -6302,6 +6302,9 @@
     {
       "number": 1,
       "chapter": "Mind - মন",
+      "name_en": "Mind",
+      "name_bn": "মন",
+      "icon": "mind",
       "rubrics": [
         {
           "name": "Anxiety",
@@ -7540,6 +7543,9 @@
     {
       "number": 2,
       "chapter": "Vertigo - মাথা ঘোরা",
+      "name_en": "Vertigo",
+      "name_bn": "মাথা ঘোরা",
+      "icon": "vertigo",
       "rubrics": [
         {
           "name": "Vertigo in general",
@@ -7792,6 +7798,9 @@
     {
       "number": 3,
       "chapter": "Head - মাথা",
+      "name_en": "Head",
+      "name_bn": "মাথা",
+      "icon": "head",
       "rubrics": [
         {
           "name": "Headache in general",
@@ -8560,6 +8569,9 @@
     {
       "number": 4,
       "chapter": "Eye - চোখ",
+      "name_en": "Eye",
+      "name_bn": "চোখ",
+      "icon": "eye",
       "rubrics": [
         {
           "name": "Inflammation of eyes",
@@ -9006,6 +9018,9 @@
     {
       "number": 5,
       "chapter": "Vision - দৃষ্টি",
+      "name_en": "Vision",
+      "name_bn": "দৃষ্টি",
+      "icon": "vision",
       "rubrics": [
         {
           "name": "Dim vision",
@@ -9252,6 +9267,9 @@
     {
       "number": 6,
       "chapter": "Ear - কান",
+      "name_en": "Ear",
+      "name_bn": "কান",
+      "icon": "ear",
       "rubrics": [
         {
           "name": "Earache",
@@ -9634,6 +9652,9 @@
     {
       "number": 7,
       "chapter": "Hearing - শ্রবণ",
+      "name_en": "Hearing",
+      "name_bn": "শ্রবণ",
+      "icon": "hearing",
       "rubrics": [
         {
           "name": "Hearing impaired",
@@ -9788,6 +9809,9 @@
     {
       "number": 8,
       "chapter": "Nose - নাক",
+      "name_en": "Nose",
+      "name_bn": "নাক",
+      "icon": "nose",
       "rubrics": [
         {
           "name": "Coryza, cold in nose",
@@ -10266,6 +10290,9 @@
     {
       "number": 9,
       "chapter": "Face - মুখমণ্ডল",
+      "name_en": "Face",
+      "name_bn": "মুখমণ্ডল",
+      "icon": "face",
       "rubrics": [
         {
           "name": "Pale face",
@@ -10590,6 +10617,9 @@
     {
       "number": 10,
       "chapter": "Mouth - মুখগহ্বর",
+      "name_en": "Mouth",
+      "name_bn": "মুখগহ্বর",
+      "icon": "mouth",
       "rubrics": [
         {
           "name": "Aphthae, mouth ulcers",
@@ -11004,6 +11034,9 @@
     {
       "number": 11,
       "chapter": "Teeth - দাঁত",
+      "name_en": "Teeth",
+      "name_bn": "দাঁত",
+      "icon": "teeth",
       "rubrics": [
         {
           "name": "Toothache",
@@ -11298,6 +11331,9 @@
     {
       "number": 12,
       "chapter": "Throat - গলা",
+      "name_en": "Throat",
+      "name_bn": "গলা",
+      "icon": "throat",
       "rubrics": [
         {
           "name": "Sore throat",
@@ -11670,6 +11706,9 @@
     {
       "number": 13,
       "chapter": "External throat - বাইরের গলা",
+      "name_en": "External throat",
+      "name_bn": "বাইরের গলা",
+      "icon": "neck",
       "rubrics": [
         {
           "name": "Glands of neck swollen",
@@ -11846,6 +11885,9 @@
     {
       "number": 14,
       "chapter": "Stomach - পাকস্থলী",
+      "name_en": "Stomach",
+      "name_bn": "পাকস্থলী",
+      "icon": "stomach",
       "rubrics": [
         {
           "name": "Appetite increased",
@@ -12636,6 +12678,9 @@
     {
       "number": 15,
       "chapter": "Abdomen - উদর",
+      "name_en": "Abdomen",
+      "name_bn": "উদর",
+      "icon": "abdomen",
       "rubrics": [
         {
           "name": "Pain in abdomen, colic",
@@ -13164,6 +13209,9 @@
     {
       "number": 16,
       "chapter": "Rectum - মলদ্বার",
+      "name_en": "Rectum",
+      "name_bn": "মলদ্বার",
+      "icon": "rectum",
       "rubrics": [
         {
           "name": "Constipation",
@@ -13648,6 +13696,9 @@
     {
       "number": 17,
       "chapter": "Stool - মল",
+      "name_en": "Stool",
+      "name_bn": "মল",
+      "icon": "stool",
       "rubrics": [
         {
           "name": "Stool, hard",
@@ -14072,6 +14123,9 @@
     {
       "number": 18,
       "chapter": "Bladder - মূত্রথলি",
+      "name_en": "Bladder",
+      "name_bn": "মূত্রথলি",
+      "icon": "bladder",
       "rubrics": [
         {
           "name": "Cystitis, inflammation of bladder",
@@ -14392,6 +14446,9 @@
     {
       "number": 19,
       "chapter": "Kidneys - কিডনি",
+      "name_en": "Kidneys",
+      "name_bn": "কিডনি",
+      "icon": "kidneys",
       "rubrics": [
         {
           "name": "Pain in kidney region",
@@ -14562,6 +14619,9 @@
     {
       "number": 20,
       "chapter": "Prostate gland - প্রস্টেট",
+      "name_en": "Prostate gland",
+      "name_bn": "প্রস্টেট",
+      "icon": "prostate",
       "rubrics": [
         {
           "name": "Prostate, enlarged",
@@ -14698,6 +14758,9 @@
     {
       "number": 21,
       "chapter": "Urethra - মূত্রনালি",
+      "name_en": "Urethra",
+      "name_bn": "মূত্রনালি",
+      "icon": "urethra",
       "rubrics": [
         {
           "name": "Burning during urination",
@@ -14910,6 +14973,9 @@
     {
       "number": 22,
       "chapter": "Urine - প্রস্রাব",
+      "name_en": "Urine",
+      "name_bn": "প্রস্রাব",
+      "icon": "urine",
       "rubrics": [
         {
           "name": "Urine, copious",
@@ -15274,6 +15340,9 @@
     {
       "number": 23,
       "chapter": "Genitalia male - পুরুষ জননাঙ্গ",
+      "name_en": "Genitalia male",
+      "name_bn": "পুরুষ জননাঙ্গ",
+      "icon": "male",
       "rubrics": [
         {
           "name": "Impotence",
@@ -15702,6 +15771,9 @@
     {
       "number": 24,
       "chapter": "Genitalia female - নারী জননাঙ্গ",
+      "name_en": "Genitalia female",
+      "name_bn": "নারী জননাঙ্গ",
+      "icon": "female",
       "rubrics": [
         {
           "name": "Menses too early",
@@ -16350,6 +16422,9 @@
     {
       "number": 25,
       "chapter": "Larynx & trachea - কণ্ঠনালি",
+      "name_en": "Larynx & trachea",
+      "name_bn": "কণ্ঠনালি",
+      "icon": "larynx",
       "rubrics": [
         {
           "name": "Hoarseness",
@@ -16606,6 +16681,9 @@
     {
       "number": 26,
       "chapter": "Respiration - শ্বাস",
+      "name_en": "Respiration",
+      "name_bn": "শ্বাস",
+      "icon": "respiration",
       "rubrics": [
         {
           "name": "Asthma",
@@ -17046,6 +17124,9 @@
     {
       "number": 27,
       "chapter": "Cough - কাশি",
+      "name_en": "Cough",
+      "name_bn": "কাশি",
+      "icon": "cough",
       "rubrics": [
         {
           "name": "Cough, dry",
@@ -17524,6 +17605,9 @@
     {
       "number": 28,
       "chapter": "Expectoration - কফ",
+      "name_en": "Expectoration",
+      "name_bn": "কফ",
+      "icon": "expectoration",
       "rubrics": [
         {
           "name": "Expectoration, thick",
@@ -17804,6 +17888,9 @@
     {
       "number": 29,
       "chapter": "Chest - বুক",
+      "name_en": "Chest",
+      "name_bn": "বুক",
+      "icon": "chest",
       "rubrics": [
         {
           "name": "Pain in chest",
@@ -18340,6 +18427,9 @@
     {
       "number": 30,
       "chapter": "Back - পিঠ",
+      "name_en": "Back",
+      "name_bn": "পিঠ",
+      "icon": "back",
       "rubrics": [
         {
           "name": "Pain in back",
@@ -18804,6 +18894,9 @@
     {
       "number": 31,
       "chapter": "Extremities - হাত-পা",
+      "name_en": "Extremities",
+      "name_bn": "হাত-পা",
+      "icon": "extremities",
       "rubrics": [
         {
           "name": "Pain in joints",
@@ -19562,6 +19655,9 @@
     {
       "number": 32,
       "chapter": "Sleep - ঘুম",
+      "name_en": "Sleep",
+      "name_bn": "ঘুম",
+      "icon": "sleep",
       "rubrics": [
         {
           "name": "Sleeplessness, insomnia",
@@ -20248,6 +20344,9 @@
     {
       "number": 33,
       "chapter": "Chill - শীত",
+      "name_en": "Chill",
+      "name_bn": "শীত",
+      "icon": "chill",
       "rubrics": [
         {
           "name": "Chill in general",
@@ -20494,6 +20593,9 @@
     {
       "number": 34,
       "chapter": "Fever - জ্বর",
+      "name_en": "Fever",
+      "name_bn": "জ্বর",
+      "icon": "fever",
       "rubrics": [
         {
           "name": "Fever, high",
@@ -20884,6 +20986,9 @@
     {
       "number": 35,
       "chapter": "Perspiration - ঘাম",
+      "name_en": "Perspiration",
+      "name_bn": "ঘাম",
+      "icon": "perspiration",
       "rubrics": [
         {
           "name": "Perspiration, profuse",
@@ -21170,6 +21275,9 @@
     {
       "number": 36,
       "chapter": "Skin - ত্বক",
+      "name_en": "Skin",
+      "name_bn": "ত্বক",
+      "icon": "skin",
       "rubrics": [
         {
           "name": "Dryness of skin",
@@ -21778,6 +21886,9 @@
     {
       "number": 37,
       "chapter": "Generalities - সাধারণ",
+      "name_en": "Generalities",
+      "name_bn": "সাধারণ",
+      "icon": "generalities",
       "rubrics": [
         {
           "name": "Weakness, general",
