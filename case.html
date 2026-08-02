@@ -6,21 +6,29 @@
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>বাংলা হোমিওপ্যাথি কেস টেকিং ফর্ম</title>
 <meta content="বাংলা মোবাইল-ফার্স্ট হোমিওপ্যাথি কেস টেকিং ফর্ম ও এআই কপি রিপোর্ট জেনারেটর" name="description"/>
-<link href="styles.css" rel="stylesheet"/>
-<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<link href="assets/css/base.css" rel="stylesheet"/>
+<link href="assets/css/shell.css" rel="stylesheet"/>
+<link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
 </link></head>
-<body>
-<header class="app-header">
-<div class="container header-inner">
-<div>
-<p class="eyebrow">মোবাইল-ফার্স্ট কেস টেকিং</p>
-<h1>বাংলা হোমিওপ্যাথি কেস ফর্ম</h1>
-<p class="subtitle">ধাপে ধাপে তথ্য পূরণ করুন। শেষে “এআই-র জন্য কপি” চাপলে সম্পূর্ণ কেস বাংলা ফরম্যাটে কপি হবে।</p>
-</div>
-<div style="margin-top:0.5rem"><a href="toa.html" style="display:inline-flex;align-items:center;gap:0.4rem;color:#0f766e;text-decoration:none;font-size:0.8125rem;font-weight:600;padding:0.4rem 0.875rem;border:1.5px solid #0f766e;border-radius:8px;"><i class='bx bx-capsule'></i> Theory of Acutes</a></div>
-</div>
-</header>
-<main class="container app-shell">
+<body data-page="case" data-title="কেস টেকিং ফর্ম" data-crumb="কেস ম্যানেজমেন্ট">
+
+<div class="app-root">
+  <aside class="app-sidebar" id="appSidebar"></aside>
+  <div class="app-backdrop" id="appBackdrop"></div>
+  <div class="app-main">
+    <header class="app-topbar" id="appTopbar"></header>
+    <main class="app-content">
+      <div class="content-inner">
+
+        <div class="page-head">
+          <div class="page-icon"><i class='bx bx-clipboard'></i></div>
+          <div class="page-head-txt">
+            <h2>কেস টেকিং ফর্ম</h2>
+            <p>৯টি ধাপে সম্পূর্ণ হোমিওপ্যাথিক কেস — শেষে এআই-র জন্য বাংলা রিপোর্ট কপি করুন।</p>
+          </div>
+          <div class="page-head-actions" id="pageActions"></div>
+        </div>
+
 <form id="caseForm" novalidate="">
 <div class="top-panel">
 <div><span id="stepCounter">ধাপ ১ / ৯</span><h2 id="currentStepTitle">রোগীর পরিচিতি</h2></div>
@@ -181,7 +189,16 @@
 </section>
 <div aria-label="ফর্ম নেভিগেশন" class="form-nav"><button class="btn ghost" id="prevBtn" type="button">← আগের ধাপ</button><button class="btn ghost danger" id="resetBtn" type="button">খসড়া মুছুন</button><button class="btn primary" id="nextBtn" type="button">পরের ধাপ →</button></div>
 </form>
-</main>
-<script src="script.js"></script>
+
+      </div>
+    </main>
+    <footer class="app-footer">
+      <span>© হোমিও কেস স্টুডিও — শিক্ষামূলক ও গবেষণার উদ্দেশ্যে তৈরি। চিকিৎসার সিদ্ধান্ত চিকিৎসকের।</span>
+      <span>সব ডেটা এই ব্রাউজারেই সংরক্ষিত — কোথাও পাঠানো হয় না।</span>
+    </footer>
+  </div>
+</div>
+<script src="assets/js/shell.js"></script>
+<script src="assets/js/case-form.js"></script>
 </body>
 </html>

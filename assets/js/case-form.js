@@ -49,6 +49,7 @@
       visitDate.value = `${yyyy}-${mm}-${dd}`;
     }
 
+    restoreDraft();
     updateUI();
     updateGenderPanels();
   }
@@ -78,7 +79,7 @@
 
     // Update Header
     const activeStep = formSteps[currentStep - 1];
-    stepCounter.textContent = `ধাপ ${currentStep} / ${TOTAL_STEPS}`;
+    stepCounter.textContent = `ধাপ ${Shell.bnNum(currentStep)} / ${Shell.bnNum(TOTAL_STEPS)}`;
     if (activeStep) {
       currentStepTitle.textContent = activeStep.getAttribute('data-step-title');
     }
@@ -200,7 +201,7 @@
     // Copy
     copyBtn.addEventListener('click', async () => {
       const text = aiOutput.value;
-      if(!text) return alert('আগে রিপোর্ট তৈরি করুন।');
+      if(!text) return Shell.toast('আগে “কেস রিপোর্ট তৈরি করুন” চাপুন।', 'warn');
       try {
         await navigator.clipboard.writeText(text);
         const originalText = copyBtn.textContent;
@@ -214,7 +215,7 @@
     // Download
     downloadBtn.addEventListener('click', () => {
       const text = aiOutput.value;
-      if(!text) return alert('আগে রিপোর্ট তৈরি করুন।');
+      if(!text) return Shell.toast('আগে “কেস রিপোর্ট তৈরি করুন” চাপুন।', 'warn');
       const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -222,14 +223,81 @@
       a.download = `Case_Report_${document.querySelector('input[name="patientName"]').value || 'Patient'}.txt`;
       a.click();
       URL.revokeObjectURL(url);
+      Shell.toast('টেক্সট ফাইল ডাউনলোড শুরু হয়েছে।', 'ok');
     });
 
     resetBtn.addEventListener('click', () => {
-      if(confirm('সব তথ্য মুছে যাবে। আপনি কি নিশ্চিত?')) {
+      if (confirm('সংরক্ষিত খসড়াসহ সব তথ্য মুছে যাবে। আপনি কি নিশ্চিত?')) {
+        Shell.store.del(DRAFT_KEY);
         form.reset();
         location.reload();
       }
     });
+
+    // autosave on any change/typing
+    form.addEventListener('input', scheduleSave);
+    form.addEventListener('change', scheduleSave);
+    window.addEventListener('beforeunload', saveDraft);
+  }
+
+  // --- Draft autosave (localStorage) ---
+  const DRAFT_KEY = 'homeoCaseDraft';
+  let saveTimer = null;
+
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveDraft, 700);
+  }
+
+  function collectDraft() {
+    const data = { __complaints: complaintCount, __step: currentStep, __saved: new Date().toISOString() };
+    form.querySelectorAll('input, textarea, select').forEach(el => {
+      if (!el.name) return;
+      if (el.type === 'checkbox') {
+        if (el.checked) (data[el.name] = data[el.name] || []).push(el.value);
+      } else if (el.type === 'radio') {
+        if (el.checked) data[el.name] = el.value;
+      } else if (el.value) {
+        data[el.name] = el.value;
+      }
+    });
+    return data;
+  }
+
+  function saveDraft() {
+    const data = collectDraft();
+    if (Shell.store.set(DRAFT_KEY, data)) markSaved(data);
+  }
+
+  function markSaved(data) {
+    const n = Object.keys(data).filter(k => !k.startsWith('__')).length;
+    Shell.setChip(n ? `খসড়া সংরক্ষিত · ${Shell.bnNum(n)}টি ঘর` : 'খসড়া খালি', n ? 'bx-check-circle' : 'bx-save', !n);
+  }
+
+  function restoreDraft() {
+    const data = Shell.store.get(DRAFT_KEY, null);
+    if (!data) { Shell.setChip('খসড়া খালি', 'bx-save', true); return; }
+
+    // rebuild the dynamic complaint cards first
+    const want = Math.max(1, parseInt(data.__complaints) || 1);
+    while (complaintsContainer.children.length < want) addComplaint();
+
+    Object.entries(data).forEach(([name, val]) => {
+      if (name.startsWith('__')) return;
+      if (Array.isArray(val)) {
+        val.forEach(v => {
+          const box = form.querySelector(`input[type="checkbox"][name="${CSS.escape(name)}"][value="${CSS.escape(v)}"]`);
+          if (box) { box.checked = true; box.dispatchEvent(new Event('change', { bubbles: false })); }
+        });
+      } else {
+        const el = form.querySelector(`[name="${CSS.escape(name)}"]`);
+        if (el && el.type !== 'checkbox') el.value = val;
+      }
+    });
+
+    if (data.__step) currentStep = Math.min(TOTAL_STEPS, Math.max(1, parseInt(data.__step) || 1));
+    markSaved(data);
+    Shell.toast('আগের খসড়া ফিরিয়ে আনা হয়েছে।', 'ok');
   }
 
 
@@ -604,6 +672,7 @@
     const finalString = out.join('\n');
     aiOutput.value = finalString;
     goToStep(TOTAL_STEPS); // scroll to report output
+    Shell.toast('কেস রিপোর্ট তৈরি হয়েছে — নিচে কপি বা ডাউনলোড করুন।', 'ok');
   }
 
   // Go!

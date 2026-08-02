@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+@import url('../vendor/fonts/hind-siliguri.css');
 
 :root {
   --primary: #0f766e;
@@ -55,7 +55,7 @@ body {
   box-shadow: var(--shadow-sm);
 }
 .container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
 }

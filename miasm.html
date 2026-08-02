@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>মায়াজম বিশ্লেষক (Miasm Analyser) — বাংলা হোমিওপ্যাথি</title>
+<meta content="রোগীর লক্ষণ ও রুব্রিক বিশ্লেষণ করে প্রধান ও সহায়ক মায়াজম নির্ণয়ের বাংলা টুল।" name="description"/>
+<link href="assets/css/base.css" rel="stylesheet"/>
+<link href="assets/css/shell.css" rel="stylesheet"/>
+<link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/miasm.css"/>
+</head>
+<body data-page="miasm" data-title="মায়াজম বিশ্লেষক" data-crumb="বিশ্লেষণ টুল">
+
+
+
+<div class="app-root">
+  <aside class="app-sidebar" id="appSidebar"></aside>
+  <div class="app-backdrop" id="appBackdrop"></div>
+  <div class="app-main">
+    <header class="app-topbar" id="appTopbar"></header>
+    <main class="app-content">
+      <div class="content-inner">
+
+        <div class="page-head">
+          <div class="page-icon"><i class='bx bx-analyse'></i></div>
+          <div class="page-head-txt">
+            <h2>মায়াজম বিশ্লেষক (Miasm Analyser)</h2>
+            <p>রুব্রিক-ভিত্তিক ওজন বিশ্লেষণে প্রধান, সহায়ক ও মিশ্র মায়াজম — PQRS ও নির্ভরযোগ্যতা সহ।</p>
+          </div>
+          <div class="page-head-actions" id="pageActions"></div>
+        </div>
+
+
+  <div class="page-tabs" role="tablist">
+    <button class="page-tab-btn active" data-panel="analyse" role="tab"><i class='bx bx-list-check'></i> লক্ষণ নির্বাচন</button>
+    <button class="page-tab-btn" data-panel="result" role="tab"><i class='bx bx-bar-chart-alt-2'></i> ফলাফল <span class="tab-badge" id="resultBadge" style="display:none;">০</span></button>
+    <button class="page-tab-btn" data-panel="miasms" role="tab"><i class='bx bx-book-open'></i> মায়াজম পরিচিতি</button>
+    <button class="page-tab-btn" data-panel="compare" role="tab"><i class='bx bx-table'></i> তুলনা</button>
+  </div>
+
+  <!-- ================= PANEL: SELECTION ================= -->
+  <div id="panel-analyse" class="page-panel active">
+
+    <div class="card live-box" id="liveCard" style="display:none;">
+      <div class="section-heading">
+        <span class="section-number"><i class='bx bx-pulse' style="font-size:1rem"></i></span>
+        <div><h3>চলমান স্কোর</h3><p>নির্বাচন করার সাথে সাথেই আপডেট হচ্ছে</p></div>
+      </div>
+      <div id="liveBars"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-heading">
+        <span class="section-number"><i class='bx bx-list-check' style="font-size:1rem"></i></span>
+        <div><h3>রোগীর লক্ষণ ও রুব্রিক বাছাই করুন</h3><p>যত বেশি সঠিক লক্ষণ, বিশ্লেষণ তত নির্ভরযোগ্য</p></div>
+      </div>
+
+      <div class="m-search">
+        <i class='bx bx-search'></i>
+        <input type="text" id="searchBox" placeholder="বাংলা বা ইংরেজি লক্ষণ খুঁজুন…" autocomplete="off"/>
+        <button class="clear-x" id="searchClear" style="display:none;" aria-label="মুছুন"><i class='bx bx-x'></i></button>
+      </div>
+
+      <div class="filter-row" id="catFilters"><span class="flabel">বিভাগ:</span></div>
+      <div class="filter-row" id="miasmFilters"><span class="flabel">মায়াজম:</span></div>
+      <div class="filter-row" id="typeFilters"><span class="flabel">ধরন:</span></div>
+
+      <div id="rubricArea" style="margin-top:0.875rem;"></div>
+
+      <div class="act-bar">
+        <div class="act-count" id="actCount">০টি লক্ষণ নির্বাচিত<small>বিশ্লেষণের জন্য অন্তত ৫টি বেছে নিন</small></div>
+        <button class="btn ghost" id="clearAll"><i class='bx bx-eraser'></i> মুছুন</button>
+        <button class="btn primary" id="analyseBtn" disabled><i class='bx bx-bar-chart-alt-2'></i> বিশ্লেষণ করুন</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-heading">
+        <span class="section-number"><i class='bx bx-info-circle' style="font-size:1rem"></i></span>
+        <div><h3>স্কোরিং মডেল</h3><p>প্রতিটি সংখ্যা কোথা থেকে আসছে</p></div>
+      </div>
+      <div id="weightLegend"></div>
+      <div class="section-heading" style="margin-top:1.5rem;">
+        <span class="section-number"><i class='bx bx-list-ol' style="font-size:1rem"></i></span>
+        <div><h3>বিশ্লেষণ পদ্ধতি</h3><p>Analysis workflow</p></div>
+      </div>
+      <ul class="reason-list" id="logicSteps"></ul>
+    </div>
+  </div>
+
+  <!-- ================= PANEL: RESULT ================= -->
+  <div id="panel-result" class="page-panel">
+    <div id="resultEmpty" class="card">
+      <div class="empty-state">
+        <i class='bx bx-bar-chart-alt-2'></i>
+        <p>এখনো কোনো বিশ্লেষণ করা হয়নি।<br/>প্রথমে <strong>লক্ষণ নির্বাচন</strong> ট্যাব থেকে রোগীর লক্ষণ বেছে নিন।</p>
+      </div>
+    </div>
+    <div id="resultBody" style="display:none;"></div>
+  </div>
+
+  <!-- ================= PANEL: EDUCATION ================= -->
+  <div id="panel-miasms" class="page-panel">
+    <div class="card">
+      <div class="section-heading">
+        <span class="section-number"><i class='bx bx-book-open' style="font-size:1rem"></i></span>
+        <div><h3>মায়াজম পরিচিতি</h3><p>প্রতিটি মায়াজমের উৎপত্তি, মানসিক-শারীরিক চিত্র, মোডালিটি ও ওষুধ</p></div>
+      </div>
+      <div id="miasmCards"></div>
+    </div>
+  </div>
+
+  <!-- ================= PANEL: COMPARISON ================= -->
+  <div id="panel-compare" class="page-panel">
+    <div class="card">
+      <div class="section-heading">
+        <span class="section-number"><i class='bx bx-table' style="font-size:1rem"></i></span>
+        <div><h3>পাশাপাশি তুলনা</h3><p>সব মায়াজমের বৈশিষ্ট্য একসাথে</p></div>
+      </div>
+      <p class="cmp-hint"><i class='bx bx-move-horizontal'></i> ছোট স্ক্রিনে টেবিলটি ডানে-বামে স্ক্রল করুন।</p>
+      <div class="cmp-wrap"><table class="cmp-table" id="cmpTable"></table></div>
+    </div>
+  </div>
+
+  <p class="disclaimer" id="disclaimerText"></p>
+
+      </div>
+    </main>
+    <footer class="app-footer">
+      <span>© হোমিও কেস স্টুডিও — শিক্ষামূলক ও গবেষণার উদ্দেশ্যে তৈরি। চিকিৎসার সিদ্ধান্ত চিকিৎসকের।</span>
+      <span>সব ডেটা এই ব্রাউজারেই সংরক্ষিত — কোথাও পাঠানো হয় না।</span>
+    </footer>
+  </div>
+</div>
+
+<script src="assets/js/shell.js"></script>
+<script src="assets/data/miasm.inline.js"></script>
+<script src="assets/js/miasm-app.js"></script>
+</body>
+</html>
