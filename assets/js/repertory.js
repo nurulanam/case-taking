@@ -1,0 +1,683 @@
+/* ==========================================================================
+   Repertory module — repertory picker → rubric selection → repertorisation
+   → remedy analysis.
+
+   Data contract (assets/data/repatories/index.json lists the books):
+     { repertories: [{ id, file, name_bn, name_en, author, ... }] }
+
+   Each repertory file is normalised by normalise() below, so a new book only
+   has to be *close* to this shape:
+     repertory_rubrics: [ { chapter, rubrics: [ { name, remedies: {name: grade} } ] } ]
+     remedies:          [ { id, name, bangla_name, ... } ]
+   ========================================================================== */
+(function () {
+  'use strict';
+
+  const DIR = 'assets/data/repatories/';
+  const STORE = 'repertory_case_v1';
+  const ROW_CAP = 60;               // rows drawn before the "show all" note
+  const bn = v => Shell.bnNum(v);
+  const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9ঀ-৿]/g, '');
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  const S = {
+    manifest: null,
+    book: null,        // normalised repertory
+    bookMeta: null,    // manifest entry
+    step: 1,
+    chapter: 'all',
+    search: '',
+    picked: new Map(), // rubricId -> intensity 1..3
+    sort: 'coverage',
+    onlyFull: false,
+    showAll: false,
+    selectedRemedy: null,
+    result: null
+  };
+
+  /* ==================== load ==================== */
+  async function boot() {
+    try {
+      const r = await fetch(DIR + 'index.json');
+      S.manifest = await r.json();
+    } catch (e) {
+      S.manifest = { repertories: [] };
+      Shell.toast('রিপার্টরির তালিকা (index.json) পড়া যায়নি।', 'err');
+    }
+    renderLibrary();
+    bindShell();
+    restore();
+  }
+
+  async function loadBook(entry) {
+    Shell.setChip('লোড হচ্ছে…', 'bx-loader-alt', true);
+    const holder = document.getElementById('repList');
+    holder.querySelectorAll('.rp-book').forEach(b => b.disabled = true);
+    try {
+      const r = await fetch(DIR + entry.file);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const raw = await r.json();
+      S.book = normalise(raw, entry);
+      S.bookMeta = entry;
+      S.picked.clear();
+      S.chapter = 'all'; S.search = ''; S.showAll = false;
+      renderLibrary();
+      renderHealth();
+      renderChapters();
+      renderRubrics();
+      renderTray();
+      save();
+      Shell.toast(`${entry.name_bn} লোড হয়েছে — ${bn(S.book.stats.rubrics)}টি রুব্রিক, ${bn(S.book.stats.remedies)}টি ওষুধ।`, 'ok');
+      setStep(2);
+    } catch (e) {
+      console.error(e);
+      Shell.toast('রিপার্টরি ফাইল লোড করা যায়নি: ' + entry.file, 'err');
+    } finally {
+      holder.querySelectorAll('.rp-book').forEach(b => b.disabled = false);
+      updateChip();
+    }
+  }
+
+  /* ==================== normalise any book shape ==================== */
+  function normalise(raw, entry) {
+    const chapters = [];
+    const rubricById = new Map();
+    const source = raw.repertory_rubrics || raw.chapters || [];
+
+    source.forEach((ch, ci) => {
+      const label = ch.chapter || ch.name || ('অধ্যায় ' + (ci + 1));
+      const parts = String(label).split(/\s*[-–—]\s*/);
+      const chapter = {
+        id: 'c' + ci,
+        en: parts[0] ? parts[0].trim() : label,
+        bn: parts[1] ? parts[1].trim() : '',
+        label: label,
+        rubrics: []
+      };
+      (ch.rubrics || []).forEach((rb, ri) => {
+        // remedies may be {name: grade} or [{name, grade}]
+        let list = [];
+        if (Array.isArray(rb.remedies)) {
+          list = rb.remedies.map(x => ({ name: x.name || x.remedy || String(x), grade: +(x.grade || x.g || 1) }));
+        } else {
+          list = Object.entries(rb.remedies || {}).map(([name, grade]) => ({ name: name, grade: +grade || 1 }));
+        }
+        const rubric = {
+          id: chapter.id + ':r' + ri,
+          name: rb.name || rb.rubric || '',
+          bn: rb.bangla || rb.bangla_name || rb.name_bn || '',
+          chapterId: chapter.id,
+          chapterLabel: label,
+          remedies: list.sort((a, b) => b.grade - a.grade)
+        };
+        chapter.rubrics.push(rubric);
+        rubricById.set(rubric.id, rubric);
+      });
+      chapters.push(chapter);
+    });
+
+    // remedy lookup for the materia medica step
+    const byKey = new Map();
+    (raw.remedies || []).forEach(rx => {
+      byKey.set(norm(rx.name), rx);
+      if (rx.bangla_name) byKey.set(norm(rx.bangla_name), rx);
+    });
+
+    const allRubrics = [...rubricById.values()];
+    return {
+      id: entry.id,
+      meta: raw.metadata || {},
+      chapters: chapters,
+      rubrics: allRubrics,
+      rubricById: rubricById,
+      remedyByKey: byKey,
+      remedyList: raw.remedies || [],
+      stats: {
+        chapters: chapters.length,
+        rubrics: allRubrics.length,
+        remedies: (raw.remedies || []).length,
+        rubricTarget: +(raw.metadata || {}).rubric_target || 0
+      },
+      health: audit(allRubrics, byKey, raw.metadata || {})
+    };
+  }
+
+  /* ==================== data-health audit ====================
+     Placeholder scaffolding must never be mistaken for a real repertory,
+     so the page says so up front instead of quietly ranking noise. */
+  function audit(rubrics, remedyByKey, meta) {
+    const names = new Set();
+    const sizes = new Set();
+    const patterns = new Set();
+    let cells = 0, placeholders = 0, unmatched = 0;
+
+    rubrics.forEach(rb => {
+      sizes.add(rb.remedies.length);
+      patterns.add(rb.remedies.map(r => r.grade).join(','));
+      rb.remedies.forEach(r => {
+        cells++;
+        names.add(r.name);
+        if (/^remedy\s*\d+$/i.test(r.name)) placeholders++;
+        else if (!remedyByKey.has(norm(r.name))) unmatched++;
+      });
+    });
+
+    const flags = [];
+    const phNames = [...names].filter(n => /^remedy\s*\d+$/i.test(n)).length;
+    if (phNames) flags.push({
+      k: 'placeholder',
+      t: `${bn(phNames)}টি ওষুধের নাম প্লেসহোল্ডার (<code>Remedy 437</code> ধরনের) — মোট নামের ${bn(Math.round(100 * phNames / names.size))}%`
+    });
+    if (patterns.size === 1 && rubrics.length > 5) flags.push({
+      k: 'uniform',
+      t: `সব ${bn(rubrics.length)}টি রুব্রিকে গ্রেডের ধারা হুবহু এক (<code>${[...patterns][0]}</code>) — আসল রিপার্টরিতে এটা হয় না`
+    });
+    if (sizes.size === 1 && rubrics.length > 5) flags.push({
+      k: 'fixedsize',
+      t: `প্রতিটি রুব্রিকে ঠিক ${bn([...sizes][0])}টি ওষুধ — বাস্তবে রুব্রিকভেদে সংখ্যা বদলায়`
+    });
+    const target = +meta.rubric_target || 0;
+    if (target && rubrics.length < target * 0.5) flags.push({
+      k: 'coverage',
+      t: `লক্ষ্য ${bn(target)}টি রুব্রিকের মধ্যে আছে মাত্র ${bn(rubrics.length)}টি (${(100 * rubrics.length / target).toFixed(1)}%)`
+    });
+
+    return { flags: flags, cells: cells, placeholders: placeholders, unmatched: unmatched, uniqueNames: names.size, usable: flags.length === 0 };
+  }
+
+  /* ==================== step 1 ==================== */
+  function renderLibrary() {
+    const host = document.getElementById('repList');
+    const list = (S.manifest.repertories || []);
+    if (!list.length) {
+      host.innerHTML = `<div class="rp-empty"><i class='bx bx-book'></i>
+        <code>assets/data/repatories/index.json</code>-এ কোনো রিপার্টরি নেই।</div>`;
+      return;
+    }
+    host.innerHTML = list.map(e => {
+      const on = S.bookMeta && S.bookMeta.id === e.id;
+      const loaded = on && S.book;
+      return `<button class="rp-book ${on ? 'selected' : ''}" data-id="${e.id}" type="button">
+        <div class="rp-book-top">
+          <span class="rp-book-ic" style="${e.color ? `background:${e.color}1a;color:${e.color}` : ''}">
+            <i class='bx ${e.icon || 'bx-book-bookmark'}'></i>
+          </span>
+          <span style="min-width:0;">
+            <h4>${esc(e.name_bn)}</h4>
+            <span class="rp-book-en">${esc(e.name_en || '')}</span>
+          </span>
+        </div>
+        <p>${esc(e.desc_bn || '')}</p>
+        <div class="rp-book-meta">
+          ${e.author ? `<span class="rp-tag">${esc(e.author)}</span>` : ''}
+          ${e.year ? `<span class="rp-tag">${esc(e.year)}</span>` : ''}
+          ${loaded ? `<span class="rp-tag ok">${bn(S.book.stats.chapters)} অধ্যায় · ${bn(S.book.stats.rubrics)} রুব্রিক · ${bn(S.book.stats.remedies)} ওষুধ</span>` : ''}
+          ${e.status === 'draft' ? `<span class="rp-tag warn">খসড়া ডেটা</span>` : ''}
+        </div>
+        <span class="rp-book-pick">${on ? "<i class='bx bx-check-circle'></i> নির্বাচিত" : "<i class='bx bx-download'></i> এই রিপার্টরি ব্যবহার করুন"}</span>
+      </button>`;
+    }).join('');
+
+    host.querySelectorAll('.rp-book').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const entry = list.find(x => x.id === btn.dataset.id);
+        if (!entry) return;
+        if (S.bookMeta && S.bookMeta.id === entry.id && S.book) { setStep(2); return; }
+        loadBook(entry);
+      });
+    });
+
+    const planned = (S.manifest.planned || []);
+    document.getElementById('repPlanned').innerHTML = planned.length
+      ? `<div class="rp-planned"><b>পরে যোগ হবে:</b> ${planned.map(p => esc(p.name_bn)).join(' · ')}।
+         নতুন রিপার্টরি যোগ করতে ফাইলটি <code>assets/data/repatories/</code>-এ রাখুন আর
+         <code>index.json</code>-এ একটি এন্ট্রি দিন — কোড বদলাতে হবে না।</div>` : '';
+  }
+
+  function renderHealth() {
+    const host = document.getElementById('healthCard');
+    if (!S.book) { host.innerHTML = ''; return; }
+    const h = S.book.health;
+    if (h.usable) {
+      host.innerHTML = `<div class="health ok">
+        <div class="health-head"><i class='bx bx-check-shield'></i> ডেটা যাচাই ঠিক আছে</div>
+        <p>${bn(S.book.stats.rubrics)}টি রুব্রিক, ${bn(h.uniqueNames)}টি আলাদা ওষুধের নাম, ${bn(h.cells)}টি গ্রেড এন্ট্রি।</p>
+      </div>`;
+      return;
+    }
+    host.innerHTML = `<div class="health">
+      <div class="health-head"><i class='bx bx-error'></i> এই রিপার্টরির ডেটা এখনো খসড়া</div>
+      <p>ইঞ্জিন ঠিকভাবে কাজ করছে, কিন্তু নিচের কারণে <strong>এই ডেটার ফলাফল ক্লিনিক্যালি ব্যবহার করা যাবে না</strong> —
+         আসল রিপার্টরি ফাইল দিলে একই ছক ও র‍্যাঙ্কিং সঠিক ফল দেবে।</p>
+      <ul>${h.flags.map(f => `<li>${f.t}</li>`).join('')}</ul>
+      <p style="margin-top:0.625rem;">যাচাই: ${bn(h.cells)}টি গ্রেড এন্ট্রির মধ্যে ${bn(h.placeholders)}টি প্লেসহোল্ডার নামে,
+         ${bn(h.unmatched)}টি নাম মেটেরিয়া মেডিকা তালিকার সাথে মেলে না।</p>
+    </div>`;
+  }
+
+  /* ==================== step 2 ==================== */
+  function renderChapters() {
+    if (!S.book) return;
+    document.getElementById('chapterChips').innerHTML =
+      `<button class="rp-ch ${S.chapter === 'all' ? 'active' : ''}" data-ch="all">সব <span>${bn(S.book.stats.rubrics)}</span></button>` +
+      S.book.chapters.map(c => `<button class="rp-ch ${S.chapter === c.id ? 'active' : ''}" data-ch="${c.id}">
+        ${esc(c.bn || c.en)} <span>${bn(c.rubrics.length)}</span></button>`).join('');
+    document.querySelectorAll('#chapterChips .rp-ch').forEach(b => {
+      b.addEventListener('click', () => { S.chapter = b.dataset.ch; renderChapters(); renderRubrics(); });
+    });
+  }
+
+  function visibleRubrics() {
+    if (!S.book) return [];
+    const q = S.search.trim().toLowerCase();
+    return S.book.rubrics.filter(rb => {
+      if (S.chapter !== 'all' && rb.chapterId !== S.chapter) return false;
+      if (!q) return true;
+      return rb.name.toLowerCase().includes(q) || (rb.bn && rb.bn.includes(S.search.trim())) ||
+             rb.chapterLabel.toLowerCase().includes(q);
+    });
+  }
+
+  function renderRubrics() {
+    const host = document.getElementById('rubricList');
+    if (!S.book) { host.innerHTML = `<div class="rp-empty">আগে একটি রিপার্টরি বেছে নিন।</div>`; return; }
+    const rows = visibleRubrics();
+    document.getElementById('rubHint').textContent =
+      `${bn(rows.length)}টি রুব্রিক দেখানো হচ্ছে · মোট ${bn(S.book.stats.rubrics)}টি`;
+
+    if (!rows.length) { host.innerHTML = `<div class="rp-empty"><i class='bx bx-search-alt'></i>কোনো রুব্রিক মেলেনি।</div>`; return; }
+
+    host.innerHTML = rows.map(rb => `
+      <div class="rub ${S.picked.has(rb.id) ? 'picked' : ''}" data-id="${rb.id}">
+        <span class="rub-plus"><i class='bx ${S.picked.has(rb.id) ? 'bx-check' : 'bx-plus'}'></i></span>
+        <span class="rub-txt">
+          <span class="rub-name">${esc(rb.name)}${rb.bn ? ` <span style="color:var(--text-muted);font-size:0.8125rem;">${esc(rb.bn)}</span>` : ''}</span>
+          <span class="rub-ch">${esc(rb.chapterLabel)}</span>
+        </span>
+        <span class="rub-n">${bn(rb.remedies.length)} ওষুধ</span>
+      </div>`).join('');
+
+    host.querySelectorAll('.rub').forEach(el => {
+      el.addEventListener('click', () => toggleRubric(el.dataset.id));
+    });
+  }
+
+  function toggleRubric(id) {
+    if (S.picked.has(id)) S.picked.delete(id);
+    else S.picked.set(id, 2);           // default patient intensity = 2
+    save(); renderRubrics(); renderTray();
+  }
+
+  function renderTray() {
+    const host = document.getElementById('trayList');
+    const n = S.picked.size;
+    document.getElementById('trayCount').textContent = `${bn(n)}টি রুব্রিক`;
+    document.getElementById('toStep3').disabled = n === 0;
+    document.getElementById('s2Meta').textContent = n ? `${bn(n)}টি নির্বাচিত` : 'অধ্যায় ও লক্ষণ';
+    updateChip();
+    updateNav();
+
+    if (!n) {
+      host.innerHTML = `<div class="rp-empty"><i class='bx bx-collection'></i>
+        বাঁ পাশ থেকে রুব্রিকে ক্লিক করে এখানে যোগ করুন।<br/>একই লক্ষণের একাধিক রুব্রিক নিলে ফল আরও নির্দিষ্ট হয়।</div>`;
+      return;
+    }
+    host.innerHTML = [...S.picked.entries()].map(([id, inten]) => {
+      const rb = S.book.rubricById.get(id);
+      if (!rb) return '';
+      const top = rb.remedies.slice(0, 4).map(r => `${esc(r.name)} <b>${bn(r.grade)}</b>`).join(', ');
+      return `<div class="tray-item" data-id="${id}">
+        <div class="tray-top">
+          <span class="tray-name">${esc(rb.name)}<small>${esc(rb.chapterLabel)}</small></span>
+          <button class="tray-x" title="সরান"><i class='bx bx-x'></i></button>
+        </div>
+        <div class="tray-grades">
+          <span class="flabel">তীব্রতা:</span>
+          ${[1, 2, 3].map(g => `<button class="gbtn ${inten === g ? 'on' : ''}" data-g="${g}">${bn(g)}</button>`).join('')}
+          <span class="rub-n" style="margin-left:auto;">${bn(rb.remedies.length)} ওষুধ</span>
+        </div>
+        <div class="tray-rem">${top}${rb.remedies.length > 4 ? ' …' : ''}</div>
+      </div>`;
+    }).join('');
+
+    host.querySelectorAll('.tray-item').forEach(item => {
+      const id = item.dataset.id;
+      item.querySelector('.tray-x').addEventListener('click', () => { S.picked.delete(id); save(); renderRubrics(); renderTray(); });
+      item.querySelectorAll('.gbtn').forEach(b => b.addEventListener('click', () => {
+        S.picked.set(id, +b.dataset.g); save(); renderTray();
+      }));
+    });
+  }
+
+  /* ==================== step 3 · repertorisation ==================== */
+  function repertorise() {
+    const rubrics = [...S.picked.keys()].map(id => S.book.rubricById.get(id)).filter(Boolean);
+    const rows = new Map();   // key -> {name, cells{rubricId:grade}, total, coverage}
+
+    rubrics.forEach(rb => {
+      const intensity = S.picked.get(rb.id) || 1;
+      rb.remedies.forEach(r => {
+        const k = norm(r.name);
+        if (!rows.has(k)) rows.set(k, { key: k, name: r.name, cells: {}, total: 0, coverage: 0, maxGrade: 0 });
+        const row = rows.get(k);
+        // a remedy repeated in one rubric keeps its highest grade
+        const prev = row.cells[rb.id] || 0;
+        if (r.grade > prev) {
+          row.total += (r.grade - prev) * intensity;
+          if (!prev) row.coverage += 1;
+          row.cells[rb.id] = r.grade;
+          row.maxGrade = Math.max(row.maxGrade, r.grade);
+        }
+      });
+    });
+
+    const list = [...rows.values()].map(r => {
+      const rx = S.book.remedyByKey.get(r.key);
+      return Object.assign(r, {
+        placeholder: /^remedy\s*\d+$/i.test(r.name),
+        bangla: rx ? rx.bangla_name : '',
+        remedy: rx || null
+      });
+    });
+    sortRows(list);
+    return { rubrics: rubrics, rows: list, maxCoverage: rubrics.length };
+  }
+
+  function sortRows(list) {
+    if (S.sort === 'total') list.sort((a, b) => b.total - a.total || b.coverage - a.coverage || a.name.localeCompare(b.name));
+    else list.sort((a, b) => b.coverage - a.coverage || b.total - a.total || a.name.localeCompare(b.name));
+  }
+
+  function renderGrid() {
+    if (!S.book || !S.picked.size) return;
+    S.result = repertorise();
+    const { rubrics, rows } = S.result;
+
+    document.getElementById('gridMeta').textContent =
+      `${bn(rubrics.length)}টি রুব্রিক · ${bn(rows.length)}টি ওষুধ মিলেছে`;
+    document.getElementById('s3Meta').textContent = `${bn(rows.length)}টি ওষুধ`;
+
+    let shown = rows.filter(r => !S.onlyFull || r.coverage === rubrics.length);
+    const totalMatching = shown.length;
+    if (!S.showAll && shown.length > ROW_CAP) shown = shown.slice(0, ROW_CAP);
+
+    document.getElementById('rowLimitNote').innerHTML = totalMatching > shown.length
+      ? `শীর্ষ ${bn(shown.length)}টি দেখানো হচ্ছে (মোট ${bn(totalMatching)}) — <a href="#" id="showAllRows" style="color:var(--primary);font-weight:700;">সব দেখুন</a>`
+      : `${bn(totalMatching)}টি ওষুধ দেখানো হচ্ছে`;
+
+    const head = `<thead><tr>
+        <th class="rx-col">ওষুধ</th>
+        ${rubrics.map(rb => `<th title="${esc(rb.name)} — ${esc(rb.chapterLabel)}">
+            ${esc(rb.name.length > 14 ? rb.name.slice(0, 13) + '…' : rb.name)}
+            <div style="font-weight:400;text-transform:none;color:var(--text-light);">×${bn(S.picked.get(rb.id))}</div>
+          </th>`).join('')}
+        <th>মোট</th><th>রুব্রিক</th>
+      </tr></thead>`;
+
+    const body = `<tbody>${shown.map((r, i) => `
+      <tr class="${i === 0 ? 'top' : ''}" data-key="${r.key}">
+        <th title="${esc(r.name)}">
+          <span class="${r.placeholder ? 'ph' : ''}">${esc(r.name)}</span>
+          ${r.bangla ? `<div style="font-weight:400;font-size:0.6875rem;color:var(--text-muted);">${esc(r.bangla)}</div>` : ''}
+        </th>
+        ${rubrics.map(rb => {
+          const g = r.cells[rb.id];
+          return `<td class="${g ? '' : 'g0'}">${g ? `<span class="gr gr${g}">${bn(g)}</span>` : '·'}</td>`;
+        }).join('')}
+        <td class="tot">${bn(r.total)}</td>
+        <td class="cov">${bn(r.coverage)}/${bn(rubrics.length)}</td>
+      </tr>`).join('')}</tbody>`;
+
+    document.getElementById('repGrid').innerHTML = head + body;
+
+    const showAll = document.getElementById('showAllRows');
+    if (showAll) showAll.addEventListener('click', e => { e.preventDefault(); S.showAll = true; renderGrid(); });
+
+    document.querySelectorAll('#repGrid tbody tr').forEach(tr => {
+      tr.querySelector('th').addEventListener('click', () => {
+        S.selectedRemedy = tr.dataset.key;
+        setStep(4);
+      });
+    });
+  }
+
+  /* ==================== step 4 · materia medica ==================== */
+  function renderTop() {
+    const host = document.getElementById('topRemedies');
+    if (!S.result) { host.innerHTML = `<div class="rp-empty">আগে রেপার্টরাইজ করুন।</div>`; return; }
+    const rows = S.result.rows.slice(0, 25);
+    if (!S.selectedRemedy && rows.length) S.selectedRemedy = rows[0].key;
+    host.innerHTML = rows.map((r, i) => `
+      <div class="top-rx ${S.selectedRemedy === r.key ? 'on' : ''}" data-key="${r.key}">
+        <span class="top-rank">${bn(i + 1)}</span>
+        <span class="top-nm ${r.placeholder ? 'ph' : ''}">${esc(r.name)}
+          <small>${r.bangla ? esc(r.bangla) + ' · ' : ''}${bn(r.coverage)}/${bn(S.result.maxCoverage)} রুব্রিক</small></span>
+        <span class="top-sc">${bn(r.total)}</span>
+      </div>`).join('');
+    host.querySelectorAll('.top-rx').forEach(el => el.addEventListener('click', () => {
+      S.selectedRemedy = el.dataset.key; renderTop(); renderDetail();
+    }));
+  }
+
+  function renderDetail() {
+    const host = document.getElementById('remedyDetail');
+    const row = S.result && S.result.rows.find(r => r.key === S.selectedRemedy);
+    if (!row) { host.innerHTML = `<div class="rp-empty"><i class='bx bx-capsule'></i>বাঁ পাশ থেকে একটি ওষুধ বেছে নিন।</div>`; return; }
+
+    const rx = row.remedy;
+    if (!rx) {
+      host.innerHTML = `<div class="md-head">
+          <div><h3>${esc(row.name)}</h3><div class="md-en">রুব্রিক থেকে পাওয়া নাম</div></div>
+        </div>
+        <div class="health"><div class="health-head"><i class='bx bx-error-circle'></i> মেটেরিয়া মেডিকা নেই</div>
+        <p>${row.placeholder
+            ? 'এটি রিপার্টরি ফাইলের একটি <strong>প্লেসহোল্ডার নাম</strong> — আসল ওষুধ নয়। ডেটা আপডেট করলে এখানে বিস্তারিত আসবে।'
+            : 'এই ওষুধটি রিপার্টরিতে আছে কিন্তু মেটেরিয়া মেডিকা তালিকায় নেই। নাম মিলিয়ে দেখুন।'}</p></div>
+        ${scoreBox(row)}`;
+      return;
+    }
+
+    const list = (arr, t, ic) => (arr && arr.length)
+      ? `<div class="md-sec"><h5><i class='bx ${ic}'></i> ${t}</h5><ul>${arr.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '';
+    const pills = (arr, t, ic) => (arr && arr.length)
+      ? `<div class="md-sec"><h5><i class='bx ${ic}'></i> ${t}</h5><div class="md-pills">${arr.map(x => `<span class="md-pill">${esc(x)}</span>`).join('')}</div></div>` : '';
+    const ca = rx.cravings_aversions || {};
+    const rel = rx.relationships || {};
+
+    host.innerHTML = `
+      <div class="md-head">
+        <div style="min-width:0;">
+          <h3>${esc(rx.bangla_name || rx.name)}</h3>
+          <div class="md-en">${esc(rx.name)}${rx.family ? ' · ' + esc(rx.family) : ''}</div>
+        </div>
+      </div>
+      ${scoreBox(row)}
+      ${rx.bangla_intro ? `<p style="font-size:0.9375rem;line-height:1.7;color:var(--text);margin-top:0.875rem;">${esc(rx.bangla_intro)}</p>` : ''}
+      <div class="md-sec"><div class="md-kv">
+        ${rx.thermal ? `<div><span>তাপীয়</span><b>${esc(rx.thermal)}</b></div>` : ''}
+        ${rx.miasm ? `<div><span>মায়াজম</span><b>${esc(rx.miasm)}</b></div>` : ''}
+        ${rx.grade ? `<div><span>গ্রেড</span><b>${bn(rx.grade)}</b></div>` : ''}
+        ${rx.sleep ? `<div><span>ঘুম</span><b>${esc(rx.sleep)}</b></div>` : ''}
+        ${rx.dreams ? `<div><span>স্বপ্ন</span><b>${esc(rx.dreams)}</b></div>` : ''}
+        ${rx.stool ? `<div><span>মল</span><b>${esc(rx.stool)}</b></div>` : ''}
+        ${rx.urine ? `<div><span>প্রস্রাব</span><b>${esc(rx.urine)}</b></div>` : ''}
+        ${rx.skin ? `<div><span>ত্বক</span><b>${esc(rx.skin)}</b></div>` : ''}
+      </div></div>
+      ${list(rx.keynotes, 'কীনোট', 'bx-key')}
+      ${list(rx.mental, 'মানসিক', 'bx-brain')}
+      ${list(rx.general, 'সাধারণ', 'bx-body')}
+      ${list(rx.particular, 'নির্দিষ্ট অঙ্গ', 'bx-target-lock')}
+      ${list(rx.modalities, 'মোডালিটি', 'bx-transfer')}
+      ${pills(ca.cravings, 'আকাঙ্ক্ষা', 'bx-cookie')}
+      ${pills(ca.aversions, 'অরুচি', 'bx-block')}
+      ${pills(rx.clinical_uses, 'ক্লিনিক্যাল ব্যবহার', 'bx-plus-medical')}
+      ${pills(rel.complementary, 'পরিপূরক ওষুধ', 'bx-link')}
+      ${pills(rel.antidote, 'প্রতিষেধক', 'bx-shield')}
+      ${pills(rel.inimical, 'বিরুদ্ধ ওষুধ', 'bx-x-circle')}
+      ${rx.potency_notes ? `<div class="md-sec"><h5><i class='bx bx-injection'></i> শক্তি</h5><p>${esc(rx.potency_notes)}</p></div>` : ''}
+      <div class="sub-card warning-card" style="margin-top:1rem;">
+        <p style="font-size:0.875rem;line-height:1.65;margin:0;">রেপার্টরাইজেশনের র‍্যাঙ্ক শুধু ইঙ্গিত — মেটেরিয়া মেডিকার সাথে রোগীর সামগ্রিক ছবি না মিললে এই ওষুধ নয়।</p>
+      </div>`;
+  }
+
+  function scoreBox(row) {
+    return `<div class="md-kv">
+      <div><span>মোট স্কোর</span><b>${bn(row.total)}</b></div>
+      <div><span>রুব্রিক কভারেজ</span><b>${bn(row.coverage)}/${bn(S.result.maxCoverage)}</b></div>
+      <div><span>সর্বোচ্চ গ্রেড</span><b>${bn(row.maxGrade)}</b></div>
+    </div>`;
+  }
+
+  /* ==================== export ==================== */
+  function payload() {
+    const r = S.result;
+    return {
+      meta: {
+        tool: 'Homoeo Case Studio — Repertory',
+        repertory: S.bookMeta ? { id: S.bookMeta.id, name_en: S.bookMeta.name_en, author: S.bookMeta.author } : null,
+        data_quality: S.book ? (S.book.health.usable ? 'ok' : 'draft/placeholder — not clinically usable') : null
+      },
+      rubrics: r.rubrics.map(rb => ({
+        chapter: rb.chapterLabel, rubric: rb.name,
+        patient_intensity: S.picked.get(rb.id),
+        remedies: rb.remedies.map(x => ({ name: x.name, grade: x.grade }))
+      })),
+      repertorisation: r.rows.slice(0, 30).map((x, i) => ({
+        rank: i + 1, remedy: x.name, bangla: x.bangla || null,
+        total: x.total, coverage: x.coverage, of: r.maxCoverage,
+        placeholder_name: x.placeholder
+      })),
+      scoring_rule: 'total = Σ (remedy grade × rubric intensity); coverage = rubrics containing the remedy'
+    };
+  }
+
+  function asText() {
+    const r = S.result;
+    const L = [];
+    L.push('রিপার্টরাইজেশন — ' + (S.bookMeta ? S.bookMeta.name_bn : ''));
+    if (S.book && !S.book.health.usable) L.push('⚠ ডেটা খসড়া — ফলাফল ক্লিনিক্যালি ব্যবহারযোগ্য নয়।');
+    L.push('');
+    L.push('নির্বাচিত রুব্রিক:');
+    r.rubrics.forEach(rb => L.push(`  • ${rb.name} (${rb.chapterLabel}) — তীব্রতা ${bn(S.picked.get(rb.id))}`));
+    L.push('');
+    L.push('ফলাফল (শীর্ষ ১৫):');
+    r.rows.slice(0, 15).forEach((x, i) => L.push(`  ${bn(i + 1)}. ${x.name}${x.bangla ? ' (' + x.bangla + ')' : ''} — মোট ${bn(x.total)}, রুব্রিক ${bn(x.coverage)}/${bn(r.maxCoverage)}`));
+    return L.join('\n');
+  }
+
+  /* ==================== steps & nav ==================== */
+  function setStep(n) {
+    if (n === 2 && !S.book) return;
+    if (n >= 3 && !S.picked.size) return;
+    S.step = n;
+    document.querySelectorAll('.rp-pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + n));
+    document.querySelectorAll('.rp-step').forEach(b => {
+      const s = +b.dataset.step;
+      b.classList.toggle('active', s === n);
+      b.classList.toggle('done', s < n);
+      b.disabled = (s === 2 && !S.book) || (s >= 3 && !S.picked.size);
+    });
+    if (n === 3) renderGrid();
+    if (n === 4) { renderGrid(); renderTop(); renderDetail(); renderExport(); }
+    updateNav();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function renderExport() {
+    const p = payload();
+    document.getElementById('repExport').textContent = JSON.stringify(p, null, 2);
+  }
+
+  function updateNav() {
+    document.getElementById('rpBack').disabled = S.step === 1;
+    const next = document.getElementById('rpNext');
+    const can = (S.step === 1 && S.book) || (S.step === 2 && S.picked.size) || (S.step === 3);
+    next.disabled = S.step === 4 || !can;
+    next.innerHTML = S.step === 3 ? `ওষুধ বিশ্লেষণ <i class='bx bx-chevron-right'></i>` : `পরের ধাপ <i class='bx bx-chevron-right'></i>`;
+  }
+
+  function updateChip() {
+    if (!S.book) { Shell.setChip('রিপার্টরি বাছুন', 'bx-book', true); return; }
+    const n = S.picked.size;
+    Shell.setChip(n ? `${bn(n)}টি রুব্রিক · ${S.bookMeta.name_bn}` : S.bookMeta.name_bn, n ? 'bx-collection' : 'bx-book-open', !n);
+  }
+
+  /* ==================== persistence ==================== */
+  function save() {
+    Shell.store.set(STORE, {
+      book: S.bookMeta ? S.bookMeta.id : null,
+      picked: [...S.picked.entries()]
+    });
+  }
+
+  async function restore() {
+    const d = Shell.store.get(STORE, null);
+    if (!d || !d.book) return;
+    const entry = (S.manifest.repertories || []).find(x => x.id === d.book);
+    if (!entry) return;
+    await loadBook(entry);
+    (d.picked || []).forEach(([id, g]) => { if (S.book.rubricById.has(id)) S.picked.set(id, g); });
+    if (S.picked.size) {
+      renderRubrics(); renderTray();
+      Shell.toast(`আগের কেস ফিরিয়ে আনা হয়েছে — ${bn(S.picked.size)}টি রুব্রিক।`, 'ok');
+    }
+  }
+
+  /* ==================== wiring ==================== */
+  function bindShell() {
+    document.querySelectorAll('.rp-step').forEach(b =>
+      b.addEventListener('click', () => { if (!b.disabled) setStep(+b.dataset.step); }));
+    document.getElementById('rpBack').addEventListener('click', () => setStep(Math.max(1, S.step - 1)));
+    document.getElementById('rpNext').addEventListener('click', () => setStep(Math.min(4, S.step + 1)));
+    document.getElementById('toStep3').addEventListener('click', () => setStep(3));
+
+    const sb = document.getElementById('rubSearch');
+    sb.addEventListener('input', () => {
+      S.search = sb.value;
+      document.getElementById('rubSearchClear').style.display = sb.value ? '' : 'none';
+      renderRubrics();
+    });
+    document.getElementById('rubSearchClear').addEventListener('click', () => {
+      sb.value = ''; S.search = '';
+      document.getElementById('rubSearchClear').style.display = 'none';
+      renderRubrics();
+    });
+
+    document.getElementById('trayClear').addEventListener('click', () => {
+      if (!S.picked.size) return;
+      S.picked.clear(); save(); renderRubrics(); renderTray();
+      Shell.toast('কেসের সব রুব্রিক মুছে ফেলা হয়েছে।', 'ok');
+    });
+
+    document.querySelectorAll('.rp-sortset .fbtn').forEach(b => b.addEventListener('click', () => {
+      S.sort = b.dataset.sort;
+      document.querySelectorAll('.rp-sortset .fbtn').forEach(x => x.classList.toggle('active', x === b));
+      renderGrid();
+    }));
+    document.getElementById('onlyFull').addEventListener('change', e => { S.onlyFull = e.target.checked; renderGrid(); });
+
+    document.getElementById('copyRep').addEventListener('click', function () {
+      navigator.clipboard.writeText(JSON.stringify(payload(), null, 2))
+        .then(() => Shell.toast('JSON কপি হয়েছে।', 'ok'))
+        .catch(() => Shell.toast('কপি করা যায়নি।', 'err'));
+    });
+    document.getElementById('copyTxt').addEventListener('click', () => {
+      navigator.clipboard.writeText(asText())
+        .then(() => Shell.toast('টেক্সট কপি হয়েছে।', 'ok'))
+        .catch(() => Shell.toast('কপি করা যায়নি।', 'err'));
+    });
+    document.getElementById('dlRep').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(payload(), null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'repertorisation.json'; a.click();
+      URL.revokeObjectURL(url);
+      Shell.toast('ডাউনলোড শুরু হয়েছে।', 'ok');
+    });
+
+    updateChip(); updateNav();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();

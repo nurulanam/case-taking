@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "note_bn": "নতুন রিপার্টরি যোগ করতে এই তালিকায় একটি এন্ট্রি দিন — ফাইলটি একই ফোল্ডারে রাখুন। পেজে কোড বদলাতে হবে না।",
+  "repertories": [
+    {
+      "id": "kent",
+      "file": "kent_remidies.json",
+      "name_bn": "কেন্ট রিপার্টরী",
+      "name_en": "Kent's Repertory of the Homoeopathic Materia Medica",
+      "author": "Dr. James Tyler Kent",
+      "year": "১৮৯৭",
+      "language": "বাংলা + English",
+      "icon": "bx-book-bookmark",
+      "color": "#0f766e",
+      "desc_bn": "ধ্রুপদী রিপার্টরির মানদণ্ড — মন থেকে শুরু করে সাধারণ লক্ষণ পর্যন্ত অধ্যায়ভিত্তিক সাজানো, ১–৩ গ্রেডে ওষুধ চিহ্নিত।",
+      "status": "draft"
+    }
+  ],
+  "planned": [
+    { "name_bn": "বোরিক রিপার্টরী", "name_en": "Boericke's Repertory" },
+    { "name_bn": "বোজার্কি (Boger–Bönninghausen)", "name_en": "Boger–Bönninghausen's Characteristics & Repertory" },
+    { "name_bn": "ফাটাক", "name_en": "Phatak's Concise Repertory" }
+  ]
+}

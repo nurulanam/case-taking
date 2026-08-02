@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>রিপার্টরি — হোমিও কেস স্টুডিও</title>
+<meta content="বাংলা রিপার্টরি — অধ্যায় ও রুব্রিক বাছাই করে ধাপে ধাপে রেপার্টরাইজেশন ও ওষুধ বিশ্লেষণ।" name="description"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='45' font-size='38' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23fff'%3E%E0%A6%B9%3C/text%3E%3C/svg%3E"/>
+<link href="assets/css/base.css" rel="stylesheet"/>
+<link href="assets/css/shell.css" rel="stylesheet"/>
+<link href="assets/css/repertory.css" rel="stylesheet"/>
+<link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
+</head>
+<body data-page="repertory" data-title="রিপার্টরি" data-crumb="বিশ্লেষণ টুল">
+
+<div class="app-root">
+  <aside class="app-sidebar" id="appSidebar"></aside>
+  <div class="app-backdrop" id="appBackdrop"></div>
+  <div class="app-main">
+    <header class="app-topbar" id="appTopbar"></header>
+    <main class="app-content">
+      <div class="content-inner">
+
+        <div class="page-head">
+          <div class="page-icon"><i class='bx bx-book-bookmark'></i></div>
+          <div class="page-head-txt">
+            <h2>রিপার্টরি ও রেপার্টরাইজেশন</h2>
+            <p>রিপার্টরি বেছে নিন → রুব্রিক নির্বাচন করুন → গ্রেড মিলিয়ে ওষুধ র‍্যাঙ্ক করুন → বিস্তারিত মিলিয়ে নিন।</p>
+          </div>
+          <div class="page-head-actions" id="pageActions"></div>
+        </div>
+
+        <!-- ===== stepper ===== */ -->
+        <div class="rp-steps" id="rpSteps">
+          <button class="rp-step active" data-step="1" type="button">
+            <span class="rp-dot">১</span>
+            <span class="rp-lbl">রিপার্টরি<small>উৎস নির্বাচন</small></span>
+          </button>
+          <button class="rp-step" data-step="2" type="button" disabled>
+            <span class="rp-dot">২</span>
+            <span class="rp-lbl">রুব্রিক বাছাই<small id="s2Meta">অধ্যায় ও লক্ষণ</small></span>
+          </button>
+          <button class="rp-step" data-step="3" type="button" disabled>
+            <span class="rp-dot">৩</span>
+            <span class="rp-lbl">রেপার্টরাইজেশন<small id="s3Meta">গ্রেড ও র‍্যাঙ্ক</small></span>
+          </button>
+          <button class="rp-step" data-step="4" type="button" disabled>
+            <span class="rp-dot">৪</span>
+            <span class="rp-lbl">ওষুধ বিশ্লেষণ<small>মেটেরিয়া মেডিকা</small></span>
+          </button>
+        </div>
+
+        <!-- ===== STEP 1 · repertory picker ===== -->
+        <section class="rp-pane active" id="pane-1">
+          <div class="card">
+            <div class="section-heading">
+              <span class="section-number"><i class='bx bx-library' style="font-size:1rem"></i></span>
+              <div><h3>রিপার্টরি নির্বাচন করুন</h3><p>এখন যেটি আছে সেটি বেছে নিন — পরে আরও রিপার্টরি যোগ করা যাবে</p></div>
+            </div>
+            <div id="repList" class="rp-lib"></div>
+            <div id="repPlanned"></div>
+          </div>
+          <div id="healthCard"></div>
+        </section>
+
+        <!-- ===== STEP 2 · rubric selection ===== -->
+        <section class="rp-pane" id="pane-2">
+          <div class="rp-split">
+            <div class="card rp-col">
+              <div class="rp-col-head">
+                <div class="section-heading" style="margin-bottom:0;">
+                  <span class="section-number"><i class='bx bx-list-ul' style="font-size:1rem"></i></span>
+                  <div><h3>রুব্রিক খুঁজুন</h3><p id="rubHint">অধ্যায় থেকে বাছুন বা সরাসরি সার্চ করুন</p></div>
+                </div>
+                <div class="m-search" style="margin-top:0.875rem;">
+                  <i class='bx bx-search'></i>
+                  <input type="text" id="rubSearch" placeholder="রুব্রিক খুঁজুন (যেমন: Anxiety, ব্যথা)…" autocomplete="off"/>
+                  <button class="clear-x" id="rubSearchClear" style="display:none;"><i class='bx bx-x'></i></button>
+                </div>
+                <div class="rp-chapters" id="chapterChips"></div>
+              </div>
+              <div class="rp-col-scroll" id="rubricList"></div>
+            </div>
+
+            <div class="card rp-col">
+              <div class="rp-col-head">
+                <div class="section-heading" style="margin-bottom:0;">
+                  <span class="section-number"><i class='bx bx-collection' style="font-size:1rem"></i></span>
+                  <div><h3>কেসের রুব্রিক</h3><p>রোগীর লক্ষণের তীব্রতা ১–৩ দিন</p></div>
+                </div>
+              </div>
+              <div class="rp-col-scroll" id="trayList"></div>
+              <div class="rp-col-foot">
+                <div class="rp-count" id="trayCount">০টি রুব্রিক</div>
+                <button class="btn ghost" id="trayClear"><i class='bx bx-eraser'></i> মুছুন</button>
+                <button class="btn primary" id="toStep3" disabled>রেপার্টরাইজ <i class='bx bx-chevron-right'></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== STEP 3 · repertorisation grid ===== -->
+        <section class="rp-pane" id="pane-3">
+          <div class="card">
+            <div class="section-heading">
+              <span class="section-number"><i class='bx bx-table' style="font-size:1rem"></i></span>
+              <div><h3>রেপার্টরাইজেশন ছক</h3><p id="gridMeta"></p></div>
+            </div>
+            <div class="rp-toolbar">
+              <div class="rp-sortset">
+                <span class="flabel">সাজান:</span>
+                <button class="fbtn active" data-sort="coverage">রুব্রিক সংখ্যা আগে</button>
+                <button class="fbtn" data-sort="total">মোট গ্রেড আগে</button>
+              </div>
+              <label class="rp-check"><input type="checkbox" id="onlyFull"/> শুধু সব রুব্রিকে থাকা ওষুধ</label>
+              <span class="rp-limit" id="rowLimitNote"></span>
+            </div>
+            <div class="rp-gridwrap"><table class="rp-grid" id="repGrid"></table></div>
+            <p class="rp-legend">
+              <span><b>মোট</b> = Σ (ওষুধের গ্রেড × রুব্রিকের তীব্রতা)</span>
+              <span><b>রুব্রিক</b> = কতটি নির্বাচিত রুব্রিকে ওষুধটি আছে</span>
+              <span>ঘরের সংখ্যা = কেন্ট গ্রেড (১–৩)</span>
+            </p>
+          </div>
+        </section>
+
+        <!-- ===== STEP 4 · remedy detail ===== -->
+        <section class="rp-pane" id="pane-4">
+          <div class="rp-split rp-split-narrow">
+            <div class="card rp-col">
+              <div class="rp-col-head">
+                <div class="section-heading" style="margin-bottom:0;">
+                  <span class="section-number"><i class='bx bx-capsule' style="font-size:1rem"></i></span>
+                  <div><h3>শীর্ষ ওষুধ</h3><p>যেটির বিস্তারিত দেখতে চান বেছে নিন</p></div>
+                </div>
+              </div>
+              <div class="rp-col-scroll" id="topRemedies"></div>
+            </div>
+            <div class="card rp-col">
+              <div class="rp-col-scroll" id="remedyDetail"></div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:1rem;">
+            <div class="section-heading">
+              <span class="section-number"><i class='bx bx-code-curly' style="font-size:1rem"></i></span>
+              <div><h3>এক্সপোর্ট</h3><p>কেসের রুব্রিক ও ফলাফল — এআই বিশ্লেষণ বা নথির জন্য</p></div>
+            </div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+              <button class="btn ghost" id="copyRep"><i class='bx bx-copy'></i> JSON কপি</button>
+              <button class="btn ghost" id="dlRep"><i class='bx bx-download'></i> ডাউনলোড</button>
+              <button class="btn ghost" id="copyTxt"><i class='bx bx-text'></i> টেক্সট কপি</button>
+            </div>
+            <pre class="export-box" id="repExport"></pre>
+          </div>
+        </section>
+
+        <div class="rp-nav" id="rpNav">
+          <button class="btn ghost" id="rpBack" disabled><i class='bx bx-chevron-left'></i> আগের ধাপ</button>
+          <button class="btn primary" id="rpNext" disabled>পরের ধাপ <i class='bx bx-chevron-right'></i></button>
+        </div>
+
+        <p class="disclaimer" id="disclaimerText">
+          রেপার্টরাইজেশন শুধু সম্ভাব্য ওষুধের দিকে ইঙ্গিত করে — চূড়ান্ত নির্বাচন সম্পূর্ণ কেস, লক্ষণের সামগ্রিকতা ও মেটেরিয়া মেডিকা মিলিয়ে যোগ্য চিকিৎসকের।
+        </p>
+
+      </div>
+    </main>
+    <footer class="app-footer">
+      <span>© হোমিও কেস স্টুডিও — শিক্ষামূলক ও গবেষণার উদ্দেশ্যে তৈরি। চিকিৎসার সিদ্ধান্ত চিকিৎসকের।</span>
+      <span>সব ডেটা এই ব্রাউজারেই সংরক্ষিত — কোথাও পাঠানো হয় না।</span>
+    </footer>
+  </div>
+</div>
+
+<script src="assets/js/shell.js"></script>
+<script src="assets/js/repertory.js"></script>
+</body>
+</html>
