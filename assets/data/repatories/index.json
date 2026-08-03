@@ -15,20 +15,6 @@
       "desc_bn": "কেন্টের সম্পূর্ণ রিপার্টরি — ৩৮টি অধ্যায়, ৬৬,০০০টি রুব্রিক ও সাব-রুব্রিক, ৪,৫৫,৯০৫টি গ্রেড এন্ট্রি। তিনটি গ্রেডই (১–৩) মূল বইয়ের ছাপার ধরন থেকে পড়া — গাঢ় = ৩, ইটালিক = ২। উৎস: Médi-T HTML সংস্করণ (homeoint.org)।",
       "status": "curated",
       "size_note": "≈৭ MB — প্রথমবার লোড হতে কয়েক সেকেন্ড লাগতে পারে"
-    },
-    {
-      "id": "kent-generated",
-      "file": "kent_remedies_full.json",
-      "name_bn": "কেন্ট — জেনারেটেড সংস্করণ",
-      "name_en": "Kent (auto-generated scaffold, 69,360 rubrics)",
-      "author": "build_database.py (স্বয়ংক্রিয়)",
-      "year": "—",
-      "language": "বাংলা + English",
-      "icon": "bx-data",
-      "color": "#b45309",
-      "desc_bn": "৩৯ অধ্যায়ে ৬৯,৩৬০টি রুব্রিক — কিন্তু ৪৮% ওষুধ প্লেসহোল্ডার (remedy-template-…) এবং একই রুব্রিক বহুবার ফিরে এসেছে। কাঠামো দেখার জন্য রাখা; বিশ্লেষণে ব্যবহার করবেন না।",
-      "status": "generated",
-      "size_note": "≈২৩ MB — লোড হতে সময় লাগবে"
     }
   ],
   "planned": [

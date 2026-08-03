@@ -55,8 +55,7 @@ python3 -m http.server 8000
 │   │   ├── miasm.inline.js     miasm.json-এর ইনলাইন কপি (file:// ফলব্যাক)
 │   │   └── repatories/
 │   │       ├── index.json          রিপার্টরির তালিকা (ম্যানিফেস্ট)
-│   │       ├── kent_remidies.json  কেন্ট — সম্পূর্ণ ৩৮ অধ্যায়, ৬৬,০০০ রুব্রিক, ৭২৫ ওষুধ
-│   │       └── kent_remedies_full.json  স্বয়ংক্রিয় খসড়া — ৬৯,৩৬০ রুব্রিক (৪৮% প্লেসহোল্ডার)
+│   │       └── kent_remidies.json  কেন্ট — সম্পূর্ণ ৩৮ অধ্যায়, ৬৬,০০০ রুব্রিক, ৭২৫ ওষুধ
 │   │
 │   ├── img/
 │   │   ├── acute-flowchart.webp    ডাঃ বিজয়কর-এর মূল চার্ট
