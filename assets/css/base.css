@@ -470,3 +470,29 @@ textarea { resize: vertical; }
 
 /* Hidden by default */
 .gender-panel { display: none; }
+
+/* ==========================================================================
+   Search input with a leading icon and a clear button.
+   Shared by miasm.html, repertory.html and materia.html — it used to be copied
+   into miasm.css and repertory.css, which left the materia page (loading
+   neither) with an unstyled box and the icon stacked above the field.
+   ========================================================================== */
+.m-search { position: relative; }
+.m-search i {
+  position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted); font-size: 1.125rem; pointer-events: none;
+}
+.m-search input {
+  width: 100%; padding: 0.6875rem 2.25rem 0.6875rem 2.375rem;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-family: inherit; font-size: 0.9375rem; background: var(--surface); color: var(--text);
+}
+.m-search input:focus {
+  outline: none; border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.10);
+}
+.m-search .clear-x {
+  position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--text-muted);
+  cursor: pointer; font-size: 1.125rem; padding: 0.25rem;
+}

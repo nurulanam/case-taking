@@ -28,11 +28,13 @@
     step: 1,
     chapter: 'all',
     search: '',
+    page: 0,           // rubric-list page (LIST_CAP rows each)
     picked: new Map(), // rubricId -> intensity 1..3
     sort: 'coverage',
     onlyFull: false,
     showAll: false,
     selectedRemedy: null,
+    compare: new Set(),  // remedy keys ticked for the materia-medica comparison
     result: null
   };
 
@@ -72,7 +74,7 @@
       S.book = normalise(raw, entry);
       S.bookMeta = entry;
       S.picked.clear();
-      S.chapter = 'all'; S.search = ''; S.showAll = false;
+      S.chapter = 'all'; S.search = ''; S.showAll = false; S.page = 0;
       renderLibrary();
       renderHealth();
       renderChapters();
@@ -440,7 +442,7 @@
         <span class="ch-n">${bn(c.rubrics.length)}</span>
       </button>`).join('');
     document.querySelectorAll('#chapterChips .rp-ch').forEach(b => {
-      b.addEventListener('click', () => { S.chapter = b.dataset.ch; renderChapters(); renderRubrics(); });
+      b.addEventListener('click', () => { S.chapter = b.dataset.ch; S.page = 0; renderChapters(); renderRubrics(); });
     });
     sizeChapterBar();
   }
@@ -489,10 +491,21 @@
     const host = document.getElementById('rubricList');
     if (!S.book) { host.innerHTML = `<div class="rp-empty">আগে একটি রিপার্টরি বেছে নিন।</div>`; return; }
     const all = visibleRubrics();
-    const rows = all.slice(0, LIST_CAP);
-    document.getElementById('rubHint').innerHTML = all.length > rows.length
-      ? `${bn(rows.length)}টি দেখানো হচ্ছে (মিলেছে ${bn(all.length)}টি, মোট ${bn(S.book.stats.rubrics)}টি) — <strong>সার্চ করে সংকীর্ণ করুন</strong>`
-      : `${bn(all.length)}টি রুব্রিক দেখানো হচ্ছে · মোট ${bn(S.book.stats.rubrics)}টি`;
+
+    // Paginate rather than truncate. Telling someone "250 of 66,000 shown, go
+    // search" leaves the rest unreachable by browsing — the pages make every
+    // rubric walkable even with no search term.
+    const pages = Math.max(1, Math.ceil(all.length / LIST_CAP));
+    if (S.page >= pages) S.page = pages - 1;
+    if (S.page < 0) S.page = 0;
+    const from = S.page * LIST_CAP;
+    const rows = all.slice(from, from + LIST_CAP);
+
+    document.getElementById('rubHint').innerHTML = all.length
+      ? `${bn(from + 1)}–${bn(from + rows.length)} / <strong>${bn(all.length)}</strong>টি`
+        + (pages > 1 ? ` · পৃষ্ঠা ${bn(S.page + 1)}/${bn(pages)}` : '')
+        + ` · মোট ${bn(S.book.stats.rubrics)}টি`
+      : `মোট ${bn(S.book.stats.rubrics)}টি রুব্রিক`;
 
     if (!rows.length) { host.innerHTML = `<div class="rp-empty"><i class='bx bx-search-alt'></i>কোনো রুব্রিক মেলেনি।</div>`; return; }
 
@@ -504,13 +517,45 @@
           <span class="rub-ch">${rb.chapterNum ? bn(rb.chapterNum) + '. ' : ''}${esc(rb.chapterShort || rb.chapterLabel)}${rb.page ? ` · পৃ. ${bn(rb.page)}` : ''}</span>
         </span>
         <span class="rub-n">${bn(rb.n)} ওষুধ</span>
-      </div>`).join('') + (all.length > rows.length
-        ? `<div class="rp-empty" style="padding:1rem;">আরও ${bn(all.length - rows.length)}টি রুব্রিক আছে —
-             সার্চ বা অধ্যায় ফিল্টার দিয়ে খুঁজুন।</div>` : '');
+      </div>`).join('') + pagerHtml(pages);
 
     host.querySelectorAll('.rub').forEach(el => {
       el.addEventListener('click', () => toggleRubric(el.dataset.id));
     });
+    host.querySelectorAll('.pg-btn').forEach(b => b.addEventListener('click', () => {
+      S.page = +b.dataset.p;
+      renderRubrics();
+      const sc = document.getElementById('rubricList');
+      if (sc) sc.scrollTop = 0;         // a new page starts at its own top
+    }));
+  }
+
+  /* Page numbers around the current one, with first/last always reachable —
+     66,000 rubrics is 264 pages, so a full run of numbers is not an option. */
+  function pageWindow(page, pages) {
+    const out = new Set([0, pages - 1, page]);
+    for (let d = 1; d <= 2; d++) {
+      if (page - d >= 0) out.add(page - d);
+      if (page + d < pages) out.add(page + d);
+    }
+    return [...out].sort((a, b) => a - b);
+  }
+
+  function pagerHtml(pages) {
+    if (pages <= 1) return '';
+    const nums = pageWindow(S.page, pages);
+    let html = `<div class="rp-pager">
+      <button class="pg-btn pg-arrow" data-p="${S.page - 1}" ${S.page === 0 ? 'disabled' : ''}
+              title="আগের পৃষ্ঠা"><i class='bx bx-chevron-left'></i></button>`;
+    let prev = -1;
+    nums.forEach(n => {
+      if (prev >= 0 && n > prev + 1) html += `<span class="pg-gap">…</span>`;
+      html += `<button class="pg-btn ${n === S.page ? 'active' : ''}" data-p="${n}">${bn(n + 1)}</button>`;
+      prev = n;
+    });
+    html += `<button class="pg-btn pg-arrow" data-p="${S.page + 1}" ${S.page === pages - 1 ? 'disabled' : ''}
+              title="পরের পৃষ্ঠা"><i class='bx bx-chevron-right'></i></button></div>`;
+    return html;
   }
 
   function toggleRubric(id) {
@@ -628,8 +673,12 @@
     const body = `<tbody>${shown.map((r, i) => `
       <tr class="${i === 0 ? 'top' : ''}" data-key="${r.key}">
         <th title="${esc(r.name)}">
-          <span class="${r.placeholder ? 'ph' : ''}">${esc(r.name)}</span>
-          ${r.bangla ? `<div style="font-weight:400;font-size:0.6875rem;color:var(--text-muted);">${esc(r.bangla)}</div>` : ''}
+          <span class="rx-cmp ${S.compare.has(r.key) ? 'on' : ''}" data-cmp="${r.key}"
+                title="তুলনার জন্য বাছুন"><i class='bx bx-check'></i></span>
+          <span class="rx-nm">
+            <span class="${r.placeholder ? 'ph' : ''}">${esc(r.name)}</span>
+            ${r.bangla ? `<span class="rx-bn">${esc(r.bangla)}</span>` : ''}
+          </span>
         </th>
         ${rubrics.map(rb => {
           const g = r.cells[rb.id];
@@ -645,10 +694,73 @@
     if (showAll) showAll.addEventListener('click', e => { e.preventDefault(); S.showAll = true; renderGrid(); });
 
     document.querySelectorAll('#repGrid tbody tr').forEach(tr => {
-      tr.querySelector('th').addEventListener('click', () => {
+      tr.querySelector('th').addEventListener('click', e => {
+        if (e.target.closest('.rx-cmp')) return;   // the tick has its own handler
         S.selectedRemedy = tr.dataset.key;
         setStep(4);
       });
+    });
+    document.querySelectorAll('#repGrid .rx-cmp').forEach(el =>
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        toggleCompare(el.dataset.cmp);
+      }));
+    renderCompareBar();
+  }
+
+  /* ==================== compare hand-off ====================
+     Ticked remedies are sent to materia.html through the URL hash. Their ids
+     come from the remedy table this book already carries, so the two pages need
+     no shared storage — and a remedy the roster does not know is simply not
+     offered, rather than opening an empty column there. */
+  const CMP_MAX = 5;
+
+  function toggleCompare(key) {
+    if (S.compare.has(key)) S.compare.delete(key);
+    else if (S.compare.size >= CMP_MAX) {
+      Shell.toast(`একসাথে সর্বোচ্চ ${bn(CMP_MAX)}টি ওষুধ তুলনা করা যায়।`, 'warn');
+      return;
+    } else S.compare.add(key);
+    renderGrid();
+  }
+
+  function compareIds() {
+    const out = [];
+    S.compare.forEach(key => {
+      const rx = S.book && S.book.remedyByKey.get(key);
+      if (rx && rx.id) out.push(rx.id);
+    });
+    return out;
+  }
+
+  function renderCompareBar() {
+    const host = document.getElementById('cmpBar');
+    if (!host) return;
+    const n = S.compare.size;
+    if (!n) {
+      host.innerHTML = `<span class="cmp-hint">ওষুধের নামের পাশের বাক্সে টিক দিয়ে ২–${bn(CMP_MAX)}টি ওষুধ তুলনা করুন।</span>`;
+      return;
+    }
+    const ids = compareIds();
+    const names = [...S.compare].map(k => {
+      const row = S.result && S.result.rows.find(r => r.key === k);
+      return row ? (row.bangla || row.name) : k;
+    });
+    const ready = n >= 2 && ids.length >= 2;
+    host.innerHTML = `
+      <span class="cmp-hint"><b>${bn(n)}</b>টি নির্বাচিত — ${esc(names.join(', '))}</span>
+      <button class="btn ghost btn-sm" id="cmpReset"><i class='bx bx-x'></i> বাদ দিন</button>
+      <a class="btn primary btn-sm ${ready ? '' : 'is-off'}" id="cmpGo"
+         ${ready ? `href="materia.html#compare=${encodeURIComponent(ids.join(','))}"` : ''}>
+        <i class='bx bx-git-compare'></i> নির্বাচিত ওষুধ তুলনা করুন</a>`;
+    const rst = document.getElementById('cmpReset');
+    if (rst) rst.addEventListener('click', () => { S.compare.clear(); renderGrid(); });
+    const go = document.getElementById('cmpGo');
+    if (go && !ready) go.addEventListener('click', e => {
+      e.preventDefault();
+      Shell.toast(ids.length < 2 && n >= 2
+        ? 'নির্বাচিত ওষুধগুলোর মেটেরিয়া মেডিকা তালিকায় নেই।'
+        : 'তুলনার জন্য অন্তত ২টি ওষুধ বাছুন।', 'warn');
     });
   }
 
@@ -866,11 +978,12 @@
     const sb = document.getElementById('rubSearch');
     sb.addEventListener('input', () => {
       S.search = sb.value;
+      S.page = 0;                       // a new query starts at page one
       document.getElementById('rubSearchClear').style.display = sb.value ? '' : 'none';
       renderRubrics();
     });
     document.getElementById('rubSearchClear').addEventListener('click', () => {
-      sb.value = ''; S.search = '';
+      sb.value = ''; S.search = ''; S.page = 0;
       document.getElementById('rubSearchClear').style.display = 'none';
       renderRubrics();
     });

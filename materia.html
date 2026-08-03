@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>মেটেরিয়া মেডিকা — হোমিও কেস স্টুডিও</title>
+<meta content="বাংলা মেটেরিয়া মেডিকা — ওষুধ খুঁজে কীনোট, মানসিক ও সাধারণ লক্ষণ, মোডালিটি ও ক্লিনিক্যাল প্রয়োগ দেখুন।" name="description"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='45' font-size='38' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23fff'%3E%E0%A6%B9%3C/text%3E%3C/svg%3E"/>
+<link href="assets/css/base.css" rel="stylesheet"/>
+<link href="assets/css/shell.css" rel="stylesheet"/>
+<link href="assets/css/materia.css" rel="stylesheet"/>
+<link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
+</head>
+<body data-page="materia" data-title="মেটেরিয়া মেডিকা" data-crumb="রেফারেন্স">
+
+<div class="app-root">
+  <aside class="app-sidebar" id="appSidebar"></aside>
+  <div class="app-backdrop" id="appBackdrop"></div>
+  <div class="app-main">
+    <header class="app-topbar" id="appTopbar"></header>
+    <main class="app-content">
+      <div class="content-inner">
+
+        <div class="page-head">
+          <div class="page-icon"><i class='bx bx-capsule'></i></div>
+          <div class="page-head-txt">
+            <h2>মেটেরিয়া মেডিকা</h2>
+            <p>ওষুধ খুঁজুন বা ছেঁকে নিন — কীনোট, মানসিক ও সাধারণ লক্ষণ, মোডালিটি, আকাঙ্ক্ষা-অরুচি, ক্লিনিক্যাল প্রয়োগ ও শক্তি।</p>
+          </div>
+          <div class="page-head-actions" id="pageActions"></div>
+        </div>
+
+        <!-- ===== mode: read one remedy, or compare several ===== -->
+        <div class="mm-modes" id="mmModes">
+          <button class="mm-mode active" data-mode="read" type="button">
+            <i class='bx bx-book-open'></i> বিবরণ
+          </button>
+          <button class="mm-mode" data-mode="compare" type="button">
+            <i class='bx bx-git-compare'></i> তুলনা
+            <span class="mm-mode-n" id="cmpCount" hidden>০</span>
+          </button>
+        </div>
+
+        <!-- ===== search + filters, full width above the split ===== -->
+        <div class="mm-toolbar" id="mmToolbar">
+          <div class="mm-tb-row">
+            <div class="m-search mm-tb-search">
+              <i class='bx bx-search'></i>
+              <input type="text" id="rxSearch" placeholder="ওষুধ খুঁজুন (বাংলা, ল্যাটিন বা লক্ষণ)…" autocomplete="off"/>
+              <button class="clear-x" id="rxSearchClear" style="display:none;"><i class='bx bx-x'></i></button>
+            </div>
+            <div class="mm-hint" id="rxHint"></div>
+            <button class="mm-tb-toggle" id="mmToggle" type="button">
+              <span class="tb-more">সব ফিল্টার</span>
+              <span class="tb-less">কম দেখুন</span>
+              <i class='bx bx-chevron-down'></i>
+            </button>
+          </div>
+          <div class="mm-tb-sets" id="mmSets">
+            <div class="mm-filters" id="rxFilters"></div>
+            <div class="mm-alpha" id="rxAlpha"></div>
+          </div>
+        </div>
+
+        <!-- ===== compare tray (compare mode only) ===== -->
+        <div class="mm-tray" id="cmpTray" hidden>
+          <div class="mm-tray-head">
+            <span class="mm-tray-lbl"><i class='bx bx-git-compare'></i> তুলনার জন্য নির্বাচিত</span>
+            <span class="mm-tray-note" id="cmpNote"></span>
+            <button class="btn ghost btn-sm" id="cmpClear" type="button"><i class='bx bx-eraser'></i> মুছুন</button>
+          </div>
+          <div class="mm-tray-chips" id="cmpChips"></div>
+        </div>
+
+        <div class="mm-split" id="mmSplit">
+
+          <!-- ===== left · remedy list ===== -->
+          <div class="mm-col" id="listCol">
+            <div class="mm-col-scroll" id="rxList"></div>
+          </div>
+
+          <!-- ===== right · drug picture (read mode) ===== -->
+          <div class="mm-col" id="detailCol">
+            <div class="mm-col-scroll" id="rxDetail"></div>
+          </div>
+
+        </div>
+
+        <!-- ===== comparison table (compare mode) ===== -->
+        <div class="mm-cmp" id="cmpPane" hidden>
+          <div class="mm-cmp-bar">
+            <div class="mm-cmp-lbl" id="cmpTitle"></div>
+            <div class="mm-cmp-acts">
+              <button class="btn ghost btn-sm" id="cmpCopy"><i class='bx bx-copy'></i> কপি</button>
+              <button class="btn ghost btn-sm" id="cmpOnlyDiff">
+                <i class='bx bx-filter-alt'></i> <span>শুধু পার্থক্য</span>
+              </button>
+            </div>
+          </div>
+          <div class="mm-cmp-wrap"><table class="mm-cmp-table" id="cmpTable"></table></div>
+        </div>
+
+        <p class="disclaimer">
+          মেটেরিয়া মেডিকা শুধু রেফারেন্স — ওষুধ নির্বাচন রোগীর সম্পূর্ণ লক্ষণ-সামগ্রিকতা মিলিয়ে যোগ্য চিকিৎসকের সিদ্ধান্ত।
+        </p>
+
+      </div>
+    </main>
+    <footer class="app-footer">
+      <span>© হোমিও কেস স্টুডিও — শিক্ষামূলক ও গবেষণার উদ্দেশ্যে তৈরি। চিকিৎসার সিদ্ধান্ত চিকিৎসকের।</span>
+      <span>সব ডেটা এই ব্রাউজারেই সংরক্ষিত — কোথাও পাঠানো হয় না।</span>
+    </footer>
+  </div>
+</div>
+
+<script src="assets/js/shell.js"></script>
+<script src="assets/js/materia.js"></script>
+</body>
+</html>

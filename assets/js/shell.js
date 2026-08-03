@@ -26,12 +26,13 @@
       items: [
         { id: 'acutes', href: 'acutes.html', icon: 'bx-sitemap', label: 'তীব্র রোগের তত্ত্ব', meta: '৬২' },
         { id: 'miasm', href: 'miasm.html', icon: 'bx-analyse', label: 'মায়াজম বিশ্লেষক', meta: '৬৩' },
-        { id: 'repertory', href: 'repertory.html', icon: 'bx-book-bookmark', label: 'রিপার্টরি', meta: 'নতুন' }
+        { id: 'repertory', href: 'repertory.html', icon: 'bx-book-bookmark', label: 'রিপার্টরি', meta: '৬৬ হাজার' }
       ]
     },
     {
       group: 'রেফারেন্স',
       items: [
+        { id: 'materia', href: 'materia.html', icon: 'bx-capsule', label: 'মেটেরিয়া মেডিকা', meta: '২৯০' },
         { id: 'flowchart', href: 'acutes.html#flow', icon: 'bx-image-alt', label: 'অ্যাকিউট ফ্লো চার্ট' },
         { id: 'compare', href: 'miasm.html#compare', icon: 'bx-table', label: 'মায়াজম তুলনা' }
       ]
