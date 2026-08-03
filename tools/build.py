@@ -9,7 +9,8 @@ Sources
                      and his <dir> sub-rubric nesting — so grades and rubric
                      hierarchy are read from the book, not guessed
     r_remedies.py    curated remedy roster : key -> (Latin, Bangla, family, thermal, miasm)
-    r_materia.py     curated materia medica for the 113 remedies that have one
+    r_materia.py     curated materia medica — the original polychrest volume
+    r_materia2.py    materia medica volume 2, for remedies volume 1 omitted
     r_remedies_bn.py Bangla names for the Kent remedies the roster misses
     r_kent1..4.py    the earlier hand-built rubric tables — now used only for
                      their hand-checked *Bangla rubric names*, which override
@@ -28,6 +29,7 @@ sys.path.insert(0, HERE)
 from kent_html import parse_all, build_resolver, CHAPTER_FILES
 from r_remedies import R
 from r_materia import MM
+from r_materia2 import MM2
 from r_kent1 import K1
 from r_kent2 import K2
 from r_kent3 import K3
@@ -87,7 +89,7 @@ for ab in abbrevs:
     family = cur[2] if cur else ''
     thermal = cur[3] if cur else ''
     miasm = cur[4] if cur else ''
-    mm = MM.get(ab, {})
+    mm = MM.get(ab) or MM2.get(ab) or {}
     rec = {
         'id': ab,
         'name': latin,
@@ -253,6 +255,11 @@ for rec in remedies:
         search.append({'keywords': ', '.join(kws), 'match_id': rec['id']})
 
 full_mm = sum(1 for r in remedies if r['content_status'] == 'full')
+# how much of the repertory a practitioner can actually follow through to a drug
+# picture — a more honest figure than the bare remedy count, since the remedies
+# without one are mostly the rarely-cited
+mm_cells = sum(used[r['id']] for r in remedies if r['content_status'] == 'full')
+mm_share = round(100 * mm_cells / max(1, sum(used.values())))
 with_bn = sum(1 for r in remedies if r['bangla_name'])
 seg_total, seg_known = bn_coverage(rubs)
 
@@ -286,8 +293,10 @@ db = {
         'bangla_note_bn': ('রুব্রিকের বাংলা নাম কেন্টের পরিভাষা-অভিধান থেকে তৈরি — {kc}টি হাতে যাচাই করা, '
                            'বাকিগুলো অভিধান মিলিয়ে। যে পরিভাষার বাংলা এখনো নেই সেটি ইংরেজিতেই রাখা হয়েছে '
                            '(অংশগুলোর {cov} শতাংশ অনুবাদ হয়েছে) — ভুল অনুবাদের চেয়ে ইংরেজি রাখা নিরাপদ।'),
-        'materia_medica_note_bn': ('{f}টি ওষুধের পূর্ণ বাংলা মেটেরিয়া মেডিকা আছে। বাকিগুলোর শুধু নাম ও '
-                                   'রিপার্টরি তথ্য — বানানো লক্ষণ যোগ করা হয়নি।').format(f=BN(full_mm)),
+        'materia_medica_note_bn': ('{f}টি ওষুধের পূর্ণ বাংলা মেটেরিয়া মেডিকা আছে — রিপার্টরিতে যত ওষুধ-উল্লেখ '
+                                   'আছে তার {mc} শতাংশ এই ওষুধগুলোর। বাকিগুলোর শুধু নাম ও রিপার্টরি তথ্য; '
+                                   'প্রামাণিক মেটেরিয়া মেডিকায় যাদের স্পষ্ট চিত্র নেই তাদের জন্য বানানো লক্ষণ '
+                                   'যোগ করা হয়নি।'),
         'languages': ['বাংলা', 'English'],
         'disclaimer': 'এটি শুধুমাত্র শিক্ষামূলক রেফারেন্স। প্রকৃত চিকিৎসার জন্য যোগ্য হোমিওপ্যাথিক চিকিৎসকের পরামর্শ নিন।',
     },
@@ -301,6 +310,9 @@ md['scope_note_bn'] = md['scope_note_bn'].format(
     r=BN(total_rub), c=BN(total_cells), L=BN(md['max_level']))
 md['bangla_note_bn'] = md['bangla_note_bn'].format(
     kc=BN(bn_from_curated), cov=BN(round(100 * seg_known / max(1, seg_total))))
+md['materia_medica_note_bn'] = md['materia_medica_note_bn'].format(
+    f=BN(full_mm), mc=BN(mm_share))
+md['materia_medica_coverage_pct'] = mm_share
 
 with open(OUT, 'w', encoding='utf-8') as f:
     json.dump(db, f, ensure_ascii=False, separators=(',', ':'))
@@ -310,6 +322,7 @@ print('chapters        :', len(chapters_out))
 print('rubrics         :', total_rub, f'(max level {md["max_level"]})')
 print('grade entries   :', total_cells, '| grades:', dict(sorted(grade_hist.items())))
 print('remedies        :', len(remedies), f'(bangla {with_bn}, full MM {full_mm}, used {len(used)})')
+print('MM covers       :', f'{mm_share}% of grade entries')
 print('dropped tokens  :', dropped_tokens)
 print('rubric bangla   :', f'curated {bn_from_curated}, glossary-full {bn_from_glossary}, partial {bn_partial}')
 print('segment coverage:', f'{seg_known}/{seg_total} = {seg_known/max(1,seg_total):.1%}')
