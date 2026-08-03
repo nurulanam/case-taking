@@ -6,14 +6,15 @@
       "id": "kent",
       "file": "kent_remidies.json",
       "name_bn": "কেন্ট রিপার্টরী",
-      "name_en": "Kent's Repertory of the Homoeopathic Materia Medica",
+      "name_en": "Kent's Repertory of the Homoeopathic Materia Medica — complete",
       "author": "Dr. James Tyler Kent",
       "year": "১৮৯৭",
       "language": "বাংলা + English",
       "icon": "bx-book-bookmark",
       "color": "#0f766e",
-      "desc_bn": "ধ্রুপদী রিপার্টরির মানদণ্ড — কেন্টের ৩৭টি অধ্যায় ধরে সাজানো, প্রতিটি ওষুধ ১–৩ গ্রেডে চিহ্নিত। মন থেকে সাধারণ লক্ষণ পর্যন্ত ৭৬৯টি রুব্রিক ও ৫২০৪টি গ্রেড এন্ট্রি।",
-      "status": "curated"
+      "desc_bn": "কেন্টের সম্পূর্ণ রিপার্টরি — ৩৮টি অধ্যায়, ৬৬,০০০টি রুব্রিক ও সাব-রুব্রিক, ৪,৫৫,৯০৫টি গ্রেড এন্ট্রি। তিনটি গ্রেডই (১–৩) মূল বইয়ের ছাপার ধরন থেকে পড়া — গাঢ় = ৩, ইটালিক = ২। উৎস: Médi-T HTML সংস্করণ (homeoint.org)।",
+      "status": "curated",
+      "size_note": "≈৭ MB — প্রথমবার লোড হতে কয়েক সেকেন্ড লাগতে পারে"
     },
     {
       "id": "kent-generated",

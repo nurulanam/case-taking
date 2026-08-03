@@ -90,11 +90,80 @@
     }
   }
 
+  /* ==================== Bangla rubric names ====================
+     Kent's rubric names are compositional ('Pain, stitching, forehead,
+     evening'), so the data file ships one glossary of terms instead of 66,000
+     translated strings and the name is composed here. A term the glossary does
+     not have stays in English — a wrong Bangla rubric name would send the
+     practitioner to the wrong rubric, which is worse than an English one. */
+  const BN_DIGITS = '০১২৩৪৫৬৭৮৯';
+  const bnDigits = s => s.replace(/\d/g, d => BN_DIGITS[+d]);
+  const RE_CLOCK = /^(\d{1,2})(?::(\d{2}))?\s*([ap])\.?\s*m\.?$/i;
+  const RE_RANGE = /^(\d{1,2})\s*to\s*(\d{1,2})\s*([ap])\.?\s*m\.?$/i;
+
+  function clockBn(hour, minute, mer) {
+    const h = +hour;
+    const part = mer === 'a' ? (h < 6 ? 'ভোর' : 'সকাল')
+                             : (h < 3 ? 'দুপুর' : h < 6 ? 'বিকাল' : 'রাত');
+    return part + ' ' + bnDigits(String(h) + (minute ? ':' + minute : '')) + 'টা';
+  }
+
+  function segBn(seg, gloss) {
+    const s = seg.trim();
+    if (!s) return '';
+    const hit = gloss[s] || gloss[s.toLowerCase()] ||
+                gloss[s.charAt(0).toUpperCase() + s.slice(1)];
+    if (hit) return hit;
+    let m = RE_CLOCK.exec(s);
+    if (m) return clockBn(m[1], m[2], m[3].toLowerCase());
+    m = RE_RANGE.exec(s);
+    if (m) return clockBn(m[1], null, m[3].toLowerCase()) + ' থেকে ' +
+                  clockBn(m[2], null, m[3].toLowerCase());
+    return null;
+  }
+
+  function composeBn(name, gloss) {
+    let any = false;
+    const out = name.split(',').map(p => {
+      const bnPart = segBn(p, gloss);
+      if (bnPart === null) return p.trim();
+      any = true;
+      return bnPart;
+    });
+    return any ? out.join(', ') : '';
+  }
+
   /* ==================== normalise any book shape ==================== */
   function normalise(raw, entry) {
     const chapters = [];
     const rubricById = new Map();
     const source = raw.repertory_rubrics || raw.chapters || [];
+    const gloss = raw.bn_glossary || {};
+
+    /* Remedy names are interned into one table per book and each rubric keeps
+       plain index/grade arrays. Materialising 456,000 {name, grade, bn} objects
+       up front — one per grade entry in a complete Kent — is what makes a full
+       repertory unloadable; rems() builds them only for the handful of rubrics
+       actually in the case. */
+    const rxNames = [];
+    const rxBn = [];
+    const rxIndex = new Map();
+    (raw.remedies || []).forEach(rx => {
+      rxIndex.set(norm(rx.name), rxNames.length);
+      rxNames.push(rx.name);
+      rxBn.push(rx.bangla_name || '');
+    });
+    const intern = name => {
+      const k = norm(name);
+      let i = rxIndex.get(k);
+      if (i === undefined) {
+        i = rxNames.length;
+        rxIndex.set(k, i);
+        rxNames.push(name);
+        rxBn.push('');
+      }
+      return i;
+    };
 
     source.forEach((ch, ci) => {
       const label = ch.chapter || ch.name || ('অধ্যায় ' + (ci + 1));
@@ -109,23 +178,41 @@
         rubrics: []
       };
       (ch.rubrics || []).forEach((rb, ri) => {
-        // remedies may be {name: grade} or [{name, grade}]
-        let list = [];
-        const bnMap = rb.remedies_bn || {};
-        if (Array.isArray(rb.remedies)) {
-          list = rb.remedies.map(x => ({ name: x.name || x.remedy || String(x), grade: +(x.grade || x.g || 1), bn: x.bangla_name || bnMap[x.name] || '' }));
+        const ids = [];
+        const gr = [];
+        if (typeof rb.r === 'string') {
+          // compact-v6: 'index:grade' pairs, grade omitted when 1
+          if (rb.r) rb.r.split(',').forEach(tok => {
+            const c = tok.indexOf(':');
+            ids.push(+(c < 0 ? tok : tok.slice(0, c)));
+            gr.push(c < 0 ? 1 : +tok.slice(c + 1) || 1);
+          });
+        } else if (Array.isArray(rb.remedies)) {
+          rb.remedies.forEach(x => {
+            ids.push(intern(x.name || x.remedy || String(x)));
+            gr.push(+(x.grade || x.g || 1) || 1);
+          });
         } else {
-          list = Object.entries(rb.remedies || {}).map(([name, grade]) => ({ name: name, grade: +grade || 1, bn: bnMap[name] || '' }));
+          Object.entries(rb.remedies || {}).forEach(([name, grade]) => {
+            ids.push(intern(name));
+            gr.push(+grade || 1);
+          });
         }
+        const name = rb.name || rb.rubric || '';
         const rubric = {
           id: chapter.id + ':r' + ri,
-          name: rb.name || rb.rubric || '',
-          bn: rb.bangla_name || rb.bangla || rb.name_bn || '',
+          src: rb.src || 'curated',
+          name: name,
+          bn: rb.bangla_name || rb.bangla || rb.name_bn || composeBn(name, gloss),
+          level: rb.level || 1,
+          page: rb.page || 0,
           chapterId: chapter.id,
           chapterNum: chapter.num,
           chapterLabel: label,
           chapterShort: chapter.bn || chapter.en,
-          remedies: list.sort((a, b) => b.grade - a.grade)
+          ids: ids,
+          gr: gr,
+          n: ids.length
         };
         chapter.rubrics.push(rubric);
         rubricById.set(rubric.id, rubric);
@@ -141,7 +228,7 @@
     });
 
     const allRubrics = [...rubricById.values()];
-    return {
+    const book = {
       id: entry.id,
       meta: raw.metadata || {},
       chapters: chapters,
@@ -149,14 +236,29 @@
       rubricById: rubricById,
       remedyByKey: byKey,
       remedyList: raw.remedies || [],
+      rxNames: rxNames,
+      rxBn: rxBn,
       stats: {
         chapters: chapters.length,
         rubrics: allRubrics.length,
-        remedies: (raw.remedies || []).length,
+        remedies: (raw.remedies || []).length || rxNames.length,
         rubricTarget: +(raw.metadata || {}).rubric_target || 0
-      },
-      health: audit(allRubrics, byKey, raw.metadata || {})
+      }
     };
+    book.health = audit(book, raw.metadata || {});
+    return book;
+  }
+
+  /* Materialise one rubric's remedies. Called for rubrics in the case, never
+     for the whole book — see the note in normalise(). */
+  function rems(rb) {
+    const N = S.book.rxNames, B = S.book.rxBn;
+    const out = new Array(rb.n);
+    for (let i = 0; i < rb.n; i++) {
+      const j = rb.ids[i];
+      out[i] = { name: N[j] || '?', grade: rb.gr[i], bn: B[j] || '' };
+    }
+    return out.sort((a, b) => b.grade - a.grade);
   }
 
   /* ==================== data-health audit ====================
@@ -164,31 +266,39 @@
      so the page says so up front instead of quietly ranking noise. */
   const PLACEHOLDER = /^(remedy[\s_-]*\d+|remedy-template-\d+|ঔষধ\s*\d+)$/i;
 
-  function audit(rubrics, remedyByKey, meta) {
-    const names = new Set();
+  function audit(book, meta) {
+    const rubrics = book.rubrics;
+    const rxNames = book.rxNames;
     const sizes = new Set();
     const patterns = new Set();
     const rubricNames = new Set();
+    const usedIds = new Set();
     let cells = 0, placeholders = 0, unmatched = 0;
+
+    // per remedy-name checks are done once against the table, not once per cell
+    const phId = rxNames.map(n => PLACEHOLDER.test(n));
+    const unknownId = rxNames.map(n => !book.remedyByKey.has(norm(n)));
 
     rubrics.forEach(rb => {
       rubricNames.add(rb.name);
-      sizes.add(rb.remedies.length);
-      patterns.add(rb.remedies.map(r => r.grade).join(','));
-      rb.remedies.forEach(r => {
-        cells++;
-        names.add(r.name);
-        if (PLACEHOLDER.test(r.name)) placeholders++;
-        else if (!remedyByKey.has(norm(r.name))) unmatched++;
-      });
+      sizes.add(rb.n);
+      if (patterns.size < 4) patterns.add(rb.gr.join(','));
+      cells += rb.n;
+      for (let i = 0; i < rb.n; i++) {
+        const j = rb.ids[i];
+        usedIds.add(j);
+        if (phId[j]) placeholders++;
+        else if (unknownId[j]) unmatched++;
+      }
     });
 
+    const names = usedIds;
     const flags = [];
-    const phNames = [...names].filter(n => PLACEHOLDER.test(n)).length;
+    const phNames = [...usedIds].filter(j => phId[j]).length;
     if (phNames) flags.push({
       k: 'placeholder',
       t: `${bn(phNames)}টি ওষুধের নাম প্লেসহোল্ডার (<code>Remedy 437</code> / <code>remedy-template-0572</code> ধরনের) — মোট নামের
-          ${bn(Math.round(100 * phNames / names.size))}%, আর ${bn(Math.round(100 * placeholders / cells))}% গ্রেড এন্ট্রি এদের উপর দাঁড়িয়ে`
+          ${bn(Math.round(100 * phNames / Math.max(1, names.size)))}%, আর ${bn(Math.round(100 * placeholders / cells))}% গ্রেড এন্ট্রি এদের উপর দাঁড়িয়ে`
     });
     const dupRatio = rubrics.length ? rubricNames.size / rubrics.length : 1;
     if (rubrics.length > 50 && dupRatio < 0.5) flags.push({
@@ -270,6 +380,25 @@
          <code>index.json</code>-এ একটি এন্ট্রি দিন — কোড বদলাতে হবে না।</div>` : '';
   }
 
+  // Kent's three grades come straight from the source edition's typography, so
+  // the panel states the split — a repertory whose grade 3 is missing ranks
+  // differently, and the practitioner should be able to see that at a glance.
+  function gradeLine(h) {
+    const g = S.book.meta.grade_breakdown;
+    if (!g) return '';
+    return `<p style="font-size:0.8125rem;"><strong>গ্রেড:</strong>
+      ৩ — ${bn(g['3'] || 0)}টি · ২ — ${bn(g['2'] || 0)}টি · ১ — ${bn(g['1'] || 0)}টি
+      ${S.book.meta.max_level ? `· সাব-রুব্রিক ${bn(S.book.meta.max_level)} স্তর পর্যন্ত` : ''}</p>`;
+  }
+
+  function sourceLine() {
+    const s = S.book.meta.source;
+    if (!s) return '';
+    return `<p style="font-size:0.8125rem;"><strong>উৎস:</strong> ${esc(s.edition_bn || '')}
+      ${s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener" style="color:var(--primary);">${esc(s.url)}</a>` : ''}
+      ${esc(s.original_bn || '')} ${esc(s.typography_bn || '')}</p>`;
+  }
+
   function renderHealth() {
     const host = document.getElementById('healthCard');
     if (!S.book) { host.innerHTML = ''; return; }
@@ -281,6 +410,8 @@
            <strong>${bn(h.cells)}</strong>টি গ্রেড এন্ট্রি · রুব্রিকপ্রতি গড়ে ${bn((h.cells / S.book.stats.rubrics).toFixed(1))}টি ওষুধ ·
            ${bn(h.patterns)} রকম গ্রেড-বিন্যাস। কোনো প্লেসহোল্ডার নাম নেই।</p>
         ${h.notes.map(n => `<p style="font-size:0.8125rem;">${esc(n)}</p>`).join('')}
+        ${gradeLine(h)}
+        ${sourceLine()}
       </div>`;
       return;
     }
@@ -337,13 +468,21 @@
 
   function visibleRubrics() {
     if (!S.book) return [];
-    const q = S.search.trim().toLowerCase();
-    return S.book.rubrics.filter(rb => {
+    const raw = S.search.trim();
+    const q = raw.toLowerCase();
+    const hits = S.book.rubrics.filter(rb => {
       if (S.chapter !== 'all' && rb.chapterId !== S.chapter) return false;
       if (!q) return true;
-      return rb.name.toLowerCase().includes(q) || (rb.bn && rb.bn.includes(S.search.trim())) ||
-             rb.chapterLabel.toLowerCase().includes(q) || rb.chapterLabel.includes(S.search.trim());
+      return rb.name.toLowerCase().includes(q) || (rb.bn && rb.bn.includes(raw)) ||
+             rb.chapterLabel.toLowerCase().includes(q) || rb.chapterLabel.includes(raw);
     });
+    /* A complete Kent puts ~66,000 rubrics behind one list, and the deepest
+       sub-rubrics ('…, evening, bed, in, amel.') outnumber the main ones many
+       times over. Shallow rubrics first — with the biggest first inside a level
+       — means the head of the list is the part a practitioner reaches for,
+       instead of whichever branch happens to come first in the book. */
+    return hits.sort((a, b) => a.level - b.level || b.n - a.n ||
+                               a.name.localeCompare(b.name));
   }
 
   function renderRubrics() {
@@ -361,10 +500,10 @@
       <div class="rub ${S.picked.has(rb.id) ? 'picked' : ''}" data-id="${rb.id}">
         <span class="rub-plus"><i class='bx ${S.picked.has(rb.id) ? 'bx-check' : 'bx-plus'}'></i></span>
         <span class="rub-txt">
-          <span class="rub-name">${esc(rb.name)}${rb.bn ? ` <span style="color:var(--text-muted);font-size:0.8125rem;">${esc(rb.bn)}</span>` : ''}</span>
-          <span class="rub-ch">${rb.chapterNum ? bn(rb.chapterNum) + '. ' : ''}${esc(rb.chapterShort || rb.chapterLabel)}</span>
+          <span class="rub-name">${esc(rb.name)}${rb.bn ? ` <span style="color:var(--text-muted);font-size:0.8125rem;">${esc(rb.bn)}</span>` : ''}${rb.level > 1 ? ` <span class="rub-lvl" title="${bn(rb.level)} স্তরের সাব-রুব্রিক">${'·'.repeat(Math.min(rb.level - 1, 6))}</span>` : ''}</span>
+          <span class="rub-ch">${rb.chapterNum ? bn(rb.chapterNum) + '. ' : ''}${esc(rb.chapterShort || rb.chapterLabel)}${rb.page ? ` · পৃ. ${bn(rb.page)}` : ''}</span>
         </span>
-        <span class="rub-n">${bn(rb.remedies.length)} ওষুধ</span>
+        <span class="rub-n">${bn(rb.n)} ওষুধ</span>
       </div>`).join('') + (all.length > rows.length
         ? `<div class="rp-empty" style="padding:1rem;">আরও ${bn(all.length - rows.length)}টি রুব্রিক আছে —
              সার্চ বা অধ্যায় ফিল্টার দিয়ে খুঁজুন।</div>` : '');
@@ -397,7 +536,7 @@
     host.innerHTML = [...S.picked.entries()].map(([id, inten]) => {
       const rb = S.book.rubricById.get(id);
       if (!rb) return '';
-      const top = rb.remedies.slice(0, 4).map(r => `${esc(r.bn || r.name)} <b>${bn(r.grade)}</b>`).join(', ');
+      const top = rems(rb).slice(0, 4).map(r => `${esc(r.bn || r.name)} <b>${bn(r.grade)}</b>`).join(', ');
       return `<div class="tray-item" data-id="${id}">
         <div class="tray-top">
           <span class="tray-name">${esc(rb.name)}<small>${esc(rb.chapterLabel)}</small></span>
@@ -406,9 +545,9 @@
         <div class="tray-grades">
           <span class="flabel">তীব্রতা:</span>
           ${[1, 2, 3].map(g => `<button class="gbtn ${inten === g ? 'on' : ''}" data-g="${g}">${bn(g)}</button>`).join('')}
-          <span class="rub-n" style="margin-left:auto;">${bn(rb.remedies.length)} ওষুধ</span>
+          <span class="rub-n" style="margin-left:auto;">${bn(rb.n)} ওষুধ</span>
         </div>
-        <div class="tray-rem">${top}${rb.remedies.length > 4 ? ' …' : ''}</div>
+        <div class="tray-rem">${top}${rb.n > 4 ? ' …' : ''}</div>
       </div>`;
     }).join('');
 
@@ -428,7 +567,7 @@
 
     rubrics.forEach(rb => {
       const intensity = S.picked.get(rb.id) || 1;
-      rb.remedies.forEach(r => {
+      rems(rb).forEach(r => {
         const k = norm(r.name);
         if (!rows.has(k)) rows.set(k, { key: k, name: r.name, cells: {}, total: 0, coverage: 0, maxGrade: 0 });
         const row = rows.get(k);
@@ -632,7 +771,7 @@
       rubrics: r.rubrics.map(rb => ({
         chapter: rb.chapterLabel, rubric: rb.name,
         patient_intensity: S.picked.get(rb.id),
-        remedies: rb.remedies.map(x => ({ name: x.name, grade: x.grade }))
+        remedies: rems(rb).map(x => ({ name: x.name, grade: x.grade }))
       })),
       repertorisation: r.rows.slice(0, 30).map((x, i) => ({
         rank: i + 1, remedy: x.name, bangla: x.bangla || null,
