@@ -15,13 +15,23 @@
       "desc_bn": "কেন্টের সম্পূর্ণ রিপার্টরি — ৩৮টি অধ্যায়, ৬৬,০০০টি রুব্রিক ও সাব-রুব্রিক, ৪,৫৫,৯০৫টি গ্রেড এন্ট্রি। তিনটি গ্রেডই (১–৩) মূল বইয়ের ছাপার ধরন থেকে পড়া — গাঢ় = ৩, ইটালিক = ২। উৎস: Médi-T HTML সংস্করণ (homeoint.org)।",
       "status": "curated",
       "size_note": "≈৭ MB — প্রথমবার লোড হতে কয়েক সেকেন্ড লাগতে পারে"
+    },
+    {
+      "id": "boericke",
+      "file": "boericke_repertory.json",
+      "name_bn": "বোরিক রিপার্টরী",
+      "name_en": "Boericke's Repertory — Oscar E. Boericke, M.D.",
+      "author": "Dr. Oscar E. Boericke",
+      "year": "১৯২৭",
+      "language": "বাংলা + English",
+      "icon": "bx-book-content",
+      "color": "#b45309",
+      "desc_bn": "দেহতন্ত্র অনুযায়ী সাজানো ছোট ও ক্লিনিক্যাল রিপার্টরি — ২৫টি অধ্যায়, ৭,০৩৫টি রুব্রিক, ৬০,১৮৯টি গ্রেড এন্ট্রি। এই বইতে মাত্র দুটি গ্রেড (ইটালিক = ২, সাধারণ = ১)। ওষুধের তালিকা ও মেটেরিয়া মেডিকা কেন্টের সাথে একই। উৎস: Médi-T (homeoint.org)।",
+      "status": "curated",
+      "size_note": "≈১.৪ MB"
     }
   ],
   "planned": [
-    {
-      "name_bn": "বোরিক রিপার্টরী",
-      "name_en": "Boericke's Repertory"
-    },
     {
       "name_bn": "বোজার্কি (Boger–Bönninghausen)",
       "name_en": "Boger–Bönninghausen's Characteristics & Repertory"

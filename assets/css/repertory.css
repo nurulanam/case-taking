@@ -399,3 +399,29 @@
 .rp-grid th .rx-bn {
   display: block; font-weight: 400; font-size: 0.6875rem; color: var(--text-muted);
 }
+
+/* ---------- reversed view: every rubric a remedy appears in ---------- */
+.rev-block { border-top: 1px dashed var(--border); padding-top: 0.875rem; }
+.rev-chaps { display: flex; flex-wrap: wrap; gap: 0.3125rem; }
+.rev-ch {
+  font-family: inherit; font-size: 0.75rem; font-weight: 600;
+  padding: 0.25rem 0.5rem; border-radius: 999px;
+  background: var(--surface2); color: var(--text-muted);
+  border: 1px solid var(--border); cursor: pointer;
+}
+.rev-ch:hover { border-color: var(--primary); color: var(--primary); }
+.rev-ch.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.rev-ch b { font-weight: 700; }
+.rev-list {
+  margin-top: 0.625rem; max-height: 22rem; overflow-y: auto;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+}
+.rev-row {
+  display: flex; align-items: baseline; gap: 0.5rem;
+  padding: 0.3125rem 0.5rem; border-bottom: 1px solid var(--border);
+}
+.rev-row:last-child { border-bottom: none; }
+.rev-nm { flex: 1; min-width: 0; font-size: 0.8125rem; line-height: 1.5; color: var(--text); }
+.rev-bn { display: block; font-size: 0.6875rem; color: var(--text-muted); }
+.rev-pg { flex-shrink: 0; font-size: 0.6875rem; color: var(--text-muted); }
+.rev-more { padding: 0.5rem; font-size: 0.75rem; color: var(--text-muted); text-align: center; }

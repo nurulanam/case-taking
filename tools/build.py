@@ -11,6 +11,7 @@ Sources
     r_remedies.py    curated remedy roster : key -> (Latin, Bangla, family, thermal, miasm)
     r_materia.py     curated materia medica — the original polychrest volume
     r_materia2.py    materia medica volume 2, for remedies volume 1 omitted
+    r_materia3.py    volume 3 — written from the English source layers
     r_remedies_bn.py Bangla names for the Kent remedies the roster misses
     r_kent1..4.py    the earlier hand-built rubric tables — now used only for
                      their hand-checked *Bangla rubric names*, which override
@@ -30,6 +31,7 @@ from kent_html import parse_all, build_resolver, CHAPTER_FILES
 from r_remedies import R
 from r_materia import MM
 from r_materia2 import MM2
+from r_materia3 import MM3
 from r_kent1 import K1
 from r_kent2 import K2
 from r_kent3 import K3
@@ -89,7 +91,7 @@ for ab in abbrevs:
     family = cur[2] if cur else ''
     thermal = cur[3] if cur else ''
     miasm = cur[4] if cur else ''
-    mm = MM.get(ab) or MM2.get(ab) or {}
+    mm = MM.get(ab) or MM2.get(ab) or MM3.get(ab) or {}
     rec = {
         'id': ab,
         'name': latin,

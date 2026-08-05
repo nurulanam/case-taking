@@ -35,6 +35,8 @@
     showAll: false,
     selectedRemedy: null,
     compare: new Set(),  // remedy keys ticked for the materia-medica comparison
+    revChapter: null,    // which chapter is expanded in the reversed rubric view
+    source: null,        // which English source the step-4 card is showing
     result: null
   };
 
@@ -60,6 +62,7 @@
     }
     renderLibrary();
     bindShell();
+    S.source = Shell.store.get(SRC_STORE, null);
     restore();
   }
 
@@ -388,9 +391,13 @@
   function gradeLine(h) {
     const g = S.book.meta.grade_breakdown;
     if (!g) return '';
-    return `<p style="font-size:0.8125rem;"><strong>গ্রেড:</strong>
-      ৩ — ${bn(g['3'] || 0)}টি · ২ — ${bn(g['2'] || 0)}টি · ১ — ${bn(g['1'] || 0)}টি
-      ${S.book.meta.max_level ? `· সাব-রুব্রিক ${bn(S.book.meta.max_level)} স্তর পর্যন্ত` : ''}</p>`;
+    // only list grades the book actually uses — Boericke has two, Kent three,
+    // and printing "grade 3 — 0" invites the reader to think one is missing
+    const parts = ['3', '2', '1'].filter(k => g[k]).map(k => `${bn(k)} — ${bn(g[k])}টি`);
+    return `<p style="font-size:0.8125rem;"><strong>গ্রেড:</strong> ${parts.join(' · ')}
+      ${S.book.meta.max_level ? `· সাব-রুব্রিক ${bn(S.book.meta.max_level)} স্তর পর্যন্ত` : ''}
+      ${S.book.meta.grade_note_bn ? `<br><em>${esc(S.book.meta.grade_note_bn)}</em>` : ''}</p>
+      ${S.book.meta.dropped_note_bn ? `<p style="font-size:0.8125rem;">${esc(S.book.meta.dropped_note_bn)}</p>` : ''}`;
   }
 
   function sourceLine() {
@@ -816,7 +823,12 @@
           <div class="health-head"><i class='bx bx-info-circle'></i> মেটেরিয়া মেডিকা এখনো যোগ করা হয়নি</div>
           <p>এই ওষুধটি রিপার্টরিতে সঠিক নামে ও গ্রেডে আছে, তবে এর বাংলা মেটেরিয়া মেডিকা এখনো লেখা হয়নি —
              <strong>বানানো লক্ষণ যোগ করা হয়নি</strong>। মেটেরিয়া মেডিকা থেকে মিলিয়ে নিন।</p>
-        </div>`;
+        </div>
+        ${sourceHtml(rx)}
+        ${reversedHtml(rx.name)}`;
+      bindReversed();
+      bindSourceTabs();
+      ensureSource(rx.id, S.selectedRemedy);
       return;
     }
 
@@ -858,9 +870,123 @@
       ${pills(rel.antidote, 'প্রতিষেধক', 'bx-shield')}
       ${pills(rel.inimical, 'বিরুদ্ধ ওষুধ', 'bx-x-circle')}
       ${rx.potency_notes ? `<div class="md-sec"><h5><i class='bx bx-injection'></i> শক্তি</h5><p>${esc(rx.potency_notes)}</p></div>` : ''}
+      ${sourceHtml(rx)}
+      ${reversedHtml(rx.name)}
       <div class="sub-card warning-card" style="margin-top:1rem;">
         <p style="font-size:0.875rem;line-height:1.65;margin:0;">রেপার্টরাইজেশনের র‍্যাঙ্ক শুধু ইঙ্গিত — মেটেরিয়া মেডিকার সাথে রোগীর সামগ্রিক ছবি না মিললে এই ওষুধ নয়।</p>
       </div>`;
+    bindReversed();
+    bindSourceTabs();
+    ensureSource(rx.id, S.selectedRemedy);
+  }
+
+  /* ==================== reversed view ====================
+     Every rubric a remedy appears in, grouped by chapter — the remedy-side
+     reading of the book (what homeoint.org publishes as the "reversed Kent").
+     It is computed here from the loaded book rather than shipped: inverting the
+     index would duplicate all 455,905 entries in the file, while scanning for
+     one remedy costs a few milliseconds and always agrees with the forward data. */
+  const REV_CAP = 400;              // rows drawn per chapter before "show more"
+
+  /* The English source layers — the same sharded files materia.html reads.
+     Fetched per remedy letter on first use; for the remedies with no Bangla
+     picture these are the only full drug picture available. */
+  const SRC_DIR = 'assets/data/materia/';
+  const SRC_STORE = 'materia_source_v1';
+  let srcIndex = null;
+  const shardCache = new Map();
+
+  async function loadSrcIndex() {
+    if (srcIndex) return srcIndex;
+    try {
+      const r = await fetch(SRC_DIR + 'index.json');
+      srcIndex = r.ok ? await r.json() : { sources: {} };
+    } catch (e) { srcIndex = { sources: {} }; }
+    return srcIndex;
+  }
+
+  const shardFor = id => {
+    const ch = String(id || '').charAt(0).toLowerCase();
+    return /[a-z]/.test(ch) ? ch : '_';
+  };
+
+  async function loadShard(src, letter) {
+    const key = src + '/' + letter;
+    if (shardCache.has(key)) return shardCache.get(key);
+    // the index lists the shards each source actually has, so a letter with no
+    // entries is skipped rather than fetched and 404'd into the console
+    const listed = ((srcIndex.sources || {})[src] || {}).shards;
+    if (Array.isArray(listed) && !listed.includes(letter)) {
+      shardCache.set(key, {});
+      return {};
+    }
+    let data = {};
+    try {
+      const r = await fetch(`${SRC_DIR}${src}/${letter}.json`);
+      if (r.ok) data = await r.json();
+    } catch (e) { /* network failure: treat as no entry */ }
+    shardCache.set(key, data);
+    return data;
+  }
+
+  function srcEntry(src, id) {
+    const d = shardCache.get(src + '/' + shardFor(id));
+    return d ? d[id] : undefined;
+  }
+
+  function srcAvailable(id) {
+    if (!srcIndex) return [];
+    return Object.keys(srcIndex.sources || {}).filter(x => srcEntry(x, id));
+  }
+
+  // repaints, and renderDetail() calls it — so it must bail once cached
+  async function ensureSource(rxId, forKey) {
+    const letter = shardFor(rxId);
+    const already = srcIndex &&
+      Object.keys(srcIndex.sources || {}).every(x => shardCache.has(x + '/' + letter));
+    if (already) return;
+    await loadSrcIndex();
+    const names = Object.keys(srcIndex.sources || {});
+    if (!names.length) return;
+    await Promise.all(names.map(x => loadShard(x, letter)));
+    if (S.selectedRemedy === forKey) renderDetail();
+  }
+
+  function srcRuns(runs) {
+    return (runs || []).map(r => r.em ? `<em>${esc(r.t)}</em>` : esc(r.t)).join('');
+  }
+
+  function sourceHtml(rx) {
+    if (!rx) return '';
+    const avail = srcAvailable(rx.id);
+    if (!avail.length) return '';
+    let pick = S.source && avail.includes(S.source) ? S.source : avail[0];
+    const meta = srcIndex.sources[pick] || {};
+    const e = srcEntry(pick, rx.id);
+    const tabs = avail.map(x => {
+      const m = srcIndex.sources[x] || {};
+      return `<button class="src-tab ${x === pick ? 'on' : ''}" data-src="${esc(x)}">${esc(m.title_bn || x)}</button>`;
+    }).join('');
+    return `<div class="md-sec src-block">
+      <h5><i class='bx bx-book'></i> মূল ইংরেজি পাঠ <span class="src-tag">English</span></h5>
+      ${avail.length > 1 ? `<div class="src-tabs">${tabs}</div>` : ''}
+      <p class="src-cite">${esc(e.name)}${e.common ? ` — ${esc(e.common)}` : ''}
+        <span>${esc(meta.author || '')}${meta.edition ? ` · ${esc(meta.edition)}` : ''}</span></p>
+      ${e.provenance ? `<p class="src-prov">${srcRuns(e.provenance)}</p>` : ''}
+      ${e.lead ? `<p class="src-text">${srcRuns(e.lead)}</p>` : ''}
+      ${(e.sections || []).map(x => `<div class="src-sec">
+          <b>${x.n ? bn(x.n) + '. ' : ''}${esc(x.hbn || x.h)}${x.hbn ? `<i>${esc(x.h)}</i>` : ''}</b>
+          ${srcRuns(x.runs)}</div>`).join('')}
+    </div>`;
+  }
+
+  function bindSourceTabs() {
+    document.querySelectorAll('#remedyDetail .src-tab').forEach(b =>
+      b.addEventListener('click', () => {
+        S.source = b.dataset.src;
+        Shell.store.set(SRC_STORE, S.source);
+        renderDetail();
+      }));
   }
 
   function scoreBox(row) {
