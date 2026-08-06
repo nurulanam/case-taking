@@ -64,7 +64,7 @@
 .tz-col-cats  { grid-area: cats; background: var(--surface); display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--border); }
 .tz-mid       { grid-area: traits; background: var(--surface); display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--border); }
 .tz-right     { grid-area: rubrics; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
-.tz-bottom    { grid-area: remedies; background: var(--surface); display: flex; flex-direction: column; overflow: hidden; border-top: 1px solid var(--border); max-height: 250px; }
+.tz-bottom    { grid-area: remedies; background: var(--surface); display: flex; flex-direction: column; overflow: hidden; border-top: 1px solid var(--border); max-height: 350px; }
 
 /* Left Columns Headers (Temps & Cats) */
 .tz-left-header {
@@ -161,11 +161,11 @@
   width: 100%;
   padding: 0.4375rem;
   font-family: inherit; font-size: 0.8125rem; font-weight: 600;
-  background: rgba(239,68,68,0.15); color: #fca5a5;
-  border: 1px solid rgba(239,68,68,0.3); border-radius: 7px;
+  background: rgba(239,68,68,0.1); color: #dc2626;
+  border: 1px solid rgba(239,68,68,0.2); border-radius: 7px;
   cursor: pointer; transition: all 0.15s;
 }
-.tz-clear-btn:hover { background: rgba(239,68,68,0.25); }
+.tz-clear-btn:hover { background: rgba(239,68,68,0.15); }
 .tz-clear-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ===================== MIDDLE PANEL (Traits) ===================== */
@@ -309,6 +309,31 @@
   flex-shrink: 0; font-size: 0.6875rem; font-weight: 700;
   background: var(--surface2); padding: 0.1rem 0.4rem;
   border-radius: 10px; color: var(--text-muted);
+}
+
+.tz-bottom { grid-area: remedies; background: var(--surface); display: flex; flex-direction: row; overflow: hidden; border-top: 1px solid var(--border); min-height: 250px; }
+
+.tz-bottom-chart {
+  width: 320px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.tz-chart-container {
+  flex: 1;
+  position: relative;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tz-bottom-remedies {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* ---------- BOTTOM ROW (Remedies) ---------- */

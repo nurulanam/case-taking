@@ -12,6 +12,7 @@ const state = {
   curCat    : 'all',          // active category filter
   selections: {}              // { traitId: { intensity:1|2|3, tempId, rubric, text, scores } }
 };
+let radarChart = null;
 
 /* ── Category icons ─────────────────────────────────────────── */
 const CAT_ICONS = {
@@ -32,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
       buildCatList();
       updateStats();
       buildTheory();
+      updateChart({ tempScores: {} });
       // auto-select first temperament
       const firstId = Object.keys(json.temperaments)[0];
       selectTemp(firstId);
@@ -243,6 +245,11 @@ function updateRight() {
   if (count === 0) {
     emptyState.style.display = '';
     resultArea.style.display  = 'none';
+    const rxList = document.getElementById('tzRxList');
+    if (rxList) {
+      rxList.innerHTML = '<div class="tz-empty" style="min-height:80px;padding:1rem;"><p>বৈশিষ্ট্য নির্বাচিত হলে ওষুধ দেখাবে।</p></div>';
+    }
+    updateChart({ tempScores: {} });
     return;
   }
 
@@ -259,6 +266,9 @@ function updateRight() {
 
   // ── Remedies ──
   renderRemedies(scores);
+
+  // ── Chart ──
+  updateChart(scores);
 }
 
 function computeScores() {
@@ -471,4 +481,61 @@ function adjustColor(hex, amount) {
     const b = Math.max(0, Math.min(255, (num & 0xFF) + amount));
     return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
   } catch { return hex; }
+}
+
+function updateChart(scores) {
+  const ctx = document.getElementById('tzRadarChart');
+  if (!ctx) return;
+
+  const order = ['sanguine', 'choleric', 'melancholic', 'phlegmatic', 'nervous'];
+  const dataVals = order.map(id => (scores && scores.tempScores && scores.tempScores[id]) ? scores.tempScores[id] : 0);
+
+  if (radarChart) {
+    radarChart.data.datasets[0].data = dataVals;
+    radarChart.update();
+  } else {
+    if (typeof Chart === 'undefined') return;
+    
+    // get names in bangla
+    const labels = order.map(id => state.data.temperaments[id]?.name || id);
+
+    radarChart = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'স্কোর',
+          data: dataVals,
+          backgroundColor: 'rgba(124, 58, 237, 0.2)',
+          borderColor: '#7c3aed',
+          pointBackgroundColor: '#7c3aed',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          r: {
+            beginAtZero: true,
+            ticks: { display: false },
+            pointLabels: {
+              font: { size: 12, weight: 'bold', family: 'inherit' },
+              color: '#4b5563'
+            }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) { return 'স্কোর: ' + toBanglaDigit(ctx.raw); }
+            }
+          }
+        }
+      }
+    });
+  }
 }

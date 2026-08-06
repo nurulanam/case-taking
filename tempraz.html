@@ -112,16 +112,27 @@
             </div>
           </div>
 
-          <!-- ════════════ ROW 2: Remedies ════════════ -->
+          <!-- ════════════ ROW 2: Chart & Remedies ════════════ -->
           <div class="tz-bottom">
-            <div class="tz-bottom-header">
-              <span>প্রস্তাবিত ওষুধ</span>
-              <span style="font-size:0.6875rem;font-weight:400;text-transform:none;">⚕️ স্বভাব-স্কোর সহায়ক — চূড়ান্ত নয়।</span>
+            <div class="tz-bottom-chart">
+              <div class="tz-bottom-header">
+                <span>স্বভাব চিত্র</span>
+              </div>
+              <div class="tz-chart-container">
+                <canvas id="tzRadarChart"></canvas>
+              </div>
             </div>
-            <div class="tz-rx-scroll">
-              <div class="tz-rx-list-horiz" id="tzRxList">
-                <div class="tz-empty" style="min-height:80px;padding:1rem;">
-                  <p>বৈশিষ্ট্য নির্বাচিত হলে ওষুধ দেখাবে।</p>
+
+            <div class="tz-bottom-remedies">
+              <div class="tz-bottom-header">
+                <span>প্রস্তাবিত ওষুধ</span>
+                <span style="font-size:0.6875rem;font-weight:400;text-transform:none;">⚕️ স্বভাব-স্কোর সহায়ক — চূড়ান্ত নয়।</span>
+              </div>
+              <div class="tz-rx-scroll">
+                <div class="tz-rx-list-horiz" id="tzRxList">
+                  <div class="tz-empty" style="min-height:80px;padding:1rem;">
+                    <p>বৈশিষ্ট্য নির্বাচিত হলে ওষুধ দেখাবে।</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -142,11 +153,12 @@
     </main>
     <footer class="app-footer">
       <span>© হোমিও কেস স্টুডিও — শিক্ষামূলক ও গবেষণার উদ্দেশ্যে তৈরি। চিকিৎসার সিদ্ধান্ত চিকিৎসকের।</span>
-      <span>সব ডেটা এই ব্রাউজারেই সংরক্ষিত — কোথাও পাঠানো হয়লগ্ন।</span>
+      <span>সব ডেটা এই ব্রাউজারেই সংরক্ষিত — কোথাও পাঠানো হয় না।</span>
     </footer>
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="assets/js/shell.js"></script>
 <script src="assets/js/tempraz.js"></script>
 </body>
