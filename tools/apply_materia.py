@@ -21,7 +21,10 @@ from r_materia2 import MM2
 from r_materia3 import MM3
 
 DATA = os.path.join(HERE, '..', 'assets', 'data', 'repatories')
-FILES = ['kent_remidies.json', 'boericke_repertory.json']
+# every repertory that shares the remedy table — a book left out here keeps a
+# stale copy of the table and silently misses new drug pictures
+FILES = ['kent_remidies.json', 'boericke_repertory.json',
+         'boenninghausen_repertory.json']
 
 BN = lambda v: str(v).translate(str.maketrans('0123456789', '০১২৩৪৫৬৭৮৯'))
 

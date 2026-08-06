@@ -274,40 +274,62 @@
      Placeholder scaffolding must never be mistaken for a real repertory,
      so the page says so up front instead of quietly ranking noise. */
   const PLACEHOLDER = /^(remedy[\s_-]*\d+|remedy-template-\d+|ঔষধ\s*\d+)$/i;
+  const pct = (a, b) => Math.round(100 * a / Math.max(1, b));
+  /* A share that is real but tiny must not print as "০%" — Bönninghausen's 49
+     grade-4 entries are the whole point of his top rank, and rounding them to
+     zero says the opposite of the truth. */
+  const share = (a, b) => (a > 0 && pct(a, b) === 0) ? '<১%' : bn(pct(a, b)) + '%';
 
+  /* Every published figure is recomputed here from the rubrics actually loaded,
+     never read from metadata — metadata is a build-time *claim*, and the point
+     of a health panel is to check it. `meta` is used only for things no amount
+     of reading the data can recover (which tokens the build had to drop, the
+     source edition) and for the cross-check below. */
   function audit(book, meta) {
     const rubrics = book.rubrics;
     const rxNames = book.rxNames;
     const sizes = new Set();
-    const patterns = new Set();
     const rubricNames = new Set();
     const usedIds = new Set();
-    let cells = 0, placeholders = 0, unmatched = 0;
+    const grades = new Map();          // grade -> entry count, as found in the data
+    // Capped on purpose: this only has to answer "is every rubric identical?",
+    // and collecting all 4,277 of Kent's real patterns to answer that would
+    // build 66,000 throwaway strings. It is NOT a publishable statistic —
+    // printing the capped value as a fact is the bug this replaces.
+    const patternProbe = new Set();
+    let cells = 0, placeholders = 0, maxLevel = 0;
+    let bnFull = 0, bnPartial = 0, bnNone = 0;
 
     // per remedy-name checks are done once against the table, not once per cell
     const phId = rxNames.map(n => PLACEHOLDER.test(n));
-    const unknownId = rxNames.map(n => !book.remedyByKey.has(norm(n)));
 
     rubrics.forEach(rb => {
       rubricNames.add(rb.name);
       sizes.add(rb.n);
-      if (patterns.size < 4) patterns.add(rb.gr.join(','));
+      if (rb.level > maxLevel) maxLevel = rb.level;
+      if (patternProbe.size < 4) patternProbe.add(rb.gr.join(','));
       cells += rb.n;
+      // A rubric name is fully Bangla only when no Latin letter survives in it.
+      // This reads the composed name, so it judges Kent/Boericke (composed from
+      // the glossary at load) and Bönninghausen (Bangla shipped per rubric) by
+      // exactly the same test.
+      if (!rb.bn) bnNone++;
+      else if (/[A-Za-z]/.test(rb.bn)) bnPartial++;
+      else bnFull++;
       for (let i = 0; i < rb.n; i++) {
         const j = rb.ids[i];
         usedIds.add(j);
         if (phId[j]) placeholders++;
-        else if (unknownId[j]) unmatched++;
+        grades.set(rb.gr[i], (grades.get(rb.gr[i]) || 0) + 1);
       }
     });
 
-    const names = usedIds;
     const flags = [];
     const phNames = [...usedIds].filter(j => phId[j]).length;
     if (phNames) flags.push({
       k: 'placeholder',
       t: `${bn(phNames)}টি ওষুধের নাম প্লেসহোল্ডার (<code>Remedy 437</code> / <code>remedy-template-0572</code> ধরনের) — মোট নামের
-          ${bn(Math.round(100 * phNames / Math.max(1, names.size)))}%, আর ${bn(Math.round(100 * placeholders / cells))}% গ্রেড এন্ট্রি এদের উপর দাঁড়িয়ে`
+          ${bn(pct(phNames, usedIds.size))}%, আর ${bn(pct(placeholders, cells))}% গ্রেড এন্ট্রি এদের উপর দাঁড়িয়ে`
     });
     const dupRatio = rubrics.length ? rubricNames.size / rubrics.length : 1;
     if (rubrics.length > 50 && dupRatio < 0.5) flags.push({
@@ -315,24 +337,56 @@
       t: `${bn(rubrics.length)}টি রুব্রিকের মধ্যে আলাদা নাম মাত্র ${bn(rubricNames.size)}টি —
           একই রুব্রিক গড়ে ${bn((rubrics.length / rubricNames.size).toFixed(1))} বার ভিন্ন ওষুধ নিয়ে ফিরে এসেছে`
     });
-    if (patterns.size === 1 && rubrics.length > 5) flags.push({
+    if (patternProbe.size === 1 && rubrics.length > 5) flags.push({
       k: 'uniform',
-      t: `সব ${bn(rubrics.length)}টি রুব্রিকে গ্রেডের ধারা হুবহু এক (<code>${[...patterns][0]}</code>) — আসল রিপার্টরিতে এটা হয় না`
+      t: `সব ${bn(rubrics.length)}টি রুব্রিকে গ্রেডের ধারা হুবহু এক (<code>${[...patternProbe][0]}</code>) — আসল রিপার্টরিতে এটা হয় না`
     });
     if (sizes.size === 1 && rubrics.length > 5) flags.push({
       k: 'fixedsize',
       t: `প্রতিটি রুব্রিকে ঠিক ${bn([...sizes][0])}টি ওষুধ — বাস্তবে রুব্রিকভেদে সংখ্যা বদলায়`
     });
+    // a file that declares how big the book should be, but ships less than half
+    // of it, is a partial import — none of the three current books declare this,
+    // so it stays quiet until a future one does
     const target = +meta.rubric_target || 0;
     if (target && rubrics.length < target * 0.5) flags.push({
       k: 'coverage',
-      t: `লক্ষ্য ${bn(target)}টি রুব্রিকের মধ্যে আছে মাত্র ${bn(rubrics.length)}টি (${(100 * rubrics.length / target).toFixed(1)}%)`
+      t: `লক্ষ্য ${bn(target)}টি রুব্রিকের মধ্যে আছে মাত্র ${bn(rubrics.length)}টি
+          (${bn(pct(rubrics.length, target))}%) — বইয়ের বড় অংশ এখনো আসেনি`
     });
 
+    // Does the file's own metadata match what the file actually contains? A
+    // disagreement means the JSON was edited after the build, so every other
+    // number quoted from metadata is suspect too.
+    const mismatch = [];
+    const claimRub = +meta.rubrics_total || 0;
+    if (claimRub && claimRub !== rubrics.length)
+      mismatch.push(`রুব্রিক — মেটাডেটা বলে ${bn(claimRub)}, ফাইলে আছে ${bn(rubrics.length)}`);
+    const claimCells = +meta.grade_entries || 0;
+    if (claimCells && claimCells !== cells)
+      mismatch.push(`গ্রেড এন্ট্রি — মেটাডেটা বলে ${bn(claimCells)}, ফাইলে আছে ${bn(cells)}`);
+    const claimG = meta.grade_breakdown || null;
+    if (claimG) {
+      const keys = new Set([...Object.keys(claimG), ...[...grades.keys()].map(String)]);
+      [...keys].sort().forEach(k => {
+        const a = +claimG[k] || 0, b = grades.get(+k) || 0;
+        if (a !== b) mismatch.push(`গ্রেড ${bn(k)} — মেটাডেটা বলে ${bn(a)}, ফাইলে আছে ${bn(b)}`);
+      });
+    }
+
     return {
-      flags: flags, cells: cells, placeholders: placeholders, unmatched: unmatched,
-      uniqueNames: names.size, patterns: patterns.size, sizes: sizes.size, rubricNames: rubricNames.size,
-      notes: [meta.scope_note_bn, meta.materia_medica_note_bn].filter(Boolean),
+      flags, cells, placeholders, mismatch,
+      uniqueNames: usedIds.size,
+      tableSize: rxNames.length,
+      rubricNames: rubricNames.size,
+      maxLevel,
+      grades: [...grades.entries()].sort((a, b) => b[0] - a[0]),
+      bnFull, bnPartial, bnNone,
+      // `scope_note_bn` is deliberately NOT included: it restates the rubric and
+      // entry counts as frozen build-time prose, duplicating the recomputed line
+      // above it (and the book card right above that) — and it would contradict
+      // the recomputed figures if the file were ever edited after the build.
+      notes: [meta.materia_medica_note_bn].filter(Boolean),
       usable: flags.length === 0
     };
   }
@@ -389,19 +443,29 @@
          <code>index.json</code>-এ একটি এন্ট্রি দিন — কোড বদলাতে হবে না।</div>` : '';
   }
 
-  // Kent's three grades come straight from the source edition's typography, so
-  // the panel states the split — a repertory whose grade 3 is missing ranks
-  // differently, and the practitioner should be able to see that at a glance.
+  /* The grade split decides how a remedy ranks, so it is stated outright. Grades
+     are listed as *found in the data*, highest first — hard-coding 3/2/1 (as this
+     used to) silently hid Bönninghausen's grade 4 and made the listed counts fail
+     to add up to the entry total. */
   function gradeLine(h) {
-    const g = S.book.meta.grade_breakdown;
-    if (!g) return '';
-    // only list grades the book actually uses — Boericke has two, Kent three,
-    // and printing "grade 3 — 0" invites the reader to think one is missing
-    const parts = ['3', '2', '1'].filter(k => g[k]).map(k => `${bn(k)} — ${bn(g[k])}টি`);
+    if (!h.grades.length) return '';
+    const parts = h.grades.map(([g, n]) =>
+      `${bn(g)} — ${bn(n)}টি (${share(n, h.cells)})`);
+    const m = S.book.meta;
     return `<p style="font-size:0.8125rem;"><strong>গ্রেড:</strong> ${parts.join(' · ')}
-      ${S.book.meta.max_level ? `· সাব-রুব্রিক ${bn(S.book.meta.max_level)} স্তর পর্যন্ত` : ''}
-      ${S.book.meta.grade_note_bn ? `<br><em>${esc(S.book.meta.grade_note_bn)}</em>` : ''}</p>
-      ${S.book.meta.dropped_note_bn ? `<p style="font-size:0.8125rem;">${esc(S.book.meta.dropped_note_bn)}</p>` : ''}`;
+      ${m.grade_note_bn ? `<br><em>${esc(m.grade_note_bn)}</em>` : ''}</p>`;
+  }
+
+  /* Tokens the build could not pin to a remedy are gone from the file, so this
+     is the one figure that can only come from metadata. When it is absent the
+     panel says so rather than leaving a blank that reads as "none dropped". */
+  function droppedLine() {
+    const m = S.book.meta;
+    if (m.dropped_note_bn) return `<p style="font-size:0.8125rem;">${esc(m.dropped_note_bn)}</p>`;
+    if (typeof m.dropped_tokens === 'number')
+      return `<p style="font-size:0.8125rem;"><strong>বাদ পড়া উল্লেখ:</strong> ${bn(m.dropped_tokens)}টি</p>`;
+    return `<p style="font-size:0.8125rem;"><strong>বাদ পড়া উল্লেখ:</strong> এই বিল্ডে হিসাব রাখা হয়নি —
+      সংখ্যাটি শূন্য ধরে নেবেন না।</p>`;
   }
 
   function sourceLine() {
@@ -412,20 +476,69 @@
       ${esc(s.original_bn || '')} ${esc(s.typography_bn || '')}</p>`;
   }
 
+  /* Rubrics, distinct names, entries, average width, depth — the size of the
+     book as it actually loaded. `rubricNames` matters because a real repertory
+     repeats a name across chapters (Kent has 62,661 distinct of 66,000), while
+     scaffolding repeats one name endlessly. */
+  function sizeLine(h) {
+    const st = S.book.stats;
+    return `<p><strong>${bn(st.chapters)}</strong>টি অধ্যায় ·
+      <strong>${bn(st.rubrics)}</strong>টি রুব্রিক (আলাদা নাম ${bn(h.rubricNames)}টি) ·
+      <strong>${bn(h.cells)}</strong>টি গ্রেড এন্ট্রি · রুব্রিকপ্রতি গড়ে
+      ${bn((h.cells / Math.max(1, st.rubrics)).toFixed(1))}টি ওষুধ${h.maxLevel
+        ? ` · সাব-রুব্রিক ${bn(h.maxLevel)} স্তর পর্যন্ত` : ''}।</p>`;
+  }
+
+  /* How many of the shared 725-remedy table this particular book can actually
+     reach. Without the denominator the old panel let Bönninghausen's 445 read
+     like the whole roster, hiding that 280 remedies are uncitable here. */
+  function remedyLine(h) {
+    const rest = h.tableSize - h.uniqueNames;
+    return `<p style="font-size:0.8125rem;"><strong>ওষুধ:</strong> যৌথ তালিকার ${bn(h.tableSize)}টির মধ্যে
+      <strong>${bn(h.uniqueNames)}</strong>টি এই বইতে উল্লিখিত (${bn(pct(h.uniqueNames, h.tableSize))}%)।
+      ${rest > 0 ? `বাকি ${bn(rest)}টি এই বইয়ে নেই — অন্য রিপার্টরিতে আছে, তাই তালিকায় রাখা হয়েছে।` : ''}</p>`;
+  }
+
+  /* The app's stated goal is Bangla, so the rubric-name coverage is a
+     first-class health figure rather than a footnote. Counted from the composed
+     names, so it reflects what the reader will actually see in the list. */
+  function banglaLine(h) {
+    const total = h.bnFull + h.bnPartial + h.bnNone;
+    return `<p style="font-size:0.8125rem;"><strong>রুব্রিকের বাংলা নাম:</strong>
+      সম্পূর্ণ বাংলা ${bn(h.bnFull)}টি (${share(h.bnFull, total)}) ·
+      আংশিক ${bn(h.bnPartial)}টি (${share(h.bnPartial, total)}) ·
+      শুধু ইংরেজি ${bn(h.bnNone)}টি (${share(h.bnNone, total)})।
+      ${h.bnPartial + h.bnNone ? 'যে পরিভাষার নির্ভরযোগ্য বাংলা এখনো নেই সেটি ইংরেজিতেই রাখা হয়েছে — ভুল অনুবাদের চেয়ে নিরাপদ।' : ''}</p>`;
+  }
+
+  function mismatchLine(h) {
+    if (!h.mismatch.length) return '';
+    return `<div class="health" style="margin-top:0.75rem;">
+      <div class="health-head"><i class='bx bx-error-circle'></i> মেটাডেটা ও ফাইলের হিসাব মিলছে না</div>
+      <p>ফাইলটি বিল্ডের পরে বদলানো হয়েছে বলে মনে হচ্ছে। উপরের সংখ্যাগুলো ফাইল পড়ে গোনা, তাই সেগুলোই সঠিক।</p>
+      <ul>${h.mismatch.map(t => `<li>${t}</li>`).join('')}</ul>
+    </div>`;
+  }
+
   function renderHealth() {
     const host = document.getElementById('healthCard');
     if (!S.book) { host.innerHTML = ''; return; }
     const h = S.book.health;
     if (h.usable) {
       host.innerHTML = `<div class="health ok">
-        <div class="health-head"><i class='bx bx-check-shield'></i> ডেটা যাচাই উত্তীর্ণ</div>
-        <p><strong>${bn(S.book.stats.rubrics)}</strong>টি রুব্রিক · <strong>${bn(h.uniqueNames)}</strong>টি আলাদা ওষুধ ·
-           <strong>${bn(h.cells)}</strong>টি গ্রেড এন্ট্রি · রুব্রিকপ্রতি গড়ে ${bn((h.cells / S.book.stats.rubrics).toFixed(1))}টি ওষুধ ·
-           ${bn(h.patterns)} রকম গ্রেড-বিন্যাস। কোনো প্লেসহোল্ডার নাম নেই।</p>
-        ${h.notes.map(n => `<p style="font-size:0.8125rem;">${esc(n)}</p>`).join('')}
+        <div class="health-head"><i class='bx bx-check-shield'></i> ডেটা যাচাই উত্তীর্ণ
+          <span style="font-weight:500;color:var(--text-muted);font-size:0.75rem;">— নিচের সব সংখ্যা ফাইল পড়ে গোনা</span>
+        </div>
+        ${sizeLine(h)}
         ${gradeLine(h)}
+        ${remedyLine(h)}
+        ${banglaLine(h)}
+        ${h.notes.map(n => `<p style="font-size:0.8125rem;">${esc(n)}</p>`).join('')}
+        ${droppedLine()}
         ${sourceLine()}
-      </div>`;
+        <p style="font-size:0.8125rem;">কোনো প্লেসহোল্ডার ওষুধের নাম নেই — প্রতিটি রুব্রিক–ওষুধ সম্পর্ক ও গ্রেড মূল বই থেকে পড়া।</p>
+      </div>
+      ${mismatchLine(h)}`;
       return;
     }
     host.innerHTML = `<div class="health">
@@ -433,9 +546,12 @@
       <p>ইঞ্জিন ঠিকভাবে কাজ করছে, কিন্তু নিচের কারণে <strong>এই ডেটার ফলাফল ক্লিনিক্যালি ব্যবহার করা যাবে না</strong> —
          আসল রিপার্টরি ফাইল দিলে একই ছক ও র‍্যাঙ্কিং সঠিক ফল দেবে।</p>
       <ul>${h.flags.map(f => `<li>${f.t}</li>`).join('')}</ul>
-      <p style="margin-top:0.625rem;">যাচাই: ${bn(h.cells)}টি গ্রেড এন্ট্রির মধ্যে ${bn(h.placeholders)}টি প্লেসহোল্ডার নামে,
-         ${bn(h.unmatched)}টি নাম মেটেরিয়া মেডিকা তালিকার সাথে মেলে না।</p>
-    </div>`;
+      <p style="margin-top:0.625rem;">যাচাই: ${bn(h.cells)}টি গ্রেড এন্ট্রির মধ্যে ${bn(h.placeholders)}টি
+         প্লেসহোল্ডার নামের ওষুধে (${bn(pct(h.placeholders, h.cells))}%)।</p>
+      ${sizeLine(h)}
+      ${gradeLine(h)}
+    </div>
+    ${mismatchLine(h)}`;
   }
 
   /* ==================== step 2 ==================== */

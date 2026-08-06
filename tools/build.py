@@ -277,6 +277,14 @@ db = {
         'rubrics_total': total_rub,
         'remedies_total': len(remedies),
         'remedies_with_bangla_name': with_bn,
+        'remedies_in_book': len(used),
+        'rubrics_bangla_full': bn_from_curated + bn_from_glossary,
+        'rubrics_bangla_partial': bn_partial,
+        'rubrics_bangla_none': total_rub - bn_from_curated - bn_from_glossary - bn_partial,
+        'bangla_segment_coverage_pct': round(100 * seg_known / max(1, seg_total)),
+        # tokens the parse could not pin to a remedy; without this the health
+        # panel cannot tell "none dropped" from "never counted"
+        'dropped_tokens': dropped_tokens,
         'remedies_with_full_materia_medica': full_mm,
         'remedies_basic_entry_only': len(remedies) - full_mm,
         'grade_entries': total_cells,
