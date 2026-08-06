@@ -30,6 +30,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import boericke_mm
 import clarke_mm
+from materia_map import FORCE_ID, shard_of   # side-effect-free, shared with fix_materia_keys.py
 
 KENT = os.path.join(HERE, '..', 'assets', 'data', 'repatories', 'kent_remidies.json')
 OUTDIR = os.path.join(HERE, '..', 'assets', 'data', 'materia')
@@ -61,7 +62,10 @@ def match_id(abbr, name):
     Latin name, so the name is the reliable join. No candidate at all means the
     remedy is simply absent from our 1897-era roster.
     """
-    a = fold(abbr).lower().strip().replace('_', '-')
+    raw = fold(abbr).lower().strip()
+    if raw in FORCE_ID:
+        return FORCE_ID[raw]
+    a = raw.replace('_', '-')
     if a in ids:
         return a
     words = [w.strip('(),.') for w in fold(name).lower().replace('--', ' ').split()
@@ -74,12 +78,6 @@ def match_id(abbr, name):
     hits = [rid for rid, w in NAME_WORDS
             if w and w[0] == words[0] and (len(words) < 2 or len(w) < 2 or w[1].startswith(words[1]))]
     return hits[0] if len(hits) == 1 else None
-
-
-def shard_of(key):
-    """First character of the key, so the page derives the file from the id."""
-    c = (key[1:] if key.startswith('~') else key)[:1].lower()
-    return c if c.isalpha() else '_'
 
 
 def collect(recs, label):

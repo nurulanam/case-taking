@@ -36,13 +36,40 @@ OWNED = ['bangla_intro', 'keynotes', 'mental', 'general', 'particular', 'modalit
 
 VOLUMES = [('1', MM), ('2', MM2), ('3', MM3)]
 
-# roster entries that are the same remedy under a second abbreviation spelling
-# (both spellings occur in the source rubric text) -- point the alias at the
-# canonical id's drug picture rather than writing a duplicate entry
+# Roster entries that are the SAME remedy under a second name/abbreviation
+# (both spellings occur in the source rubric text). The alias reads the canonical
+# id's drug picture instead of us writing the same Bangla text twice -- and more
+# importantly instead of the card claiming "no materia medica" for a remedy whose
+# picture we already have under its other name.
+#
+# Same-substance, verified individually:
 ALIASES = {
+    # --- plain spelling / abbreviation variants of one remedy
     'calc-si': 'calc-sil', 'chen-an': 'chen-a', 'convo': 'conv-d',
     'jugl-c': 'jug-c', 'kali-bic': 'kali-bi', 'ocim': 'oci',
     'piper': 'pip-n', 'xanth': 'xan', 'zizia': 'ziz',
+    'naphtin': 'naph',             # Naphtalinum / Naphthalin
+    'palla': 'pall',               # Palladium Metallicum / Palladium
+    'physos': 'phys',              # Physostigma Venenosum / Physostigma
+    'sen': 'seneg',                # Senega Officinalis / Senega
+    'theri': 'ther',               # Theridion Curassavicum / Theridion
+    'cham-v': 'cham',              # Chamomilla Vulgaris == Matricaria chamomilla
+    'bism-ox': 'bism',             # Kent's own key glosses "Bism." as Bismuthum Oxidum
+    'phyt-d': 'phyt',              # "Phytolacca Berry" is the berry of Ph. decandra
+
+    # --- two Latin names for one drug, confirmed from the source books
+    'aml-n': 'aml-ns',             # Amyl Nitrite == Amylenum Nitrosum
+    'cahin': 'cain',               # Bonninghausen's key: "Cahin. --> Cainca. (Cahinca)"
+    'poth': 'ictod',               # Boericke titles it "Ictodes Foetida ... (POTHOS FOETIDUS)"
+    'chen': 'aphis',               # "Chenopodium Glauci Aphis" == Aphis Chenopodii Glauci
+    'lappa-m': 'lappa-a',          # Lappa Major == Arctium Lappa, one plant
+    'rad': 'radm',                 # the only Radium either book proves is the bromide
+    'sac-alb': 'sacc',             # identical roster names ("Saccharum Album") filed twice
+
+    # --- botanical varieties neither source book gives a separate picture for,
+    #     so the parent remedy's picture is the honest thing to show
+    'bufo-s': 'bufo',              # Clarke prints one generic "Bufo"
+    'rhus-r': 'rhus-t',            # Rhus radicans and R. toxicodendron are one species
 }
 
 
