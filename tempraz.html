@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Tempraz বিশেষজ্ঞ পদ্ধতি — ডাঃ পরিনাজ হুমরানওয়ালা</title>
+<meta content="ডাঃ পরিনাজ হুমরানওয়ালা-র Tempraz পদ্ধতিতে স্বভাব বিশ্লেষণ করে হোমিওপ্যাথিক সিমিলিমাম নির্বাচন — পাঁচটি মূল স্বভাব, রুব্রিক ও ওষুধ একসাথে।" name="description"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237c3aed'/%3E%3Ctext x='32' y='45' font-size='38' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23fff'%3ET%3C/text%3E%3C/svg%3E"/>
+<link href="assets/css/base.css" rel="stylesheet"/>
+<link href="assets/css/shell.css" rel="stylesheet"/>
+<link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
+<link href="assets/css/tempraz.css" rel="stylesheet"/>
+</head>
+<body data-page="tempraz" data-title="Tempraz বিশেষজ্ঞ পদ্ধতি" data-crumb="বিশ্লেষণ টুল">
+
+<div class="app-root">
+  <aside class="app-sidebar" id="appSidebar"></aside>
+  <div class="app-backdrop" id="appBackdrop"></div>
+  <div class="app-main">
+    <header class="app-topbar" id="appTopbar"></header>
+    <main class="app-content">
+      <div class="content-inner">
+
+        <!-- ── Page header ── -->
+        <div class="tz-page-head">
+          <div class="tz-ph-icon"><i class='bx bx-brain'></i></div>
+          <div>
+            <div class="tz-ph-title">Tempraz বিশেষজ্ঞ পদ্ধতি</div>
+            <div class="tz-ph-sub">ডাঃ পরিনাজ হুমরানওয়ালা · স্বভাব-ভিত্তিক সিমিলিমাম নির্বাচন</div>
+          </div>
+          <div class="tz-ph-stats">
+            <div class="tz-ph-stat"><b>৫</b><span>স্বভাব</span></div>
+            <div class="tz-ph-stat"><b>৫</b><span>শ্রেণি</span></div>
+            <div class="tz-ph-stat"><b id="tzTotalTraits">—</b><span>বৈশিষ্ট্য</span></div>
+            <div class="tz-ph-stat"><b id="tzTotalRemedies">—</b><span>ওষুধ</span></div>
+          </div>
+        </div>
+
+        <!-- ── 4-column + 1 bottom row app ── -->
+        <div class="tz-app">
+
+          <!-- ════════════ COL 1: Temperaments ════════════ -->
+          <div class="tz-col-temps">
+            <div class="tz-left-header">
+              <span class="tz-left-title">স্বভাব নির্বাচন</span>
+              <span class="tz-sel-badge" id="tzSelBadge">০</span>
+            </div>
+
+            <!-- 5 temperament buttons -->
+            <div class="tz-temp-list" id="tzTempList"></div>
+
+            <!-- Footer: clear all -->
+            <div class="tz-left-foot">
+              <button class="tz-clear-btn" id="tzClearBtn" disabled>
+                <i class='bx bx-trash'></i> সব মুছুন
+              </button>
+            </div>
+          </div>
+
+          <!-- ════════════ COL 2: Categories ════════════ -->
+          <div class="tz-col-cats">
+            <div class="tz-left-header">
+              <span class="tz-left-title">বৈশিষ্ট্য শ্রেণি</span>
+            </div>
+            
+            <div class="tz-cat-list" id="tzCatList"></div>
+          </div>
+
+          <!-- ════════════ COL 3: Trait list ════════════ -->
+          <div class="tz-mid">
+            <div class="tz-mid-header" id="tzMidHeader">
+              <div class="tz-mid-top">
+                <div class="tz-mid-ic" id="tzMidIc"></div>
+                <span class="tz-mid-name" id="tzMidName">স্বভাব নির্বাচন করুন</span>
+              </div>
+              <div class="tz-mid-sub" id="tzMidSub">বামদিক থেকে যেকোনো স্বভাব নির্বাচন করলে এখানে বৈশিষ্ট্য দেখাবে।</div>
+            </div>
+
+            <div class="tz-mid-scroll" id="tzMidScroll">
+              <!-- Traits injected by JS -->
+              <div id="tzTraitList"></div>
+            </div>
+
+            <div class="tz-mid-foot">
+              <i class='bx bx-info-circle'></i>
+              ক্লিক করুন: ১=তীব্র, ২=খুব তীব্র, ৩=প্রচণ্ড, ৪=বাদ
+            </div>
+          </div>
+
+          <!-- ════════════ COL 4: Rubrics ════════════ -->
+          <div class="tz-right">
+            <div class="tz-right-header">
+              <span class="tz-right-title">বিশ্লেষণ ফলাফল</span>
+              <span class="tz-right-count" id="tzRightCount">০ বৈশিষ্ট্য</span>
+            </div>
+
+            <div class="tz-right-scroll" id="tzRightScroll">
+              <!-- Empty state -->
+              <div class="tz-empty" id="tzEmptyState">
+                <i class='bx bx-brain'></i>
+                <p>বৈশিষ্ট্য চিহ্নিত করুন — রুব্রিক ও ওষুধ এখানে দেখাবে।</p>
+              </div>
+
+              <div id="tzResultArea" style="display:none;">
+                <!-- TQ score box -->
+                <div class="tz-tq-box" id="tzTqBox" style="display:none;"></div>
+
+                <!-- Rubrics -->
+                <div class="tz-rs-label" style="margin-top:0;">নির্বাচিত রুব্রিক</div>
+                <div class="tz-rubric-list" id="tzRubricList"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════════ ROW 2: Remedies ════════════ -->
+          <div class="tz-bottom">
+            <div class="tz-bottom-header">
+              <span>প্রস্তাবিত ওষুধ</span>
+              <span style="font-size:0.6875rem;font-weight:400;text-transform:none;">⚕️ স্বভাব-স্কোর সহায়ক — চূড়ান্ত নয়।</span>
+            </div>
+            <div class="tz-rx-scroll">
+              <div class="tz-rx-list-horiz" id="tzRxList">
+                <div class="tz-empty" style="min-height:80px;padding:1rem;">
+                  <p>বৈশিষ্ট্য নির্বাচিত হলে ওষুধ দেখাবে।</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- /tz-app -->
+
+        <!-- ── Theory section below ── -->
+        <div class="tz-theory" id="tzTheory"></div>
+
+        <p class="disclaimer">
+          Tempraz বিশেষজ্ঞ পদ্ধতি — ডাঃ পরিনাজ হুমরানওয়ালা রচিত <em>Temperament Types – A Study</em> অবলম্বনে নির্মিত।
+          শিক্ষামূলক ও গবেষণার উদ্দেশ্যে তৈরি। চূড়ান্ত চিকিৎসার সিদ্ধান্ত সর্বদা যোগ্য হোমিওপ্যাথিক চিকিৎসকের।
+        </p>
+
+      </div>
+    </main>
+    <footer class="app-footer">
+      <span>© হোমিও কেস স্টুডিও — শিক্ষামূলক ও গবেষণার উদ্দেশ্যে তৈরি। চিকিৎসার সিদ্ধান্ত চিকিৎসকের।</span>
+      <span>সব ডেটা এই ব্রাউজারেই সংরক্ষিত — কোথাও পাঠানো হয়লগ্ন।</span>
+    </footer>
+  </div>
+</div>
+
+<script src="assets/js/shell.js"></script>
+<script src="assets/js/tempraz.js"></script>
+</body>
+</html>
