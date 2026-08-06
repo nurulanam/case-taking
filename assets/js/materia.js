@@ -12,7 +12,7 @@
 
   const DIR = 'assets/data/repatories/';
   const STORE = 'materia_last_v1';
-  const LIST_CAP = 300;             // rows drawn at once; search narrows further
+  const LIST_CAP = 250;             // rows per page; search/filter narrows further
   const bn = v => Shell.bnNum(v);
   const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9ঀ-৿]/g, '');
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => (
@@ -28,6 +28,7 @@
     scope: 'full',     // 'full' = only remedies with a drug picture | 'all'
     facet: '',         // '' | 'fam:<family>' | 'thermal:<chilly|hot|mixed>'
     letter: '',
+    page: 0,
     selected: null,
     mode: 'read',      // 'read' | 'compare'
     compare: [],       // remedy ids, in the order picked
@@ -182,12 +183,12 @@
       const c = facetCounts();
       if (S.facet.startsWith('fam:') && !c.fam.get(S.facet.slice(4))) S.facet = '';
       if (S.facet.startsWith('thermal:') && !c.therm.get(S.facet.slice(8))) S.facet = '';
-      S.letter = '';
+      S.letter = ''; S.page = 0;
       renderFilters(); renderAlpha(); renderList();
     }));
     host.querySelectorAll('[data-facet]').forEach(b => b.addEventListener('click', () => {
       S.facet = b.dataset.facet;
-      S.letter = '';
+      S.letter = ''; S.page = 0;
       renderFilters(); renderAlpha(); renderList();
     }));
     requestAnimationFrame(sizeToolbar);
@@ -202,6 +203,7 @@
       letters.map(l => `<button class="${S.letter === l ? 'active' : ''}" data-l="${esc(l)}">${esc(l)}</button>`).join('');
     document.querySelectorAll('#rxAlpha button').forEach(b => b.addEventListener('click', () => {
       S.letter = b.dataset.l;
+      S.page = 0;
       renderAlpha(); renderList();
     }));
   }
@@ -228,10 +230,19 @@
   function renderList() {
     const host = document.getElementById('rxList');
     const all = visible(false);
-    const rows = all.slice(0, LIST_CAP);
-    document.getElementById('rxHint').innerHTML = all.length > rows.length
-      ? `${bn(rows.length)}টি দেখানো হচ্ছে (মিলেছে ${bn(all.length)}টি) — সার্চ করে সংকীর্ণ করুন`
-      : `${bn(all.length)}টি ওষুধ`;
+
+    // Paginate rather than truncate, so every remedy stays reachable by
+    // browsing even without a search term (see repertory.js for the same pattern).
+    const pages = Math.max(1, Math.ceil(all.length / LIST_CAP));
+    if (S.page >= pages) S.page = pages - 1;
+    if (S.page < 0) S.page = 0;
+    const from = S.page * LIST_CAP;
+    const rows = all.slice(from, from + LIST_CAP);
+
+    document.getElementById('rxHint').innerHTML = all.length
+      ? `${bn(from + 1)}–${bn(from + rows.length)} / <strong>${bn(all.length)}</strong>টি`
+        + (pages > 1 ? ` · পৃষ্ঠা ${bn(S.page + 1)}/${bn(pages)}` : '')
+      : `০টি ওষুধ`;
 
     if (!rows.length) {
       host.innerHTML = `<div class="mm-empty"><i class='bx bx-search-alt'></i>কোনো ওষুধ মেলেনি।</div>`;
@@ -253,11 +264,43 @@
                       : hasSrc(r.id) ? 'বাংলা নেই, তবে বোরিকের মূল ইংরেজি পাঠ আছে'
                       : 'শুধু নাম ও রিপার্টরি তথ্য'}">${full ? 'MM' : hasSrc(r.id) ? 'EN' : '—'}</span>
       </div>`;
-    }).join('');
+    }).join('') + pagerHtml(pages);
     host.querySelectorAll('.mm-rx').forEach(el => el.addEventListener('click', () => {
       if (S.mode === 'compare') toggleCompare(el.dataset.id);
       else select(el.dataset.id);
     }));
+    host.querySelectorAll('.pg-btn').forEach(b => b.addEventListener('click', () => {
+      S.page = +b.dataset.p;
+      renderList();
+      host.scrollTop = 0;               // a new page starts at its own top
+    }));
+  }
+
+  /* Page numbers around the current one, with first/last always reachable. */
+  function pageWindow(page, pages) {
+    const out = new Set([0, pages - 1, page]);
+    for (let d = 1; d <= 2; d++) {
+      if (page - d >= 0) out.add(page - d);
+      if (page + d < pages) out.add(page + d);
+    }
+    return [...out].sort((a, b) => a - b);
+  }
+
+  function pagerHtml(pages) {
+    if (pages <= 1) return '';
+    const nums = pageWindow(S.page, pages);
+    let html = `<div class="rp-pager">
+      <button class="pg-btn pg-arrow" data-p="${S.page - 1}" ${S.page === 0 ? 'disabled' : ''}
+              title="আগের পৃষ্ঠা"><i class='bx bx-chevron-left'></i></button>`;
+    let prev = -1;
+    nums.forEach(n => {
+      if (prev >= 0 && n > prev + 1) html += `<span class="pg-gap">…</span>`;
+      html += `<button class="pg-btn ${n === S.page ? 'active' : ''}" data-p="${n}">${bn(n + 1)}</button>`;
+      prev = n;
+    });
+    html += `<button class="pg-btn pg-arrow" data-p="${S.page + 1}" ${S.page === pages - 1 ? 'disabled' : ''}
+              title="পরের পৃষ্ঠা"><i class='bx bx-chevron-right'></i></button></div>`;
+    return html;
   }
 
   function select(id) {
@@ -737,28 +780,27 @@
   }
 
   function bindShell() {
-    const actions = document.getElementById('pageActions');
-    if (actions) {
-      actions.innerHTML = `
-        <button class="btn ghost" id="copyRx"><i class='bx bx-copy'></i> কপি</button>
-        <a class="btn ghost" href="repertory.html"><i class='bx bx-book-bookmark'></i> রিপার্টরি</a>`;
-      document.getElementById('copyRx').addEventListener('click', async () => {
-        const t = asText();
-        if (!t) { Shell.toast('আগে একটি ওষুধ বেছে নিন।', 'warn'); return; }
-        try { await navigator.clipboard.writeText(t); Shell.toast('মেটেরিয়া মেডিকা কপি হয়েছে।', 'ok'); }
-        catch (e) { Shell.toast('কপি করা যায়নি।', 'err'); }
-      });
-    }
+    const copyBtn = Shell.addAction(
+      `<button class="tb-btn" id="copyRx"><i class='bx bx-copy'></i><span class="tb-label">কপি</span></button>`);
+    if (copyBtn) copyBtn.addEventListener('click', async () => {
+      const t = asText();
+      if (!t) { Shell.toast('আগে একটি ওষুধ বেছে নিন।', 'warn'); return; }
+      try { await navigator.clipboard.writeText(t); Shell.toast('মেটেরিয়া মেডিকা কপি হয়েছে।', 'ok'); }
+      catch (e) { Shell.toast('কপি করা যায়নি।', 'err'); }
+    });
+    Shell.addAction(
+      `<a class="tb-btn" href="repertory.html"><i class='bx bx-book-bookmark'></i><span class="tb-label">রিপার্টরি</span></a>`);
 
     const inp = document.getElementById('rxSearch');
     const clr = document.getElementById('rxSearchClear');
     inp.addEventListener('input', () => {
       S.search = inp.value;
+      S.page = 0;                       // a new query starts at page one
       clr.style.display = inp.value ? '' : 'none';
       renderList();
     });
     clr.addEventListener('click', () => {
-      inp.value = ''; S.search = ''; clr.style.display = 'none';
+      inp.value = ''; S.search = ''; S.page = 0; clr.style.display = 'none';
       renderList(); inp.focus();
     });
 

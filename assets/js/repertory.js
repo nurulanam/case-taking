@@ -66,7 +66,11 @@
     restore();
   }
 
-  async function loadBook(entry) {
+  /* `gotoStep` is the step to land on once the book is ready — pass 0 to
+     skip the jump (restore() needs to repopulate S.picked before deciding
+     which step to land on, so it can't let this function jump to step 2
+     first and then move again). */
+  async function loadBook(entry, gotoStep = 2) {
     Shell.setChip('লোড হচ্ছে…', 'bx-loader-alt', true);
     const holder = document.getElementById('repList');
     holder.querySelectorAll('.rp-book').forEach(b => b.disabled = true);
@@ -85,7 +89,7 @@
       renderTray();
       save();
       Shell.toast(`${entry.name_bn} লোড হয়েছে — ${bn(S.book.stats.rubrics)}টি রুব্রিক, ${bn(S.book.stats.remedies)}টি ওষুধ।`, 'ok');
-      setStep(2);
+      if (gotoStep) setStep(gotoStep);
     } catch (e) {
       console.error(e);
       Shell.toast('রিপার্টরি ফাইল লোড করা যায়নি: ' + entry.file, 'err');
@@ -886,7 +890,60 @@
      It is computed here from the loaded book rather than shipped: inverting the
      index would duplicate all 455,905 entries in the file, while scanning for
      one remedy costs a few milliseconds and always agrees with the forward data. */
-  const REV_CAP = 400;              // rows drawn per chapter before "show more"
+  const REV_CAP = 400;              // rows drawn before "show more" (whole list or one chapter)
+  let revKey = null;                 // which remedy S.revChapter's filter belongs to
+
+  function reversedRubrics(name) {
+    const idx = S.book.rxNames.findIndex(n => norm(n) === norm(name));
+    if (idx < 0) return [];
+    const out = [];
+    S.book.chapters.forEach(ch => {
+      ch.rubrics.forEach(rb => {
+        const pos = rb.ids.indexOf(idx);
+        if (pos >= 0) out.push({ rb, grade: rb.gr[pos], chapterId: ch.id, chapterLabel: ch.bn || ch.en });
+      });
+    });
+    return out;
+  }
+
+  function reversedHtml(name) {
+    // switching remedies must drop the previous remedy's chapter filter
+    if (S.selectedRemedy !== revKey) { S.revChapter = null; revKey = S.selectedRemedy; }
+    const all = reversedRubrics(name);
+    if (!all.length) return '';
+
+    const counts = new Map();
+    all.forEach(x => counts.set(x.chapterId, (counts.get(x.chapterId) || 0) + 1));
+    const chapters = S.book.chapters.filter(ch => counts.has(ch.id));
+    if (S.revChapter && !counts.has(S.revChapter)) S.revChapter = null;
+
+    const rows = (S.revChapter ? all.filter(x => x.chapterId === S.revChapter) : all).slice(0, REV_CAP);
+    const total = S.revChapter ? counts.get(S.revChapter) : all.length;
+
+    return `
+      <div class="md-sec rev-block">
+        <h5><i class='bx bx-list-ul'></i> এই ওষুধ যেসব রুব্রিকে আছে (মোট ${bn(all.length)}টি)</h5>
+        <div class="rev-chaps">
+          <button class="rev-ch ${!S.revChapter ? 'on' : ''}" data-ch="">সব <b>${bn(all.length)}</b></button>
+          ${chapters.map(ch => `<button class="rev-ch ${S.revChapter === ch.id ? 'on' : ''}" data-ch="${ch.id}">
+            ${esc(ch.bn || ch.en)} <b>${bn(counts.get(ch.id))}</b></button>`).join('')}
+        </div>
+        <div class="rev-list">
+          ${rows.map(x => `<div class="rev-row">
+            <span class="rev-nm">${esc(x.rb.name)}${x.rb.bn ? `<span class="rev-bn">${esc(x.rb.bn)}</span>` : ''}</span>
+            <span class="rev-pg">${x.rb.page ? 'পৃ. ' + bn(x.rb.page) + ' · ' : ''}গ্রেড ${bn(x.grade)}</span>
+          </div>`).join('')}
+          ${total > rows.length ? `<div class="rev-more">${bn(rows.length)}/${bn(total)} — বাকিগুলো দেখতে একটি অধ্যায় বেছে নিন</div>` : ''}
+        </div>
+      </div>`;
+  }
+
+  function bindReversed() {
+    document.querySelectorAll('.rev-ch').forEach(b => b.addEventListener('click', () => {
+      S.revChapter = b.dataset.ch || null;
+      renderDetail();
+    }));
+  }
 
   /* The English source layers — the same sharded files materia.html reads.
      Fetched per remedy letter on first use; for the remedies with no Bangla
@@ -1051,6 +1108,7 @@
     if (n === 4) { renderGrid(); renderTop(); renderDetail(); renderExport(); }
     updateNav();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    save();                             // remember the step so a reload restores it, not step 2
   }
 
   function renderExport() {
@@ -1076,7 +1134,8 @@
   function save() {
     Shell.store.set(STORE, {
       book: S.bookMeta ? S.bookMeta.id : null,
-      picked: [...S.picked.entries()]
+      picked: [...S.picked.entries()],
+      step: S.step
     });
   }
 
@@ -1085,12 +1144,15 @@
     if (!d || !d.book) return;
     const entry = (S.manifest.repertories || []).find(x => x.id === d.book);
     if (!entry) return;
-    await loadBook(entry);
+    await loadBook(entry, 0);           // 0: decide the landing step below, once picks are back
     (d.picked || []).forEach(([id, g]) => { if (S.book.rubricById.has(id)) S.picked.set(id, g); });
     if (S.picked.size) {
       renderRubrics(); renderTray();
       Shell.toast(`আগের কেস ফিরিয়ে আনা হয়েছে — ${bn(S.picked.size)}টি রুব্রিক।`, 'ok');
     }
+    // land back where the user left off, not always on the rubric-picking step
+    const target = S.picked.size ? Math.min(4, Math.max(2, d.step || 2)) : 2;
+    setStep(target);
   }
 
   /* ==================== wiring ==================== */

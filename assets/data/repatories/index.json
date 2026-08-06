@@ -29,13 +29,23 @@
       "desc_bn": "দেহতন্ত্র অনুযায়ী সাজানো ছোট ও ক্লিনিক্যাল রিপার্টরি — ২৫টি অধ্যায়, ৭,০৩৫টি রুব্রিক, ৬০,১৮৯টি গ্রেড এন্ট্রি। এই বইতে মাত্র দুটি গ্রেড (ইটালিক = ২, সাধারণ = ১)। ওষুধের তালিকা ও মেটেরিয়া মেডিকা কেন্টের সাথে একই। উৎস: Médi-T (homeoint.org)।",
       "status": "curated",
       "size_note": "≈১.৪ MB"
+    },
+    {
+      "id": "boenninghausen",
+      "file": "boenninghausen_repertory.json",
+      "name_bn": "ব্যোনিংহাউজেন রিপার্টরী",
+      "name_en": "Bönninghausen's Characteristics Repertory — C. M. Boger, M.D.",
+      "author": "Dr. Clemens von Bönninghausen (সংকলন: C. M. Boger)",
+      "year": "১৯০৫",
+      "language": "বাংলা + English",
+      "icon": "bx-list-check",
+      "color": "#6d28d9",
+      "desc_bn": "ব্যোনিংহাউজেনের নিজস্ব \"characteristic\" পদ্ধতি — কেন্টের অঙ্গ-ভিত্তিক রুব্রিকের বদলে সাধারণ লক্ষণ, মোডালিটি ও সহলক্ষণের উপর জোর দেয়। ৫৯টি অধ্যায়, ২৬,৪৪০টি রুব্রিক, ২,৮৪,৮৬৩টি গ্রেড এন্ট্রি। চারটি গ্রেড (১–৪) — গ্রেড ৪ লেখকের নিজস্ব সর্বোচ্চ গুরুত্বের চিহ্ন। ওষুধের তালিকা ও মেটেরিয়া মেডিকা কেন্টের সাথে একই। উৎস: Médi-T HTML সংস্করণ (homeoint.org)।",
+      "status": "curated",
+      "size_note": "≈৫.৩ MB"
     }
   ],
   "planned": [
-    {
-      "name_bn": "বোজার্কি (Boger–Bönninghausen)",
-      "name_en": "Boger–Bönninghausen's Characteristics & Repertory"
-    },
     {
       "name_bn": "ফাটাক",
       "name_en": "Phatak's Concise Repertory"

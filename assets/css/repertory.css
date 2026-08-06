@@ -356,27 +356,6 @@
   .rp-limit { margin-left: 0; }
 }
 
-/* ---------- rubric list pager ----------
-   66,000 rubrics is 264 pages, so the strip shows a window around the current
-   page with the first and last always reachable. */
-.rp-pager {
-  display: flex; align-items: center; justify-content: center;
-  flex-wrap: wrap; gap: 0.25rem;
-  margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
-}
-.pg-btn {
-  min-width: 1.875rem; padding: 0.25rem 0.4375rem;
-  font-family: inherit; font-size: 0.75rem; font-weight: 700;
-  background: var(--surface); color: var(--text-muted);
-  border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
-  transition: all 0.15s;
-}
-.pg-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
-.pg-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
-.pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.pg-arrow { font-size: 0.9375rem; line-height: 1; padding: 0.1875rem 0.375rem; }
-.pg-gap { color: var(--text-muted); font-size: 0.75rem; padding: 0 0.125rem; }
-
 /* ---------- compare hand-off to the materia medica ---------- */
 .rp-cmpbar {
   display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;

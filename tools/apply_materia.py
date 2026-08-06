@@ -33,8 +33,18 @@ OWNED = ['bangla_intro', 'keynotes', 'mental', 'general', 'particular', 'modalit
 
 VOLUMES = [('1', MM), ('2', MM2), ('3', MM3)]
 
+# roster entries that are the same remedy under a second abbreviation spelling
+# (both spellings occur in the source rubric text) -- point the alias at the
+# canonical id's drug picture rather than writing a duplicate entry
+ALIASES = {
+    'calc-si': 'calc-sil', 'chen-an': 'chen-a', 'convo': 'conv-d',
+    'jugl-c': 'jug-c', 'kali-bic': 'kali-bi', 'ocim': 'oci',
+    'piper': 'pip-n', 'xanth': 'xan', 'zizia': 'ziz',
+}
+
 
 def lookup(ab):
+    ab = ALIASES.get(ab, ab)
     for vol, table in VOLUMES:
         if ab in table:
             return vol, table[ab]
