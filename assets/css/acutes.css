@@ -425,15 +425,7 @@
   }
   .no-results i { font-size: 3rem; margin-bottom: 1rem; color: var(--border); }
 
-  .disclaimer {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    text-align: center;
-    padding: 1rem;
-    border-top: 1px solid var(--border);
-    margin-top: 2rem;
-    line-height: 1.6;
-  }
+  /* .disclaimer moved to base.css — shared across every page that uses it */
 
   .selection-summary {
     background: var(--primary-bg);

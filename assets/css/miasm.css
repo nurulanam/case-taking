@@ -33,10 +33,7 @@
   .page-panel { display: none; }
   .page-panel.active { display: block; }
 
-  .disclaimer {
-    margin-top: 2rem; font-size: 0.8125rem; line-height: 1.7;
-    color: var(--text-muted); text-align: center;
-  }
+  /* .disclaimer moved to base.css — shared across every page that uses it */
   .link-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
   .link-btn {
     display: inline-flex; align-items: center; gap: 0.375rem;
