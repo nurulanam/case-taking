@@ -118,9 +118,9 @@
               <div class="tz-bottom-header">
                 <span>স্বভাব চিত্র</span>
               </div>
-              <div class="tz-chart-container">
-                <canvas id="tzRadarChart"></canvas>
-              </div>
+              <!-- filled with an inline SVG radar by tempraz.js — no chart library,
+                   so it renders with the app fully offline like every other panel -->
+              <div class="tz-chart-container" id="tzRadarChart"></div>
             </div>
 
             <div class="tz-bottom-remedies">
@@ -158,7 +158,6 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="assets/js/shell.js"></script>
 <script src="assets/js/tempraz.js"></script>
 </body>

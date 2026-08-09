@@ -64,7 +64,9 @@
 .tz-col-cats  { grid-area: cats; background: var(--surface); display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--border); }
 .tz-mid       { grid-area: traits; background: var(--surface); display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--border); }
 .tz-right     { grid-area: rubrics; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
-.tz-bottom    { grid-area: remedies; background: var(--surface); display: flex; flex-direction: column; overflow: hidden; border-top: 1px solid var(--border); max-height: 350px; }
+/* .tz-bottom is declared once, further down with the rest of the bottom row —
+   a second earlier declaration used to set flex-direction:column/max-height here
+   and was silently overridden, so editing it had no effect. */
 
 /* Left Columns Headers (Temps & Cats) */
 .tz-left-header {
@@ -327,7 +329,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 200px;
 }
+/* the SVG is square and scales to whichever of the two axes runs out first,
+   so the radar stays circular in the narrow desktop column and the wide
+   full-width mobile card alike */
+.tz-chart-container svg { width: 100%; height: 100%; max-height: 260px; }
 
 .tz-bottom-remedies {
   flex: 1;
@@ -435,7 +442,17 @@
   font-size: 0.6875rem; font-weight: 800; margin-top: 0.125rem;
 }
 
-/* ---------- Mobile / Responsive ---------- */
+/* ---------- Mobile / Responsive ----------
+   The desktop layout is a fixed-height viewport app: `.tz-app` is capped at
+   `calc(100vh - 180px)` and clips with `overflow:hidden` so each of the four
+   columns scrolls inside itself.
+
+   Once the grid stacks, that cap is actively harmful — the rows add up to far
+   more than one screen, and anything past the cap is *clipped away with no
+   scrollbar*. On a 390x844 phone that silently hid 664px: the whole রুব্রিক
+   panel and the entire chart + remedies row simply did not exist. Every
+   stacked breakpoint therefore has to release height, min-height, max-height
+   AND overflow together; releasing only `height` (as before) changes nothing. */
 @media (max-width: 1100px) {
   .tz-app {
     grid-template-columns: 210px 1fr 1fr;
@@ -444,9 +461,16 @@
       "cats traits rubrics"
       "remedies remedies remedies";
     height: auto;
-    min-height: 800px;
+    max-height: none;
+    min-height: 0;
+    overflow: visible;
   }
+  /* rows now grow with content, so the inner panels need their own ceiling
+     instead of inheriting one from the app box */
+  .tz-col-temps, .tz-col-cats { max-height: 340px; }
+  .tz-mid, .tz-right { max-height: 520px; }
 }
+
 @media (max-width: 900px) {
   .tz-app {
     grid-template-columns: 1fr;
@@ -457,13 +481,64 @@
       "rubrics"
       "remedies";
     height: auto;
+    max-height: none;
+    min-height: 0;
+    overflow: visible;
   }
-  .tz-col-temps  { height: 200px; }
-  .tz-col-cats   { height: 200px; }
-  .tz-mid   { height: 380px; }
-  .tz-right { height: 400px; }
-  .tz-ph-stats { display: none; }
+  /* one column now: side borders would draw across the full width, so the
+     separator moves to the bottom edge of each stacked panel */
+  .tz-col-temps, .tz-col-cats, .tz-mid {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  /* Content-sized, with a cap only where a list can run long. The five
+     temperament buttons and six category buttons always fit, so pinning them
+     to 200px (as before) just added two needless nested scrollbars. */
+  .tz-col-temps, .tz-col-cats { max-height: none; }
+  .tz-mid   { max-height: 60vh; }
+  .tz-right { max-height: 70vh; }
+
+  /* chart beside remedies does not fit a phone — stack and let the radar span */
+  .tz-bottom { flex-direction: column; min-height: 0; }
+  .tz-bottom-chart {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
 }
+
 @media (max-width: 640px) {
-  .tz-page-head { flex-wrap: wrap; }
+  /* keep the four counters: they are the page's only at-a-glance summary, and
+     `display:none` used to drop them entirely rather than reflow them */
+  .tz-page-head { flex-wrap: wrap; gap: 0.875rem 1rem; padding: 1rem; }
+  /* only the unclassed text block flexes — `:not(.tz-ph-stats)` would also
+     catch .tz-ph-icon and stretch the square icon into a wide pill */
+  .tz-page-head > div:not([class]) { min-width: 0; flex: 1; }
+  .tz-ph-title { font-size: 1.125rem; }
+  .tz-ph-sub { font-size: 0.75rem; }
+  .tz-ph-stats {
+    margin-left: 0;
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255,255,255,0.15);
+  }
+  .tz-ph-stat b { font-size: 1.125rem; }
+  .tz-ph-stat span { font-size: 0.625rem; }
+  .tz-ph-icon { width: 42px; height: 42px; font-size: 1.375rem; }
+
+  /* single-column remedy cards read better than a squeezed 280px minmax */
+  .tz-rx-list-horiz { grid-template-columns: 1fr; }
+  .tz-mid   { max-height: 65vh; }
+  .tz-right { max-height: none; }
+}
+
+/* Finger-sized hit areas. The desktop rows land at 38–41px, just under the
+   ~44px both platform guidelines ask for, which is exactly the range where
+   taps start landing on the neighbouring trait — costly here, since tapping a
+   trait cycles its intensity rather than toggling it. */
+@media (hover: none) and (pointer: coarse) {
+  .tz-trait-row, .tz-temp-btn, .tz-cat-btn { min-height: 44px; }
+  .tz-clear-btn { min-height: 40px; }
 }

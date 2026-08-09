@@ -12,7 +12,6 @@ const state = {
   curCat    : 'all',          // active category filter
   selections: {}              // { traitId: { intensity:1|2|3, tempId, rubric, text, scores } }
 };
-let radarChart = null;
 
 /* ── Category icons ─────────────────────────────────────────── */
 const CAT_ICONS = {
@@ -483,59 +482,76 @@ function adjustColor(hex, amount) {
   } catch { return hex; }
 }
 
+/* Radar chart, drawn as inline SVG.
+
+   This used to be Chart.js from a CDN, which meant the one chart in an app that
+   advertises "সম্পূর্ণ অফলাইন" was the only thing that could not render offline —
+   the library never loaded, the guard returned early, and the panel sat empty
+   with no explanation. Five axes is little enough geometry to draw directly, so
+   there is no dependency to miss: the SVG scales with its box, themes off the
+   same CSS variables as the rest of the page, and each temperament keeps the
+   colour it is given everywhere else in the UI. */
+const TZ_ORDER = ['sanguine', 'choleric', 'melancholic', 'phlegmatic', 'nervous'];
+
 function updateChart(scores) {
-  const ctx = document.getElementById('tzRadarChart');
-  if (!ctx) return;
+  const host = document.getElementById('tzRadarChart');
+  if (!host) return;
 
-  const order = ['sanguine', 'choleric', 'melancholic', 'phlegmatic', 'nervous'];
-  const dataVals = order.map(id => (scores && scores.tempScores && scores.tempScores[id]) ? scores.tempScores[id] : 0);
+  const vals = TZ_ORDER.map(id =>
+    (scores && scores.tempScores && scores.tempScores[id]) ? scores.tempScores[id] : 0);
+  const max = Math.max(4, ...vals);          // floor of 4 keeps a lone pick from filling the web
+  const temps = (state.data && state.data.temperaments) || {};
 
-  if (radarChart) {
-    radarChart.data.datasets[0].data = dataVals;
-    radarChart.update();
-  } else {
-    if (typeof Chart === 'undefined') return;
-    
-    // get names in bangla
-    const labels = order.map(id => state.data.temperaments[id]?.name || id);
+  const S = 240, C = S / 2, R = S * 0.32;    // viewBox size, centre, outer radius
+  const ang = i => (Math.PI * 2 * i / TZ_ORDER.length) - Math.PI / 2;   // start at 12 o'clock
+  const pt = (i, r) => [C + Math.cos(ang(i)) * r, C + Math.sin(ang(i)) * r];
+  const poly = r => TZ_ORDER.map((_, i) => pt(i, r).map(n => n.toFixed(1)).join(',')).join(' ');
 
-    radarChart = new Chart(ctx, {
-      type: 'radar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'স্কোর',
-          data: dataVals,
-          backgroundColor: 'rgba(124, 58, 237, 0.2)',
-          borderColor: '#7c3aed',
-          pointBackgroundColor: '#7c3aed',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-          pointRadius: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          r: {
-            beginAtZero: true,
-            ticks: { display: false },
-            pointLabels: {
-              font: { size: 12, weight: 'bold', family: 'inherit' },
-              color: '#4b5563'
-            }
-          }
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: function(ctx) { return 'স্কোর: ' + toBanglaDigit(ctx.raw); }
-            }
-          }
-        }
-      }
-    });
-  }
+  const rings = [0.25, 0.5, 0.75, 1]
+    .map(f => `<polygon points="${poly(R * f)}" fill="none" stroke="var(--border)" stroke-width="1"/>`)
+    .join('');
+  const spokes = TZ_ORDER.map((_, i) => {
+    const [x, y] = pt(i, R);
+    return `<line x1="${C}" y1="${C}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"
+            stroke="var(--border)" stroke-width="1"/>`;
+  }).join('');
+
+  const shape = TZ_ORDER
+    .map((_, i) => pt(i, R * (vals[i] / max)).map(n => n.toFixed(1)).join(','))
+    .join(' ');
+  const dots = TZ_ORDER.map((id, i) => {
+    if (!vals[i]) return '';
+    const [x, y] = pt(i, R * (vals[i] / max));
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5"
+            fill="${temps[id]?.color || '#7c3aed'}" stroke="#fff" stroke-width="1.5"/>`;
+  }).join('');
+
+  // labels sit outside the web; the two lower-side ones are nudged so a long
+  // Bangla name does not collide with the polygon it belongs to
+  const labels = TZ_ORDER.map((id, i) => {
+    const [x, y] = pt(i, R + 22);
+    const anchor = Math.abs(x - C) < 6 ? 'middle' : (x > C ? 'start' : 'end');
+    const name = (temps[id]?.name || id);
+    const v = vals[i];
+    return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}"
+              font-size="10" font-weight="700" fill="var(--text-muted)">${esc(name)}</text>
+            <text x="${x.toFixed(1)}" y="${(y + 12).toFixed(1)}" text-anchor="${anchor}"
+              font-size="10" font-weight="800"
+              fill="${v ? (temps[id]?.color || '#7c3aed') : 'var(--text-light)'}">${toBanglaDigit(v)}</text>`;
+  }).join('');
+
+  const empty = vals.every(v => !v);
+  host.innerHTML = `
+    <svg viewBox="0 0 ${S} ${S}" role="img" aria-label="স্বভাব স্কোরের রাডার চিত্র"
+         preserveAspectRatio="xMidYMid meet">
+      ${rings}${spokes}
+      ${empty ? '' : `<polygon points="${shape}" fill="rgba(124,58,237,0.18)"
+                        stroke="#7c3aed" stroke-width="2" stroke-linejoin="round"/>`}
+      ${dots}${labels}
+    </svg>`;
+}
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"]/g,
+    c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 }
