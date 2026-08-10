@@ -55,8 +55,23 @@
       try { const v = localStorage.getItem(key); return v === null ? fallback : JSON.parse(v); }
       catch (e) { return fallback; }
     },
-    set(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch (e) { return false; } },
-    del(key) { try { localStorage.removeItem(key); } catch (e) {} }
+    set(key, val) { 
+      try { 
+        localStorage.setItem(key, JSON.stringify(val)); 
+        if (['homeoCaseDraft', 'repertory_case_v1', 'miasm_selected_v1'].includes(key) && typeof updateSidebarBadges === 'function') {
+          updateSidebarBadges();
+        }
+        return true; 
+      } catch (e) { return false; } 
+    },
+    del(key) { 
+      try { 
+        localStorage.removeItem(key); 
+        if (['homeoCaseDraft', 'repertory_case_v1', 'miasm_selected_v1'].includes(key) && typeof updateSidebarBadges === 'function') {
+          updateSidebarBadges();
+        }
+      } catch (e) {} 
+    }
   };
 
   /* ---------------- toasts ---------------- */
@@ -128,8 +143,23 @@
 
     const sidebar = document.getElementById('appSidebar');
     const topbar = document.getElementById('appTopbar');
-    if (sidebar) sidebar.innerHTML = sidebarHtml(active);
+    if (sidebar) {
+      sidebar.innerHTML = sidebarHtml(active);
+      updateSidebarBadges();
+    }
     if (topbar) topbar.innerHTML = topbarHtml(page);
+
+    // Track recently visited modules (exclude dashboard)
+    if (active && active !== 'dashboard') {
+      let recent = store.get('recent_modules_v1', []);
+      recent = recent.filter(p => p !== active);
+      recent.unshift(active);
+      if (recent.length > 3) recent.pop();
+      store.set('recent_modules_v1', recent);
+    }
+    
+    // Setup bottom nav for mobile
+    setupBottomNav(active);
 
     // mobile drawer
     const toggle = document.getElementById('navToggle');
@@ -144,6 +174,69 @@
     if (sidebar) sidebar.addEventListener('click', e => { if (e.target.closest('a')) setNav(false); });
     // a resize past the breakpoint must not leave the drawer state stuck
     window.addEventListener('resize', () => { if (window.innerWidth > 860) setNav(false); });
+  }
+
+  function getGreeting() {
+    const hr = new Date().getHours();
+    if (hr >= 5 && hr < 12) return 'শুভ সকাল';
+    if (hr >= 12 && hr < 17) return 'শুভ অপরাহ্ণ';
+    if (hr >= 17 && hr < 20) return 'শুভ সন্ধ্যা';
+    return 'শুভ রাত্রি';
+  }
+
+  function updateSidebarBadges() {
+    // Check localStorage for active work and update .sb-meta dynamically
+    const draft = store.get('homeoCaseDraft', null);
+    if (draft && typeof draft === 'object' && Object.keys(draft).length) {
+      updateSbMeta('case', 'খসড়া');
+    } else {
+      updateSbMeta('case', '৯ ধাপ', true);
+    }
+    const rep = store.get('repertory_case_v1', null);
+    if (rep && rep.picked && rep.picked.length) {
+      updateSbMeta('repertory', bnNum(rep.picked.length) + 'টি');
+    } else {
+      updateSbMeta('repertory', '৩ বই', true);
+    }
+    const miasm = store.get('miasm_selected_v1', null);
+    if (miasm && miasm.length) {
+      updateSbMeta('miasm', bnNum(miasm.length) + 'টি');
+    } else {
+      updateSbMeta('miasm', '৬৩', true);
+    }
+  }
+
+  function updateSbMeta(id, text, reset = false) {
+    const link = document.querySelector(`.sb-link[href^="${id}.html"]`);
+    if (link) {
+      let meta = link.querySelector('.sb-meta');
+      if (!meta) {
+        meta = document.createElement('span');
+        meta.className = 'sb-meta';
+        link.appendChild(meta);
+      }
+      meta.textContent = text;
+      if (reset) {
+        meta.style.background = '';
+        meta.style.color = '';
+      } else {
+        meta.style.background = 'var(--primary)';
+        meta.style.color = '#fff';
+      }
+    }
+  }
+
+  function setupBottomNav(active) {
+    if (document.getElementById('appBottomNav')) return;
+    const navHtml = `
+      <nav class="app-bottom-nav" id="appBottomNav">
+        <a href="index.html" class="bn-item ${active==='dashboard'?'active':''}"><i class='bx bx-grid-alt'></i><span>ড্যাশবোর্ড</span></a>
+        <a href="case.html" class="bn-item ${active==='case'?'active':''}"><i class='bx bx-clipboard'></i><span>কেস</span></a>
+        <a href="repertory.html" class="bn-item ${active==='repertory'?'active':''}"><i class='bx bx-book-bookmark'></i><span>রিপার্টরি</span></a>
+        <a href="materia.html" class="bn-item ${active==='materia'?'active':''}"><i class='bx bx-capsule'></i><span>মেটেরিয়া</span></a>
+      </nav>
+    `;
+    document.body.insertAdjacentHTML('beforeend', navHtml);
   }
 
   /* ---------------- topbar action helpers ---------------- */
@@ -191,7 +284,7 @@
     clear() { store.del(BRIDGE_KEY); }
   };
 
-  global.Shell = { APP, NAV, bnNum, store, toast, addAction, setChip, init, bridge };
+  global.Shell = { APP, NAV, bnNum, store, toast, addAction, setChip, init, bridge, getGreeting };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

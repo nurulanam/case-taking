@@ -9,6 +9,37 @@
 <link href="assets/css/base.css" rel="stylesheet"/>
 <link href="assets/css/shell.css" rel="stylesheet"/>
 <link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
+<style>
+  .mod-card {
+    opacity: 0;
+    animation: modFadeIn 0.5s ease forwards;
+  }
+  @keyframes modFadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  /* Staggered animation delays */
+  .mod-card:nth-child(1) { animation-delay: 0.05s; }
+  .mod-card:nth-child(2) { animation-delay: 0.1s; }
+  .mod-card:nth-child(3) { animation-delay: 0.15s; }
+  .mod-card:nth-child(4) { animation-delay: 0.2s; }
+  .mod-card:nth-child(5) { animation-delay: 0.25s; }
+  .mod-card:nth-child(6) { animation-delay: 0.3s; }
+  .mod-card:nth-child(7) { animation-delay: 0.35s; }
+
+  .quick-recent {
+    display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+  }
+  .qr-chip {
+    display: inline-flex; align-items: center; gap: 0.375rem;
+    padding: 0.5rem 0.875rem; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--border);
+    font-size: 0.8125rem; font-weight: 600; color: var(--text);
+    text-decoration: none; transition: all 0.2s; box-shadow: var(--shadow-sm);
+  }
+  .qr-chip:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+  .qr-chip i { font-size: 1rem; color: var(--primary); }
+</style>
 </head>
 <body data-page="dashboard" data-title="ড্যাশবোর্ড" data-crumb="হোম">
 
@@ -21,7 +52,7 @@
       <div class="content-inner">
 
         <section class="hero">
-          <h2>স্বাগতম — আপনার হোমিওপ্যাথি ওয়ার্কস্পেস</h2>
+          <h2><span id="heroGreeting">স্বাগতম</span> — আপনার হোমিওপ্যাথি ওয়ার্কস্পেস</h2>
           <p>কেস নেওয়া থেকে শুরু করে তীব্র রোগে সিমিলিমাম বাছাই ও মায়াজম নির্ণয় — তিনটি মডিউল একসাথে।
              সবকিছু সম্পূর্ণ অফলাইনে চলে, কোনো ডেটা কোথাও পাঠানো হয় না।</p>
           <div class="hero-stats" id="heroStats">
@@ -31,6 +62,8 @@
             <div class="hero-stat"><b>৫</b><span>মায়াজম</span></div>
           </div>
         </section>
+
+        <div id="quickRecentContainer"></div>
 
         <div class="section-heading" style="margin-bottom:1rem;">
           <span class="section-number"><i class='bx bx-grid-alt' style="font-size:1rem"></i></span>
@@ -163,6 +196,30 @@
   }
   document.getElementById('heroStats').innerHTML =
     stats.map(s => `<div class="hero-stat"><b>${s.n}</b><span>${s.l}</span></div>`).join('');
+
+  // ---- Dynamic greeting ----
+  document.getElementById('heroGreeting').textContent = Shell.getGreeting();
+
+  // ---- Recent 3 Modules Quick Access ----
+  const recentMods = Shell.store.get('recent_modules_v1', []);
+  if (recentMods.length > 0) {
+    const modsData = {
+      'case': { label: 'কেস ফর্ম', icon: 'bx-clipboard' },
+      'repertory': { label: 'রিপার্টরি', icon: 'bx-book-bookmark' },
+      'acutes': { label: 'তীব্র রোগ', icon: 'bx-sitemap' },
+      'miasm': { label: 'মায়াজম', icon: 'bx-analyse' },
+      'materia': { label: 'মেটেরিয়া', icon: 'bx-capsule' },
+      'prescription': { label: 'প্রেসক্রিপশন', icon: 'bx-receipt' },
+      'tempraz': { label: 'টেম্পরাজ', icon: 'bx-brain' }
+    };
+    const qrHtml = recentMods.map(id => {
+      const d = modsData[id];
+      if (!d) return '';
+      return `<a href="${id}.html" class="qr-chip"><i class='bx ${d.icon}'></i> ${d.label}</a>`;
+    }).join('');
+    document.getElementById('quickRecentContainer').innerHTML = 
+      `<div class="quick-recent"><span style="font-size:0.8125rem; font-weight:600; color:var(--text-muted); align-self:center; margin-right:0.5rem;">সাম্প্রতিক:</span> ${qrHtml}</div>`;
+  }
 
   // ---- recent work from localStorage ----
   const rows = [];

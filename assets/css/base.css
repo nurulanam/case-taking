@@ -11,7 +11,7 @@
   --success-bg: #ecfdf5;
   --warning: #f59e0b;
 
-  --bg: #f8fafc;
+  --bg: #f4f8fb;
   --surface: #ffffff;
   --surface2: #f1f5f9;
   --border: #e2e8f0;
@@ -25,8 +25,23 @@
   --radius: 14px;
   --radius-lg: 20px;
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow: 0 4px 16px rgba(0,0,0,0.08);
+  /* Richer layered shadows for depth */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05), 0 1px 6px rgba(0,0,0,0.05);
+  --shadow:    0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.07);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.08), 0 16px 40px rgba(0,0,0,0.09);
+  --shadow-primary: 0 4px 14px rgba(15,118,110,0.25);
+
+  /* Dark mode placeholders — activated in Phase 3 */
+  --dm-bg: #0d1117;
+  --dm-surface: #161b22;
+  --dm-surface2: #21262d;
+  --dm-border: #30363d;
+  --dm-text: #e6edf3;
+  --dm-text-muted: #8b949e;
+
+  /* Module accent colors */
+  --page-accent: var(--primary);
+  --page-accent-bg: var(--primary-bg);
 }
 
 * {
@@ -206,7 +221,9 @@ h2#currentStepTitle {
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border);
   margin-bottom: 1.5rem;
+  transition: box-shadow 0.2s, border-color 0.2s;
 }
+.card:focus-within { border-color: var(--border-focus); }
 .sub-card {
   background: var(--surface2);
   border-radius: var(--radius-sm);
@@ -427,18 +444,20 @@ textarea { resize: vertical; }
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.18s;
   font-family: inherit;
 }
-.btn:active { transform: scale(0.98); }
+.btn:active { transform: scale(0.97); }
 .btn.primary {
   background: var(--primary);
   color: white;
+  box-shadow: var(--shadow-primary);
 }
-.btn.primary:hover { background: var(--accent); }
+.btn.primary:hover { background: var(--accent); box-shadow: 0 6px 18px rgba(15,118,110,0.32); }
 .btn.success {
   background: var(--success);
   color: white;
+  box-shadow: 0 4px 12px rgba(16,185,129,0.22);
 }
 .btn.success:hover { background: #059669; }
 .btn.ghost {
@@ -446,7 +465,202 @@ textarea { resize: vertical; }
   color: var(--primary);
   border: 1px solid var(--primary);
 }
-.btn.ghost:hover { background: var(--primary-bg); }
+.btn.ghost:hover { background: var(--primary-bg); box-shadow: var(--shadow-sm); }
+.btn.ghost.danger {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.btn.ghost.danger:hover { background: var(--danger-bg); }
+
+/* Form Nav (Bottom Bar) */
+.form-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+  z-index: 100;
+}
+@media (min-width: 600px) {
+  .form-nav {
+    justify-content: center;
+    gap: 2rem;
+  }
+}
+.action-card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  background: var(--primary-bg);
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--primary-light);
+}
+
+/* Hidden by default */
+.gender-panel { display: none; }
+
+/* ==========================================================================
+   Search input with a leading icon and a clear button.
+   Shared by miasm.html, repertory.html and materia.html — it used to be copied
+   into miasm.css and repertory.css, which left the materia page (loading
+   neither) with an unstyled box and the icon stacked above the field.
+   ========================================================================== */
+.m-search { position: relative; }
+.m-search i {
+  position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted); font-size: 1.125rem; pointer-events: none;
+}
+.m-search input {
+  width: 100%; padding: 0.6875rem 2.25rem 0.6875rem 2.375rem;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-family: inherit; font-size: 0.9375rem; background: var(--surface); color: var(--text);
+}
+.m-search input:focus {
+  outline: none; border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.10);
+}
+.m-search .clear-x {
+  position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--text-muted);
+  cursor: pointer; font-size: 1.125rem; padding: 0.25rem;
+}
+
+/* ---------- case <-> repertory <-> prescription hand-off ----------
+   Shared by case.html, repertory.html and prescription.html so the hand-off
+   looks like one feature rather than three unrelated buttons. */
+.bridge-hint {
+  font-size: 0.875rem; color: var(--text-muted);
+  line-height: 1.7; margin-bottom: 0.625rem;
+}
+.bridge-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+
+.case-bridge {
+  background: linear-gradient(135deg, var(--primary-bg), var(--surface));
+  border: 1px solid var(--primary); border-left-width: 4px;
+  border-radius: var(--radius); padding: 0.875rem 1rem; margin-bottom: 1rem;
+}
+.cb-head { display: flex; align-items: flex-start; gap: 0.625rem; }
+.cb-head > i { font-size: 1.25rem; color: var(--primary); flex-shrink: 0; margin-top: 0.125rem; }
+.cb-head > div { flex: 1; min-width: 0; }
+.cb-head b { display: block; font-size: 0.9375rem; color: var(--text); }
+.cb-head span { display: block; font-size: 0.8125rem; color: var(--text-muted); line-height: 1.55; margin-top: 0.125rem; }
+.cb-chips { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-top: 0.75rem; }
+.cb-chip {
+  display: inline-flex; align-items: baseline; gap: 0.375rem;
+  max-width: 100%; text-align: left;
+  font-family: inherit; font-size: 0.8125rem; color: var(--text);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 999px; padding: 0.3125rem 0.75rem; cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.cb-chip:hover { border-color: var(--primary); color: var(--primary); }
+.cb-chip-lbl {
+  font-size: 0.75rem; font-weight: 700;
+  color: var(--text-light); flex-shrink: 0;
+}
+.btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+
+/* ---------- shared list pager ----------
+   Used by any long, browsable list (repertory rubrics, materia medica roster).
+   Shows a window of page numbers around the current page with first/last
+   always reachable, since some lists run to hundreds of pages. */
+.rp-pager {
+  display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; gap: 0.25rem;
+  margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+}
+.pg-btn {
+  min-width: 1.875rem; padding: 0.3125rem 0.5rem;
+  font-family: inherit; font-size: 0.8125rem; font-weight: 700;
+  background: var(--surface); color: var(--text-muted);
+  border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+  transition: all 0.15s;
+}
+.pg-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+}
+.chips.compact .chip-item span {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* Checkbox Cards */
+.check-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border 0.2s;
+  background: var(--surface2);
+}
+.check-card:hover {
+  border-color: var(--primary-light);
+}
+.check-card input {
+  width: auto;
+  transform: scale(1.2);
+  accent-color: var(--primary);
+}
+.check-card span {
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+.consent-card {
+  margin-top: 1.5rem;
+}
+
+/* Output Area */
+.output-field textarea {
+  background: var(--surface2);
+  font-family: monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+}
+.btn:active { transform: scale(0.97); }
+.btn.primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: var(--shadow-primary);
+}
+.btn.primary:hover { background: var(--accent); box-shadow: 0 6px 18px rgba(15,118,110,0.32); }
+.btn.success {
+  background: var(--success);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16,185,129,0.22);
+}
+.btn.success:hover { background: #059669; }
+.btn.ghost {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+.btn.ghost:hover { background: var(--primary-bg); box-shadow: var(--shadow-sm); }
 .btn.ghost.danger {
   color: var(--danger);
   border-color: var(--danger);
