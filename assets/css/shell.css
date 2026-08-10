@@ -285,7 +285,7 @@ body[data-page="case"] .app-content { padding-bottom: 6.5rem; }
 
 /* ---------- dashboard ---------- */
 .hero {
-  background: linear-gradient(135deg, var(--sb-bg) 0%, #0f766e 100%);
+  background: linear-gradient(135deg, var(--sb-bg) 0%, var(--primary) 100%);
   border-radius: var(--radius-lg);
   padding: 1.75rem;
   color: #fff;
