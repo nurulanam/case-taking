@@ -42,6 +42,7 @@
     {
       group: 'সম্পর্কে',
       items: [
+        { id: 'settings', href: 'settings.html', icon: 'bx-cog', label: 'সেটিংস' },
         { id: 'author', href: 'author.html', icon: 'bx-id-card', label: 'লেখক পরিচিতি' }
       ]
     }
@@ -188,6 +189,10 @@
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
     document.documentElement.dataset.theme = theme;
+    
+    // Also apply theme color variation
+    const color = store.get('theme_color_v1', 'teal');
+    document.documentElement.dataset.color = color;
   }
 
   function setupDarkModeToggle() {

@@ -8,10 +8,39 @@
   --tb-h: 60px;
   --sb-bg:   #082320;
   --sb-bg-2: #051513;
-  --sb-text: #b9d6d1;
-  --sb-text-dim: #7ba49d;
+  --sb-text: rgba(255, 255, 255, 0.95);
+  --sb-text-dim: rgba(255, 255, 255, 0.65);
   --sb-hover: rgba(255, 255, 255, 0.07);
   --sb-border: rgba(255, 255, 255, 0.09);
+}
+
+[data-color="blue"] {
+  --sb-bg: #081627;
+  --sb-bg-2: #050e1a;
+  --sb-active-bg: rgba(59, 130, 246, 0.16);
+  --sb-active-meta-bg: rgba(59, 130, 246, 0.25);
+  --sb-active-meta-color: #bfdbfe;
+}
+[data-color="purple"] {
+  --sb-bg: #140924;
+  --sb-bg-2: #0d0617;
+  --sb-active-bg: rgba(139, 92, 246, 0.16);
+  --sb-active-meta-bg: rgba(139, 92, 246, 0.25);
+  --sb-active-meta-color: #ddd6fe;
+}
+[data-color="orange"] {
+  --sb-bg: #261004;
+  --sb-bg-2: #1a0a02;
+  --sb-active-bg: rgba(249, 115, 22, 0.16);
+  --sb-active-meta-bg: rgba(249, 115, 22, 0.25);
+  --sb-active-meta-color: #fed7aa;
+}
+[data-color="rose"] {
+  --sb-bg: #26060f;
+  --sb-bg-2: #1a040a;
+  --sb-active-bg: rgba(244, 63, 94, 0.16);
+  --sb-active-meta-bg: rgba(244, 63, 94, 0.25);
+  --sb-active-meta-color: #fecdd3;
 }
 
 body {
@@ -99,25 +128,28 @@ body {
 }
 .sb-link:hover { background: var(--sb-hover); color: #fff; }
 .sb-link i { font-size: 1.125rem; flex-shrink: 0; opacity: 0.9; }
-.sb-link .sb-lbl { flex: 1; min-width: 0; }
+.sb-link .sb-lbl { flex: 1; min-width: 0; color: var(--sb-text); }
 .sb-link .sb-meta {
   font-size: 0.75rem; font-weight: 700;
   background: rgba(255,255,255,0.09); color: var(--sb-text-dim);
   border-radius: 999px; padding: 0.0625rem 0.4375rem; flex-shrink: 0;
 }
 .sb-link.active {
-  background: rgba(20, 184, 166, 0.16);
+  background: var(--sb-active-bg, rgba(20, 184, 166, 0.16));
   color: #fff;
   font-weight: 600;
 }
 .sb-link.active::before {
   content: '';
   position: absolute; left: -0.75rem; top: 50%; transform: translateY(-50%);
-  width: 3px; height: 20px; border-radius: 0 3px 3px 0;
-  background: var(--primary-light);
+  height: 60%; width: 4px; border-radius: 0 4px 4px 0;
+  background: #fff;
 }
 .sb-link.active i { color: var(--primary-light); opacity: 1; }
-.sb-link.active .sb-meta { background: rgba(20,184,166,0.25); color: #a7f3d0; }
+.sb-link.active .sb-meta {
+  background: var(--sb-active-meta-bg, rgba(20,184,166,0.25));
+  color: var(--sb-active-meta-color, #a7f3d0);
+}
 
 .sb-foot {
   flex-shrink: 0;

@@ -81,6 +81,73 @@
   --shadow-primary: 0 4px 14px rgba(20, 184, 166, 0.2);
 }
 
+/* ==========================================================================
+   Phase 4: Theme Color Variations
+   ========================================================================== */
+/* Blue */
+[data-color="blue"] {
+  --primary: #2563eb;
+  --primary-light: #3b82f6;
+  --primary-bg: #eff6ff;
+  --accent: #1d4ed8;
+  --border-focus: #2563eb;
+}
+[data-theme="dark"][data-color="blue"] {
+  --primary: #3b82f6;
+  --primary-light: #60a5fa;
+  --primary-bg: rgba(59, 130, 246, 0.15);
+  --accent: #2563eb;
+  --border-focus: #3b82f6;
+}
+
+/* Purple */
+[data-color="purple"] {
+  --primary: #7c3aed;
+  --primary-light: #8b5cf6;
+  --primary-bg: #f5f3ff;
+  --accent: #6d28d9;
+  --border-focus: #7c3aed;
+}
+[data-theme="dark"][data-color="purple"] {
+  --primary: #8b5cf6;
+  --primary-light: #a78bfa;
+  --primary-bg: rgba(139, 92, 246, 0.15);
+  --accent: #7c3aed;
+  --border-focus: #8b5cf6;
+}
+
+/* Orange */
+[data-color="orange"] {
+  --primary: #ea580c;
+  --primary-light: #f97316;
+  --primary-bg: #fff7ed;
+  --accent: #c2410c;
+  --border-focus: #ea580c;
+}
+[data-theme="dark"][data-color="orange"] {
+  --primary: #f97316;
+  --primary-light: #fb923c;
+  --primary-bg: rgba(249, 115, 22, 0.15);
+  --accent: #ea580c;
+  --border-focus: #f97316;
+}
+
+/* Rose */
+[data-color="rose"] {
+  --primary: #e11d48;
+  --primary-light: #f43f5e;
+  --primary-bg: #fff1f2;
+  --accent: #be123c;
+  --border-focus: #e11d48;
+}
+[data-theme="dark"][data-color="rose"] {
+  --primary: #f43f5e;
+  --primary-light: #fb7185;
+  --primary-bg: rgba(244, 63, 94, 0.15);
+  --accent: #e11d48;
+  --border-focus: #f43f5e;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
