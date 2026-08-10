@@ -1,10 +1,11 @@
 {
-  "schema": 1,
-  "note_bn": "নতুন রিপার্টরি যোগ করতে এই তালিকায় একটি এন্ট্রি দিন — ফাইলটি একই ফোল্ডারে রাখুন। পেজে কোড বদলাতে হবে না।",
+  "schema": 2,
+  "shared_remedies": "remedies.json",
+  "note_bn": "ওষুধের তালিকা, বাংলা গ্লসারি ও সার্চ ইনডেক্স একটিই ফাইলে — shared_remedies। প্রতিটি রিপার্টরির ফাইলে শুধু তার নিজের রুব্রিক থাকে; রুব্রিকের \"r\" ক্ষেত্রের সংখ্যা shared_remedies-এর remedies অ্যারের ক্রমিক অবস্থান। নতুন রিপার্টরি যোগ করতে নিচের তালিকায় একটি এন্ট্রি দিন — পেজে কোড বদলাতে হবে না।",
   "repertories": [
     {
       "id": "kent",
-      "file": "kent_remidies.json",
+      "file": "kent_rubrics.json",
       "name_bn": "কেন্ট রিপার্টরী",
       "name_en": "Kent's Repertory of the Homoeopathic Materia Medica — complete",
       "author": "Dr. James Tyler Kent",
@@ -14,11 +15,11 @@
       "color": "#0f766e",
       "desc_bn": "কেন্টের সম্পূর্ণ রিপার্টরি — ৩৮টি অধ্যায়, ৬৬,০০০টি রুব্রিক ও সাব-রুব্রিক, ৪,৫৫,৯০৫টি গ্রেড এন্ট্রি। তিনটি গ্রেডই (১–৩) মূল বইয়ের ছাপার ধরন থেকে পড়া — গাঢ় = ৩, ইটালিক = ২। উৎস: Médi-T HTML সংস্করণ (homeoint.org)।",
       "status": "curated",
-      "size_note": "≈৭ MB — প্রথমবার লোড হতে কয়েক সেকেন্ড লাগতে পারে"
+      "size_note": "≈৬.৬ MB — প্রথমবার লোড হতে কয়েক সেকেন্ড লাগতে পারে"
     },
     {
       "id": "boericke",
-      "file": "boericke_repertory.json",
+      "file": "boericke_rubrics.json",
       "name_bn": "বোরিক রিপার্টরী",
       "name_en": "Boericke's Repertory — Oscar E. Boericke, M.D.",
       "author": "Dr. Oscar E. Boericke",
@@ -28,11 +29,11 @@
       "color": "#b45309",
       "desc_bn": "দেহতন্ত্র অনুযায়ী সাজানো ছোট ও ক্লিনিক্যাল রিপার্টরি — ২৫টি অধ্যায়, ৭,০৩৫টি রুব্রিক, ৬০,১৮৯টি গ্রেড এন্ট্রি। এই বইতে মাত্র দুটি গ্রেড (ইটালিক = ২, সাধারণ = ১)। ওষুধের তালিকা ও মেটেরিয়া মেডিকা কেন্টের সাথে একই। উৎস: Médi-T (homeoint.org)।",
       "status": "curated",
-      "size_note": "≈১.৪ MB"
+      "size_note": "≈০.৮ MB"
     },
     {
       "id": "boenninghausen",
-      "file": "boenninghausen_repertory.json",
+      "file": "boenninghausen_rubrics.json",
       "name_bn": "ব্যোনিংহাউজেন রিপার্টরী",
       "name_en": "Bönninghausen's Characteristics Repertory — C. M. Boger, M.D.",
       "author": "Dr. Clemens von Bönninghausen (সংকলন: C. M. Boger)",
@@ -42,7 +43,7 @@
       "color": "#6d28d9",
       "desc_bn": "ব্যোনিংহাউজেনের নিজস্ব \"characteristic\" পদ্ধতি — কেন্টের অঙ্গ-ভিত্তিক রুব্রিকের বদলে সাধারণ লক্ষণ, মোডালিটি ও সহলক্ষণের উপর জোর দেয়। ৫৯টি অধ্যায়, ২৬,৪৪০টি রুব্রিক, ২,৮৪,৮৬৩টি গ্রেড এন্ট্রি। চারটি গ্রেড (১–৪) — গ্রেড ৪ লেখকের নিজস্ব সর্বোচ্চ গুরুত্বের চিহ্ন। ওষুধের তালিকা ও মেটেরিয়া মেডিকা কেন্টের সাথে একই। উৎস: Médi-T HTML সংস্করণ (homeoint.org)।",
       "status": "curated",
-      "size_note": "≈৫.৩ MB"
+      "size_note": "≈৪.১ MB"
     }
   ],
   "planned": [

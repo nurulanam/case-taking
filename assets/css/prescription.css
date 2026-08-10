@@ -1,0 +1,157 @@
+/* ==========================================================================
+   Prescription builder — editor on the left, live print-preview on the right.
+   The preview is the real printed artefact: @media print hides the whole app
+   shell and lets .rx-sheet fill the page, so what you see is what prints.
+   ========================================================================== */
+
+.rx-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+.rx-form { min-width: 0; }
+.rx-preview-col { min-width: 0; position: sticky; top: calc(var(--tb-h) + 1rem); }
+
+.rx-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+.btn.danger { color: var(--danger); border-color: rgba(239,68,68,0.35); }
+.btn.danger:hover { background: var(--danger-bg); border-color: var(--danger); }
+
+/* ---------- medicine rows ---------- */
+.rx-item {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 0.875rem; margin-bottom: 0.75rem; background: var(--surface2);
+}
+.rx-item-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.625rem; }
+.rx-item-n {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  background: var(--primary); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700;
+}
+.rx-src-tag {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  font-size: 0.6875rem; font-weight: 600;
+  background: #f5f3ff; color: #7c3aed;
+  border: 1px solid #ddd6fe; border-radius: 999px; padding: 0.125rem 0.5rem;
+}
+.rx-del {
+  margin-left: auto; flex-shrink: 0;
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-muted); cursor: pointer; font-size: 1rem;
+}
+.rx-del:hover:not(:disabled) { color: var(--danger); border-color: var(--danger); }
+.rx-del:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ---------- the sheet ---------- */
+.rx-sheet {
+  background: #fff; color: #0f172a;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 1.5rem 1.625rem;
+  box-shadow: var(--shadow-sm);
+  font-size: 0.875rem; line-height: 1.6;
+}
+.rs-head {
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  padding-bottom: 0.875rem; border-bottom: 2px solid var(--primary);
+}
+.rs-doc b { display: block; font-size: 1.0625rem; font-weight: 700; color: var(--primary); }
+.rs-doc span { display: block; font-size: 0.75rem; color: var(--text-muted); }
+.rs-clinic { font-size: 0.75rem; color: var(--text-muted); text-align: right; line-height: 1.5; }
+
+.rs-patient {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem 1rem; padding: 0.875rem 0;
+  border-bottom: 1px dashed var(--border);
+}
+.rs-patient label {
+  display: block; font-size: 0.625rem; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-light); font-weight: 700;
+}
+.rs-patient b { font-size: 0.875rem; font-weight: 600; }
+
+.rs-dx { padding: 0.625rem 0; border-bottom: 1px dashed var(--border); font-size: 0.8125rem; }
+.rs-dx label {
+  font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-light); font-weight: 700; margin-right: 0.5rem;
+}
+
+.rs-body { position: relative; padding: 1rem 0 0.5rem; min-height: 150px; }
+.rs-rxmark {
+  font-size: 2rem; font-weight: 700; color: var(--primary);
+  line-height: 1; margin-bottom: 0.5rem; font-family: Georgia, serif;
+}
+.rs-table { width: 100%; border-collapse: collapse; }
+.rs-table td { padding: 0.5rem 0.25rem; vertical-align: top; border-bottom: 1px dotted var(--border); }
+.rs-rx { width: 58%; }
+.rs-rx b { font-size: 0.9375rem; font-weight: 700; display: block; }
+.rs-rx span { display: block; font-size: 0.75rem; color: var(--text-muted); }
+.rs-rx em { display: block; font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
+.rs-how { font-size: 0.8125rem; color: var(--text); }
+.rs-dim { color: var(--text-light); }
+.rs-empty { color: var(--text-light); font-size: 0.875rem; padding: 1rem 0; }
+
+.rs-adv { padding: 0.625rem 0; border-top: 1px dashed var(--border); }
+.rs-adv label {
+  display: block; font-size: 0.625rem; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-light); font-weight: 700; margin-bottom: 0.1875rem;
+}
+.rs-adv p { font-size: 0.8125rem; line-height: 1.6; }
+
+.rs-foot {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  gap: 1rem; margin-top: 1.5rem; padding-top: 0.75rem;
+}
+.rs-follow label {
+  display: block; font-size: 0.625rem; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-light); font-weight: 700;
+}
+.rs-follow b { font-size: 0.8125rem; }
+.rs-sign { text-align: center; font-size: 0.75rem; color: var(--text-muted); }
+.rs-sign span {
+  display: block; width: 150px; border-top: 1px solid var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 1100px) {
+  .rx-layout { grid-template-columns: 1fr; }
+  /* stacked, the preview no longer has a column to stick within */
+  .rx-preview-col { position: static; }
+}
+@media (max-width: 640px) {
+  .rx-sheet { padding: 1rem; }
+  .rs-clinic { text-align: left; }
+  .rs-foot { flex-direction: column; align-items: stretch; gap: 1.5rem; }
+  .rs-sign { text-align: right; }
+  .rs-sign span { width: 100%; }
+  .rx-actions .btn { flex: 1 1 auto; justify-content: center; }
+}
+
+/* ==========================================================================
+   Print — the sheet becomes the page. Everything else is chrome and goes away.
+   ========================================================================== */
+@media print {
+  .app-sidebar, .app-backdrop, .app-topbar, .app-footer,
+  .page-head, .rx-form, .rx-actions, .case-bridge, .disclaimer,
+  #savedWrap { display: none !important; }
+
+  html, body { background: #fff !important; }
+  body { padding: 0 !important; }
+  .app-root, .app-main { display: block !important; min-height: 0 !important; }
+  .app-content { padding: 0 !important; }
+  .content-inner { max-width: none !important; }
+  .rx-layout { display: block !important; }
+  .rx-preview-col { position: static !important; }
+
+  .rx-sheet {
+    border: none !important; border-radius: 0 !important;
+    box-shadow: none !important; padding: 0 !important;
+    font-size: 11pt;
+  }
+  /* a prescription that splits a medicine across two sheets is a dispensing
+     hazard, so rows are kept whole */
+  .rs-table tr, .rs-adv, .rs-foot { break-inside: avoid; page-break-inside: avoid; }
+  @page { margin: 14mm; }
+}

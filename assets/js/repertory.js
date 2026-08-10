@@ -3,12 +3,20 @@
    → remedy analysis.
 
    Data contract (assets/data/repatories/index.json lists the books):
-     { repertories: [{ id, file, name_bn, name_en, author, ... }] }
+     { schema: 2,
+       shared_remedies: 'remedies.json',
+       repertories: [{ id, file, name_bn, name_en, author, ... }] }
 
-   Each repertory file is normalised by normalise() below, so a new book only
-   has to be *close* to this shape:
+   The remedy roster, the Bangla glossary and the search index live in ONE
+   shared file rather than inside each book: they are identical for every
+   repertory, and keeping a copy per book both wasted 2.5 MB and meant a new
+   drug picture had to be written into three files in lockstep. Rubrics address
+   remedies by integer index into that shared array, so switching books reuses
+   the already-fetched roster and only pays for the new rubrics.
+
+   Each rubrics file is normalised by normalise() below, so a new book only has
+   to be *close* to this shape:
      repertory_rubrics: [ { chapter, rubrics: [ { name, remedies: {name: grade} } ] } ]
-     remedies:          [ { id, name, bangla_name, ... } ]
    ========================================================================== */
 (function () {
   'use strict';
@@ -63,21 +71,139 @@
     renderLibrary();
     bindShell();
     S.source = Shell.store.get(SRC_STORE, null);
+    renderCaseBridge();
     restore();
+  }
+
+  /* ==================== case-form hand-off ====================
+     Arriving with ?from=case means the case form sent its symptom phrases over.
+     They are shown as one-tap search chips: the prescriber reads the case's own
+     words and jumps straight to a matching rubric instead of retyping them, and
+     step 4 can push the chosen rubrics back into the six rubric boxes. */
+  function fromCase() {
+    const b = Shell.bridge.get();
+    return (b && (b.from === 'case' || b.from === 'case-applied')) ? b : null;
+  }
+
+  function renderCaseBridge() {
+    const host = document.getElementById('caseBridge');
+    if (!host) return;
+    const b = fromCase();
+    if (!b) { host.innerHTML = ''; host.hidden = true; return; }
+    host.hidden = false;
+    const who = b.patient ? esc(b.patient) : 'কেস';
+    const chips = (b.symptoms || []).map((s, i) =>
+      `<button class="cb-chip" data-i="${i}" title="${esc(s.label)}">
+         <span class="cb-chip-lbl">${esc(s.label)}</span>${esc(s.text)}</button>`).join('');
+    host.innerHTML = `
+      <div class="cb-head">
+        <i class='bx bx-transfer-alt'></i>
+        <div><b>${who}-এর কেস থেকে এসেছে</b>
+          <span>${(b.symptoms || []).length
+            ? 'যেকোনো লক্ষণে চাপ দিলে সেটি রুব্রিক সার্চে বসবে। রুব্রিক বেছে ধাপ ৪-এ গিয়ে কেসে ফেরত পাঠান।'
+            : 'কেসে কোনো লক্ষণ লেখা ছিল না — নিজে রুব্রিক খুঁজে নিন, ফেরত পাঠানো যাবে।'}</span>
+        </div>
+        <button class="btn ghost btn-sm" id="cbDismiss" type="button"><i class='bx bx-x'></i> সরান</button>
+      </div>
+      ${chips ? `<div class="cb-chips">${chips}</div>` : ''}`;
+
+    host.querySelectorAll('.cb-chip').forEach(btn => btn.addEventListener('click', () => {
+      const s = (b.symptoms || [])[+btn.dataset.i];
+      if (!s) return;
+      const box = document.getElementById('rubSearch');
+      if (!box) return;
+      box.value = s.text;
+      S.search = s.text; S.page = 0;
+      document.getElementById('rubSearchClear').style.display = '';
+      if (S.book) { renderRubrics(); setStep(2); box.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      else Shell.toast('আগে একটি রিপার্টরি বেছে নিন।', 'warn');
+    }));
+    const dis = document.getElementById('cbDismiss');
+    if (dis) dis.addEventListener('click', () => { Shell.bridge.clear(); renderCaseBridge(); });
+  }
+
+  /* Kent repeats the same rubric name in different chapters (62,661 distinct
+     names across 66,000 rubrics), so "Anxiety" alone is ambiguous once it lands
+     in the case form. The chapter is carried along to keep two picks apart. */
+  function pickedRubrics() {
+    return [...S.picked.entries()].map(([id, grade]) => {
+      const rb = S.book.rubricById.get(id);
+      return {
+        name: rb ? rb.name : id,
+        bn: rb ? rb.bn : '',
+        chapter: rb ? (rb.chapterShort || rb.chapterLabel || '') : '',
+        page: rb ? rb.page : 0,
+        grade,
+      };
+    });
+  }
+
+  /* Push the picked rubrics + the top-ranked remedy back to the case form. */
+  function sendToCase() {
+    if (!S.picked.size) { Shell.toast('আগে রুব্রিক বাছুন।', 'warn'); return; }
+    const rubrics = pickedRubrics();
+    const top = S.result && S.result.rows && S.result.rows[0];
+    Shell.bridge.patch({
+      from: 'repertory',
+      book: S.bookMeta ? S.bookMeta.name_bn : '',
+      rubrics,
+      remedy: top ? { name: top.name, bangla: (top.remedy && top.remedy.bangla_name) || '', total: top.total } : null,
+    });
+    Shell.toast('কেস ফর্মে পাঠানো হচ্ছে…', 'ok');
+    setTimeout(() => { location.href = 'case.html?from=repertory'; }, 350);
+  }
+
+  /* The prescription builder opens via a plain link, so the picks have to be in
+     the bridge before navigation — `from` is left alone so a case-form hand-off
+     still in flight is not mistaken for a repertory one. */
+  function stageForPrescription() {
+    if (!S.picked.size) return;
+    const rubrics = pickedRubrics();
+    const rows = (S.result && S.result.rows) || [];
+    Shell.bridge.patch({
+      book: S.bookMeta ? S.bookMeta.name_bn : '',
+      rubrics,
+      remedy: rows[0] ? { name: rows[0].name,
+                          bangla: (rows[0].remedy && rows[0].remedy.bangla_name) || '',
+                          total: rows[0].total } : null,
+      // a shortlist lets the builder offer alternatives without re-running anything
+      shortlist: rows.slice(0, 8).map(r => ({
+        name: r.name, bangla: (r.remedy && r.remedy.bangla_name) || '',
+        total: r.total, coverage: r.coverage })),
+    });
   }
 
   /* `gotoStep` is the step to land on once the book is ready — pass 0 to
      skip the jump (restore() needs to repopulate S.picked before deciding
      which step to land on, so it can't let this function jump to step 2
      first and then move again). */
+  /* The shared roster is fetched once per page load and reused by every book —
+     that is the whole point of splitting it out, so it must not be re-fetched
+     when the user switches repertories. */
+  let sharedRoster = null;
+  async function loadShared() {
+    if (sharedRoster) return sharedRoster;
+    const name = (S.manifest && S.manifest.shared_remedies) || 'remedies.json';
+    const r = await fetch(DIR + name);
+    if (!r.ok) throw new Error('HTTP ' + r.status + ' on ' + name);
+    sharedRoster = await r.json();
+    return sharedRoster;
+  }
+
   async function loadBook(entry, gotoStep = 2) {
     Shell.setChip('লোড হচ্ছে…', 'bx-loader-alt', true);
     const holder = document.getElementById('repList');
     holder.querySelectorAll('.rp-book').forEach(b => b.disabled = true);
     try {
-      const r = await fetch(DIR + entry.file);
+      const [shared, r] = await Promise.all([loadShared(), fetch(DIR + entry.file)]);
       if (!r.ok) throw new Error('HTTP ' + r.status);
-      const raw = await r.json();
+      const rubricsDoc = await r.json();
+      // present the two files to normalise() as the single shape it already knew
+      const raw = Object.assign({}, rubricsDoc, {
+        remedies: shared.remedies,
+        bn_glossary: shared.bn_glossary,
+        search_index: shared.search_index,
+      });
       S.book = normalise(raw, entry);
       S.bookMeta = entry;
       S.picked.clear();
@@ -1330,6 +1456,12 @@
       URL.revokeObjectURL(url);
       Shell.toast('ডাউনলোড শুরু হয়েছে।', 'ok');
     });
+    const toCase = document.getElementById('toCaseBtn');
+    if (toCase) toCase.addEventListener('click', sendToCase);
+    // the prescription builder reads the same bridge record, so stage the
+    // current picks before following the link rather than after
+    const toRx = document.getElementById('toRxBtn');
+    if (toRx) toRx.addEventListener('click', () => stageForPrescription());
 
     updateChip(); updateNav();
   }

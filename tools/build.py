@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Rebuild assets/data/repatories/kent_remidies.json — the complete Kent repertory.
+"""Rebuild the complete Kent repertory + the shared remedy roster.
 
     python3 tools/build.py [path-to-kentrep-mirror]
 
@@ -17,6 +17,12 @@ Sources
                      their hand-checked *Bangla rubric names*, which override
                      the glossary
     kent_bn.py       Bangla glossary for Kent's rubric vocabulary
+
+Writes TWO files:
+    remedies.json      the roster + Bangla glossary + search index, shared by
+                       every repertory (Boericke and Bonninghausen index into
+                       this same array, so its order must never change)
+    kent_rubrics.json  Kent's 38 chapters of rubrics, nothing else
 
 Output format (v6) is index-addressed to stay loadable: a rubric's remedies are
 one string of 'remedyIndex:grade' pairs, grade omitted when 1. Spelling out
@@ -39,7 +45,9 @@ from r_kent4 import K4
 from kent_bn import SEG, CHAPTER_BN, bn_rubric, bn_coverage
 from r_remedies_bn import BN as REMEDY_BN
 
-OUT = os.path.join(HERE, '..', 'assets', 'data', 'repatories', 'kent_remidies.json')
+_DATA = os.path.join(HERE, '..', 'assets', 'data', 'repatories')
+OUT = os.path.join(_DATA, 'kent_rubrics.json')       # Kent's rubrics
+OUT_ROSTER = os.path.join(_DATA, 'remedies.json')    # roster shared by all books
 MIRROR = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, '.cache', 'kentrep')
 
 BN = lambda v: str(v).translate(str.maketrans('0123456789', '০১২৩৪৫৬৭৮৯'))
@@ -310,12 +318,10 @@ db = {
         'languages': ['বাংলা', 'English'],
         'disclaimer': 'এটি শুধুমাত্র শিক্ষামূলক রেফারেন্স। প্রকৃত চিকিৎসার জন্য যোগ্য হোমিওপ্যাথিক চিকিৎসকের পরামর্শ নিন।',
     },
-    'remedies': remedies,
-    'bn_glossary': SEG,
     'repertory_rubrics': chapters_out,
-    'search_index': search,
 }
 md = db['metadata']
+md['remedies_file'] = os.path.basename(OUT_ROSTER)
 md['scope_note_bn'] = md['scope_note_bn'].format(
     r=BN(total_rub), c=BN(total_cells), L=BN(md['max_level']))
 md['bangla_note_bn'] = md['bangla_note_bn'].format(
@@ -326,6 +332,28 @@ md['materia_medica_coverage_pct'] = mm_share
 
 with open(OUT, 'w', encoding='utf-8') as f:
     json.dump(db, f, ensure_ascii=False, separators=(',', ':'))
+
+# The roster is shared by every repertory, so it is written as its own file
+# rather than embedded here. Rubric "r" fields index into this array, so its
+# order is load-bearing for all three books — never re-sort it.
+roster_doc = {
+    'metadata': {
+        'title': 'যৌথ ওষুধ-তালিকা ও বাংলা মেটেরিয়া মেডিকা',
+        'title_en': 'Shared remedy roster + Bangla materia medica',
+        'version': '1.0-shared',
+        'note_bn': ('সব রিপার্টরি এই একটি তালিকা ব্যবহার করে — রুব্রিকের "r" ক্ষেত্রের সংখ্যা '
+                    'এই remedies অ্যারের ক্রমিক অবস্থান। তাই ক্রম বদলালে সব রিপার্টরি ভেঙে যাবে।'),
+        'remedies_total': len(remedies),
+        'remedies_with_bangla_name': with_bn,
+        'remedies_with_full_materia_medica': full_mm,
+        'remedies_basic_entry_only': len(remedies) - full_mm,
+    },
+    'remedies': remedies,
+    'bn_glossary': SEG,
+    'search_index': search,
+}
+with open(OUT_ROSTER, 'w', encoding='utf-8') as f:
+    json.dump(roster_doc, f, ensure_ascii=False, separators=(',', ':'))
 
 dups = sum(1 for v in name_seen.values() if v > 1)
 print('chapters        :', len(chapters_out))
@@ -338,4 +366,5 @@ print('rubric bangla   :', f'curated {bn_from_curated}, glossary-full {bn_from_g
 print('segment coverage:', f'{seg_known}/{seg_total} = {seg_known/max(1,seg_total):.1%}')
 print('collapsed       :', f'page-overlap copies {overlap_dupes}, continuation merges {merged_rows}')
 print('repeated names  :', dups)
-print('file            :', round(os.path.getsize(OUT) / 1024 / 1024, 2), 'MB')
+print('files           :', f'kent_rubrics.json {round(os.path.getsize(OUT)/1048576, 2)} MB'
+      f' + remedies.json {round(os.path.getsize(OUT_ROSTER)/1048576, 2)} MB')

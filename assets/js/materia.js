@@ -2,10 +2,11 @@
    Materia medica browser — search / filter the remedy roster, read the full
    drug picture.
 
-   Reads the same file the repertory page does (kent_remidies.json), because the
-   remedy table and its materia medica live there together. Only the `remedies`
-   array is used; the 66,000 rubrics are ignored here, so the page holds nothing
-   it does not draw.
+   Reads the shared roster file (remedies.json) named by index.json's
+   `shared_remedies`. That file holds the remedy table and its Bangla materia
+   medica and nothing else — this page used to load Kent's whole repertory
+   (6.6 MB) to reach the 1.2 MB roster buried inside it, downloading 66,000
+   rubrics it never draws.
    ========================================================================== */
 (function () {
   'use strict';
@@ -46,14 +47,13 @@
       fail('রিপার্টরির তালিকা (index.json) পড়া যায়নি।');
       return;
     }
-    const entry = (manifest.repertories || [])[0];
-    if (!entry) { fail('index.json-এ কোনো ডেটা ফাইল নেই।'); return; }
+    const rosterFile = manifest.shared_remedies || 'remedies.json';
     try {
-      const raw = await (await fetch(DIR + entry.file)).json();
+      const raw = await (await fetch(DIR + rosterFile)).json();
       S.all = (raw.remedies || []).slice();
       S.meta = raw.metadata || {};
     } catch (e) {
-      fail('ডেটা ফাইল লোড করা যায়নি: ' + entry.file);
+      fail('ওষুধ-তালিকা লোড করা যায়নি: ' + rosterFile);
       return;
     }
     // remedies with a drug picture first, then alphabetically by Bangla name

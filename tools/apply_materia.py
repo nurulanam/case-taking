@@ -1,16 +1,22 @@
 # -*- coding: utf-8 -*-
-"""Apply the Bangla materia medica volumes onto the already-built data files.
+"""Apply the Bangla materia medica volumes onto the shared remedy roster.
 
     python3 tools/apply_materia.py
 
 The drug pictures are independent of the repertory parse, so adding a volume
 should not require the Kent HTML mirror and a 20-minute reparse of 66,000
-rubrics. This walks the `remedies` array of every built repertory file, refreshes
-each record's materia medica fields from r_materia*.py, and rewrites the file.
+rubrics. This walks the `remedies` array in remedies.json, refreshes each
+record's materia medica fields from r_materia*.py, and rewrites the file.
 
-Both repertories carry the *same* remedies array by design (that is what lets a
-Boericke result open the same Bangla picture), so both are updated together —
-patching only one would silently split them.
+There is exactly one roster now (see tools/split_repertories.py). It used to be
+copied inside each of the three repertory files and every one of them had to be
+rewritten in lockstep — when boenninghausen_repertory.json was missing from that
+list it silently kept a stale table and missed 33 new drug pictures. One file
+means that failure mode no longer exists.
+
+Per-book figures that depend on the roster — how much of each repertory's own
+citations reach a Bangla picture — are recomputed into each rubrics file, since
+that number is a property of the book, not of the roster.
 """
 import json, os, sys, collections
 
@@ -21,10 +27,10 @@ from r_materia2 import MM2
 from r_materia3 import MM3
 
 DATA = os.path.join(HERE, '..', 'assets', 'data', 'repatories')
-# every repertory that shares the remedy table — a book left out here keeps a
-# stale copy of the table and silently misses new drug pictures
-FILES = ['kent_remidies.json', 'boericke_repertory.json',
-         'boenninghausen_repertory.json']
+ROSTER = 'remedies.json'
+# rubrics files whose per-book materia-medica coverage is recomputed after the
+# roster changes; discovered from index.json so a new book needs no edit here
+INDEX = 'index.json'
 
 BN = lambda v: str(v).translate(str.maketrans('0123456789', '০১২৩৪৫৬৭৮৯'))
 
@@ -120,23 +126,42 @@ def apply_to(rec):
     return vol
 
 
-total = {v: 0 for v, _ in VOLUMES}
-for fn in FILES:
-    p = os.path.join(DATA, fn)
+# ---------------------------------------------------------------- the roster
+rp = os.path.join(DATA, ROSTER)
+roster = json.load(open(rp, encoding='utf-8'))
+remedies = roster['remedies']
+
+by_vol = collections.Counter()
+for rec in remedies:
+    v = apply_to(rec)
+    if v:
+        by_vol[v] += 1
+full = sum(by_vol.values())
+
+rmd = roster.setdefault('metadata', {})
+rmd['remedies_total'] = len(remedies)
+rmd['remedies_with_full_materia_medica'] = full
+rmd['remedies_basic_entry_only'] = len(remedies) - full
+rmd['materia_medica_volumes'] = {v: n for v, n in sorted(by_vol.items())}
+
+with open(rp, 'w', encoding='utf-8') as f:
+    json.dump(roster, f, ensure_ascii=False, separators=(',', ':'))
+print(f'{ROSTER:<32} full MM {full}/{len(remedies)} '
+      f'(vol1 {by_vol["1"]}, vol2 {by_vol["2"]}, vol3 {by_vol["3"]}) '
+      f'| {round(os.path.getsize(rp)/1048576, 2)} MB')
+
+# ------------------------------------------- per-book coverage of its own cites
+# "how many of THIS book's remedy references reach a Bangla picture" is a fact
+# about the book, so it is recomputed into each rubrics file rather than living
+# on the roster. Books come from index.json so adding one needs no edit here.
+idx_full = [r['content_status'] == 'full' for r in remedies]
+index = json.load(open(os.path.join(DATA, INDEX), encoding='utf-8'))
+for entry in index.get('repertories', []):
+    p = os.path.join(DATA, entry['file'])
     if not os.path.exists(p):
-        print('skip (absent):', fn)
+        print(f'  skip (absent): {entry["file"]}')
         continue
     db = json.load(open(p, encoding='utf-8'))
-    remedies = db['remedies']
-    by_vol = collections.Counter()
-    for rec in remedies:
-        v = apply_to(rec)
-        if v:
-            by_vol[v] += 1
-    full = sum(by_vol.values())
-
-    # how much of this book's own citations now reach a drug picture
-    idx_full = [r['content_status'] == 'full' for r in remedies]
     cells = mm_cells = 0
     for ch in db.get('repertory_rubrics', []):
         for rb in ch['rubrics']:
@@ -147,25 +172,16 @@ for fn in FILES:
                 if idx_full[int(tok.split(':')[0])]:
                     mm_cells += 1
     pct = round(100 * mm_cells / max(1, cells))
-
     md = db.setdefault('metadata', {})
-    md['remedies_with_full_materia_medica'] = full
-    md['remedies_basic_entry_only'] = len(remedies) - full
     md['materia_medica_coverage_pct'] = pct
-    md['materia_medica_volumes'] = {v: n for v, n in sorted(by_vol.items())}
     md['materia_medica_note_bn'] = (
         '{f}টি ওষুধের পূর্ণ বাংলা মেটেরিয়া মেডিকা আছে — এই বইয়ের ওষুধ-উল্লেখের {p} শতাংশ '
         'এই ওষুধগুলোর। বাকিগুলোর জন্য কার্ডে বোরিক ও ক্লার্কের মূল ইংরেজি পাঠ দেখানো হয়।'
     ).format(f=BN(full), p=BN(pct))
-
     with open(p, 'w', encoding='utf-8') as f:
         json.dump(db, f, ensure_ascii=False, separators=(',', ':'))
-    print(f'{fn:<26} full MM {full}/{len(remedies)} '
-          f'(vol1 {by_vol["1"]}, vol2 {by_vol["2"]}, vol3 {by_vol["3"]}) '
-          f'| covers {pct}% of its citations | {round(os.path.getsize(p)/1024/1024, 2)} MB')
-    for v, n in by_vol.items():
-        total[v] = n
+    print(f'  {entry["file"]:<30} covers {pct}% of its citations')
 
 print()
-print('volumes:', ', '.join(f'vol{v} {n}' for v, n in sorted(total.items())),
-      '| total', sum(total.values()))
+print('volumes:', ', '.join(f'vol{v} {n}' for v, n in sorted(by_vol.items())),
+      '| total', full)

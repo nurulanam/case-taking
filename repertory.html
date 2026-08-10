@@ -53,6 +53,9 @@
           </button>
         </div>
 
+        <!-- shown only when arriving from the case form (?from=case) -->
+        <div class="case-bridge" id="caseBridge" hidden></div>
+
         <!-- ===== STEP 1 · repertory picker ===== -->
         <section class="rp-pane active" id="pane-1">
           <div class="card">
@@ -165,6 +168,8 @@
               <button class="btn ghost" id="copyRep"><i class='bx bx-copy'></i> JSON কপি</button>
               <button class="btn ghost" id="dlRep"><i class='bx bx-download'></i> ডাউনলোড</button>
               <button class="btn ghost" id="copyTxt"><i class='bx bx-text'></i> টেক্সট কপি</button>
+              <button class="btn success" id="toCaseBtn"><i class='bx bx-transfer-alt'></i> কেস ফর্মে পাঠান</button>
+              <a class="btn primary" id="toRxBtn" href="prescription.html?from=repertory"><i class='bx bx-receipt'></i> প্রেসক্রিপশন তৈরি করুন</a>
             </div>
             <pre class="export-box" id="repExport"></pre>
           </div>

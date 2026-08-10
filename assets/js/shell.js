@@ -18,7 +18,8 @@
       group: 'কেস ম্যানেজমেন্ট',
       items: [
         { id: 'dashboard', href: 'index.html', icon: 'bx-grid-alt', label: 'ড্যাশবোর্ড' },
-        { id: 'case', href: 'case.html', icon: 'bx-clipboard', label: 'কেস টেকিং ফর্ম', meta: '৯ ধাপ' }
+        { id: 'case', href: 'case.html', icon: 'bx-clipboard', label: 'কেস টেকিং ফর্ম', meta: '৯ ধাপ' },
+        { id: 'prescription', href: 'prescription.html', icon: 'bx-receipt', label: 'প্রেসক্রিপশন' }
       ]
     },
     {
@@ -165,7 +166,32 @@
     chip.innerHTML = `<i class='bx ${icon || 'bx-check'}'></i><span class="tb-label">${text}</span>`;
   }
 
-  global.Shell = { APP, NAV, bnNum, store, toast, addAction, setChip, init };
+  /* ---------------- case <-> repertory <-> prescription bridge ----------------
+     One localStorage record the three modules hand back and forth, so a case
+     never has to be re-typed to be repertorised and a prescription never has to
+     be re-typed from the case. Kept here rather than in any one page because all
+     three read and write it, and a shape mismatch between them would silently
+     drop the hand-off.
+
+       { from, at, patient, caseNo, symptoms[], rubrics[], remedy, book }
+
+     `symptoms` are free-text phrases lifted off the case form to seed rubric
+     search; `rubrics` and `remedy` are what the repertory sends back. */
+  const BRIDGE_KEY = 'case_bridge_v1';
+  const bridge = {
+    get() { return store.get(BRIDGE_KEY, null); },
+    /* Merge rather than replace: the repertory adds rubrics/remedy to a record
+       the case form created, and neither should clobber the other's fields. */
+    patch(patch) {
+      const cur = store.get(BRIDGE_KEY, null) || {};
+      const next = Object.assign({}, cur, patch, { at: new Date().toISOString() });
+      store.set(BRIDGE_KEY, next);
+      return next;
+    },
+    clear() { store.del(BRIDGE_KEY); }
+  };
+
+  global.Shell = { APP, NAV, bnNum, store, toast, addAction, setChip, init, bridge };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

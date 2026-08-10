@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>প্রেসক্রিপশন তৈরি — হোমিও কেস স্টুডিও</title>
+<meta content="কেস ও রিপার্টরির ফলাফল থেকে সরাসরি হোমিওপ্যাথিক প্রেসক্রিপশন তৈরি, প্রিন্ট ও সংরক্ষণ।" name="description"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='45' font-size='38' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23fff'%3E%E0%A6%B9%3C/text%3E%3C/svg%3E"/>
+<link href="assets/css/base.css" rel="stylesheet"/>
+<link href="assets/css/shell.css" rel="stylesheet"/>
+<link href="assets/css/prescription.css" rel="stylesheet"/>
+<link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
+</head>
+<body data-page="prescription" data-title="প্রেসক্রিপশন" data-crumb="কেস ম্যানেজমেন্ট">
+
+<div class="app-root">
+  <aside class="app-sidebar" id="appSidebar"></aside>
+  <div class="app-backdrop" id="appBackdrop"></div>
+  <div class="app-main">
+    <header class="app-topbar" id="appTopbar"></header>
+    <main class="app-content">
+      <div class="content-inner">
+
+        <div class="page-head">
+          <div class="page-icon"><i class='bx bx-receipt'></i></div>
+          <div class="page-head-txt">
+            <h2>প্রেসক্রিপশন তৈরি</h2>
+            <p>কেস ফর্ম ও রিপার্টরির ফলাফল থেকে তথ্য নিজেই বসে যায় — যাচাই করে ছাপুন বা সংরক্ষণ করুন।</p>
+          </div>
+        </div>
+
+        <!-- what was carried over from case / repertory -->
+        <div class="case-bridge" id="rxBridge" hidden></div>
+
+        <div class="rx-layout">
+
+          <!-- ══════════ editor ══════════ -->
+          <form class="rx-form" id="rxForm" autocomplete="off">
+
+            <div class="card">
+              <div class="section-heading">
+                <span class="section-number"><i class='bx bx-user' style="font-size:1rem"></i></span>
+                <div><h3>রোগীর তথ্য</h3><p>কেস ফর্ম থেকে নেওয়া — বদলানো যাবে</p></div>
+              </div>
+              <div class="grid two">
+                <label class="field"><span>রোগীর নাম</span><input name="patientName"/></label>
+                <label class="field"><span>কেস নম্বর</span><input name="caseNo"/></label>
+                <label class="field"><span>বয়স</span><input name="age"/></label>
+                <label class="field"><span>লিঙ্গ</span>
+                  <select name="gender"><option value="">নির্বাচন করুন</option>
+                    <option>পুরুষ</option><option>মহিলা</option><option>অন্যান্য</option></select></label>
+                <label class="field"><span>তারিখ</span><input name="rxDate" type="date"/></label>
+                <label class="field"><span>রোগ নির্ণয় / সংক্ষেপ</span><input name="diagnosis"/></label>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-heading">
+                <span class="section-number"><i class='bx bx-capsule' style="font-size:1rem"></i></span>
+                <div><h3>ঔষধ</h3><p>একাধিক ঔষধ যোগ করা যায় — ক্রম অনুযায়ী ছাপা হবে</p></div>
+              </div>
+              <div id="rxItems"></div>
+              <button class="btn ghost" id="addRxBtn" type="button"><i class='bx bx-plus'></i> আরেকটি ঔষধ যোগ করুন</button>
+            </div>
+
+            <div class="card">
+              <div class="section-heading">
+                <span class="section-number"><i class='bx bx-list-check' style="font-size:1rem"></i></span>
+                <div><h3>পরামর্শ ও ফলোআপ</h3><p>রোগীকে যা বলবেন</p></div>
+              </div>
+              <div class="grid two">
+                <label class="field"><span>ফলোআপ</span>
+                  <select name="followUp"><option value="">নির্বাচন করুন</option>
+                    <option>৩ দিন পর</option><option>৭ দিন পর</option><option>১৫ দিন পর</option>
+                    <option>১ মাস পর</option><option>২ মাস পর</option><option>প্রয়োজন অনুযায়ী</option></select></label>
+                <label class="field"><span>পরবর্তী সাক্ষাতের তারিখ</span><input name="followUpDate" type="date"/></label>
+                <label class="field full"><span>খাদ্য ও জীবনযাপন পরামর্শ</span><textarea name="dietAdvice" rows="3"></textarea></label>
+                <label class="field full"><span>সাধারণ নির্দেশনা</span><textarea name="generalAdvice" rows="3" placeholder="যেমন: ঔষধ খাওয়ার ১৫ মিনিট আগে-পরে কিছু খাবেন না; কড়া গন্ধ এড়িয়ে চলুন।"></textarea></label>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-heading">
+                <span class="section-number"><i class='bx bx-clinic' style="font-size:1rem"></i></span>
+                <div><h3>চিকিৎসকের তথ্য</h3><p>একবার লিখলেই পরের বার মনে থাকবে</p></div>
+              </div>
+              <div class="grid two">
+                <label class="field"><span>চিকিৎসকের নাম</span><input name="docName"/></label>
+                <label class="field"><span>ডিগ্রি / পদবি</span><input name="docQual" placeholder="যেমন: DHMS, BHMS"/></label>
+                <label class="field"><span>রেজি. নম্বর</span><input name="docReg"/></label>
+                <label class="field"><span>মোবাইল</span><input name="docPhone"/></label>
+                <label class="field full"><span>চেম্বারের নাম ও ঠিকানা</span><textarea name="docClinic" rows="2"></textarea></label>
+              </div>
+            </div>
+          </form>
+
+          <!-- ══════════ live preview ══════════ -->
+          <div class="rx-preview-col">
+            <div class="rx-actions">
+              <button class="btn primary" id="printRx" type="button"><i class='bx bx-printer'></i> প্রিন্ট / PDF</button>
+              <button class="btn ghost" id="copyRx" type="button"><i class='bx bx-copy'></i> কপি</button>
+              <button class="btn ghost" id="saveRx" type="button"><i class='bx bx-save'></i> সংরক্ষণ</button>
+              <button class="btn ghost danger" id="clearRx" type="button"><i class='bx bx-eraser'></i> মুছুন</button>
+            </div>
+
+            <!-- the printed artefact -->
+            <div class="rx-sheet" id="rxSheet"></div>
+
+            <p class="disclaimer">
+              এই প্রেসক্রিপশন শুধু চিকিৎসকের নিজের লেখা তথ্য সাজিয়ে দেখায় — অ্যাপ নিজে কোনো ঔষধ,
+              শক্তি বা মাত্রা নির্ধারণ করে না। রোগীকে দেওয়ার আগে সবকিছু নিজে যাচাই করুন।
+            </p>
+          </div>
+        </div>
+
+        <div class="card" id="savedWrap" hidden>
+          <div class="section-heading">
+            <span class="section-number"><i class='bx bx-history' style="font-size:1rem"></i></span>
+            <div><h3>সংরক্ষিত প্রেসক্রিপশন</h3><p>এই ব্রাউজারেই রাখা — কোথাও পাঠানো হয় না</p></div>
+          </div>
+          <div id="savedList"></div>
+        </div>
+
+      </div>
+    </main>
+    <footer class="app-footer">
+      <span>© হোমিও কেস স্টুডিও — শিক্ষামূলক ও গবেষণার উদ্দেশ্যে তৈরি। চিকিৎসার সিদ্ধান্ত চিকিৎসকের।</span>
+      <span>সব ডেটা এই ব্রাউজারেই সংরক্ষিত — কোথাও পাঠানো হয় না।</span>
+    </footer>
+  </div>
+</div>
+
+<script src="assets/js/shell.js"></script>
+<script src="assets/js/prescription.js"></script>
+</body>
+</html>

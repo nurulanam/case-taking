@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Build assets/data/repatories/boenninghausen_repertory.json.
+"""Build assets/data/repatories/boenninghausen_rubrics.json.
 
     python3 tools/build_boenninghausen.py <path-to-boenchar-mirror>
 
 Bönninghausen's *Characteristics Repertory* (C. M. Boger's compilation) — his
 own "characteristic" method: generals, modalities and concomitants rather than
-Kent's anatomical schema. The remedy table is copied from the Kent build, same
-as Boericke's, so a result here opens the same Bangla materia medica in step 4.
-Run tools/build.py first.
+Kent's anatomical schema. Rubrics only — remedies are addressed by integer
+index into the shared roster (remedies.json), so a result here opens the same
+Bangla materia medica in step 4. The roster is not rewritten here.
 """
 import json, sys, os, collections
 
@@ -17,14 +17,14 @@ from boen_html import parse_all, CHAPTERS, build_resolver
 from boen_bn import CHAPTER_BN, bn_rubric
 from kent_bn import bn_coverage
 
-KENT = os.path.join(HERE, '..', 'assets', 'data', 'repatories', 'kent_remidies.json')
-OUT = os.path.join(HERE, '..', 'assets', 'data', 'repatories', 'boenninghausen_repertory.json')
+ROSTER = os.path.join(HERE, '..', 'assets', 'data', 'repatories', 'remedies.json')
+OUT = os.path.join(HERE, '..', 'assets', 'data', 'repatories', 'boenninghausen_rubrics.json')
 MIRROR = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, '.cache', 'boenchar')
 
 BN = lambda v: str(v).translate(str.maketrans('0123456789', '০১২৩৪৫৬৭৮৯'))
 
-kent = json.load(open(KENT, encoding='utf-8'))
-remedies = kent['remedies']
+roster = json.load(open(ROSTER, encoding='utf-8'))
+remedies = roster['remedies']
 by_id = {r['id']: i for i, r in enumerate(remedies)}
 resolve = build_resolver(by_id.keys())
 
@@ -115,9 +115,9 @@ db = {
         'title_en': "Bönninghausen's Characteristics Repertory — C. M. Boger, M.D.",
         'version': '1.0-boenninghausen',
         'format': 'compact-v6',
+        'remedies_file': 'remedies.json',
         'chapters': len(chapters_out),
         'rubrics_total': total_rub,
-        'remedies_total': len(remedies),
         'remedies_in_book': len(used),
         'rubrics_bangla_full': bn_full,
         'rubrics_bangla_partial': bn_part,
@@ -150,10 +150,7 @@ db = {
         'languages': ['বাংলা', 'English'],
         'disclaimer': 'এটি শুধুমাত্র শিক্ষামূলক রেফারেন্স। প্রকৃত চিকিৎসার জন্য যোগ্য হোমিওপ্যাথিক চিকিৎসকের পরামর্শ নিন।',
     },
-    'remedies': remedies,
-    'bn_glossary': kent.get('bn_glossary', {}),
     'repertory_rubrics': chapters_out,
-    'search_index': kent.get('search_index', []),
 }
 
 db['metadata']['dropped_note_bn'] = db['metadata']['dropped_note_bn'].format(

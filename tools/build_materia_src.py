@@ -32,7 +32,7 @@ import boericke_mm
 import clarke_mm
 from materia_map import FORCE_ID, shard_of   # side-effect-free, shared with fix_materia_keys.py
 
-KENT = os.path.join(HERE, '..', 'assets', 'data', 'repatories', 'kent_remidies.json')
+ROSTER = os.path.join(HERE, '..', 'assets', 'data', 'repatories', 'remedies.json')
 OUTDIR = os.path.join(HERE, '..', 'assets', 'data', 'materia')
 
 BN = lambda v: str(v).translate(str.maketrans('0123456789', '০১২৩৪৫৬৭৮৯'))
@@ -44,8 +44,7 @@ def fold(s):
     return ''.join(c for c in s if not unicodedata.combining(c))
 
 
-kent = json.load(open(KENT, encoding='utf-8'))
-remedies = kent['remedies']
+remedies = json.load(open(ROSTER, encoding='utf-8'))['remedies']
 ids = {r['id'] for r in remedies}
 NAME_WORDS = [(r['id'], fold(r['name']).lower().split()) for r in remedies]
 EXACT_NAME = {}

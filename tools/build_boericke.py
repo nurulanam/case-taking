@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Build assets/data/repatories/boericke_repertory.json from the Médi-T HTML.
+"""Build assets/data/repatories/boericke_rubrics.json from the Médi-T HTML.
 
     python3 tools/build_boericke.py <path-to-boerirep-mirror>
 
-The remedy table is *copied from the Kent build* rather than rebuilt, so both
-books address remedies by the same index. That is what lets a Boericke
-repertorisation open the same Bangla materia medica in step 4 — and it means the
-Bangla remedy names, families and drug pictures are maintained in exactly one
-place. Run tools/build.py first.
+Rubrics only. Remedies are addressed by integer index into the shared roster
+(assets/data/repatories/remedies.json), which every repertory uses — that is what
+lets a Boericke result open the same Bangla materia medica in step 4, and it keeps
+the Bangla names, families and drug pictures in exactly one file. The roster must
+already exist; it is not rewritten here.
 """
 import json, sys, os, re, collections, unicodedata
 
@@ -17,8 +17,8 @@ from boericke_html import parse_all, CHAPTERS, CHAPTER_ICON
 from boericke_map import ALIAS, AMBIGUOUS
 from kent_bn import bn_rubric, bn_coverage
 
-KENT = os.path.join(HERE, '..', 'assets', 'data', 'repatories', 'kent_remidies.json')
-OUT = os.path.join(HERE, '..', 'assets', 'data', 'repatories', 'boericke_repertory.json')
+ROSTER = os.path.join(HERE, '..', 'assets', 'data', 'repatories', 'remedies.json')
+OUT = os.path.join(HERE, '..', 'assets', 'data', 'repatories', 'boericke_rubrics.json')
 MIRROR = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, '.cache', 'boerirep')
 
 BN = lambda v: str(v).translate(str.maketrans('0123456789', '০১২৩৪৫৬৭৮৯'))
@@ -36,8 +36,8 @@ def norm_abbrev(t):
 
 
 # ---------------------------------------------------------------- remedy table
-kent = json.load(open(KENT, encoding='utf-8'))
-remedies = kent['remedies']
+roster = json.load(open(ROSTER, encoding='utf-8'))
+remedies = roster['remedies']
 by_id = {r['id']: i for i, r in enumerate(remedies)}
 
 # Latin names split into words, for prefix matching
@@ -164,9 +164,9 @@ db = {
         'title_en': "Boericke's Repertory — Oscar E. Boericke, M.D.",
         'version': '1.0-boericke',
         'format': 'compact-v6',
+        'remedies_file': 'remedies.json',
         'chapters': len(chapters_out),
         'rubrics_total': total_rub,
-        'remedies_total': len(remedies),
         'remedies_in_book': len(used),
         'rubrics_bangla_full': bn_full,
         'rubrics_bangla_partial': bn_part,
@@ -198,10 +198,7 @@ db = {
         'languages': ['বাংলা', 'English'],
         'disclaimer': 'এটি শুধুমাত্র শিক্ষামূলক রেফারেন্স। প্রকৃত চিকিৎসার জন্য যোগ্য হোমিওপ্যাথিক চিকিৎসকের পরামর্শ নিন।',
     },
-    'remedies': remedies,
-    'bn_glossary': kent.get('bn_glossary', {}),
     'repertory_rubrics': chapters_out,
-    'search_index': kent.get('search_index', []),
 }
 
 db['metadata']['dropped_note_bn'] = db['metadata']['dropped_note_bn'].format(

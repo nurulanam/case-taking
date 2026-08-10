@@ -52,6 +52,7 @@
     restoreDraft();
     updateUI();
     updateGenderPanels();
+    applyIncomingRepertory();   // after the draft, so the hand-off is not overwritten
   }
 
   // --- UI & Navigation ---
@@ -238,6 +239,111 @@
     form.addEventListener('input', scheduleSave);
     form.addEventListener('change', scheduleSave);
     window.addEventListener('beforeunload', saveDraft);
+
+    bindRepertoryButtons();
+  }
+
+  /* ==================== case  <->  repertory  ====================
+     The six rubric boxes used to be typed by hand, which meant repertorising a
+     case was a copy-out/copy-back chore and the rubric text rarely matched a
+     real rubric in the book. These two buttons close the loop: the case sends
+     its symptom phrases to the repertory, and the repertory sends the rubrics it
+     actually picked (plus its top-ranked remedy) straight back into these
+     fields. */
+
+  // Free-text fields worth searching the repertory for, in the order a
+  // prescriber would weigh them (peculiars first — Kent's own priority).
+  const SYMPTOM_FIELDS = [
+    ['peculiarSymptoms', 'বিশেষ ও অদ্ভুত লক্ষণ'],
+    ['mentalCause', 'মানসিক কারণ'],
+    ['priorityComplaint', 'প্রধান অভিযোগ'],
+    ['concomitantSymptoms', 'সহলক্ষণ'],
+    ['modalityNotes', 'মোডালিটি'],
+    ['thermalNotes', 'তাপীয়'],
+    ['sleepNotes', 'ঘুম'],
+    ['foodNotes', 'খাদ্য-আকাঙ্ক্ষা'],
+  ];
+
+  function caseSymptoms() {
+    const out = [];
+    SYMPTOM_FIELDS.forEach(([name, label]) => {
+      const v = getVal(name);
+      if (!v) return;
+      // one phrase per line or sentence — a whole paragraph is useless as a
+      // rubric search term, but its individual clauses are not
+      v.split(/[\n।;]+/).map(s => s.trim()).filter(s => s.length > 2)
+        .slice(0, 6).forEach(text => out.push({ label, text }));
+    });
+    return out.slice(0, 24);
+  }
+
+  function rubricInputs() {
+    return [1, 2, 3, 4, 5, 6].map(n => form.querySelector(`[name="rubric${n}"]`)).filter(Boolean);
+  }
+
+  /* Buttons only. Applying an incoming hand-off is deliberately NOT done here:
+     bindEvents() runs before restoreDraft(), so filling the rubric boxes at this
+     point would have them immediately overwritten by the restored draft and the
+     step reset out from under the user. See applyIncomingRepertory(), called
+     after the draft is back. */
+  function bindRepertoryButtons() {
+    const send = document.getElementById('toRepertoryBtn');
+    if (send) send.addEventListener('click', () => {
+      const sym = caseSymptoms();
+      Shell.bridge.patch({
+        from: 'case',
+        patient: getVal('patientName'),
+        caseNo: getVal('caseNo'),
+        symptoms: sym,
+      });
+      saveDraft();
+      Shell.toast(sym.length
+        ? `${Shell.bnNum(sym.length)}টি লক্ষণ নিয়ে রিপার্টরি খুলছে…`
+        : 'রিপার্টরি খুলছে — লক্ষণ ঘর খালি, তাই নিজে খুঁজে নিন।', 'ok');
+      setTimeout(() => { location.href = 'repertory.html?from=case'; }, 350);
+    });
+
+    // the prescription builder reads the saved draft, so flush before leaving
+    const toRx = document.getElementById('toRxFromCase');
+    if (toRx) toRx.addEventListener('click', () => {
+      saveDraft();
+      Shell.bridge.patch({ patient: getVal('patientName'), caseNo: getVal('caseNo') });
+    });
+
+  }
+
+  /* Called after restoreDraft(), so what the repertory sent wins over the older
+     draft rather than being clobbered by it. */
+  function applyIncomingRepertory() {
+    const b = Shell.bridge.get();
+    if (b && b.from === 'repertory' && Array.isArray(b.rubrics) && b.rubrics.length) {
+      applyRubricsFromRepertory(b);
+    }
+  }
+
+  function applyRubricsFromRepertory(b) {
+    const boxes = rubricInputs();
+    b.rubrics.slice(0, boxes.length).forEach((r, i) => {
+      // chapter first: Kent uses the same rubric name in several chapters, so
+      // without it two different picks read as one duplicate line
+      const head = r.chapter ? `[${r.chapter}] ` : '';
+      const label = r.bn ? `${head}${r.name} — ${r.bn}` : `${head}${r.name}`;
+      boxes[i].value = r.grade ? `${label} (তীব্রতা ${Shell.bnNum(r.grade)})` : label;
+    });
+    let msg = `রিপার্টরি থেকে ${Shell.bnNum(Math.min(b.rubrics.length, boxes.length))}টি রুব্রিক বসানো হয়েছে`;
+
+    // only offer the remedy when the doctor has not already written one, so a
+    // considered choice is never silently overwritten by the machine ranking
+    const rx = form.querySelector('[name="constitutionalRemedy"]');
+    if (b.remedy && rx && !rx.value.trim()) {
+      rx.value = b.remedy.bangla ? `${b.remedy.name} (${b.remedy.bangla})` : b.remedy.name;
+      msg += ` · শীর্ষ ওষুধ: ${b.remedy.name}`;
+    }
+    saveDraft();
+    // consumed — otherwise every later visit would re-stamp the same rubrics
+    Shell.bridge.patch({ from: 'case-applied', rubrics: b.rubrics });
+    Shell.toast(msg + '।', 'ok');
+    goToStep(TOTAL_STEPS);
   }
 
   // --- Draft autosave (localStorage) ---
