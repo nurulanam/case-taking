@@ -8,6 +8,13 @@
     --toa-rose: #e11d48;
     --toa-rose-bg: #fff1f2;
   }
+  
+  [data-theme="dark"] {
+    --toa-amber-bg: rgba(217, 119, 6, 0.15);
+    --toa-amber-border: rgba(217, 119, 6, 0.3);
+    --toa-indigo-bg: rgba(79, 70, 229, 0.15);
+    --toa-rose-bg: rgba(225, 29, 72, 0.15);
+  }
 
   .page-tabs {
     display: flex;

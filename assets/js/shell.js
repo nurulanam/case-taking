@@ -147,7 +147,10 @@
       sidebar.innerHTML = sidebarHtml(active);
       updateSidebarBadges();
     }
-    if (topbar) topbar.innerHTML = topbarHtml(page);
+    if (topbar) {
+      topbar.innerHTML = topbarHtml(page);
+      setupDarkModeToggle();
+    }
 
     // Track recently visited modules (exclude dashboard)
     if (active && active !== 'dashboard') {
@@ -160,6 +163,9 @@
     
     // Setup bottom nav for mobile
     setupBottomNav(active);
+    
+    // Init dark mode
+    initDarkMode();
 
     // mobile drawer
     const toggle = document.getElementById('navToggle');
@@ -174,6 +180,36 @@
     if (sidebar) sidebar.addEventListener('click', e => { if (e.target.closest('a')) setNav(false); });
     // a resize past the breakpoint must not leave the drawer state stuck
     window.addEventListener('resize', () => { if (window.innerWidth > 860) setNav(false); });
+  }
+
+  function initDarkMode() {
+    let theme = store.get('theme_preference', 'system');
+    if (theme === 'system') {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = theme;
+  }
+
+  function setupDarkModeToggle() {
+    const btn = addAction(`<button class="tb-btn" id="themeToggle" aria-label="থিম পরিবর্তন" title="ডার্ক মোড টগল করুন"><i class='bx bx-moon'></i></button>`);
+    if (!btn) return;
+    
+    // Update icon based on current theme
+    const updateIcon = () => {
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      btn.innerHTML = isDark ? `<i class='bx bx-sun'></i>` : `<i class='bx bx-moon'></i>`;
+    };
+    
+    // Run initially
+    updateIcon();
+    // Observe dataset theme changes if needed or just handle it on click
+    btn.addEventListener('click', () => {
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      document.documentElement.dataset.theme = newTheme;
+      store.set('theme_preference', newTheme);
+      updateIcon();
+    });
   }
 
   function getGreeting() {

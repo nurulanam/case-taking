@@ -21,6 +21,10 @@
   --text-muted: #64748b;
   --text-light: #94a3b8;
 
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-bg-dense: rgba(255, 255, 255, 0.92);
+  --glass-border: rgba(226, 232, 240, 0.8);
+
   --radius-sm: 8px;
   --radius: 14px;
   --radius-lg: 20px;
@@ -42,6 +46,39 @@
   /* Module accent colors */
   --page-accent: var(--primary);
   --page-accent-bg: var(--primary-bg);
+}
+
+/* ==========================================================================
+   Phase 3: Dark Mode
+   ========================================================================== */
+[data-theme="dark"] {
+  --primary: #14b8a6;
+  --primary-light: #2dd4bf;
+  --primary-bg: rgba(20, 184, 166, 0.15);
+  --accent: #0f766e;
+  --danger: #f87171;
+  --danger-bg: rgba(239, 68, 68, 0.15);
+  --success: #34d399;
+  --success-bg: rgba(16, 185, 129, 0.15);
+  
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface2: #334155;
+  --border: #475569;
+  --border-focus: #2dd4bf;
+  
+  --text: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-light: #94a3b8;
+  
+  --glass-bg: rgba(30, 41, 59, 0.88);
+  --glass-bg-dense: rgba(30, 41, 59, 0.95);
+  --glass-border: rgba(71, 85, 105, 0.8);
+  
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+  --shadow-primary: 0 4px 14px rgba(20, 184, 166, 0.2);
 }
 
 * {
@@ -351,6 +388,10 @@ input:focus, select:focus, textarea:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-bg);
 }
+::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
 textarea { resize: vertical; }
 
 /* Chips (The main custom UI component) */
@@ -585,7 +626,7 @@ textarea { resize: vertical; }
   transition: all 0.15s;
 }
 .pg-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
-}
+
 .chips.compact .chip-item span {
   padding: 0.35rem 0.75rem;
   font-size: 0.875rem;
