@@ -28,7 +28,7 @@
   .page-tab-btn .tab-badge {
     display: inline-block; min-width: 18px;
     background: var(--primary); color: #fff;
-    border-radius: 999px; font-size: 0.6875rem; padding: 0 0.3125rem; margin-right: 0.25rem;
+    border-radius: 999px; font-size: 0.75rem; padding: 0 0.3125rem; margin-right: 0.25rem;
   }
   .page-panel { display: none; }
   .page-panel.active { display: block; }
@@ -74,7 +74,7 @@
   .cat-en { font-weight: 400; font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
   .cat-count {
     margin-left: auto; flex-shrink: 0;
-    font-size: 0.6875rem; font-weight: 700; color: var(--text-muted);
+    font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 999px; padding: 0.125rem 0.5rem;
   }
@@ -94,7 +94,7 @@
   .rubric .rb-en { font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
   .rb-meta { display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0; margin-top: 2px; }
   .rb-w {
-    font-size: 0.6875rem; font-weight: 700; color: var(--m-amber);
+    font-size: 0.75rem; font-weight: 700; color: var(--m-amber);
     background: var(--m-amber-bg); border: 1px solid var(--m-amber-border);
     border-radius: 4px; padding: 0 0.3125rem;
   }
@@ -102,12 +102,11 @@
   .mw {
     display: inline-flex; align-items: center; justify-content: center;
     min-width: 17px; height: 17px; padding: 0 3px; border-radius: 999px;
-    font-size: 0.625rem; font-weight: 700; color: #1f2937;
+    font-size: 0.75rem; font-weight: 700; color: #1f2937;
     border: 1px solid rgba(0,0,0,0.12);
   }
   .rb-pqrs {
-    font-size: 0.5625rem; font-weight: 700; letter-spacing: 0.02em;
-    color: var(--m-indigo); background: var(--m-indigo-bg);
+    font-size: 0.75rem; font-weight: 700; color: var(--m-indigo); background: var(--m-indigo-bg);
     border: 1px solid #c7d2fe; border-radius: 4px; padding: 0 0.25rem; white-space: nowrap;
   }
   .rb-type { font-size: 0.8125rem; line-height: 1; }
@@ -148,12 +147,12 @@
   }
   .dom-head { display: flex; align-items: center; gap: 0.875rem; }
   .dom-icon { font-size: 2.25rem; line-height: 1; flex-shrink: 0; }
-  .dom-label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+  .dom-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
   .dom-name { font-size: 1.375rem; font-weight: 700; color: var(--text); line-height: 1.3; }
   .dom-en { font-size: 0.8125rem; color: var(--text-muted); font-style: italic; }
   .dom-pct { margin-left: auto; text-align: right; flex-shrink: 0; }
   .dom-pct b { font-size: 1.75rem; font-weight: 700; display: block; line-height: 1; }
-  .dom-pct span { font-size: 0.6875rem; color: var(--text-muted); }
+  .dom-pct span { font-size: 0.75rem; color: var(--text-muted); }
   .dom-nature { margin-top: 0.875rem; font-size: 0.9375rem; line-height: 1.6; color: var(--text); }
 
   .kv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; margin-top: 1rem; }
@@ -161,7 +160,7 @@
     background: var(--surface2); border-radius: var(--radius-sm);
     padding: 0.625rem 0.75rem; border-left: 3px solid var(--primary);
   }
-  .kv .kv-k { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+  .kv .kv-k { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
   .kv .kv-v { font-size: 0.9375rem; font-weight: 600; color: var(--text); line-height: 1.4; margin-top: 2px; }
   .kv .kv-n { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; margin-top: 2px; }
 
@@ -170,8 +169,7 @@
 
   .score-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
   .score-table th {
-    text-align: right; font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.04em;
-    color: var(--text-muted); padding: 0.375rem 0.5rem; border-bottom: 1px solid var(--border);
+    text-align: right; font-size: 0.75rem; color: var(--text-muted); padding: 0.375rem 0.5rem; border-bottom: 1px solid var(--border);
   }
   .score-table th:first-child, .score-table td:first-child { text-align: left; }
   .score-table td { padding: 0.5rem; border-bottom: 1px solid var(--border); }
@@ -181,7 +179,7 @@
     display: inline-flex; align-items: center; justify-content: center;
     width: 20px; height: 20px; border-radius: 50%;
     background: var(--surface2); color: var(--text-muted);
-    font-size: 0.6875rem; font-weight: 700; margin-left: 0.375rem;
+    font-size: 0.75rem; font-weight: 700; margin-left: 0.375rem;
   }
   .score-table tr.top .rank-no { background: var(--primary); color: #fff; }
 
@@ -195,7 +193,7 @@
   .ev-item { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.3125rem 0; border-bottom: 1px dashed var(--border); font-size: 0.875rem; }
   .ev-item:last-child { border-bottom: none; }
   .ev-item .ev-c { margin-left: auto; flex-shrink: 0; font-weight: 700; color: var(--primary); font-size: 0.8125rem; }
-  .ev-item .ev-cat { font-size: 0.6875rem; color: var(--text-muted); background: var(--surface2); border-radius: 4px; padding: 0 0.3125rem; flex-shrink: 0; }
+  .ev-item .ev-cat { font-size: 0.75rem; color: var(--text-muted); background: var(--surface2); border-radius: 4px; padding: 0 0.3125rem; flex-shrink: 0; }
 
   .reason-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
   .reason-list li {
@@ -231,8 +229,7 @@
   .mi-body { padding: 0 1rem 1rem; }
   .mi-sec { margin-top: 1rem; }
   .mi-sec h5 {
-    font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
-    color: var(--text-muted); margin-bottom: 0.375rem; display: flex; align-items: center; gap: 0.375rem;
+    font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.375rem; display: flex; align-items: center; gap: 0.375rem;
   }
   .mi-sec ul { margin: 0; padding-left: 1.125rem; }
   .mi-sec li { font-size: 0.875rem; line-height: 1.65; color: var(--text); }
@@ -242,8 +239,7 @@
     display: flex; flex-direction: column; gap: 0.1875rem;
   }
   .prof-k {
-    font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
-    color: var(--text-muted); display: flex; align-items: center; gap: 0.3125rem;
+    font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 0.3125rem;
   }
   .prof-k i { color: var(--primary); font-size: 0.875rem; }
   .prof-v { font-size: 0.875rem; line-height: 1.6; color: var(--text); }
@@ -267,8 +263,7 @@
   .cmp-table thead th { position: sticky; top: 0; background: var(--surface2); font-size: 0.8125rem; z-index: 2; }
   .cmp-table tbody th {
     position: sticky; left: 0; background: var(--surface); z-index: 1;
-    width: 130px; min-width: 130px; font-size: 0.75rem; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 0.03em; border-right: 1px solid var(--border);
+    width: 130px; min-width: 130px; font-size: 0.75rem; color: var(--text-muted); border-right: 1px solid var(--border);
   }
   .cmp-table td { min-width: 190px; line-height: 1.6; }
   .cmp-table tbody tr:nth-child(even) td { background: rgba(148,163,184,0.06); }
@@ -298,7 +293,7 @@
     .imp-long { display: none; }
     .imp-short { display: inline; }
     .rb-pqrs { font-size: 0; padding: 0 0.1875rem; }
-    .rb-pqrs::before { content: '⭐'; font-size: 0.6875rem; }
+    .rb-pqrs::before { content: '⭐'; font-size: 0.75rem; }
   }
 
 /* ==========================================================================
@@ -355,13 +350,12 @@
 }
 .ws-live-head {
   display: flex; align-items: center; justify-content: space-between;
-  font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.625rem;
+  font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.625rem;
 }
 .ws-live-head i { color: var(--primary); }
 .ws-live-tag {
   display: inline-flex; align-items: center; gap: 0.3125rem;
-  text-transform: none; letter-spacing: 0; font-size: 0.6875rem;
+  text-transform: none; letter-spacing: 0; font-size: 0.75rem;
   color: var(--success); background: var(--success-bg);
   border: 1px solid rgba(16,185,129,0.25); border-radius: 999px; padding: 0.125rem 0.5rem;
 }
@@ -387,7 +381,7 @@
 }
 .ws-sw-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
 .ws-sw-n {
-  font-size: 0.6875rem; font-weight: 700; border-radius: 999px;
+  font-size: 0.75rem; font-weight: 700; border-radius: 999px;
   background: var(--surface2); color: var(--text-muted); padding: 0 0.375rem;
 }
 .ws-sw-btn.active .ws-sw-n { background: rgba(255,255,255,0.22); color: #fff; }

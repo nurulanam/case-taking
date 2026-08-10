@@ -31,7 +31,7 @@
 }
 .rx-src-tag {
   display: inline-flex; align-items: center; gap: 0.25rem;
-  font-size: 0.6875rem; font-weight: 600;
+  font-size: 0.75rem; font-weight: 600;
   background: #f5f3ff; color: #7c3aed;
   border: 1px solid #ddd6fe; border-radius: 999px; padding: 0.125rem 0.5rem;
 }
@@ -66,15 +66,13 @@
   border-bottom: 1px dashed var(--border);
 }
 .rs-patient label {
-  display: block; font-size: 0.625rem; text-transform: uppercase;
-  letter-spacing: 0.06em; color: var(--text-light); font-weight: 700;
+  display: block; font-size: 0.75rem; color: var(--text-light); font-weight: 700;
 }
 .rs-patient b { font-size: 0.875rem; font-weight: 600; }
 
 .rs-dx { padding: 0.625rem 0; border-bottom: 1px dashed var(--border); font-size: 0.8125rem; }
 .rs-dx label {
-  font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.06em;
-  color: var(--text-light); font-weight: 700; margin-right: 0.5rem;
+  font-size: 0.75rem; color: var(--text-light); font-weight: 700; margin-right: 0.5rem;
 }
 
 .rs-body { position: relative; padding: 1rem 0 0.5rem; min-height: 150px; }
@@ -94,8 +92,7 @@
 
 .rs-adv { padding: 0.625rem 0; border-top: 1px dashed var(--border); }
 .rs-adv label {
-  display: block; font-size: 0.625rem; text-transform: uppercase;
-  letter-spacing: 0.06em; color: var(--text-light); font-weight: 700; margin-bottom: 0.1875rem;
+  display: block; font-size: 0.75rem; color: var(--text-light); font-weight: 700; margin-bottom: 0.1875rem;
 }
 .rs-adv p { font-size: 0.8125rem; line-height: 1.6; }
 
@@ -104,8 +101,7 @@
   gap: 1rem; margin-top: 1.5rem; padding-top: 0.75rem;
 }
 .rs-follow label {
-  display: block; font-size: 0.625rem; text-transform: uppercase;
-  letter-spacing: 0.06em; color: var(--text-light); font-weight: 700;
+  display: block; font-size: 0.75rem; color: var(--text-light); font-weight: 700;
 }
 .rs-follow b { font-size: 0.8125rem; }
 .rs-sign { text-align: center; font-size: 0.75rem; color: var(--text-muted); }

@@ -27,7 +27,7 @@
   font-size: 0.8125rem; font-weight: 700;
 }
 .rp-lbl { min-width: 0; font-size: 0.875rem; font-weight: 600; color: var(--text); line-height: 1.25; }
-.rp-lbl small { display: block; font-size: 0.6875rem; font-weight: 400; color: var(--text-muted); }
+.rp-lbl small { display: block; font-size: 0.75rem; font-weight: 400; color: var(--text-muted); }
 .rp-step.done { border-color: var(--primary-light); background: var(--primary-bg); }
 .rp-step.done .rp-dot { background: var(--primary-light); color: #fff; }
 .rp-step.active { border-color: var(--primary); background: var(--primary-bg); box-shadow: 0 0 0 3px rgba(15,118,110,0.10); }
@@ -60,7 +60,7 @@
 .rp-book p { font-size: 0.9375rem; color: var(--text-muted); line-height: 1.6; }
 .rp-book-meta { display: flex; flex-wrap: wrap; gap: 0.3125rem; }
 .rp-tag {
-  font-size: 0.6875rem; font-weight: 600; color: var(--text-muted);
+  font-size: 0.75rem; font-weight: 600; color: var(--text-muted);
   background: var(--surface2); border-radius: 999px; padding: 0.1875rem 0.5rem;
 }
 .rp-tag.warn { background: var(--m-amber-bg, #fffbeb); color: #b45309; border: 1px solid #fcd34d; }
@@ -122,8 +122,7 @@
 }
 .rp-cb-label {
   display: inline-flex; align-items: center; gap: 0.375rem;
-  font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: 0.03em;
+  font-size: 0.8125rem; font-weight: 700; color: var(--text-muted);
 }
 .rp-cb-label i { color: var(--primary); font-size: 0.9375rem; }
 .rp-cb-toggle {
@@ -178,8 +177,8 @@
 .rp-ch.active .ch-no { color: rgba(255,255,255,0.75); }
 .rp-ch .ch-nm { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
 .rp-ch .ch-en {
-  font-size: 0.625rem; font-weight: 500; letter-spacing: 0.01em;
-  color: var(--text-light); text-transform: uppercase;
+  font-size: 0.625rem; font-weight: 500;
+  color: var(--text-light);
 }
 .rp-ch.active .ch-en { color: rgba(255,255,255,0.7); }
 .rp-ch .ch-n {
@@ -206,7 +205,7 @@
 .rub-name { font-size: 1rem; font-weight: 500; color: var(--text); line-height: 1.4; }
 .rub-ch { font-size: 0.75rem; color: var(--text-muted); }
 .rub-src {
-  display: inline-block; font-size: 0.5625rem; font-weight: 700; letter-spacing: 0.04em;
+  display: inline-block; font-size: 0.75rem; font-weight: 700;
   color: #b45309; background: #fffbeb; border: 1px solid #fcd34d;
   border-radius: 4px; padding: 0 0.25rem; vertical-align: 1px;
 }
@@ -216,7 +215,7 @@
   color: var(--primary); opacity: 0.55;
 }
 .rub-n {
-  flex-shrink: 0; font-size: 0.6875rem; font-weight: 700; color: var(--text-muted);
+  flex-shrink: 0; font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
   background: var(--surface2); border-radius: 999px; padding: 0.125rem 0.5rem;
 }
 
@@ -227,21 +226,21 @@
 }
 .tray-top { display: flex; align-items: flex-start; gap: 0.5rem; }
 .tray-name { flex: 1; min-width: 0; font-size: 0.9375rem; font-weight: 600; color: var(--text); line-height: 1.4; }
-.tray-name small { display: block; font-size: 0.6875rem; font-weight: 400; color: var(--text-muted); }
+.tray-name small { display: block; font-size: 0.75rem; font-weight: 400; color: var(--text-muted); }
 .tray-x {
   flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
   border: none; background: var(--danger-bg); color: var(--danger);
   cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
 }
 .tray-grades { display: flex; align-items: center; gap: 0.3125rem; margin-top: 0.5rem; }
-.tray-grades .flabel { font-size: 0.6875rem; font-weight: 700; color: var(--text-muted); }
+.tray-grades .flabel { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
 .gbtn {
   width: 26px; height: 26px; border-radius: 7px; cursor: pointer;
   border: 1px solid var(--border); background: var(--surface);
   color: var(--text-muted); font-family: inherit; font-size: 0.75rem; font-weight: 700;
 }
 .gbtn.on { background: var(--primary); border-color: var(--primary); color: #fff; }
-.tray-rem { margin-top: 0.375rem; font-size: 0.6875rem; color: var(--text-muted); line-height: 1.5; }
+.tray-rem { margin-top: 0.375rem; font-size: 0.75rem; color: var(--text-muted); line-height: 1.6; }
 
 /* ---------- grid ---------- */
 .rp-toolbar {
@@ -258,8 +257,8 @@
 .rp-grid th, .rp-grid td { padding: 0.5rem 0.625rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
 .rp-grid thead th {
   position: sticky; top: 0; z-index: 3; background: var(--surface2);
-  font-size: 0.6875rem; font-weight: 700; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: 0.03em; text-align: center;
+  font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
+  letter-spacing: 0; text-align: center;
   border-bottom: 1px solid var(--border);
 }
 .rp-grid thead th.rx-col, .rp-grid tbody th {
@@ -287,7 +286,7 @@
 .rp-grid .ph { font-style: italic; opacity: 0.75; }
 .rp-legend {
   display: flex; flex-wrap: wrap; gap: 0.875rem; margin-top: 0.75rem;
-  font-size: 0.75rem; color: var(--text-muted);
+  font-size: 0.8125rem; color: var(--text-muted);
 }
 .rp-legend b { color: var(--text); }
 
@@ -306,7 +305,7 @@
 }
 .top-rx.on .top-rank, .top-rx:first-child .top-rank { background: var(--primary); color: #fff; }
 .top-nm { flex: 1; min-width: 0; font-size: 0.875rem; font-weight: 600; color: var(--text); }
-.top-nm small { display: block; font-size: 0.6875rem; font-weight: 400; color: var(--text-muted); }
+.top-nm small { display: block; font-size: 0.75rem; font-weight: 400; color: var(--text-muted); }
 .top-sc { flex-shrink: 0; font-size: 0.75rem; font-weight: 700; color: var(--primary); }
 
 /* the .md-* drug-picture card now lives in materia.css, which this page also
@@ -321,7 +320,7 @@
 .rp-empty { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 0.875rem; line-height: 1.7; }
 .rp-empty i { font-size: 2.25rem; color: var(--border); display: block; margin-bottom: 0.5rem; }
 /* .m-search lives in base.css — shared by three pages */
-.flabel { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
+.flabel { font-size: 0.8125rem; font-weight: 700; color: var(--text-muted); }
 .fbtn {
   font-family: inherit; font-size: 0.75rem; font-weight: 600;
   padding: 0.3125rem 0.6875rem; border-radius: 999px; cursor: pointer;
@@ -376,7 +375,7 @@
 .rp-grid th .rx-cmp.on { background: var(--primary); border-color: var(--primary); color: #fff; }
 .rp-grid th .rx-nm { display: inline-block; vertical-align: middle; min-width: 0; }
 .rp-grid th .rx-bn {
-  display: block; font-weight: 400; font-size: 0.6875rem; color: var(--text-muted);
+  display: block; font-weight: 400; font-size: 0.75rem; color: var(--text-muted);
 }
 
 /* ---------- reversed view: every rubric a remedy appears in ---------- */
@@ -401,6 +400,6 @@
 }
 .rev-row:last-child { border-bottom: none; }
 .rev-nm { flex: 1; min-width: 0; font-size: 0.8125rem; line-height: 1.5; color: var(--text); }
-.rev-bn { display: block; font-size: 0.6875rem; color: var(--text-muted); }
-.rev-pg { flex-shrink: 0; font-size: 0.6875rem; color: var(--text-muted); }
+.rev-bn { display: block; font-size: 0.75rem; color: var(--text-muted); }
+.rev-pg { flex-shrink: 0; font-size: 0.75rem; color: var(--text-muted); }
 .rev-more { padding: 0.5rem; font-size: 0.75rem; color: var(--text-muted); text-align: center; }

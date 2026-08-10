@@ -13,8 +13,7 @@
 .md-head .md-en { font-size: 0.8125rem; color: var(--text-muted); font-style: italic; }
 .md-sec { margin-top: 1rem; }
 .md-sec h5 {
-  font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
-  color: var(--text-muted); margin-bottom: 0.375rem; display: flex; align-items: center; gap: 0.375rem;
+  font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.375rem; display: flex; align-items: center; gap: 0.375rem;
 }
 .md-sec h5 i { color: var(--primary); font-size: 0.9375rem; }
 .md-sec ul { margin: 0; padding-left: 1.125rem; }
@@ -27,7 +26,7 @@
 }
 .md-kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 0.5rem; }
 .md-kv div { background: var(--surface2); border-radius: 8px; padding: 0.5rem 0.625rem; }
-.md-kv span { display: block; font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+.md-kv span { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
 .md-kv b { font-size: 0.875rem; font-weight: 600; color: var(--text); }
 .md-intro { font-size: 0.9375rem; line-height: 1.7; color: var(--text); margin-top: 0.875rem; }
 
@@ -120,10 +119,9 @@
 .mm-rx.on { background: rgba(15, 118, 110, 0.08); box-shadow: inset 2px 0 0 var(--primary); }
 .mm-rx-txt { flex: 1; min-width: 0; }
 .mm-rx-bn { font-size: 0.875rem; font-weight: 600; color: var(--text); line-height: 1.35; }
-.mm-rx-en { font-size: 0.6875rem; color: var(--text-muted); font-style: italic; }
+.mm-rx-en { font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
 .mm-tag {
-  flex-shrink: 0; font-size: 0.5625rem; font-weight: 700; letter-spacing: 0.03em;
-  padding: 0.0625rem 0.3125rem; border-radius: 4px; border: 1px solid transparent;
+  flex-shrink: 0; font-size: 0.75rem; font-weight: 700; padding: 0.0625rem 0.3125rem; border-radius: 4px; border: 1px solid transparent;
 }
 /* a remedy with no drug picture is labelled, never silently shown as complete */
 .mm-tag.basic { color: #b45309; background: #fffbeb; border-color: #fcd34d; }
@@ -135,7 +133,7 @@
 /* alphabet jump strip */
 .mm-alpha { display: flex; flex-wrap: wrap; gap: 0.1875rem; margin-top: 0.5rem; }
 .mm-alpha button {
-  min-width: 1.375rem; padding: 0.125rem 0.25rem; font-size: 0.6875rem; font-weight: 700;
+  min-width: 1.375rem; padding: 0.125rem 0.25rem; font-size: 0.75rem; font-weight: 700;
   background: none; border: 1px solid var(--border); border-radius: 4px;
   color: var(--text-muted); cursor: pointer;
 }
@@ -176,7 +174,7 @@
 .mm-mode i { font-size: 1.0625rem; }
 .mm-mode-n {
   min-width: 1.125rem; padding: 0 0.25rem; border-radius: 999px;
-  background: var(--primary); color: #fff; font-size: 0.6875rem; font-weight: 700;
+  background: var(--primary); color: #fff; font-size: 0.75rem; font-weight: 700;
 }
 
 /* selection tray */
@@ -187,9 +185,7 @@
 .mm-tray-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
 .mm-tray-lbl {
   display: inline-flex; align-items: center; gap: 0.375rem;
-  font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: 0.03em;
-}
+  font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
 .mm-tray-lbl i { color: var(--primary); font-size: 0.9375rem; }
 .mm-tray-note { flex: 1; min-width: 0; font-size: 0.75rem; color: var(--text-muted); }
 .mm-tray-chips { display: flex; flex-wrap: wrap; gap: 0.375rem; }
@@ -246,8 +242,7 @@ body.cmp-mode .mm-rx-pick { display: flex; }
 .mm-cmp-table .cmp-row-h {
   position: sticky; left: 0; z-index: 2;
   background: var(--surface2); width: 8.5rem; min-width: 8.5rem;
-  font-size: 0.6875rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.03em; color: var(--text-muted);
+  font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
   border-right: 1px solid var(--border);
 }
 .mm-cmp-table thead th {
@@ -256,7 +251,7 @@ body.cmp-mode .mm-rx-pick { display: flex; }
 }
 .mm-cmp-table thead th.cmp-row-h { z-index: 4; }
 .cmp-rx-bn { font-size: 0.875rem; font-weight: 700; color: var(--text); line-height: 1.3; }
-.cmp-rx-en { font-size: 0.6875rem; color: var(--text-muted); font-style: italic; }
+.cmp-rx-en { font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
 .mm-cmp-table td { font-size: 0.8125rem; line-height: 1.6; color: var(--text); min-width: 12rem; }
 .mm-cmp-table td ul { margin: 0; padding-left: 1rem; }
 .mm-cmp-table td li { margin-bottom: 0.1875rem; }
@@ -267,7 +262,7 @@ body.cmp-mode .mm-rx-pick { display: flex; }
 
 @media (max-width: 640px) {
   .mm-modes { flex-wrap: wrap; }
-  .mm-cmp-table .cmp-row-h { width: 6.5rem; min-width: 6.5rem; font-size: 0.625rem; padding: 0.5rem; }
+  .mm-cmp-table .cmp-row-h { width: 6.5rem; min-width: 6.5rem; font-size: 0.75rem; padding: 0.5rem; }
   .mm-cmp-table td { min-width: 10rem; padding: 0.5rem; }
 }
 
@@ -280,15 +275,14 @@ body.cmp-mode .mm-rx-pick { display: flex; }
 }
 .src-block h5 { align-items: center; }
 .src-tag {
-  margin-left: auto; font-size: 0.5625rem; font-weight: 700; letter-spacing: 0.04em;
-  padding: 0.0625rem 0.3125rem; border-radius: 4px;
+  margin-left: auto; font-size: 0.75rem; font-weight: 700; padding: 0.0625rem 0.3125rem; border-radius: 4px;
   color: #1d4ed8; background: #eef2ff; border: 1px solid #c7d2fe;
 }
 .src-cite {
   font-size: 0.75rem; color: var(--text-muted); font-style: italic;
   margin-bottom: 0.5rem; line-height: 1.5;
 }
-.src-cite span { display: block; font-style: normal; font-size: 0.6875rem; }
+.src-cite span { display: block; font-style: normal; font-size: 0.75rem; }
 /* the source is English: force LTR so mixed Bangla/Latin text does not reorder */
 .src-text, .src-sec {
   direction: ltr; text-align: left;
@@ -303,7 +297,7 @@ body.cmp-mode .mm-rx-pick { display: flex; }
    so it is carried through rather than flattened away */
 .src-text em, .src-sec em { font-style: italic; font-weight: 600; color: var(--text); }
 .src-foot {
-  margin-top: 0.75rem; font-size: 0.6875rem; color: var(--text-muted); line-height: 1.6;
+  margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-muted); line-height: 1.6;
 }
 .src-none { font-size: 0.8125rem; color: var(--text-muted); font-style: italic; }
 /* a remedy with no Bangla picture but with the English source */
@@ -330,6 +324,6 @@ body.cmp-mode .mm-rx-pick { display: flex; }
    them — the prose stays English, so the label has to bridge both */
 .src-sec b { display: block; margin-bottom: 0.125rem; }
 .src-sec b i {
-  font-style: normal; font-weight: 600; font-size: 0.6875rem;
+  font-style: normal; font-weight: 600; font-size: 0.75rem;
   color: var(--text-muted); margin-left: 0.375rem;
 }

@@ -39,7 +39,8 @@ body {
   font-family: 'Hind Siliguri', sans-serif;
   background-color: var(--bg);
   color: var(--text);
-  line-height: 1.5;
+  font-weight: 450;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   padding-bottom: 80px; /* space for bottom nav */
 }
@@ -72,11 +73,9 @@ body {
   }
 }
 .eyebrow {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   color: var(--primary);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 h1 {
   font-size: 1.25rem;
@@ -85,8 +84,9 @@ h1 {
   margin-bottom: 0.25rem;
 }
 .subtitle {
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   color: var(--text-muted);
+  line-height: 1.6;
 }
 
 /* Main Layout */
@@ -109,7 +109,7 @@ h2#currentStepTitle {
   font-weight: 700;
 }
 .autosave-badge {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   background: var(--success-bg);
   color: var(--success);
   padding: 0.25rem 0.5rem;
@@ -240,8 +240,8 @@ h2#currentStepTitle {
    own stylesheet, leaving the text flush against whatever came before it. */
 .disclaimer {
   margin-top: 30px;
-  font-size: 0.8125rem;
-  line-height: 1.7;
+  font-size: 0.875rem;
+  line-height: 1.75;
   color: var(--text-muted);
   text-align: center;
   padding-top: 1rem;
@@ -272,8 +272,9 @@ h2#currentStepTitle {
   margin-bottom: 0.25rem;
 }
 .section-heading p {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   color: var(--text-muted);
+  line-height: 1.6;
 }
 
 /* Grids */
@@ -517,8 +518,8 @@ textarea { resize: vertical; }
    Shared by case.html, repertory.html and prescription.html so the hand-off
    looks like one feature rather than three unrelated buttons. */
 .bridge-hint {
-  font-size: 0.8125rem; color: var(--text-muted);
-  line-height: 1.6; margin-bottom: 0.625rem;
+  font-size: 0.875rem; color: var(--text-muted);
+  line-height: 1.7; margin-bottom: 0.625rem;
 }
 .bridge-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
 
@@ -543,8 +544,8 @@ textarea { resize: vertical; }
 }
 .cb-chip:hover { border-color: var(--primary); color: var(--primary); }
 .cb-chip-lbl {
-  font-size: 0.625rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.04em; color: var(--text-light); flex-shrink: 0;
+  font-size: 0.75rem; font-weight: 700;
+  color: var(--text-light); flex-shrink: 0;
 }
 .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
 
@@ -558,8 +559,8 @@ textarea { resize: vertical; }
   margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
 }
 .pg-btn {
-  min-width: 1.875rem; padding: 0.25rem 0.4375rem;
-  font-family: inherit; font-size: 0.75rem; font-weight: 700;
+  min-width: 1.875rem; padding: 0.3125rem 0.5rem;
+  font-family: inherit; font-size: 0.8125rem; font-weight: 700;
   background: var(--surface); color: var(--text-muted);
   border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
   transition: all 0.15s;
