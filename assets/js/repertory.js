@@ -706,19 +706,31 @@
     const chips = document.getElementById('chapterChips');
     if (!bar || !chips) return;
     // a hidden pane measures 0 — decide only once it is actually laid out
-    if (!chips.clientHeight) return;
-    const expanded = bar.classList.contains('open');
-    bar.classList.remove('no-toggle');
-    if (!expanded) {
-      const fits = chips.scrollHeight <= chips.clientHeight + 2;
-      bar.classList.toggle('no-toggle', fits);
+    if (!chips.clientHeight && !bar.classList.contains('open')) return;
+
+    const wasOpen = bar.classList.contains('open');
+    chips.style.transition = 'none'; // disable animation for measurement
+
+    // measure in collapsed state
+    bar.classList.remove('open');
+    const collapsedHeight = chips.clientHeight;
+    const fullHeight = chips.scrollHeight;
+    const fits = fullHeight <= collapsedHeight + 2;
+    bar.classList.toggle('no-toggle', fits);
+
+    if (wasOpen) {
+      bar.classList.add('open');
+    } else {
+      // keep the active chapter visible when the bar is collapsed
+      const active = chips.querySelector('.rp-ch.active');
+      if (active && active.offsetTop > collapsedHeight - 8) {
+        bar.classList.add('open');
+      }
     }
-    // keep the active chapter visible when the bar is collapsed
-    const active = chips.querySelector('.rp-ch.active');
-    if (active && !bar.classList.contains('open')) {
-      const top = active.offsetTop;
-      if (top > chips.clientHeight - 8) bar.classList.add('open');
-    }
+
+    // force reflow and restore transition
+    void chips.offsetHeight;
+    chips.style.transition = '';
   }
 
   function visibleRubrics() {
@@ -1392,8 +1404,9 @@
       renderRubrics(); renderTray();
       Shell.toast(`আগের কেস ফিরিয়ে আনা হয়েছে — ${bn(S.picked.size)}টি রুব্রিক।`, 'ok');
     }
-    // land back where the user left off, not always on the rubric-picking step
-    const target = S.picked.size ? Math.min(4, Math.max(2, d.step || 2)) : 2;
+    // land back where the user left off, but don't allow step 3/4 if no rubrics are picked
+    let target = d.step || 1;
+    if (!S.picked.size && target > 2) target = 2;
     setStep(target);
   }
 
