@@ -63,12 +63,27 @@ body {
   height: 100vh;
   z-index: 60;
   border-right: 1px solid rgba(20, 184, 166, 0.10);
+  transition: flex-basis 0.22s cubic-bezier(0.4, 0, 0.2, 1), width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .app-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
 
+/* full-width content: the container spans whatever room .app-main has —
+   it no longer caps out at 1300px on wide desktop screens */
 .app-content { flex: 1 1 auto; padding: 1.5rem 1.75rem 3rem; }
-.content-inner { max-width: 1300px; margin: 0 auto; }
+.content-inner { width: 100%; max-width: none; }
+
+/* desktop sidebar collapse — same #navToggle button as the mobile drawer,
+   just a different effect at wider viewports (see shell.js) */
+@media (min-width: 861px) {
+  body.sidebar-collapsed .app-sidebar {
+    flex-basis: 0;
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+    border-right: none;
+  }
+}
 
 .app-footer {
   border-top: 1px solid var(--border);
@@ -179,7 +194,7 @@ body {
   flex-shrink: 0;
 }
 .tb-burger {
-  display: none;
+  display: inline-flex;
   width: 36px; height: 36px; flex-shrink: 0;
   align-items: center; justify-content: center;
   border: 1px solid var(--border); border-radius: 9px;
@@ -469,7 +484,6 @@ body[data-page="case"] .app-content { padding-bottom: 6.5rem; }
   .app-backdrop { z-index: 115; }
   body.nav-open .app-sidebar { transform: none; }
   body.nav-open { overflow: hidden; }
-  .tb-burger { display: inline-flex; }
   .app-content { padding: 1rem 1rem 2.5rem; }
   .app-topbar { padding: 0 1rem; height: 56px; }
   .app-footer { padding: 1rem 1rem calc(4.5rem + env(safe-area-inset-bottom)); font-size: 0.75rem; }

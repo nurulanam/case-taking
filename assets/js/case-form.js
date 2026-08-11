@@ -781,6 +781,133 @@
     Shell.toast('কেস রিপোর্ট তৈরি হয়েছে — নিচে কপি বা ডাউনলোড করুন।', 'ok');
   }
 
+  // --- Phase 4: Case Taking UX Improvements ---
+
+  // Auto-save with timestamp indicator
+  let autosaveTimer = null;
+  function scheduleAutosave() {
+    clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(() => {
+      save();
+      showAutosaveIndicator();
+    }, 2000); // Save 2s after last input
+  }
+
+  function showAutosaveIndicator() {
+    const indicator = document.getElementById('autosaveIndicator');
+    if (!indicator) return;
+    const now = new Date();
+    const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    indicator.textContent = `সংরক্ষিত ${time}`;
+    indicator.classList.add('show');
+    setTimeout(() => indicator.classList.remove('show'), 3500);
+  }
+
+  // Quick-add symptom chips
+  function initQuickAddChips() {
+    const quickChips = document.querySelectorAll('#quickChips .quick-chip');
+    quickChips.forEach(chip => {
+      chip.addEventListener('click', (e) => {
+        e.preventDefault();
+        const symptom = chip.dataset.add;
+        const box = document.querySelector('[name="priorityComplaint"]');
+        if (box) {
+          const current = box.value.trim();
+          const newVal = current ? current + '\n' + symptom : symptom;
+          box.value = newVal;
+          box.dispatchEvent(new Event('input', { bubbles: true }));
+          chip.classList.add('active');
+          setTimeout(() => chip.classList.remove('active'), 600);
+          scheduleAutosave();
+        }
+      });
+    });
+  }
+
+  // Inline validation with orange hint
+  function initInlineValidation() {
+    const requiredFields = form.querySelectorAll('[required]');
+    requiredFields.forEach(field => {
+      field.addEventListener('blur', () => {
+        validateField(field);
+      });
+      field.addEventListener('input', () => {
+        if (field.value.trim()) {
+          clearFieldError(field);
+        }
+      });
+    });
+  }
+
+  function validateField(field) {
+    if (!field.value.trim()) {
+      showFieldError(field, `এই ফিল্ড পূরণ করুন`);
+    } else {
+      clearFieldError(field);
+    }
+  }
+
+  function showFieldError(field, message) {
+    const fieldLabel = field.closest('.field');
+    if (!fieldLabel) return;
+    fieldLabel.classList.add('has-error');
+
+    let hint = fieldLabel.querySelector('.field-error');
+    if (!hint) {
+      hint = document.createElement('div');
+      hint.className = 'field-error';
+      fieldLabel.appendChild(hint);
+    }
+    hint.textContent = message;
+  }
+
+  function clearFieldError(field) {
+    const fieldLabel = field.closest('.field');
+    if (!fieldLabel) return;
+    fieldLabel.classList.remove('has-error');
+    const hint = fieldLabel.querySelector('.field-error');
+    if (hint) hint.remove();
+  }
+
+  // Smart defaults for Bangladesh
+  function applySmartDefaults() {
+    // Set visit date to today if empty
+    const visitDate = document.querySelector('input[name="visitDate"]');
+    if (visitDate && !visitDate.value) {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      visitDate.value = `${yyyy}-${mm}-${dd}`;
+    }
+  }
+
+  // Track step completion for progress indicator
+  function updateStepCompletion() {
+    const tabs = document.querySelectorAll('.step-tab');
+    tabs.forEach((tab, idx) => {
+      const stepNum = idx + 1;
+      const step = document.querySelector(`.form-step[data-step-title]`); // All steps
+      if (stepNum < currentStep) {
+        tab.classList.add('completed');
+      }
+    });
+  }
+
+  // Enhance init to include Phase 4 features
+  const originalInit = init;
+  function enhancedInit() {
+    originalInit();
+    initQuickAddChips();
+    initInlineValidation();
+    applySmartDefaults();
+    updateStepCompletion();
+
+    // Auto-save on any input
+    form.addEventListener('input', scheduleAutosave);
+    form.addEventListener('change', scheduleAutosave);
+  }
+
   // Go!
-  init();
+  enhancedInit();
 })();

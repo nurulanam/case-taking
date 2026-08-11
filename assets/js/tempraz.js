@@ -507,13 +507,16 @@ function updateChart(scores) {
   const pt = (i, r) => [C + Math.cos(ang(i)) * r, C + Math.sin(ang(i)) * r];
   const poly = r => TZ_ORDER.map((_, i) => pt(i, r).map(n => n.toFixed(1)).join(',')).join(' ');
 
+  // a card border can stay subtle by design, but a chart's own gridlines need
+  // more contrast to read as a shape rather than disappear into the card —
+  // so the radar uses --chart-grid (defined per-theme) instead of --border.
   const rings = [0.25, 0.5, 0.75, 1]
-    .map(f => `<polygon points="${poly(R * f)}" fill="none" stroke="var(--border)" stroke-width="1"/>`)
+    .map(f => `<polygon points="${poly(R * f)}" fill="none" stroke="var(--chart-grid, var(--border))" stroke-width="1"/>`)
     .join('');
   const spokes = TZ_ORDER.map((_, i) => {
     const [x, y] = pt(i, R);
     return `<line x1="${C}" y1="${C}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"
-            stroke="var(--border)" stroke-width="1"/>`;
+            stroke="var(--chart-grid, var(--border))" stroke-width="1"/>`;
   }).join('');
 
   const shape = TZ_ORDER

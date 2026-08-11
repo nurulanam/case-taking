@@ -403,3 +403,192 @@
 .rev-bn { display: block; font-size: 0.75rem; color: var(--text-muted); }
 .rev-pg { flex-shrink: 0; font-size: 0.75rem; color: var(--text-muted); }
 .rev-more { padding: 0.5rem; font-size: 0.75rem; color: var(--text-muted); text-align: center; }
+
+/* ==========================================================================
+   Phase 5: Repertory UX Improvements
+   ========================================================================== */
+
+/* Recent rubrics: compact strip above the list, never inside its scroll area */
+.rp-recent {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.625rem;
+  padding-top: 0.625rem;
+  border-top: 1px dashed var(--border);
+}
+.rp-recent[hidden] { display: none; }
+.rp-recent-lbl {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+.rp-recent-chip {
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: var(--text);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.25rem 0.625rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  max-width: 16rem;
+  overflow: hidden;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3125rem;
+}
+.rp-recent-chip:hover { border-color: var(--primary); color: var(--primary); }
+.rp-recent-chip.picked { background: var(--primary); border-color: var(--primary); color: #fff; }
+.rp-recent-chip.picked .rp-recent-bn { color: rgba(255,255,255,0.8); }
+.rp-recent-bn {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Rubric chapter grouping */
+.rub-chapter-group { margin-bottom: 1rem; }
+.rub-chapter-title {
+  font-size: 0.875rem; font-weight: 700; color: var(--primary);
+  padding: 0.5rem 0.875rem; margin-bottom: 0.25rem;
+  background: var(--primary-bg); border-radius: var(--radius-sm);
+  text-transform: capitalize;
+}
+
+/* Rubric preview tooltip on hover */
+.rub {
+  position: relative;
+}
+.rub:hover::after {
+  content: '';
+  position: absolute;
+  bottom: 100%; right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  box-shadow: var(--shadow);
+  z-index: 10;
+  white-space: nowrap;
+  margin-bottom: 0.5rem;
+}
+.rp-preview {
+  display: none;
+  position: absolute;
+  bottom: 110%; right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem;
+  box-shadow: var(--shadow);
+  z-index: 10;
+  width: 280px;
+  max-width: calc(100vw - 20px);
+}
+.rub:hover .rp-preview {
+  display: block;
+}
+.rp-preview-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+  font-size: 0.8125rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+.rp-preview-item:last-child { border-bottom: none; }
+.rp-grade {
+  font-weight: 700;
+  margin-left: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  background: var(--primary-bg);
+  color: var(--primary);
+}
+
+/* Heatmap: grade-based coloring for remedy count */
+.rub-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+/* Grade heatmap: 1-10 remedies = light, 11-25 = medium, 26-50+ = strong */
+.rub-n-1, .rub-n-2, .rub-n-3, .rub-n-4, .rub-n-5, .rub-n-6,
+.rub-n-7, .rub-n-8, .rub-n-9, .rub-n-10 {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.rub-n-11, .rub-n-12, .rub-n-13, .rub-n-14, .rub-n-15, .rub-n-16,
+.rub-n-17, .rub-n-18, .rub-n-19, .rub-n-20, .rub-n-21, .rub-n-22,
+.rub-n-23, .rub-n-24, .rub-n-25 {
+  background: rgba(15, 118, 110, 0.15);
+  color: #0f766e;
+}
+
+.rub-n-26, .rub-n-27, .rub-n-28, .rub-n-29, .rub-n-30, .rub-n-31,
+.rub-n-32, .rub-n-33, .rub-n-34, .rub-n-35, .rub-n-36, .rub-n-37,
+.rub-n-38, .rub-n-39, .rub-n-40, .rub-n-41, .rub-n-42, .rub-n-43,
+.rub-n-44, .rub-n-45, .rub-n-46, .rub-n-47, .rub-n-48, .rub-n-49, .rub-n-50 {
+  background: rgba(15, 118, 110, 0.3);
+  color: #0d4a44;
+  font-weight: 700;
+}
+
+/* Dark mode adjustments for Phase 5 */
+@media (prefers-color-scheme: dark) {
+  .rub-n-1, .rub-n-2, .rub-n-3, .rub-n-4, .rub-n-5, .rub-n-6,
+  .rub-n-7, .rub-n-8, .rub-n-9, .rub-n-10 {
+    background: rgba(52, 211, 153, 0.2);
+    color: #34d399;
+  }
+
+  .rub-n-11, .rub-n-12, .rub-n-13, .rub-n-14, .rub-n-15, .rub-n-16,
+  .rub-n-17, .rub-n-18, .rub-n-19, .rub-n-20, .rub-n-21, .rub-n-22,
+  .rub-n-23, .rub-n-24, .rub-n-25 {
+    background: rgba(20, 184, 166, 0.2);
+    color: #14b8a6;
+  }
+
+  .rub-n-26, .rub-n-27, .rub-n-28, .rub-n-29, .rub-n-30, .rub-n-31,
+  .rub-n-32, .rub-n-33, .rub-n-34, .rub-n-35, .rub-n-36, .rub-n-37,
+  .rub-n-38, .rub-n-39, .rub-n-40, .rub-n-41, .rub-n-42, .rub-n-43,
+  .rub-n-44, .rub-n-45, .rub-n-46, .rub-n-47, .rub-n-48, .rub-n-49, .rub-n-50 {
+    background: rgba(20, 184, 166, 0.35);
+    color: #2dd4bf;
+  }
+}
+
+/* Drag-to-reorder support */
+.rub.dragging {
+  opacity: 0.5;
+  background: var(--primary-bg);
+}
+.rub-chapter-group.drag-over {
+  border-left: 3px solid var(--primary);
+  padding-left: 0.625rem;
+}

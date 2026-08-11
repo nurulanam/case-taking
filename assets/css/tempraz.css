@@ -3,41 +3,8 @@
    ডাঃ পরিনাজ হুমরানওয়ালা
    ========================================================================== */
 
-/* ---------- Page header ---------- */
-.tz-page-head {
-  display: flex;
-  align-items: center;
-  gap: 1.125rem;
-  margin-bottom: 1.25rem;
-  padding: 1.125rem 1.375rem;
-  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4c1d95 100%);
-  border-radius: var(--radius);
-  color: #fff;
-  position: relative;
-  overflow: hidden;
-}
-.tz-page-head::after {
-  content: '';
-  position: absolute; top: -40px; right: -40px;
-  width: 140px; height: 140px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.05);
-}
-.tz-ph-icon {
-  width: 50px; height: 50px; flex-shrink: 0;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255,255,255,0.2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.625rem;
-}
-.tz-ph-title { font-size: 1.375rem; font-weight: 800; letter-spacing: -0.01em; }
-.tz-ph-sub   { font-size: 0.8125rem; opacity: 0.7; margin-top: 0.125rem; }
-.tz-ph-stats { margin-left: auto; display: flex; gap: 1.25rem; flex-shrink: 0; position: relative; }
-.tz-ph-stat  { text-align: center; }
-.tz-ph-stat b { display: block; font-size: 1.375rem; font-weight: 800; }
-.tz-ph-stat span { font-size: 0.75rem; opacity: 0.6; }
+/* Page header now uses the shared .page-head pattern from shell.css — see
+   tempraz.html — so this file no longer styles its own hero banner. */
 
 /* ---------- Main Layout ---------- */
 .tz-app {
@@ -503,26 +470,6 @@
 }
 
 @media (max-width: 640px) {
-  /* keep the four counters: they are the page's only at-a-glance summary, and
-     `display:none` used to drop them entirely rather than reflow them */
-  .tz-page-head { flex-wrap: wrap; gap: 0.875rem 1rem; padding: 1rem; }
-  /* only the unclassed text block flexes — `:not(.tz-ph-stats)` would also
-     catch .tz-ph-icon and stretch the square icon into a wide pill */
-  .tz-page-head > div:not([class]) { min-width: 0; flex: 1; }
-  .tz-ph-title { font-size: 1.125rem; }
-  .tz-ph-sub { font-size: 0.75rem; }
-  .tz-ph-stats {
-    margin-left: 0;
-    width: 100%;
-    justify-content: space-between;
-    gap: 0.5rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid rgba(255,255,255,0.15);
-  }
-  .tz-ph-stat b { font-size: 1.125rem; }
-  .tz-ph-stat span { font-size: 0.75rem; }
-  .tz-ph-icon { width: 42px; height: 42px; font-size: 1.375rem; }
-
   /* single-column remedy cards read better than a squeezed 280px minmax */
   .tz-rx-list-horiz { grid-template-columns: 1fr; }
   .tz-mid   { max-height: 65vh; }

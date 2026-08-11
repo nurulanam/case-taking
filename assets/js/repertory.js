@@ -45,8 +45,85 @@
     compare: new Set(),  // remedy keys ticked for the materia-medica comparison
     revChapter: null,    // which chapter is expanded in the reversed rubric view
     source: null,        // which English source the step-4 card is showing
-    result: null
+    result: null,
+    recentRubrics: []    // Phase 5: track last 20 used rubrics
   };
+
+  /* ==================== Phase 5: Repertory UX ==================== */
+
+  // Fuzzy search: "hesache" → "Headache" (typo tolerance)
+  function fuzzyMatch(haystack, needle) {
+    haystack = norm(haystack);
+    needle = norm(needle);
+    let h = 0, n = 0;
+    while (h < haystack.length && n < needle.length) {
+      if (haystack[h] === needle[n]) n++;
+      h++;
+    }
+    return n === needle.length;
+  }
+
+  // Bilingual search: Bangla symptoms → English rubrics
+  // Bengali symptom words mapped to common rubric keywords
+  const BN_TO_EN_MAP = {
+    'মাথা': 'head',
+    'ব্যথা': 'pain',
+    'জ্বর': 'fever',
+    'কাশি': 'cough',
+    'গলা': 'throat',
+    'পেট': 'stomach',
+    'বমি': 'vomit',
+    'দুর্বল': 'weak',
+    'ঘুম': 'sleep',
+    'উদ্বেগ': 'anxiety',
+    'শ্বাস': 'breath',
+    'হৃদয়': 'heart',
+    'চোখ': 'eye',
+    'কান': 'ear',
+    'নাক': 'nose',
+    'দাত': 'tooth',
+    'ত্বক': 'skin',
+    'চর্ম': 'skin',
+    'যৌন': 'sexual',
+    'মাসিক': 'menses',
+    'জরায়ু': 'uterus',
+    'স্তন': 'breast'
+  };
+
+  function bilingualSearch(text) {
+    let expanded = text;
+    for (const [bn, en] of Object.entries(BN_TO_EN_MAP)) {
+      if (text.includes(bn)) expanded += ' ' + en;
+    }
+    return expanded;
+  }
+
+  // Recent rubrics: track and retrieve last 20 used
+  function trackRecentRubric(rubricId, rubricName) {
+    const RECENT_KEY = 'repertory_recent_rubrics_v1';
+    const stored = Shell.store.get(RECENT_KEY, []);
+    const entry = { id: rubricId, name: rubricName, at: new Date().toISOString() };
+    const deduped = stored.filter(r => r.id !== rubricId);
+    deduped.unshift(entry);
+    Shell.store.set(RECENT_KEY, deduped.slice(0, 20)); // keep last 20
+    S.recentRubrics = deduped.slice(0, 20);
+  }
+
+  function getRecentRubrics() {
+    const RECENT_KEY = 'repertory_recent_rubrics_v1';
+    return Shell.store.get(RECENT_KEY, []).slice(0, 20);
+  }
+
+  // Rubric preview: top N remedies for a rubric
+  function rubricPreview(rubric, maxRemedies = 5) {
+    if (!rubric.remedies) return '';
+    const rems = Object.entries(rubric.remedies)
+      .sort((a, b) => (b[1] || 1) - (a[1] || 1))
+      .slice(0, maxRemedies)
+      .map(([rx, gr]) => `<div class="rp-preview-item">${esc(rx)}<span class="rp-grade">${bn(gr || 1)}</span></div>`)
+      .join('');
+    return `<div class="rp-preview">${rems}</div>`;
+  }
 
   /* ==================== load ==================== */
   // one fetch for the whole chapter glyph set; inlined so <use href="#ch-…"> resolves
@@ -737,11 +814,15 @@
     if (!S.book) return [];
     const raw = S.search.trim();
     const q = raw.toLowerCase();
+    const expandedQ = bilingualSearch(raw).toLowerCase(); // Phase 5: bilingual search
     const hits = S.book.rubrics.filter(rb => {
       if (S.chapter !== 'all' && rb.chapterId !== S.chapter) return false;
       if (!q) return true;
-      return rb.name.toLowerCase().includes(q) || (rb.bn && rb.bn.includes(raw)) ||
-             rb.chapterLabel.toLowerCase().includes(q) || rb.chapterLabel.includes(raw);
+      // Phase 5: exact match, fuzzy match, or bilingual match
+      const nameMatch = rb.name.toLowerCase().includes(q) || fuzzyMatch(rb.name, q);
+      const bnMatch = rb.bn && (rb.bn.includes(raw) || expandedQ.split(/\s+/).some(w => rb.name.toLowerCase().includes(w)));
+      const chapterMatch = rb.chapterLabel.toLowerCase().includes(q) || rb.chapterLabel.includes(raw);
+      return nameMatch || bnMatch || chapterMatch;
     });
     /* A complete Kent puts ~66,000 rubrics behind one list, and the deepest
        sub-rubrics ('…, evening, bed, in, amel.') outnumber the main ones many
@@ -752,8 +833,31 @@
                                a.name.localeCompare(b.name));
   }
 
+  // Phase 5: recent rubrics live in their own compact strip above the list,
+  // not inside it — so they never eat into the 250-row page the search shares.
+  function renderRecentRubrics() {
+    const host = document.getElementById('recentRubrics');
+    if (!host) return;
+    if (!S.book || S.search.trim()) { host.hidden = true; host.innerHTML = ''; return; }
+    const recent = getRecentRubrics()
+      .map(r => ({ r, rb: S.book.rubrics.find(x => x.id === r.id) }))
+      .filter(x => x.rb)
+      .slice(0, 10);
+    if (!recent.length) { host.hidden = true; host.innerHTML = ''; return; }
+    host.hidden = false;
+    host.innerHTML = `<span class="rp-recent-lbl"><i class='bx bx-time-five'></i> সম্প্রতি</span>` +
+      recent.map(({ rb }) => `
+        <button type="button" class="rp-recent-chip ${S.picked.has(rb.id) ? 'picked' : ''}" data-id="${rb.id}" title="${esc(rb.name)}${rb.bn ? ' — ' + esc(rb.bn) : ''}">
+          ${esc(rb.name)}${rb.bn ? `<span class="rp-recent-bn">${esc(rb.bn)}</span>` : ''}
+        </button>`).join('');
+    host.querySelectorAll('.rp-recent-chip').forEach(el => {
+      el.addEventListener('click', () => toggleRubric(el.dataset.id));
+    });
+  }
+
   function renderRubrics() {
     const host = document.getElementById('rubricList');
+    renderRecentRubrics();
     if (!S.book) { host.innerHTML = `<div class="rp-empty">আগে একটি রিপার্টরি বেছে নিন।</div>`; return; }
     const all = visibleRubrics();
 
@@ -774,18 +878,40 @@
 
     if (!rows.length) { host.innerHTML = `<div class="rp-empty"><i class='bx bx-search-alt'></i>কোনো রুব্রিক মেলেনি।</div>`; return; }
 
-    host.innerHTML = rows.map(rb => `
-      <div class="rub ${S.picked.has(rb.id) ? 'picked' : ''}" data-id="${rb.id}">
+    // Phase 5: Group rubrics by chapter for better organization
+    let html = '';
+    let currentChapter = null;
+    rows.forEach((rb, idx) => {
+      if (rb.chapterId !== currentChapter) {
+        if (currentChapter !== null) html += '</div>';
+        currentChapter = rb.chapterId;
+        html += `<div class="rub-chapter-group" data-chapter="${currentChapter}"><h4 class="rub-chapter-title">${esc(rb.chapterLabel)}</h4>`;
+      }
+      html += `
+      <div class="rub ${S.picked.has(rb.id) ? 'picked' : ''}" data-id="${rb.id}" title="রুব্রিক #${idx+1}">
         <span class="rub-plus"><i class='bx ${S.picked.has(rb.id) ? 'bx-check' : 'bx-plus'}'></i></span>
         <span class="rub-txt">
           <span class="rub-name">${esc(rb.name)}${rb.bn ? ` <span style="color:var(--text-muted);font-size:0.8125rem;">${esc(rb.bn)}</span>` : ''}${rb.level > 1 ? ` <span class="rub-lvl" title="${bn(rb.level)} স্তরের সাব-রুব্রিক">${'·'.repeat(Math.min(rb.level - 1, 6))}</span>` : ''}</span>
-          <span class="rub-ch">${rb.chapterNum ? bn(rb.chapterNum) + '. ' : ''}${esc(rb.chapterShort || rb.chapterLabel)}${rb.page ? ` · পৃ. ${bn(rb.page)}` : ''}</span>
+          <span class="rub-ch">${rb.page ? ` · পৃ. ${bn(rb.page)}` : ''}</span>
         </span>
-        <span class="rub-n">${bn(rb.n)} ওষুধ</span>
-      </div>`).join('') + pagerHtml(pages);
+        <span class="rub-n rub-n-${Math.min(rb.n, 50)}" title="${bn(rb.n)} ওষুধ">${bn(rb.n)}</span>
+        ${rubricPreview(rb, 5)}
+      </div>`;
+    });
+    if (currentChapter !== null) html += '</div>';
+    host.innerHTML = html + pagerHtml(pages);
 
     host.querySelectorAll('.rub').forEach(el => {
       el.addEventListener('click', () => toggleRubric(el.dataset.id));
+    });
+    // Phase 5: Drag-to-reorder (on tray list)
+    host.querySelectorAll('[draggable="true"]').forEach(el => {
+      el.addEventListener('dragstart', (e) => {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', el.dataset.id);
+        el.classList.add('dragging');
+      });
+      el.addEventListener('dragend', () => el.classList.remove('dragging'));
     });
     host.querySelectorAll('.pg-btn').forEach(b => b.addEventListener('click', () => {
       S.page = +b.dataset.p;
@@ -825,7 +951,12 @@
 
   function toggleRubric(id) {
     if (S.picked.has(id)) S.picked.delete(id);
-    else S.picked.set(id, 2);           // default patient intensity = 2
+    else {
+      S.picked.set(id, 2);           // default patient intensity = 2
+      // Phase 5: track recent rubric
+      const rb = S.book.rubrics.find(r => r.id === id);
+      if (rb) trackRecentRubric(id, rb.name);
+    }
     save(); renderRubrics(); renderTray();
   }
 

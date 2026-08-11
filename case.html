@@ -81,6 +81,21 @@
 <section class="form-step" data-step-title="প্রধান অভিযোগ">
 <div class="card">
 <div class="section-heading"><span class="section-number">২</span><div><h3>প্রধান অভিযোগ</h3><p>প্রতিটি সমস্যার সময়কাল, দিক, তীব্রতা ও বিশেষ বৈশিষ্ট্য লিখুন।</p></div></div>
+<div class="quick-add-section" id="quickAddSymptoms">
+  <h4>সাধারণ লক্ষণ দ্রুত যোগ করুন</h4>
+  <div class="quick-chips" id="quickChips">
+    <button type="button" class="quick-chip" data-add="মাথা ব্যথা">মাথা ব্যথা</button>
+    <button type="button" class="quick-chip" data-add="জ্বর">জ্বর</button>
+    <button type="button" class="quick-chip" data-add="কাশি">কাশি</button>
+    <button type="button" class="quick-chip" data-add="গলা ব্যথা">গলা ব্যথা</button>
+    <button type="button" class="quick-chip" data-add="পেট ব্যথা">পেট ব্যথা</button>
+    <button type="button" class="quick-chip" data-add="বমি">বমি</button>
+    <button type="button" class="quick-chip" data-add="দুর্বলতা">দুর্বলতা</button>
+    <button type="button" class="quick-chip" data-add="অনিদ্রা">অনিদ্রা</button>
+    <button type="button" class="quick-chip" data-add="উদ্বেগ">উদ্বেগ</button>
+    <button type="button" class="quick-chip" data-add="শ্বাসকষ্ট">শ্বাসকষ্ট</button>
+  </div>
+</div>
 <div aria-live="polite" class="complaints-container" id="complaintsContainer"></div>
 <button class="btn ghost" id="addComplaintBtn" type="button">+ আরও অভিযোগ যোগ করুন</button>
 <div class="grid two mt">
@@ -192,6 +207,7 @@
 </div>
 </section>
 <div aria-label="ফর্ম নেভিগেশন" class="form-nav"><button class="btn ghost" id="prevBtn" type="button">← আগের ধাপ</button><button class="btn ghost danger" id="resetBtn" type="button">খসড়া মুছুন</button><button class="btn primary" id="nextBtn" type="button">পরের ধাপ →</button></div>
+<div class="autosave-indicator" id="autosaveIndicator"></div>
 </form>
 
       </div>

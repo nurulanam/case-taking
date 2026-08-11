@@ -168,19 +168,37 @@
     // Init dark mode
     initDarkMode();
 
-    // mobile drawer
+    // mobile drawer (overlay + backdrop, ≤860px) — same #navToggle button also
+    // drives the desktop sidebar-collapse below, since only one of the two
+    // effects is ever visible at a given viewport width.
+    const MOBILE_BP = 860;
     const toggle = document.getElementById('navToggle');
     const backdrop = document.getElementById('appBackdrop');
     const setNav = open => {
       body.classList.toggle('nav-open', open);
       if (toggle) toggle.setAttribute('aria-expanded', String(open));
     };
-    if (toggle) toggle.addEventListener('click', () => setNav(!body.classList.contains('nav-open')));
     if (backdrop) backdrop.addEventListener('click', () => setNav(false));
     document.addEventListener('keydown', e => { if (e.key === 'Escape') setNav(false); });
     if (sidebar) sidebar.addEventListener('click', e => { if (e.target.closest('a')) setNav(false); });
     // a resize past the breakpoint must not leave the drawer state stuck
-    window.addEventListener('resize', () => { if (window.innerWidth > 860) setNav(false); });
+    window.addEventListener('resize', () => { if (window.innerWidth > MOBILE_BP) setNav(false); });
+
+    // desktop sidebar collapse — reclaims the sidebar's width for content,
+    // remembered across visits like the dark-mode/colour preferences
+    const COLLAPSE_KEY = 'sidebar_collapsed_v1';
+    if (window.innerWidth > MOBILE_BP && store.get(COLLAPSE_KEY, false)) {
+      body.classList.add('sidebar-collapsed');
+    }
+    if (toggle) toggle.addEventListener('click', () => {
+      if (window.innerWidth <= MOBILE_BP) {
+        setNav(!body.classList.contains('nav-open'));
+      } else {
+        const collapsed = !body.classList.contains('sidebar-collapsed');
+        body.classList.toggle('sidebar-collapsed', collapsed);
+        store.set(COLLAPSE_KEY, collapsed);
+      }
+    });
   }
 
   function initDarkMode() {
