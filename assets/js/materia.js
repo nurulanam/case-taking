@@ -22,6 +22,38 @@
   const CMP_MAX = 5;                // 2–5 remedies; beyond that the table stops being readable
   const CMP_STORE = 'materia_compare_v1';
 
+  /* ==================== source kingdom (Phase 6) ====================
+     No remedy photos exist (and inventing plant/mineral photography for 725
+     remedies is not something to fake) — but every remedy's `family` field
+     is real taxonomic/pharmacological data already in the roster, and that
+     alone is enough to badge each one as plant / mineral / animal / nosode,
+     same as any homeopathic reference groups them. */
+  const KINGDOM_EXACT = {
+    Mineral: 'mineral', Acid: 'mineral', Chemical: 'mineral', Carbon: 'mineral', Alkaloid: 'mineral',
+    Animal: 'animal', Serpentes: 'animal', Arachnida: 'animal', Insecta: 'animal', Mollusca: 'animal',
+    Crustacea: 'animal', Echinodermata: 'animal', Amphibia: 'animal', Anthozoa: 'animal', Porifera: 'animal', Milk: 'animal',
+    Nosode: 'nosode', Sarcode: 'nosode', 'Bowel nosode': 'nosode',
+    'Plant poison': 'plant',
+  };
+  const KINGDOM_META = {
+    plant: { ic: 'bx-leaf', label: 'উদ্ভিজ্জ' },
+    mineral: { ic: 'bx-diamond', label: 'খনিজ' },
+    animal: { ic: 'bx-bone', label: 'প্রাণিজ' },
+    nosode: { ic: 'bx-test-tube', label: 'নোসোড' },
+  };
+  function kingdomOf(family) {
+    if (!family) return null;
+    if (KINGDOM_EXACT[family]) return KINGDOM_EXACT[family];
+    if (/aceae$/.test(family) || ['Compositae', 'Leguminosae', 'Umbelliferae', 'Coniferae', 'Palmae', 'Lichenes', 'Fungi'].includes(family)) return 'plant';
+    return null;                      // Combination / Distillate / Sugar / Water etc. — no confident bucket, no badge
+  }
+  function kingdomBadge(family, big) {
+    const k = kingdomOf(family);
+    if (!k) return '';
+    const m = KINGDOM_META[k];
+    return `<span class="mm-kingdom mm-kd-${k}${big ? ' lg' : ''}" title="উৎস: ${m.label}"><i class='bx ${m.ic}'></i></span>`;
+  }
+
   const S = {
     all: [],           // every remedy, as loaded
     meta: {},
@@ -220,9 +252,12 @@
       if (!ignoreLetter && S.letter && (r.bangla_name || r.name).charAt(0) !== S.letter) return false;
       if (!nq) return true;
       if (norm(r.name).includes(nq) || norm(r.bangla_name).includes(nq)) return true;
-      // searching the symptom text is what makes this usable as a reference
+      // searching the symptom text is what makes this usable as a reference —
+      // e.g. "ডান দিকের মাথা ব্যথা" finds any remedy whose keynote/particular
+      // symptom mentions it, without needing a separate symptom-search mode
       const hay = [r.bangla_intro, (r.keynotes || []).join(' '), (r.mental || []).join(' '),
-                   (r.general || []).join(' '), (r.clinical_uses || []).join(' ')].join(' ');
+                   (r.general || []).join(' '), (r.particular || []).join(' '),
+                   (r.modalities || []).join(' '), (r.clinical_uses || []).join(' ')].join(' ');
       return hay.includes(q);
     });
   }
@@ -255,6 +290,7 @@
       return `<div class="mm-rx ${S.selected === r.id && S.mode === 'read' ? 'on' : ''}
                    ${on ? 'cmp-on' : ''} ${cmpFull && !on ? 'cmp-full' : ''}" data-id="${esc(r.id)}">
         <span class="mm-rx-pick"><i class='bx bx-check'></i></span>
+        ${kingdomBadge(r.family)}
         <span class="mm-rx-txt">
           <span class="mm-rx-bn">${esc(r.bangla_name || r.name)}</span>
           <span class="mm-rx-en">${esc(r.name)}${r.family ? ' · ' + esc(r.family) : ''}</span>
@@ -328,7 +364,7 @@
       return;
     }
 
-    const head = `<div class="md-head"><div style="min-width:0;">
+    const head = `<div class="md-head">${kingdomBadge(rx.family, true)}<div style="min-width:0;">
         <h3>${esc(rx.bangla_name || rx.name)}</h3>
         <div class="md-en">${esc(rx.name)}${rx.family ? ' · ' + esc(rx.family) : ''}</div>
       </div></div>`;
@@ -373,6 +409,14 @@
       ? `<div class="md-sec"><h5><i class='bx ${ic}'></i> ${t}</h5><ul>${arr.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '';
     const pills = (arr, t, ic) => (arr && arr.length)
       ? `<div class="md-sec"><h5><i class='bx ${ic}'></i> ${t}</h5><div class="md-pills">${arr.map(x => `<span class="md-pill">${esc(x)}</span>`).join('')}</div></div>` : '';
+    // relationship pills jump to the named remedy's own profile when it is in
+    // the roster — arrow + colour say what kind of relation it is at a glance,
+    // rather than the same flat grey chip for complementary/antidote/inimical
+    const relPills = (arr, t, ic, kind, arrow) => (arr && arr.length)
+      ? `<div class="md-sec"><h5><i class='bx ${ic}'></i> ${t}</h5><div class="md-pills">${arr.map(x => {
+          const hit = findRemedyByName(x);
+          return `<button type="button" class="md-pill md-rel md-rel-${kind}" ${hit ? `data-rel-id="${esc(hit.id)}"` : 'disabled'}>${arrow} ${esc(x)}</button>`;
+        }).join('')}</div></div>` : '';
     const ca = rx.cravings_aversions || {};
     const rel = rx.relationships || {};
 
@@ -387,9 +431,9 @@
       pills(ca.cravings, 'আকাঙ্ক্ষা', 'bx-cookie') +
       pills(ca.aversions, 'অরুচি', 'bx-block') +
       pills(rx.clinical_uses, 'ক্লিনিক্যাল ব্যবহার', 'bx-plus-medical') +
-      pills(rel.complementary, 'পরিপূরক ওষুধ', 'bx-link') +
-      pills(rel.antidote, 'প্রতিষেধক', 'bx-shield') +
-      pills(rel.inimical, 'বিরুদ্ধ ওষুধ', 'bx-x-circle') +
+      relPills(rel.complementary, 'পরিপূরক ওষুধ', 'bx-link', 'comp', '→') +
+      relPills(rel.antidote, 'প্রতিষেধক', 'bx-shield', 'anti', '⇄') +
+      relPills(rel.inimical, 'বিরুদ্ধ ওষুধ', 'bx-x-circle', 'inim', '⇹') +
       (rx.potency_notes ? `<div class="md-sec"><h5><i class='bx bx-injection'></i> শক্তি</h5><p>${esc(rx.potency_notes)}</p></div>` : '') +
       `<div class="md-sec"><h5><i class='bx bx-book-bookmark'></i> রিপার্টরিতে</h5>
         <p>${rx.in_rubrics
@@ -398,6 +442,19 @@
       sourceHtml(rx);
     bindSourceTabs();
     ensureSource(rx.id);
+    host.querySelectorAll('.md-rel[data-rel-id]').forEach(el => el.addEventListener('click', () => {
+      if (S.mode !== 'read') setMode('read');
+      select(el.dataset.relId);
+    }));
+  }
+
+  /* Relationship text ("Abies Nigra", "Sabina") is the remedy's Latin name as
+     printed in the source book — matched against the roster's own `name`
+     rather than assumed to always resolve, since ~150 remedies with a
+     relationships entry may point at a name outside our 725-remedy roster. */
+  function findRemedyByName(name) {
+    const n = norm(name);
+    return S.all.find(r => norm(r.name) === n) || null;
   }
 
   /* Fetch the source text on first need, then redraw once it lands. Guarded by
@@ -555,6 +612,9 @@
     { key: 'urine',        label: 'প্রস্রাব',  kind: 'text' },
     { key: 'skin',         label: 'ত্বক',      kind: 'text' },
     { key: 'clinical_uses', label: 'ক্লিনিক্যাল', kind: 'list' },
+    { key: 'complementary', label: 'পরিপূরক ওষুধ', kind: 'list' },
+    { key: 'antidote',      label: 'প্রতিষেধক', kind: 'list' },
+    { key: 'inimical',      label: 'বিরুদ্ধ ওষুধ', kind: 'list' },
     { key: 'miasm',        label: 'মায়াজম',    kind: 'text' },
     { key: 'family',       label: 'বর্গ',      kind: 'text' },
     { key: 'potency_notes', label: 'শক্তি',    kind: 'text' }
@@ -563,6 +623,9 @@
   function cmpValue(rx, row) {
     if (row.key === 'cravings' || row.key === 'aversions') {
       return (rx.cravings_aversions || {})[row.key] || [];
+    }
+    if (row.key === 'complementary' || row.key === 'antidote' || row.key === 'inimical') {
+      return (rx.relationships || {})[row.key] || [];
     }
     return rx[row.key] || (row.kind === 'list' ? [] : '');
   }

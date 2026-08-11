@@ -30,6 +30,43 @@
 .md-kv b { font-size: 0.875rem; font-weight: 600; color: var(--text); }
 .md-intro { font-size: 0.9375rem; line-height: 1.7; color: var(--text); margin-top: 0.875rem; }
 
+/* ---------------------------------------------------- source-kingdom badge
+   No remedy photography exists (and faking plant/mineral/animal photos for
+   725 remedies is not something to do) — this is an icon derived from the
+   real `family` field already in the roster, same grouping any homeopathic
+   reference book uses. */
+.mm-kingdom {
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0; width: 20px; height: 20px; border-radius: 6px; font-size: 0.75rem;
+}
+.mm-kingdom.lg { width: 34px; height: 34px; border-radius: 9px; font-size: 1.125rem; margin-top: 0.125rem; }
+.mm-kd-plant   { background: rgba(16,185,129,0.14); color: #10b981; }
+.mm-kd-mineral { background: rgba(100,116,139,0.16); color: #64748b; }
+.mm-kd-animal  { background: rgba(217,119,6,0.14);  color: #d97706; }
+.mm-kd-nosode  { background: rgba(139,92,246,0.14); color: #8b5cf6; }
+[data-theme="dark"] .mm-kd-mineral { color: #94a3b8; }
+
+/* -------------------------------------------------- relationship pills
+   plain grey .md-pill for most sections, but complementary/antidote/inimical
+   get their own colour + a directional glyph so the *kind* of relationship
+   reads at a glance, and — when the named remedy is in the roster — a click
+   takes you straight to its own profile. */
+.md-rel {
+  font-family: inherit; cursor: pointer; transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 0.25rem;
+}
+.md-rel:disabled { cursor: default; opacity: 0.7; }
+.md-rel:not(:disabled):hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.md-rel-comp {
+  background: var(--success-bg); color: var(--success); border-color: rgba(16,185,129,0.3);
+}
+.md-rel-anti {
+  background: var(--primary-bg); color: var(--primary); border-color: rgba(20,184,166,0.3);
+}
+.md-rel-inim {
+  background: var(--danger-bg); color: var(--danger); border-color: rgba(239,68,68,0.3);
+}
+
 /* ------------------------------------------------------ materia.html layout */
 /* Search and filters sit above the split, full width, so the two columns are
    pure scroll panes — 290 remedies is far too long to sit in page flow. */
