@@ -48,6 +48,11 @@
   .page-panel { display: none; animation: fadeIn 0.3s ease; }
   .page-panel.active { display: block; }
 
+  /* Flow-chart step transition — restarted from JS on every renderFlow() call
+     (see replayStepAnim in acutes.js), so moving forward/back through the
+     wizard always gets a soft fade+slide instead of an instant content swap */
+  .flow-step-anim { animation: fadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1); }
+
   /* Selection Wizard */
   .wizard-step {
     display: none;
@@ -82,6 +87,11 @@
     transition: all 0.2s;
     background: var(--surface);
     user-select: none;
+    /* each option is a freshly-created DOM node per render (renderFlow()
+       rebuilds #flowOptions from scratch), so this plays every step forward
+       without any JS animation-restart trick — animation-delay is set inline
+       per index for the cascade */
+    animation: fadeIn 0.3s ease backwards;
   }
   .radio-card:hover {
     border-color: var(--primary-light);
@@ -588,6 +598,7 @@
     border-radius: var(--radius-sm, 8px);
     background: var(--surface);
     overflow: hidden;
+    animation: fadeIn 0.3s ease backwards;   /* rebuilt fresh each renderFlowResults() call */
   }
   .rx-card.open { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(15,118,110,0.10); }
   .rx-head {
@@ -672,6 +683,17 @@
     stroke-width: 2;
     stroke-linejoin: round;
     vector-effect: non-scaling-stroke;
+    /* the outline "draws" itself point-by-point in step with the three dots
+       below (৩০০ user-units comfortably covers the ~২৮২-unit perimeter of
+       the 50,6 / 93,94 / 7,94 triangle at this viewBox) */
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: triDraw 0.9s ease-out forwards;
+  }
+  @keyframes triDraw { to { stroke-dashoffset: 0; } }
+  @keyframes triDotPop {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   }
   .tri-dot {
     position: absolute;
@@ -681,10 +703,15 @@
     font-size: 0.75rem; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 0 0 3px var(--surface);
+    /* ১ → ২ → ৩ pop in one after another, each fired as the outline "reaches"
+       that vertex — replays every time a remedy card is opened, since
+       .rx-body goes display:none → block and the whole triangle is freshly
+       inserted into the render tree at that point */
+    animation: triDotPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
   }
-  .tri-dot.d1 { left: 50%; top: 6%; }
-  .tri-dot.d2 { left: 7%;  top: 94%; }
-  .tri-dot.d3 { left: 93%; top: 94%; }
+  .tri-dot.d1 { left: 50%; top: 6%;  animation-delay: 0.05s; }
+  .tri-dot.d2 { left: 7%;  top: 94%; animation-delay: 0.4s; }
+  .tri-dot.d3 { left: 93%; top: 94%; animation-delay: 0.75s; }
   .tri-txt {
     display: flex; align-items: flex-start; gap: 0.5rem;
     background: var(--surface);
@@ -692,7 +719,11 @@
     border-radius: 8px;
     padding: 0.5rem 0.625rem;
     box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    animation: fadeIn 0.4s ease backwards;
   }
+  .tri-cell.apex  .tri-txt { animation-delay: 0.05s; }
+  .tri-cell.left  .tri-txt { animation-delay: 0.4s; }
+  .tri-cell.right .tri-txt { animation-delay: 0.75s; }
   .tri-txt { justify-content: center; text-align: center; }
   .tri-txt p { margin: 0; font-size: 0.8125rem; line-height: 1.5; color: var(--text); font-weight: 500; }
   .tri-caption {

@@ -152,7 +152,7 @@ function renderMiddle() {
     grp.appendChild(label);
 
     items.forEach(trait => {
-      grp.appendChild(makeTraitRow(trait, state.curTemp, t.color));
+      grp.appendChild(makeTraitRow(trait, state.curTemp, t.color, cat.id));
     });
 
     list.appendChild(grp);
@@ -161,7 +161,7 @@ function renderMiddle() {
   cats.forEach(renderCat);
 }
 
-function makeTraitRow(trait, tempId, color) {
+function makeTraitRow(trait, tempId, color, catId) {
   const sel = state.selections[trait.id];
   const intensity = sel ? sel.intensity : 0;
   const isSelected = intensity > 0;
@@ -176,7 +176,14 @@ function makeTraitRow(trait, tempId, color) {
     return `<span class="tz-int-pip${i <= intensity ? ' on' : ''}"></span>`;
   }).join('');
 
+  // same category icon as the group header, repeated beside each trait —
+  // the category (mental/physical/behavioral/stress/core) is real data
+  // already on the trait, this just makes it visible without opening the
+  // group label above
+  const catIcon = CAT_ICONS[catId] || 'bx-list-ul';
+
   row.innerHTML = `
+    <i class="bx ${catIcon} tz-tr-icon"></i>
     <span class="tz-tr-text">${trait.text}</span>
     <span class="tz-int-label">${isSelected ? intensity : ''}</span>
     <span class="tz-tr-intens">${pips}</span>
@@ -309,6 +316,27 @@ function renderTqBox(topTemp, count) {
       <div class="tz-tq-name">${t.name} — ${t.subtitle}</div>
     </div>
     <div class="tz-tq-score" style="margin-left:auto;">${toBanglaDigit(score)}<small>pts</small></div>
+  `;
+
+  renderPersonality(t);
+}
+
+// A short personality read-out for whichever temperament is currently
+// leading — uses the temperament's own already-written `description` and
+// `core_nature` fields (same text shown in the middle column header), not a
+// new summary invented for this result view.
+function renderPersonality(t) {
+  const box = document.getElementById('tzPersonality');
+  if (!box) return;
+  if (!t.description && !t.core_nature) { box.style.display = 'none'; return; }
+  box.style.display = '';
+  box.style.borderLeftColor = t.color;
+  box.innerHTML = `
+    <i class="bx ${t.icon || 'bx-user'}" style="color:${t.color}"></i>
+    <div>
+      ${t.description ? `<p>${t.description}</p>` : ''}
+      ${t.core_nature ? `<p class="tz-personality-core">${t.core_nature}</p>` : ''}
+    </div>
   `;
 }
 

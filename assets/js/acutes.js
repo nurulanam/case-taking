@@ -458,6 +458,16 @@ function currentFlowNode() {
   return flowPath.length ? flowPath[flowPath.length - 1] : FLOW;
 }
 
+// Restart a CSS animation on an already-mounted element — toggling `display`
+// retriggers it automatically, but qView/rView often stay on-screen across a
+// step (question → next question), so the class needs a forced reflow to
+// replay rather than silently no-op on the second call.
+function replayStepAnim(el) {
+  el.classList.remove('flow-step-anim');
+  void el.offsetWidth;
+  el.classList.add('flow-step-anim');
+}
+
 function renderFlow() {
   const node = currentFlowNode();
   const qView = document.getElementById('flowQuestionView');
@@ -482,6 +492,7 @@ function renderFlow() {
     qView.style.display = 'none';
     rView.style.display = 'block';
     renderFlowResults(node);
+    replayStepAnim(rView);
   } else {
     rView.style.display = 'none';
     qView.style.display = 'block';
@@ -492,10 +503,11 @@ function renderFlow() {
 
     const box = document.getElementById('flowOptions');
     box.innerHTML = '';
-    node.children.forEach(child => {
+    node.children.forEach((child, i) => {
       const count = countRemedies(child);
       const el = document.createElement('div');
       el.className = 'radio-card';
+      el.style.animationDelay = `${i * 0.05}s`;   // small cascade, option-by-option
       el.innerHTML = `
         <span class="rc-emoji">${child.icon || '•'}</span>
         <div class="radio-label">
@@ -507,6 +519,7 @@ function renderFlow() {
       el.addEventListener('click', () => { flowPath.push(child); renderFlow(); });
       box.appendChild(el);
     });
+    replayStepAnim(qView);
   }
 }
 
@@ -561,6 +574,7 @@ function renderFlowResults(node) {
     const hasTriangle = !!(info && info.triangle && info.triangle.length === 3);
     const card = document.createElement('div');
     card.className = 'rx-card';
+    card.style.animationDelay = `${Math.min(idx, 8) * 0.04}s`;   // capped so a long list doesn't crawl in
     card.innerHTML = `
       <div class="rx-head">
         <div class="rx-no ${r.n ? '' : 'plain'}">${r.n != null ? bnNum(r.n) : (info && info.icon ? info.icon : '•')}</div>
