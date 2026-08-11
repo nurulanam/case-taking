@@ -166,6 +166,32 @@ body {
   color: var(--sb-active-meta-color, #a7f3d0);
 }
 
+/* Submenu — a page's own in-page tabs, moved to the sidebar (acutes.html's
+   five sections) so the content area gets that vertical space back. Shown
+   only while the parent item is the active page. */
+.sb-submenu {
+  display: flex; flex-direction: column;
+  margin: 0.125rem 0 0.5rem 0.9375rem;
+  padding-left: 0.625rem;
+  border-left: 1px solid var(--sb-border);
+}
+.sb-sublink {
+  display: flex; align-items: center; gap: 0.5625rem;
+  padding: 0.4375rem 0.625rem;
+  border-radius: 8px;
+  color: var(--sb-text-dim);
+  text-decoration: none;
+  font-size: 0.8125rem; font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+.sb-sublink i { font-size: 0.9375rem; flex-shrink: 0; opacity: 0.85; }
+.sb-sublink:hover { background: var(--sb-hover); color: #fff; }
+.sb-sublink.active {
+  background: var(--sb-active-bg, rgba(20, 184, 166, 0.16));
+  color: #fff; font-weight: 600;
+}
+.sb-sublink.active i { color: var(--primary-light); opacity: 1; }
+
 .sb-foot {
   flex-shrink: 0;
   border-top: 1px solid var(--sb-border);

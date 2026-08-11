@@ -16,35 +16,10 @@
     --toa-rose-bg: rgba(225, 29, 72, 0.15);
   }
 
-  .page-tabs {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid var(--border);
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .page-tabs::-webkit-scrollbar { display: none; }
-  .page-tab-btn {
-    flex: 0 0 auto;
-    padding: 0.625rem 1.25rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .page-tab-btn:hover { color: var(--primary); }
-  .page-tab-btn.active {
-    color: var(--primary);
-    border-bottom-color: var(--primary);
-  }
+  /* .page-tabs / .page-tab-btn used to live here — the five sections moved
+     to a sidebar submenu (see shell.js NAV.acutes.children), so there's no
+     in-page tab bar to style any more; .page-panel below still applies since
+     the sections themselves are unchanged, just switched via location.hash. */
   .page-panel { display: none; animation: fadeIn 0.3s ease; }
   .page-panel.active { display: block; }
 
@@ -59,63 +34,6 @@
     animation: fadeIn 0.3s ease;
   }
   .wizard-step.active { display: block; }
-
-  .axis-question {
-    font-size: 1.0625rem;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .axis-question i { color: var(--primary); font-size: 1.25rem; }
-
-  .radio-card-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  .radio-card {
-    display: flex;
-    align-items: center;
-    gap: 0.875rem;
-    padding: 1rem 1.25rem;
-    border: 2px solid var(--border);
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: all 0.2s;
-    background: var(--surface);
-    user-select: none;
-    /* each option is a freshly-created DOM node per render (renderFlow()
-       rebuilds #flowOptions from scratch), so this plays every step forward
-       without any JS animation-restart trick — animation-delay is set inline
-       per index for the cascade */
-    animation: fadeIn 0.3s ease backwards;
-  }
-  .radio-card:hover {
-    border-color: var(--primary-light);
-    background: var(--primary-bg);
-  }
-  .radio-card input {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-    accent-color: var(--primary);
-    cursor: pointer;
-  }
-  .radio-card .radio-label {
-    font-size: 0.9375rem;
-    font-weight: 500;
-    color: var(--text);
-    flex: 1;
-  }
-  .radio-card.selected {
-    border-color: var(--primary);
-    background: var(--primary-bg);
-    box-shadow: 0 0 0 3px rgba(15,118,110,0.12);
-  }
-  .radio-card.selected .radio-label { color: var(--primary); font-weight: 600; }
 
   /* Wizard progress stepper */
   .wizard-progress {
@@ -466,17 +384,6 @@
     font-weight: 600;
   }
 
-  .results-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-  .results-count {
-    font-size: 0.875rem;
-    color: var(--text-muted);
-  }
-
   .remedy-browser-grid {
     display: flex;
     flex-direction: column;
@@ -547,98 +454,16 @@
   }
   .link-to-form:hover { background: var(--primary); color: white; }
 
-  /* ===== Flow-chart wizard (acute.webp) ===== */
-  .flow-crumbs {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.375rem;
-    margin-bottom: 1.25rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px dashed var(--border);
-  }
-  .flow-crumbs:empty { display: none; }
-  .flow-crumb {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.3125rem 0.75rem;
-    border-radius: 999px;
-    background: var(--primary-bg);
-    color: var(--primary);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    border: 1px solid var(--primary-light, var(--border));
-    cursor: pointer;
-  }
-  .flow-crumb.root { background: var(--surface); color: var(--text-muted); cursor: default; }
-  .flow-crumb-sep { color: var(--text-muted); font-size: 0.875rem; }
-
-  .flow-node-badge {
-    display: inline-block;
-    font-size: 0.75rem;
-    font-weight: 700; color: var(--text-muted);
-    margin-bottom: 0.5rem;
-  }
-  .radio-card .rc-emoji { font-size: 1.375rem; line-height: 1; flex-shrink: 0; }
-  .radio-card .rc-count {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    background: var(--bg, #f1f5f9);
-    border-radius: 999px;
-    padding: 0.125rem 0.5rem;
-    flex-shrink: 0;
-  }
+  /* ===== Flow-chart wizard (acute.webp) — the step-column layout lives
+     further down under "Acute wizard: column layout" ===== */
 
   /* Result remedy cards */
-  .rx-list { display: flex; flex-direction: column; gap: 0.625rem; }
-  .rx-card {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm, 8px);
-    background: var(--surface);
-    overflow: hidden;
-    animation: fadeIn 0.3s ease backwards;   /* rebuilt fresh each renderFlowResults() call */
-  }
-  .rx-card.open { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(15,118,110,0.10); }
-  .rx-head {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-  }
-  .rx-no {
-    width: 30px; height: 30px;
-    flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 50%;
-    background: var(--primary);
-    color: #fff;
-    font-size: 0.75rem;
-    font-weight: 700;
-  }
-  .rx-no.plain { background: var(--primary-bg); color: var(--primary); font-size: 1rem; }
-  .rx-name { font-weight: 700; font-size: 0.9375rem; color: var(--text); }
   .rx-en { font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
   .rx-abbr {
     font-size: 0.75rem; font-weight: 700; color: var(--primary);
     background: var(--primary-bg); border-radius: 4px; padding: 0.125rem 0.375rem;
     white-space: nowrap;
   }
-  .rx-head:hover { background: var(--primary-bg); }
-  .rx-toggle {
-    display: inline-flex; align-items: center; gap: 0.25rem;
-    flex-shrink: 0;
-    font-size: 0.75rem; font-weight: 600;
-    color: var(--primary);
-    background: var(--primary-bg);
-    border-radius: 999px;
-    padding: 0.1875rem 0.5rem;
-  }
-  .rx-card.open .rx-toggle { background: var(--primary); color: #fff; }
-  .rx-body { display: none; padding: 0 1rem 1rem; }
-  .rx-body.open { display: block; }
   .rx-key {
     font-size: 0.9375rem; line-height: 1.6; color: var(--text);
     padding: 0.75rem; border-radius: 6px; background: var(--primary-bg);
@@ -677,20 +502,37 @@
   .tri-cell.right { grid-row: 3; grid-column: 2; justify-self: end;   max-width: 92%; }
   .tri-stage { grid-row: 2; grid-column: 1 / 3; position: relative; height: 118px; }
   .tri-svg { width: 100%; height: 100%; display: block; }
-  .tri-svg polygon {
+
+  /* Sequence: dot ১ pops in → its text fades in → the border draws across to
+     ২ → dot ২ → its text → border draws to ৩ → dot ৩ → its text → border
+     closes back round to ১ → only then does the fill wash in. Each edge is
+     its own <line> (not one polygon) so the three segments can be timed one
+     after another instead of the whole outline drawing at once. */
+  .tri-fill {
     fill: rgba(15,118,110,0.07);
+    stroke: none;
+    opacity: 0;
+    animation: fadeIn 0.4s ease forwards;
+    animation-delay: 2.75s;
+  }
+  .tri-seg {
+    fill: none;
     stroke: var(--primary);
     stroke-width: 2;
-    stroke-linejoin: round;
+    stroke-linecap: round;
     vector-effect: non-scaling-stroke;
-    /* the outline "draws" itself point-by-point in step with the three dots
-       below (৩০০ user-units comfortably covers the ~২৮২-unit perimeter of
-       the 50,6 / 93,94 / 7,94 triangle at this viewBox) */
-    stroke-dasharray: 300;
-    stroke-dashoffset: 300;
-    animation: triDraw 0.9s ease-out forwards;
+    /* each <line> carries pathLength="100" (see triangleOnly() in acutes.js),
+       so 100/100 is exact for all three edges regardless of their differing
+       real geometry — no per-edge distance math needed */
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: triSegDraw 0.4s ease-out forwards;
   }
-  @keyframes triDraw { to { stroke-dashoffset: 0; } }
+  .tri-seg-1 { animation-delay: 0.6s; }
+  .tri-seg-2 { animation-delay: 1.6s; }
+  .tri-seg-3 { animation-delay: 2.6s; }
+  @keyframes triSegDraw { to { stroke-dashoffset: 0; } }
+
   @keyframes triDotPop {
     from { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
     to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
@@ -703,15 +545,16 @@
     font-size: 0.75rem; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 0 0 3px var(--surface);
-    /* ১ → ২ → ৩ pop in one after another, each fired as the outline "reaches"
-       that vertex — replays every time a remedy card is opened, since
-       .rx-body goes display:none → block and the whole triangle is freshly
-       inserted into the render tree at that point */
-    animation: triDotPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+    opacity: 0;
+    /* ১ → ২ → ৩ pop in one after another, each followed by its own text
+       before the border draws onward — replays every time a remedy card is
+       opened, since .rx-body goes display:none → block and the whole
+       triangle is freshly inserted into the render tree at that point */
+    animation: triDotPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
-  .tri-dot.d1 { left: 50%; top: 6%;  animation-delay: 0.05s; }
-  .tri-dot.d2 { left: 7%;  top: 94%; animation-delay: 0.4s; }
-  .tri-dot.d3 { left: 93%; top: 94%; animation-delay: 0.75s; }
+  .tri-dot.d1 { left: 50%; top: 6%;  animation-delay: 0s; }
+  .tri-dot.d2 { left: 7%;  top: 94%; animation-delay: 1s; }
+  .tri-dot.d3 { left: 93%; top: 94%; animation-delay: 2s; }
   .tri-txt {
     display: flex; align-items: flex-start; gap: 0.5rem;
     background: var(--surface);
@@ -719,11 +562,12 @@
     border-radius: 8px;
     padding: 0.5rem 0.625rem;
     box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-    animation: fadeIn 0.4s ease backwards;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
   }
-  .tri-cell.apex  .tri-txt { animation-delay: 0.05s; }
-  .tri-cell.left  .tri-txt { animation-delay: 0.4s; }
-  .tri-cell.right .tri-txt { animation-delay: 0.75s; }
+  .tri-txt-1 { animation-delay: 0.3s; }
+  .tri-txt-2 { animation-delay: 1.3s; }
+  .tri-txt-3 { animation-delay: 2.3s; }
   .tri-txt { justify-content: center; text-align: center; }
   .tri-txt p { margin: 0; font-size: 0.8125rem; line-height: 1.5; color: var(--text); font-weight: 500; }
   .tri-caption {
@@ -792,22 +636,10 @@
 
   /* ================= Mobile ================= */
   @media (max-width: 560px) {
-    /* wizard option cards */
-    .radio-card { align-items: flex-start; flex-wrap: wrap; padding: 0.875rem 1rem; gap: 0.625rem; }
-    .radio-card .rc-emoji { margin-top: 1px; }
-    .radio-card .radio-label { flex: 1 1 60%; }
-    .radio-card > .bx-chevron-right { display: none; }
-    .radio-card .rc-count { order: 3; margin-left: auto; }
-
     /* nav buttons must never wrap their own label */
     .flow-nav .btn { flex: 1 1 0; justify-content: center; white-space: nowrap; font-size: 0.8125rem; padding: 0.625rem 0.5rem; }
 
     /* result cards */
-    .rx-head { gap: 0.5rem; padding: 0.75rem; }
-    .rx-toggle-t { display: none; }
-    .rx-toggle { padding: 0.25rem 0.375rem; }
-    .rx-toggle i { font-size: 0.875rem; }
-    .rx-body { padding: 0 0.75rem 0.875rem; }
     .rx-en { word-break: break-word; }
 
     /* aggravation / amelioration stack instead of two cramped columns */
@@ -828,4 +660,189 @@
   @media (max-width: 380px) {
     .rx-label-note { display: none; }
     .tri-txt { padding: 0.375rem 0.5rem; }
+  }
+
+  /* ==========================================================================
+     Acute wizard: column layout — Tempraz-style, every step visible at once
+     on desktop instead of a single current-question view. The path's depth
+     varies (1–4 levels depending on the branch), so unlike Tempraz's fixed
+     4-column grid this is a horizontally-scrolling cascade of step columns:
+     each answered level stays on screen and clickable rather than being
+     replaced by the next one.
+     ========================================================================== */
+  .ac-app {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    /* the top row used to be 1fr against an auto-height bottom row, so a
+       taller triangle/detail panel (e.g. a fallback keynote list vs a
+       3-point triangle) would grow the bottom row and squeeze the top row
+       by however much — a visible height jitter switching remedies. A fixed
+       bottom row + a floored top row means neither can push the other around. */
+    grid-template-rows: minmax(400px, 1fr) 500px;
+    grid-template-areas:
+      "steps right"
+      "bottom bottom";
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    height: 980px;
+    max-height: calc(100vh - 110px);
+    min-height: 560px;
+    margin-top: 1.25rem;
+  }
+
+  /* ---- steps strip ---- */
+  .ac-steps {
+    grid-area: steps;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: var(--surface);
+    scroll-behavior: smooth;
+  }
+  .ac-steps::-webkit-scrollbar { height: 6px; }
+  .ac-steps::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .ac-step-col {
+    /* grow to fill leftover space when there are few columns (otherwise the
+       row's unused flex space reads as a big blank "empty column" of its
+       own); min-width keeps it from being squeezed once there are enough
+       columns to need the horizontal scroll instead */
+    flex: 1 1 240px;
+    min-width: 240px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+  }
+  /* question + hint stay put; only the option list scrolls beneath them */
+  .ac-step-head { flex-shrink: 0; padding: 0.875rem 0.875rem 0.625rem; }
+  .ac-step-options-scroll { flex: 1; overflow-y: auto; padding: 0 0.875rem 0.875rem; }
+  .ac-step-summary {
+    display: none;   /* only meaningful on mobile — see breakpoint below */
+  }
+  .ac-step-q {
+    font-size: 0.8125rem; font-weight: 700; color: var(--text);
+    display: flex; align-items: flex-start; gap: 0.375rem;
+    margin-bottom: 0.25rem; line-height: 1.4;
+  }
+  .ac-step-q i { color: var(--primary); flex-shrink: 0; margin-top: 0.125rem; }
+  .ac-step-hint {
+    font-size: 0.75rem; color: var(--text-light); line-height: 1.5;
+  }
+  .ac-step-options { display: flex; flex-direction: column; gap: 0.5rem; }
+  .ac-opt {
+    display: flex; align-items: center; gap: 0.625rem;
+    padding: 0.625rem 0.75rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    background: var(--surface);
+    transition: border-color 0.15s, background 0.15s;
+    animation: fadeIn 0.3s ease backwards;
+  }
+  .ac-opt:hover { border-color: var(--primary-light); background: var(--primary-bg); }
+  .ac-opt.chosen { border-color: var(--primary); background: var(--primary-bg); }
+  .ac-opt .rc-emoji { font-size: 1.125rem; flex-shrink: 0; }
+  .ac-opt-label { flex: 1; min-width: 0; }
+  .ac-opt-label strong { font-size: 0.8125rem; display: block; color: var(--text); }
+  .ac-opt-label span { font-size: 0.6875rem; color: var(--text-muted); line-height: 1.1; }
+  .ac-opt-count {
+    font-size: 0.6875rem; font-weight: 700; color: var(--text-muted);
+    background: var(--surface2); border-radius: 999px; padding: 0.125rem 0.4375rem;
+    flex-shrink: 0;
+  }
+
+  /* ---- right column: remedy list (replaces a scored "result" panel — this
+     flow has no score, just a path to a remedy set) ---- */
+  .ac-right {
+    grid-area: right;
+    display: flex; flex-direction: column; overflow: hidden;
+    background: var(--bg); border-left: 1px solid var(--border);
+  }
+  .ac-right-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 0.875rem; border-bottom: 1px solid var(--border);
+  }
+  .ac-right-title { font-size: 0.8125rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 0.375rem; }
+  .ac-right-title i { color: var(--primary); }
+  .ac-right-count { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+  .ac-right-scroll { flex: 1; overflow-y: auto; padding: 0.625rem; }
+
+  .ac-rx-row {
+    display: flex; align-items: center; gap: 0.625rem;
+    padding: 0.5625rem 0.75rem; border-radius: 10px; cursor: pointer;
+    border: 1.5px solid transparent; margin-bottom: 0.375rem;
+    animation: fadeIn 0.3s ease backwards;
+  }
+  .ac-rx-row:hover { background: var(--surface2); }
+  .ac-rx-row.open { background: var(--primary-bg); border-color: var(--primary); }
+  .ac-rx-no {
+    width: 28px; height: 28px; flex-shrink: 0; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface2); color: var(--text-muted);
+    font-size: 0.75rem; font-weight: 700;
+  }
+  .ac-rx-row.open .ac-rx-no { background: var(--primary); color: #fff; }
+  .ac-rx-no.plain { font-size: 1rem; }
+  .ac-rx-name { font-weight: 700; font-size: 0.875rem; color: var(--text); }
+
+  /* ---- bottom row: triangle (left, where a radar chart would sit) +
+     confirmation detail (right) for whichever remedy is open above ---- */
+  .ac-bottom {
+    grid-area: bottom;
+    display: flex; flex-direction: row;
+    border-top: 1px solid var(--border);
+    min-height: 260px;
+    background: var(--surface);
+  }
+  .ac-bottom-tri { flex: 0 0 400px; border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+  .ac-bottom-detail { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+  .ac-bottom-header {
+    padding: 0.625rem 0.875rem; border-bottom: 1px solid var(--border);
+    font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
+  }
+  .ac-bottom-header i { color: var(--primary); margin-right: 0.25rem; }
+  .ac-tri-scroll, .ac-detail-scroll { flex: 1; overflow-y: auto; padding: 0.875rem; }
+
+  @media (max-width: 1100px) {
+    .ac-app { height: 940px; }
+    .ac-step-col { flex-basis: 210px; min-width: 210px; }
+    .ac-bottom-tri { flex-basis: 340px; }
+  }
+
+  /* Below this width the cascade becomes a vertical stack — every answered
+     column collapses to one tap-to-reopen summary line (the same "see your
+     path, jump back to any step" idea, just stacked instead of side by
+     side), and only the still-open question shows its full option cards.
+     This is deliberately close to the flow the mobile view already had. */
+  @media (max-width: 900px) {
+    .ac-app {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+      grid-template-areas: "steps" "right" "bottom";
+      height: auto; max-height: none; min-height: 0; overflow: visible;
+    }
+    .ac-steps { flex-direction: column; overflow-x: visible; max-height: none; }
+    .ac-step-col {
+      flex: 0 0 auto; border-right: none; border-bottom: 1px solid var(--border);
+      max-height: none; overflow: visible;
+    }
+    .ac-step-col.answered .ac-step-head,
+    .ac-step-col.answered .ac-step-options-scroll { display: none; }
+    .ac-step-summary {
+      display: flex; align-items: center; gap: 0.625rem;
+      padding: 0.75rem 0.875rem; cursor: pointer;
+    }
+    .ac-step-summary-ic { font-size: 1.0625rem; flex-shrink: 0; }
+    .ac-step-summary-txt { flex: 1; min-width: 0; font-size: 0.8125rem; color: var(--text); }
+    .ac-step-summary-caret { color: var(--text-light); }
+
+    .ac-right { border-left: none; border-top: 1px solid var(--border); max-height: 50vh; }
+    .ac-bottom { flex-direction: column; min-height: 0; }
+    .ac-bottom-tri { flex-basis: auto; border-right: none; border-bottom: 1px solid var(--border); }
   }

@@ -25,7 +25,18 @@
     {
       group: 'বিশ্লেষণ টুল',
       items: [
-        { id: 'acutes', href: 'acutes.html', icon: 'bx-sitemap', label: 'তীব্র রোগের তত্ত্ব', meta: '৬২' },
+        // acutes.html used to show these five as an in-page tab bar; they're
+        // a sidebar submenu now so the page itself has more room, and each
+        // child is just that section's hash — acutes.js reads it on load
+        // and on hashchange (no page reload switching between them).
+        { id: 'acutes', href: 'acutes.html', icon: 'bx-sitemap', label: 'তীব্র রোগের তত্ত্ব', meta: '৬২',
+          children: [
+            { id: 'acutes-wizard', href: 'acutes.html#wizard', icon: 'bx-search-alt-2', label: 'ওষুধ খুঁজুন' },
+            { id: 'acutes-flow', href: 'acutes.html#flow', icon: 'bx-sitemap', label: 'ফ্লো চার্ট' },
+            { id: 'acutes-remedies', href: 'acutes.html#remedies', icon: 'bx-capsule', label: 'ওষুধের তালিকা' },
+            { id: 'acutes-theory', href: 'acutes.html#theory', icon: 'bx-book-open', label: 'তত্ত্ব' },
+            { id: 'acutes-hering', href: 'acutes.html#hering', icon: 'bx-check-circle', label: 'হেরিং-এর সূত্র' }
+          ] },
         { id: 'miasm', href: 'miasm.html', icon: 'bx-analyse', label: 'মায়াজম বিশ্লেষক', meta: '৬৩' },
         { id: 'tempraz', href: 'tempraz.html', icon: 'bx-brain', label: 'টেম্পরাজ বিশেষজ্ঞ পদ্ধতি', meta: '৫ স্বভাব' },
         { id: 'repertory', href: 'repertory.html', icon: 'bx-book-bookmark', label: 'রিপার্টরি', meta: '৩ বই' }
@@ -35,7 +46,6 @@
       group: 'রেফারেন্স',
       items: [
         { id: 'materia', href: 'materia.html', icon: 'bx-capsule', label: 'মেটেরিয়া মেডিকা', meta: '৭২৫' },
-        { id: 'flowchart', href: 'acutes.html#flow', icon: 'bx-image-alt', label: 'অ্যাকিউট ফ্লো চার্ট' },
         { id: 'compare', href: 'miasm.html#compare', icon: 'bx-table', label: 'মায়াজম তুলনা' }
       ]
     },
@@ -97,7 +107,15 @@
   }
 
   /* ---------------- shell rendering ---------------- */
+  // A NAV item's `children` render as a submenu, shown only while that item
+  // is the active page (no separate expand/collapse click needed) — each
+  // child is a same-page hash link, highlighted against location.hash so
+  // e.g. acutes.html#remedies shows "ওষুধের তালিকা" as the active sub-item.
   function sidebarHtml(active) {
+    // an empty hash on the active page means its default section — acutes.js
+    // treats no-hash as "wizard", so that's the fallback here too
+    const curHash = location.hash || '#wizard';
+    const subActive = href => href.includes('#') && ('#' + href.split('#')[1]) === curHash;
     return `
       <div class="sb-brand">
         <div class="sb-mark">${APP.mark}</div>
@@ -116,13 +134,35 @@
                 <i class='bx ${it.icon}'></i>
                 <span class="sb-lbl">${it.label}</span>
                 ${it.meta ? `<span class="sb-meta">${it.meta}</span>` : ''}
-              </a>`).join('')}
+              </a>
+              ${it.children && it.id === active ? `
+                <div class="sb-submenu">
+                  ${it.children.map(c => `
+                    <a class="sb-sublink ${subActive(c.href) ? 'active' : ''}" href="${c.href}">
+                      <i class='bx ${c.icon}'></i>
+                      <span class="sb-lbl">${c.label}</span>
+                    </a>`).join('')}
+                </div>` : ''}`).join('')}
           </div>`).join('')}
       </nav>
       <div class="sb-foot">
         <span class="sb-ver"><i class='bx bx-package'></i> সংস্করণ ${APP.version}</span>
         <div style="margin-top:0.5rem;">সম্পূর্ণ অফলাইন · ডেটা শুধু এই ব্রাউজারে থাকে</div>
       </div>`;
+  }
+
+  // Keeps the sidebar submenu's active sub-item in sync when the hash
+  // changes without a page reload (clicking another sub-link while already
+  // on that page) — cheaper than re-rendering the whole sidebar.
+  function bindSubmenuHashSync() {
+    window.addEventListener('hashchange', () => {
+      const curHash = location.hash || '#wizard';
+      document.querySelectorAll('.sb-sublink').forEach(a => {
+        const href = a.getAttribute('href') || '';
+        const on = href.includes('#') && ('#' + href.split('#')[1]) === curHash;
+        a.classList.toggle('active', on);
+      });
+    });
   }
 
   function topbarHtml(page) {
@@ -147,6 +187,7 @@
     if (sidebar) {
       sidebar.innerHTML = sidebarHtml(active);
       updateSidebarBadges();
+      bindSubmenuHashSync();
     }
     if (topbar) {
       topbar.innerHTML = topbarHtml(page);

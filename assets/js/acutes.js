@@ -452,75 +452,154 @@ function rxInfo(en) {
 }
 
 // ===== Flow wizard engine =====
-let flowPath = [];   // array of chosen child nodes
+let flowPath = [];     // array of chosen child nodes
+let openRemedyIdx = 0;  // which remedy in the current leaf's list is open below
 
 function currentFlowNode() {
   return flowPath.length ? flowPath[flowPath.length - 1] : FLOW;
 }
 
-// Restart a CSS animation on an already-mounted element — toggling `display`
-// retriggers it automatically, but qView/rView often stay on-screen across a
-// step (question → next question), so the class needs a forced reflow to
-// replay rather than silently no-op on the second call.
-function replayStepAnim(el) {
-  el.classList.remove('flow-step-anim');
-  void el.offsetWidth;
-  el.classList.add('flow-step-anim');
-}
-
 function renderFlow() {
-  const node = currentFlowNode();
-  const qView = document.getElementById('flowQuestionView');
-  const rView = document.getElementById('flowResultView');
-
-  // Breadcrumbs
-  const crumbs = document.getElementById('flowCrumbs');
-  crumbs.innerHTML = flowPath.length
-    ? `<span class="flow-crumb root"><i class='bx bx-sitemap'></i> কার্যকলাপ</span>` +
-      flowPath.map((n, i) =>
-        `<span class="flow-crumb-sep">›</span><span class="flow-crumb" data-depth="${i + 1}">${n.icon || ''} ${n.bn}</span>`
-      ).join('')
-    : '';
-  crumbs.querySelectorAll('.flow-crumb[data-depth]').forEach(el => {
-    el.addEventListener('click', () => { flowPath = flowPath.slice(0, +el.dataset.depth); renderFlow(); });
-  });
-
   document.getElementById('flowBack').disabled = flowPath.length === 0;
   updateTopbarChip();
+  renderSteps();
+  openRemedyIdx = 0;      // a path change always lands on a fresh leaf (or none)
+  renderRightAndBottom();
+}
 
-  if (node.remedies) {
-    qView.style.display = 'none';
-    rView.style.display = 'block';
-    renderFlowResults(node);
-    replayStepAnim(rView);
-  } else {
-    rView.style.display = 'none';
-    qView.style.display = 'block';
-    document.getElementById('flowStepBadge').textContent =
-      flowPath.map(n => n.bn).join(' → ') || 'ফ্লো চার্টের শুরু';
-    document.getElementById('flowQuestion').innerHTML = `<i class='bx bx-help-circle'></i> ${node.q}`;
-    document.getElementById('flowHint').textContent = node.hint || '';
-
-    const box = document.getElementById('flowOptions');
-    box.innerHTML = '';
-    node.children.forEach((child, i) => {
-      const count = countRemedies(child);
-      const el = document.createElement('div');
-      el.className = 'radio-card';
-      el.style.animationDelay = `${i * 0.05}s`;   // small cascade, option-by-option
-      el.innerHTML = `
-        <span class="rc-emoji">${child.icon || '•'}</span>
-        <div class="radio-label">
-          <strong>${child.bn}</strong> <span style="font-size:0.75rem;color:var(--text-muted);font-style:italic;">${child.en}</span>
-          ${child.desc ? `<br><span style="font-size:0.8125rem;color:var(--text-muted)">${child.desc}</span>` : ''}
-        </div>
-        <span class="rc-count">${bnNum(count)} ওষুধ</span>
-        <i class='bx bx-chevron-right' style="color:var(--text-muted)"></i>`;
-      el.addEventListener('click', () => { flowPath.push(child); renderFlow(); });
-      box.appendChild(el);
-    });
-    replayStepAnim(qView);
+// One column per level of the path so far — every column stays visible and
+// clickable (Tempraz-style "everything on one screen"), instead of the old
+// single current-question view with a Back button. Depth is 1–4 levels
+// depending on the branch, so this is a horizontal cascade rather than a
+// fixed column count.
+function renderSteps() {
+  const host = document.getElementById('acSteps');
+  const cols = [{ q: FLOW.q, hint: FLOW.hint, options: FLOW.children }];
+  for (let i = 0; i < flowPath.length; i++) {
+    const cur = flowPath[i];
+    if (cur.remedies) break;               // reached a leaf — no further question
+    cols.push({ q: cur.q, hint: cur.hint, options: cur.children });
   }
+
+  host.innerHTML = cols.map((col, ci) => {
+    const chosen = flowPath[ci] || null;   // option picked at this level, if any
+    const summary = chosen ? `
+      <div class="ac-step-summary" data-jump="${ci}">
+        <span class="ac-step-summary-ic">${chosen.icon || '•'}</span>
+        <span class="ac-step-summary-txt"><b>${chosen.bn}</b></span>
+        <i class='bx bx-chevron-right ac-step-summary-caret'></i>
+      </div>` : '';
+    const options = col.options.map((opt, oi) => {
+      const count = countRemedies(opt);
+      return `<div class="ac-opt ${chosen === opt ? 'chosen' : ''}" data-col="${ci}" data-opt="${oi}"
+                   style="animation-delay:${oi * 0.04}s">
+        <span class="rc-emoji">${opt.icon || '•'}</span>
+        <div class="ac-opt-label">
+          <strong>${opt.bn}</strong>
+          <span>${opt.en}${opt.desc ? ' — ' + opt.desc : ''}</span>
+        </div>
+        <span class="ac-opt-count">${bnNum(count)}</span>
+      </div>`;
+    }).join('');
+    return `<div class="ac-step-col${chosen ? ' answered' : ''}">
+      <div class="ac-step-head">
+        ${summary}
+        <div class="ac-step-q"><i class='bx bx-help-circle'></i> ${col.q || ''}</div>
+        ${col.hint ? `<div class="ac-step-hint">${col.hint}</div>` : ''}
+      </div>
+      <div class="ac-step-options-scroll"><div class="ac-step-options">${options}</div></div>
+    </div>`;
+  }).join('');
+
+  host.querySelectorAll('.ac-opt').forEach(el => {
+    el.addEventListener('click', () => {
+      const ci = +el.dataset.col;
+      const opt = cols[ci].options[+el.dataset.opt];
+      flowPath = flowPath.slice(0, ci).concat([opt]);
+      renderFlow();
+    });
+  });
+  host.querySelectorAll('.ac-step-summary').forEach(el => {
+    el.addEventListener('click', () => {
+      flowPath = flowPath.slice(0, +el.dataset.jump);
+      renderFlow();
+    });
+  });
+
+  // newest column should be the one in view
+  requestAnimationFrame(() => { host.scrollLeft = host.scrollWidth; });
+}
+
+// Right column: the current leaf's remedies (replaces a generic "analysis
+// result" panel — this flow has no score, just a path to a remedy set).
+function renderRightAndBottom() {
+  const node = currentFlowNode();
+  const scroll = document.getElementById('acRightScroll');
+  const countEl = document.getElementById('acRightCount');
+
+  if (!node.remedies) {
+    countEl.textContent = '';
+    scroll.innerHTML = `<div class="tz-empty"><i class='bx bx-capsule'></i><p>ধাপগুলো শেষ করলে এখানে ওষুধের তালিকা দেখাবে।</p></div>`;
+    renderBottomEmpty();
+    return;
+  }
+
+  countEl.textContent = `${bnNum(node.remedies.length)}টি ওষুধ`;
+  scroll.innerHTML = node.remedies.map((r, idx) => {
+    const info = rxInfo(r.en);
+    return `<div class="ac-rx-row ${idx === openRemedyIdx ? 'open' : ''}" data-idx="${idx}" style="animation-delay:${Math.min(idx, 8) * 0.03}s">
+      <div class="ac-rx-no ${r.n ? '' : 'plain'}">${r.n != null ? bnNum(r.n) : (info && info.icon ? info.icon : '•')}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="ac-rx-name">${r.bn} <span class="rx-abbr">${r.ab}</span></div>
+        <div class="rx-en">${r.en}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  scroll.querySelectorAll('.ac-rx-row').forEach(el => {
+    el.addEventListener('click', () => {
+      openRemedyIdx = +el.dataset.idx;
+      renderRightAndBottom();
+    });
+  });
+
+  renderBottomFor(node.remedies[openRemedyIdx]);
+}
+
+// Bottom-left: the open remedy's triangle (where Tempraz would put its
+// radar). Bottom-right: the rest of its confirmation detail.
+function renderBottomFor(r) {
+  const info = rxInfo(r.en);
+  const triHost = document.getElementById('acTriHost');
+  const detailHost = document.getElementById('acDetailHost');
+  document.getElementById('acDetailName').textContent = `${r.bn} — বিস্তারিত`;
+
+  const hasTriangle = !!(info && info.triangle && info.triangle.length === 3);
+  triHost.innerHTML = hasTriangle
+    ? triangleOnly(info.triangle)
+    : (info && info.triangle && info.triangle.length
+        ? `<ul class="tri-list">${info.triangle.map(t => `<li>${t}</li>`).join('')}</ul>`
+        : `<div class="tz-empty" style="min-height:120px;"><p>এই ওষুধের ত্রিভুজ তথ্য নেই।</p></div>`);
+
+  detailHost.innerHTML = info ? `
+    ${info.key_feature ? `<div class="rx-key">${info.key_feature}</div>` : ''}
+    ${info.confirm ? `<div class="rx-section">
+        <div class="rx-label"><i class='bx bx-check-double'></i> নিশ্চিতকরণ <span class="rx-label-note">— মিলে গেলে ওষুধ চূড়ান্ত</span></div>
+        <div class="rx-conf"><i class='bx bx-bulb'></i><span>${info.confirm}</span></div>
+      </div>` : ''}
+    ${info.aggravation && info.aggravation.length ? `
+      <div class="mod-grid" style="margin-top:1.125rem;">
+        <div class="mod-block mod-agg"><strong>বৃদ্ধি</strong><ul>${info.aggravation.map(a => `<li>${a}</li>`).join('')}</ul></div>
+        <div class="mod-block mod-amel"><strong>উপশম</strong><ul>${(info.amelioration || []).map(a => `<li>${a}</li>`).join('')}</ul></div>
+      </div>` : ''}
+    ${info.potency ? `<div class="potency-box"><i class='bx bx-injection'></i>${info.potency}</div>` : ''}
+  ` : `<p class="rx-nodata">এই ওষুধের বিস্তারিত এখনো ডেটাবেসে যোগ করা হয়নি — মেটেরিয়া মেডিকা দেখে মিলিয়ে নিন।</p>`;
+}
+
+function renderBottomEmpty() {
+  document.getElementById('acTriHost').innerHTML = `<div class="tz-empty" style="min-height:150px;"><i class='bx bx-shape-triangle'></i><p>ওষুধ বেছে নিলে ত্রিভুজ দেখাবে।</p></div>`;
+  document.getElementById('acDetailHost').innerHTML = `<div class="tz-empty" style="min-height:150px;"><p>ওষুধ বেছে নিলে বিস্তারিত দেখাবে।</p></div>`;
+  document.getElementById('acDetailName').textContent = 'বিস্তারিত';
 }
 
 function countRemedies(node) {
@@ -528,101 +607,48 @@ function countRemedies(node) {
   return (node.children || []).reduce((s, c) => s + countRemedies(c), 0);
 }
 
-// ত্রিভুজ — Vijayakar's three confirming points, drawn as an actual triangle
-function triangleHtml(points) {
-  if (!points || !points.length) return '';
-  if (points.length !== 3) {
-    // no clean 3-point triangle in the source — show them as keynotes instead
-    return `<div class="rx-section">
-      <div class="rx-label"><i class='bx bx-key'></i> মূল চাবিকাঠি (Keynotes)
-        <span class="rx-label-note">— যত বেশি মেলে, তত নিশ্চিত</span></div>
-      <ul class="tri-list">${points.map(t => `<li>${t}</li>`).join('')}</ul></div>`;
-  }
-
-  return `<div class="rx-section">
-    <div class="rx-label"><i class='bx bx-shape-triangle'></i> ত্রিভুজ (Triangle)
-      <span class="rx-label-note">— তিনটি বিন্দুই মিললে ওষুধ নিশ্চিত</span></div>
-    <div class="tri">
-      <div class="tri-grid">
-        <div class="tri-cell apex"><div class="tri-txt"><p>${points[0]}</p></div></div>
-        <div class="tri-stage">
-          <svg class="tri-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            <polygon points="50,6 93,94 7,94"/>
-          </svg>
-          <span class="tri-dot d1">১</span>
-          <span class="tri-dot d2">২</span>
-          <span class="tri-dot d3">৩</span>
-        </div>
-        <div class="tri-cell left"><div class="tri-txt"><p>${points[1]}</p></div></div>
-        <div class="tri-cell right"><div class="tri-txt"><p>${points[2]}</p></div></div>
+// ত্রিভুজ — Vijayakar's three confirming points, drawn as an actual triangle.
+// Just the diagram: the bottom-left panel supplies its own header/caption now
+// that it's a dedicated column instead of something tucked inside a remedy
+// card, but the inner classes (tri-dot/tri-svg/tri-txt) are unchanged so the
+// pop-in-sequence + stroke-draw animation still applies exactly as before.
+// Reveals point-by-point rather than all-at-once: dot ১ pops in, its symptom
+// text follows, then the border draws across to dot ২ (text, then border to
+// ৩), text, then the border closes back round to ১ — only then does the
+// triangle's fill appear. Three separate <line> segments (not one polygon)
+// so each edge can be timed to draw on its own, one after the other.
+function triangleOnly(points) {
+  return `<div class="tri">
+    <div class="tri-grid">
+      <div class="tri-cell apex"><div class="tri-txt tri-txt-1"><p>${points[0]}</p></div></div>
+      <div class="tri-stage">
+        <svg class="tri-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <polygon class="tri-fill" points="50,6 93,94 7,94"/>
+          <!-- pathLength normalises each line's dash-length units to 100
+               regardless of its real geometry — without it, stroke-dasharray
+               interacts badly with non-scaling-stroke under this viewBox's
+               non-uniform stretch (preserveAspectRatio="none"), leaving a
+               chunk of each "hidden" segment visibly drawn from frame one -->
+          <line class="tri-seg tri-seg-1" x1="50" y1="6" x2="7" y2="94" pathLength="100"/>
+          <line class="tri-seg tri-seg-2" x1="7" y1="94" x2="93" y2="94" pathLength="100"/>
+          <line class="tri-seg tri-seg-3" x1="93" y1="94" x2="50" y2="6" pathLength="100"/>
+        </svg>
+        <span class="tri-dot d1">১</span>
+        <span class="tri-dot d2">২</span>
+        <span class="tri-dot d3">৩</span>
       </div>
-      <p class="tri-caption">তিন কোণের তিনটি লক্ষণ একসাথে মিলে গেলেই এই ওষুধ</p>
+      <div class="tri-cell left"><div class="tri-txt tri-txt-2"><p>${points[1]}</p></div></div>
+      <div class="tri-cell right"><div class="tri-txt tri-txt-3"><p>${points[2]}</p></div></div>
     </div>
+    <p class="tri-caption">তিন কোণের তিনটি লক্ষণ একসাথে মিলে গেলেই এই ওষুধ নিশ্চিত</p>
   </div>`;
-}
-
-function renderFlowResults(node) {
-  document.getElementById('flowResultCount').textContent = `${bnNum(node.remedies.length)}টি ওষুধ`;
-  document.getElementById('flowResultNote').innerHTML =
-    'চার্ট অনুযায়ী এই শাখার ওষুধ — নম্বরগুলো মূল ফ্লো চার্টের ক্রম (১–৬২)। ' +
-    'যেকোনো ওষুধে ট্যাপ করলে তার <strong>ত্রিভুজ</strong> ও নিশ্চিতকরণ বিন্দু দেখা যাবে।';
-
-  const list = document.getElementById('flowResults');
-  list.innerHTML = '';
-  node.remedies.forEach((r, idx) => {
-    const info = rxInfo(r.en);
-    const hasTriangle = !!(info && info.triangle && info.triangle.length === 3);
-    const card = document.createElement('div');
-    card.className = 'rx-card';
-    card.style.animationDelay = `${Math.min(idx, 8) * 0.04}s`;   // capped so a long list doesn't crawl in
-    card.innerHTML = `
-      <div class="rx-head">
-        <div class="rx-no ${r.n ? '' : 'plain'}">${r.n != null ? bnNum(r.n) : (info && info.icon ? info.icon : '•')}</div>
-        <div style="flex:1;min-width:0;">
-          <div class="rx-name">${r.bn} <span class="rx-abbr">${r.ab}</span></div>
-          <div class="rx-en">${r.en}</div>
-        </div>
-        <span class="rx-toggle">${hasTriangle ? `<i class='bx bx-shape-triangle'></i><span class="rx-toggle-t">ত্রিভুজ</span>` : `<i class='bx bx-key'></i><span class="rx-toggle-t">চাবিকাঠি</span>`}</span>
-        <i class='bx bx-chevron-down expand-icon' style="color:var(--text-muted);font-size:1.25rem;"></i>
-      </div>
-      <div class="rx-body">
-        ${info ? `
-          ${info.key_feature ? `<div class="rx-key">${info.key_feature}</div>` : ''}
-          ${triangleHtml(info.triangle)}
-          ${info.confirm ? `<div class="rx-section">
-              <div class="rx-label"><i class='bx bx-check-double'></i> নিশ্চিতকরণ <span class="rx-label-note">— মিলে গেলে ওষুধ চূড়ান্ত</span></div>
-              <div class="rx-conf"><i class='bx bx-bulb'></i><span>${info.confirm}</span></div>
-            </div>` : ''}
-          ${info.aggravation && info.aggravation.length ? `
-            <div class="mod-grid" style="margin-top:1.125rem;">
-              <div class="mod-block mod-agg"><strong>বৃদ্ধি</strong><ul>${info.aggravation.map(a => `<li>${a}</li>`).join('')}</ul></div>
-              <div class="mod-block mod-amel"><strong>উপশম</strong><ul>${(info.amelioration || []).map(a => `<li>${a}</li>`).join('')}</ul></div>
-            </div>` : ''}
-          ${info.potency ? `<div class="potency-box"><i class='bx bx-injection'></i>${info.potency}</div>` : ''}
-        ` : `<p class="rx-nodata">এই ওষুধের বিস্তারিত এখনো ডেটাবেসে যোগ করা হয়নি — মেটেরিয়া মেডিকা দেখে মিলিয়ে নিন।</p>`}
-      </div>`;
-    card.querySelector('.rx-head').addEventListener('click', () => {
-      const body = card.querySelector('.rx-body');
-      const open = body.classList.contains('open');
-      list.querySelectorAll('.rx-body.open').forEach(b => b.classList.remove('open'));
-      list.querySelectorAll('.rx-card.open').forEach(c => c.classList.remove('open'));
-      list.querySelectorAll('.expand-icon').forEach(i => i.style.transform = '');
-      if (!open) {
-        body.classList.add('open');
-        card.classList.add('open');
-        card.querySelector('.expand-icon').style.transform = 'rotate(180deg)';
-      }
-    });
-    list.appendChild(card);
-    if (idx === 0) card.querySelector('.rx-head').click();   // first remedy open by default
-  });
 }
 
 function initTopbar() {
   if (typeof Shell === 'undefined') return;
   const btn = Shell.addAction(`<button class="tb-btn"><i class='bx bx-sitemap'></i><span class="tb-label">সম্পূর্ণ ফ্লো চার্ট</span></button>`);
   if (btn) btn.addEventListener('click', () => {
-    document.querySelector('.page-tab-btn[data-panel="flow"]').click();
+    location.hash = 'flow';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
   updateTopbarChip();
@@ -679,23 +705,21 @@ function renderFlowChartTree() {
   document.getElementById('fcCollapseAll').onclick = () => setAll(false);
 }
 
-// ===== Page Tabs =====
-document.querySelectorAll('.page-tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.page-tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    const panelId = `panel-${btn.dataset.panel}`;
-    document.getElementById(panelId).classList.add('active');
-  });
-});
+// ===== Panels =====
+// The five sections (wizard/flow/remedies/theory/hering) used to be an
+// in-page tab bar; they now live in the sidebar as a submenu under "তীব্র
+// রোগের তত্ত্ব" (see NAV in shell.js), so switching sections is a same-page
+// hash change rather than a button click — activatePanel() is the one place
+// that actually shows/hides a panel, callable from a hash or anything else.
+function activatePanel(name) {
+  document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById(`panel-${name}`);
+  if (panel) panel.classList.add('active');
+}
 
-// ===== Deep links (sidebar reference items) =====
 function openPanelFromHash() {
-  const id = (location.hash || '').replace('#', '');
-  if (!id) return;
-  const btn = document.querySelector(`.page-tab-btn[data-panel="${id}"]`);
-  if (btn) btn.click();
+  const id = (location.hash || '').replace('#', '') || 'wizard';
+  activatePanel(id);
 }
 window.addEventListener('hashchange', openPanelFromHash);
 

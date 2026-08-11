@@ -33,15 +33,16 @@
         </div>
 
 
-  <div class="page-tabs" role="tablist">
-    <button class="page-tab-btn active" data-panel="wizard" role="tab"><i class='bx bx-search-alt-2'></i> ওষুধ খুঁজুন</button>
-    <button class="page-tab-btn" data-panel="flow" role="tab"><i class='bx bx-sitemap'></i> ফ্লো চার্ট</button>
-    <button class="page-tab-btn" data-panel="remedies" role="tab"><i class='bx bx-capsule'></i> ওষুধের তালিকা</button>
-    <button class="page-tab-btn" data-panel="theory" role="tab"><i class='bx bx-book-open'></i> তত্ত্ব</button>
-    <button class="page-tab-btn" data-panel="hering" role="tab"><i class='bx bx-check-circle'></i> হেরিং-এর সূত্র</button>
-  </div>
+  <!-- The five sections below (wizard/flow/remedies/theory/hering) used to
+       have their own in-page tab bar here — they're reachable from the
+       sidebar submenu now (see NAV.acutes.children in shell.js), which
+       frees this vertical space for the wizard itself. -->
 
-  <!-- PANEL 1: Flow-chart Wizard -->
+  <!-- PANEL 1: Flow-chart Wizard — Tempraz-style: every step visible side by
+       side on desktop instead of one question at a time; the triangle sits
+       where a radar chart would, and the right column is a plain remedy
+       list instead of a scored "result" panel (this flow has no score to
+       show, just a path to a remedy set). -->
   <div id="panel-wizard" class="page-panel active">
     <div class="card">
       <div class="section-heading">
@@ -52,30 +53,46 @@
         </div>
       </div>
 
-      <div class="flow-crumbs" id="flowCrumbs"></div>
+      <div class="ac-app">
+        <!-- Steps: one column per level of the path so far — all visible at
+             once on desktop; already-answered ones collapse to a compact,
+             tap-to-reopen summary on narrow screens. -->
+        <div class="ac-steps" id="acSteps"></div>
 
-      <!-- Question view -->
-      <div id="flowQuestionView">
-        <div class="flow-node-badge" id="flowStepBadge"></div>
-        <div class="axis-question" id="flowQuestion"></div>
-        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1.25rem;" id="flowHint"></p>
-        <div class="radio-card-group" id="flowOptions"></div>
+        <!-- Remedy list for whichever leaf the path has reached -->
+        <div class="ac-right">
+          <div class="ac-right-header">
+            <span class="ac-right-title"><i class='bx bx-capsule'></i> সম্ভাব্য ওষুধ</span>
+            <span class="ac-right-count" id="acRightCount"></span>
+          </div>
+          <div class="ac-right-scroll" id="acRightScroll">
+            <div class="tz-empty"><i class='bx bx-capsule'></i><p>ধাপগুলো শেষ করলে এখানে ওষুধের তালিকা দেখাবে।</p></div>
+          </div>
+        </div>
+
+        <!-- Bottom row: the open remedy's triangle (left) + its confirmation
+             detail (right) -->
+        <div class="ac-bottom">
+          <div class="ac-bottom-tri">
+            <div class="ac-bottom-header"><span><i class='bx bx-shape-triangle'></i> ত্রিভুজ</span></div>
+            <div class="ac-tri-scroll" id="acTriHost">
+              <div class="tz-empty" style="min-height:150px;"><i class='bx bx-shape-triangle'></i><p>ওষুধ বেছে নিলে ত্রিভুজ দেখাবে।</p></div>
+            </div>
+          </div>
+          <div class="ac-bottom-detail">
+            <div class="ac-bottom-header"><span id="acDetailName">বিস্তারিত</span></div>
+            <div class="ac-detail-scroll" id="acDetailHost">
+              <div class="tz-empty" style="min-height:150px;"><p>ওষুধ বেছে নিলে বিস্তারিত দেখাবে।</p></div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Result view -->
-      <div id="flowResultView" style="display:none;">
-        <div class="results-header">
-          <div class="axis-question" style="margin-bottom:0"><i class='bx bx-capsule'></i> সম্ভাব্য সিমিলিমাম</div>
-          <span class="results-count" id="flowResultCount"></span>
-        </div>
-        <p style="font-size:0.875rem;color:var(--text-muted);margin:0.5rem 0 1.25rem;" id="flowResultNote"></p>
-        <div class="rx-list" id="flowResults"></div>
-        <div class="sub-card" style="margin-top:1.25rem;background:var(--toa-amber-bg);border-left:4px solid var(--toa-amber);">
-          <p style="font-size:0.875rem;line-height:1.65;margin:0;">
-            <strong>এক-ডোজ নিয়ম:</strong> তালিকা থেকে ত্রিভুজ ও নিশ্চিতকরণ বিন্দু মিলিয়ে একটিমাত্র ওষুধ চূড়ান্ত করুন এবং এক ডোজ দিন।
-            এক ডোজে আরোগ্যের সূচনা না হলে ওষুধটি ভুল — পুনরাবৃত্তি না করে নতুন করে অক্ষ যাচাই করুন।
-          </p>
-        </div>
+      <div class="sub-card" style="margin-top:1.25rem;background:var(--toa-amber-bg);border-left:4px solid var(--toa-amber);">
+        <p style="font-size:0.875rem;line-height:1.65;margin:0;">
+          <strong>এক-ডোজ নিয়ম:</strong> ত্রিভুজ ও নিশ্চিতকরণ বিন্দু মিলিয়ে একটিমাত্র ওষুধ চূড়ান্ত করুন এবং এক ডোজ দিন।
+          এক ডোজে আরোগ্যের সূচনা না হলে ওষুধটি ভুল — পুনরাবৃত্তি না করে নতুন করে অক্ষ যাচাই করুন।
+        </p>
       </div>
 
       <div class="flow-nav">
