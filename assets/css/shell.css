@@ -166,31 +166,66 @@ body {
   color: var(--sb-active-meta-color, #a7f3d0);
 }
 
+/* A caret marks the items that have a submenu, so it's obvious there is more
+   underneath even from a page where the submenu isn't currently expanded. It
+   points down once its parent is the active page and the list is showing. */
+.sb-caret {
+  flex-shrink: 0;
+  font-size: 1rem !important;
+  opacity: 0.45;
+  transform: rotate(-90deg);
+  transition: transform 0.18s ease, opacity 0.15s;
+}
+.sb-link:hover .sb-caret { opacity: 0.9; }
+.sb-link.active .sb-caret { opacity: 1; transform: rotate(0deg); }
+
 /* Submenu — a page's own in-page tabs, moved to the sidebar (acutes.html's
    five sections) so the content area gets that vertical space back. Shown
    only while the parent item is the active page. */
 .sb-submenu {
-  display: flex; flex-direction: column;
-  margin: 0.125rem 0 0.5rem 0.9375rem;
-  padding-left: 0.625rem;
-  border-left: 1px solid var(--sb-border);
+  display: flex; flex-direction: column; gap: 1px;
+  margin: 0.25rem 0 0.625rem 1.375rem;
+  padding-left: 0.75rem;
+  position: relative;
+}
+/* the spine runs the height of the group, with each item hanging off it by
+   its own short connector — reads as a branch rather than a second list */
+.sb-submenu::before {
+  content: '';
+  position: absolute; left: 0; top: 0.25rem; bottom: 0.25rem;
+  width: 1px; background: var(--sb-border);
 }
 .sb-sublink {
-  display: flex; align-items: center; gap: 0.5625rem;
-  padding: 0.4375rem 0.625rem;
-  border-radius: 8px;
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 7px;
   color: var(--sb-text-dim);
   text-decoration: none;
   font-size: 0.8125rem; font-weight: 500;
-  transition: background 0.15s, color 0.15s;
+  position: relative;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
 }
-.sb-sublink i { font-size: 0.9375rem; flex-shrink: 0; opacity: 0.85; }
-.sb-sublink:hover { background: var(--sb-hover); color: #fff; }
+.sb-sublink::before {
+  content: '';
+  position: absolute; left: -0.75rem; top: 50%;
+  width: 0.5rem; height: 1px; background: var(--sb-border);
+  transition: background 0.15s;
+}
+.sb-sublink i { font-size: 0.9375rem; flex-shrink: 0; opacity: 0.7; transition: opacity 0.15s; }
+.sb-sublink .sb-lbl { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb-sublink:hover {
+  background: var(--sb-hover); color: #fff; transform: translateX(1px);
+}
+.sb-sublink:hover i { opacity: 1; }
+.sb-sublink:hover::before { background: var(--primary-light); }
 .sb-sublink.active {
   background: var(--sb-active-bg, rgba(20, 184, 166, 0.16));
   color: #fff; font-weight: 600;
 }
 .sb-sublink.active i { color: var(--primary-light); opacity: 1; }
+/* the connector becomes a solid stub on the active item, so the eye lands on
+   it without needing a second highlight colour */
+.sb-sublink.active::before { background: var(--primary-light); width: 0.625rem; height: 2px; }
 
 .sb-foot {
   flex-shrink: 0;

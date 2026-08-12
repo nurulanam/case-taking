@@ -4,6 +4,10 @@
    shell and lets .rx-sheet fill the page, so what you see is what prints.
    ========================================================================== */
 
+/* two hash-routed sections, matching the sidebar submenu */
+.page-panel { display: none; animation: fadeIn 0.25s ease; }
+.page-panel.active { display: block; }
+
 .rx-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -44,14 +48,49 @@
 .rx-del:hover:not(:disabled) { color: var(--danger); border-color: var(--danger); }
 .rx-del:disabled { opacity: 0.35; cursor: not-allowed; }
 
-/* ---------- the sheet ---------- */
+/* ---------- the sheet ----------
+   This is paper, not UI. It stays white with dark ink whatever the app's
+   theme is — a prescription printed from a dark-mode screen must look
+   exactly like one printed from a light-mode screen. The theme tokens are
+   therefore re-pinned to their light values *on the sheet itself*, so every
+   descendant that reads --text / --border / --primary gets paper colours
+   without each rule having to hardcode them.
+
+   Width and min-height are set from JS (RxSheet.applyPage) to the chosen
+   paper size; .rx-paper-fit then scales the whole thing to fit its column. */
 .rx-sheet {
+  --surface: #ffffff;
+  --surface2: #f1f5f9;
+  --bg: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  --primary: #0f766e;
+  --primary-light: #14b8a6;
+  --primary-bg: #f0fdfa;
+  --accent: #0d9488;
+  --success: #10b981;
+  --danger: #ef4444;
+
+  /* the paper's own padding, mirrored from the inline value JS sets, so a
+     full-bleed band (the modern header) can cancel it without hardcoding a
+     figure that only matched the old fixed padding */
+  --rx-pad: 14mm;
+
   background: #fff; color: #0f172a;
-  border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 1.5rem 1.625rem;
+  border: 1px solid #e2e8f0; border-radius: var(--radius);
+  padding: 14mm;
   box-shadow: var(--shadow-sm);
   font-size: 0.875rem; line-height: 1.6;
+  /* a full page tall with the footer pushed down — see .rs-foot */
+  display: flex; flex-direction: column;
+  transform-origin: top left;
 }
+
+/* Scales a true-paper-width sheet down to whatever column it sits in, so the
+   proportions are the paper's own rather than the viewport's. */
+.rx-paper-fit { position: relative; overflow: hidden; }
 .rs-head {
   display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
   padding-bottom: 0.875rem; border-bottom: 2px solid var(--primary);
@@ -59,6 +98,7 @@
 .rs-doc b { display: block; font-size: 1.0625rem; font-weight: 700; color: var(--primary); }
 .rs-doc span { display: block; font-size: 0.75rem; color: var(--text-muted); }
 .rs-clinic { font-size: 0.75rem; color: var(--text-muted); text-align: right; line-height: 1.5; }
+.rs-clinic-name { display: block; font-size: 0.8125rem; color: var(--text); }
 
 .rs-patient {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -80,13 +120,17 @@
   font-size: 2rem; font-weight: 700; color: var(--primary);
   line-height: 1; margin-bottom: 0.5rem; font-family: Georgia, serif;
 }
-.rs-table { width: 100%; border-collapse: collapse; }
+/* `table-layout: fixed` makes the 58/42 split actually hold. With the
+   default auto layout the browser sizes columns from content, and a long
+   remedy name would keep stealing width from the dosage column until
+   "সপ্তাহে ১ বার · সকালে খালি পেটে · ১৫ দিন" wrapped one word per line. */
+.rs-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .rs-table td { padding: 0.5rem 0.25rem; vertical-align: top; border-bottom: 1px dotted var(--border); }
-.rs-rx { width: 58%; }
+.rs-rx { width: 55%; word-break: break-word; }
 .rs-rx b { font-size: 0.9375rem; font-weight: 700; display: block; }
 .rs-rx span { display: block; font-size: 0.75rem; color: var(--text-muted); }
 .rs-rx em { display: block; font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
-.rs-how { font-size: 0.8125rem; color: var(--text); }
+.rs-how { width: 45%; font-size: 0.8125rem; color: var(--text); }
 .rs-dim { color: var(--text-light); }
 .rs-empty { color: var(--text-light); font-size: 0.875rem; padding: 1rem 0; }
 
@@ -96,9 +140,12 @@
 }
 .rs-adv p { font-size: 0.8125rem; line-height: 1.6; }
 
+/* `margin-top: auto` against the sheet's flex column drops this to the foot
+   of the paper, so the signature sits bottom-right of the page rather than
+   floating up under a short medicine list. */
 .rs-foot {
   display: flex; justify-content: space-between; align-items: flex-end;
-  gap: 1rem; margin-top: 1.5rem; padding-top: 0.75rem;
+  gap: 1rem; margin-top: auto; padding-top: 1.5rem;
 }
 .rs-follow label {
   display: block; font-size: 0.75rem; color: var(--text-light); font-weight: 700;
@@ -110,18 +157,118 @@
   margin-bottom: 0.25rem;
 }
 
-/* ---------- responsive ---------- */
+/* ---------- letterhead logo picker ---------- */
+.logo-picker { display: flex; align-items: center; gap: 0.625rem; flex-wrap: wrap; }
+.logo-picker img {
+  width: 44px; height: 44px; object-fit: contain;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: #fff; padding: 0.25rem;
+}
+.logo-empty {
+  display: inline-flex; align-items: center; gap: 0.375rem;
+  font-size: 0.8125rem; color: var(--text-muted);
+}
+.logo-empty i { font-size: 1.125rem; }
+
+/* ---------- template picker ---------- */
+.tpl-picker { display: flex; gap: 0.875rem; flex-wrap: wrap; }
+.tpl-opt {
+  display: flex; flex-direction: column; align-items: center; gap: 0.375rem;
+  cursor: pointer; font-size: 0.8125rem; color: var(--text-muted);
+}
+.tpl-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+.tpl-swatch {
+  display: block; width: 64px; height: 44px; border-radius: 8px;
+  border: 2px solid var(--border); background: #fff;
+  position: relative; overflow: hidden; transition: border-color 0.15s;
+}
+.tpl-opt input:checked ~ .tpl-swatch { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-bg); }
+.tpl-opt input:checked ~ span:last-child { color: var(--primary); font-weight: 700; }
+.tpl-swatch::before, .tpl-swatch::after { content: ''; position: absolute; }
+.tpl-swatch-classic::before { top: 6px; left: 6px; right: 6px; height: 2px; background: var(--primary); }
+.tpl-swatch-classic::after { top: 14px; left: 6px; right: 6px; height: 12px; border-bottom: 1px dashed var(--border); }
+.tpl-swatch-modern::before { top: 0; left: 0; right: 0; height: 16px; background: linear-gradient(135deg, var(--primary), var(--accent)); }
+.tpl-swatch-modern::after { top: 22px; left: 6px; width: 30px; height: 5px; background: var(--primary-bg); }
+.tpl-swatch-minimal::before { top: 6px; left: 6px; right: 6px; height: 1px; background: #000; }
+.tpl-swatch-minimal::after { top: 12px; left: 6px; right: 20px; height: 1px; background: #999; }
+
+/* ---------- the sheet's own logo, when set ---------- */
+.rs-logo { display: flex; align-items: center; gap: 0.625rem; }
+.rs-logo img { height: 44px; max-width: 90px; object-fit: contain; flex-shrink: 0; }
+
+/* ---------- template variants (default/unset = classic, the original look) ---------- */
+/* Full-bleed band: cancel the paper's padding on three sides so the gradient
+   reaches the sheet edges, then put it back as the band's own inner padding.
+   Driven by --rx-pad so it stays correct at every margin setting. */
+.rx-sheet[data-template="modern"] .rs-head {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
+  margin: calc(var(--rx-pad) * -1) calc(var(--rx-pad) * -1) 0.875rem;
+  padding: var(--rx-pad);
+  border-bottom: none;
+}
+.rx-sheet[data-template="modern"] .rs-doc b { color: #fff; }
+.rx-sheet[data-template="modern"] .rs-doc span,
+.rx-sheet[data-template="modern"] .rs-clinic { color: rgba(255,255,255,0.85); }
+.rx-sheet[data-template="modern"] .rs-rxmark { color: var(--primary); font-size: 1.75rem; }
+.rx-sheet[data-template="modern"] .rs-table tr:nth-child(odd) { background: var(--primary-bg); }
+.rx-sheet[data-template="modern"] .rs-table td { border-bottom: none; padding: 0.625rem 0.5rem; }
+.rx-sheet[data-template="modern"] .rs-adv { border-top: none; background: var(--surface2); border-radius: var(--radius-sm); padding: 0.625rem 0.75rem; }
+
+.rx-sheet[data-template="minimal"] { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.rx-sheet[data-template="minimal"] .rs-head { border-bottom: 1px solid #000; }
+.rx-sheet[data-template="minimal"] .rs-doc b { color: #000; }
+.rx-sheet[data-template="minimal"] .rs-rxmark { color: #000; }
+.rx-sheet[data-template="minimal"] .rs-patient { border-bottom: 1px solid #000; }
+.rx-sheet[data-template="minimal"] .rs-dx { border-bottom: 1px solid #000; }
+.rx-sheet[data-template="minimal"] .rs-table td { border-bottom: 1px solid #ddd; }
+.rx-sheet[data-template="minimal"] .rs-adv { border-top: 1px solid #000; }
+.rx-sheet[data-template="minimal"] .rs-sign span { border-top: 1px solid #000; }
+
+/* ---------- print-preview modal ---------- */
+.rx-preview-modal {
+  position: fixed; inset: 0; z-index: 500;
+  display: flex; align-items: center; justify-content: center;
+}
+.rx-preview-modal[hidden] { display: none; }
+.rx-preview-backdrop { position: absolute; inset: 0; background: rgba(15,23,42,0.6); }
+.rx-preview-dialog {
+  position: relative; width: min(880px, 94vw); max-height: 92vh;
+  background: var(--surface); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg); display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.rx-preview-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 0.75rem; flex-wrap: wrap;
+  padding: 0.75rem 1.125rem; border-bottom: 1px solid var(--border);
+  font-size: 0.875rem; font-weight: 700; color: var(--text);
+}
+.rx-preview-bar-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+.rx-preview-paper {
+  flex: 1; overflow-y: auto; padding: 1.5rem;
+  background: var(--bg);
+}
+.rx-preview-paper .rx-sheet { box-shadow: var(--shadow-lg); }
+
+/* ---------- responsive ----------
+   Exactly one preview at a time, never two of the same thing:
+     desktop  the sheet sits beside the editor → the modal trigger is hidden
+     mobile   there is no room beside the editor → the inline sheet is hidden
+              and the modal is the way to see it
+   Print overrides both below, so what actually prints never depends on the
+   window width at the moment you hit print. */
+@media (min-width: 1101px) {
+  #previewRx { display: none; }
+}
 @media (max-width: 1100px) {
   .rx-layout { grid-template-columns: 1fr; }
   /* stacked, the preview no longer has a column to stick within */
   .rx-preview-col { position: static; }
+  .rx-preview-col > .rx-paper-fit { display: none; }
 }
 @media (max-width: 640px) {
-  .rx-sheet { padding: 1rem; }
   .rs-clinic { text-align: left; }
-  .rs-foot { flex-direction: column; align-items: stretch; gap: 1.5rem; }
-  .rs-sign { text-align: right; }
-  .rs-sign span { width: 100%; }
   .rx-actions .btn { flex: 1 1 auto; justify-content: center; }
 }
 
@@ -131,7 +278,7 @@
 @media print {
   .app-sidebar, .app-backdrop, .app-topbar, .app-footer,
   .page-head, .rx-form, .rx-actions, .case-bridge, .disclaimer,
-  #savedWrap { display: none !important; }
+  #savedWrap, .rx-preview-modal { display: none !important; }
 
   html, body { background: #fff !important; }
   body { padding: 0 !important; }
@@ -141,13 +288,20 @@
   .rx-layout { display: block !important; }
   .rx-preview-col { position: static !important; }
 
+  /* The inline sheet is the one that prints — always, even at a width where
+     it is hidden on screen in favour of the modal. Its fit-to-column scaling
+     is undone here so it prints at real paper size, and the wrapper's
+     JS-set pixel height is released so it doesn't clip the page. */
+  .rx-preview-col > .rx-paper-fit { display: block !important; }
+  .rx-paper-fit { overflow: visible !important; height: auto !important; }
   .rx-sheet {
+    transform: none !important;
+    width: auto !important; min-height: 0 !important;
     border: none !important; border-radius: 0 !important;
-    box-shadow: none !important; padding: 0 !important;
+    box-shadow: none !important;
     font-size: 11pt;
   }
   /* a prescription that splits a medicine across two sheets is a dispensing
      hazard, so rows are kept whole */
   .rs-table tr, .rs-adv, .rs-foot { break-inside: avoid; page-break-inside: avoid; }
-  @page { margin: 14mm; }
 }

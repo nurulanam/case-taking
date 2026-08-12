@@ -4,36 +4,15 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>সেটিংস — হোমিও কেস স্টুডিও</title>
+<meta content="চেম্বার ও চিকিৎসকের তথ্য, প্রেসক্রিপশনের ডিজাইন ও অ্যাপের চেহারা — সব এক জায়গায়।" name="description"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='45' font-size='38' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23fff'%3E%E0%A6%B9%3C/text%3E%3C/svg%3E"/>
 <link href="assets/css/base.css" rel="stylesheet"/>
 <link href="assets/css/shell.css" rel="stylesheet"/>
+<link href="assets/css/prescription.css" rel="stylesheet"/>
 <link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
-<style>
-  .settings-form { max-width: 800px; margin: 0 auto; }
-  .color-picker { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; }
-  .color-option {
-    width: 2.5rem; height: 2.5rem; border-radius: 50%;
-    cursor: pointer; border: 2px solid transparent;
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .color-option:hover { transform: scale(1.1); }
-  .color-option.active { border-color: var(--text); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--text); }
-  .color-option i { color: #fff; font-size: 1.25rem; opacity: 0; transform: scale(0); transition: all 0.2s; }
-  .color-option.active i { opacity: 1; transform: scale(1); }
-
-  .theme-picker { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-top: 0.5rem; }
-  .theme-option {
-    padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius-sm);
-    text-align: center; cursor: pointer; transition: all 0.2s;
-    background: var(--surface); color: var(--text); font-weight: 600;
-  }
-  .theme-option:hover { border-color: var(--primary-light); }
-  .theme-option.active { border-color: var(--primary); background: var(--primary-bg); color: var(--primary); }
-  .theme-option i { font-size: 1.5rem; display: block; margin-bottom: 0.25rem; }
-</style>
+<link href="assets/css/settings.css" rel="stylesheet"/>
 </head>
-<body data-page="settings" data-title="সেটিংস" data-crumb="হোম">
+<body data-page="settings" data-title="সেটিংস" data-crumb="সম্পর্কে">
 
 <div class="app-root">
   <aside class="app-sidebar" id="appSidebar"></aside>
@@ -41,66 +20,180 @@
   <div class="app-main">
     <header class="app-topbar" id="appTopbar"></header>
     <main class="app-content">
-      <div class="content-inner settings-form">
+      <div class="content-inner">
 
         <div class="page-head">
-          <div class="page-icon" style="background:var(--primary-bg); color:var(--primary);"><i class='bx bx-cog'></i></div>
-          <div>
-            <div class="eyebrow">কাস্টমাইজেশন</div>
-            <h2>অ্যাপ সেটিংস</h2>
-            <div class="subtitle">আপনার প্রোফাইল তথ্য এবং অ্যাপের থিম পছন্দ পরিবর্তন করুন।</div>
+          <div class="page-icon"><i class='bx bx-cog'></i></div>
+          <div class="page-head-txt">
+            <h2>সেটিংস</h2>
+            <p>একবার লিখলেই সব জায়গায় ব্যবহার হবে — প্রেসক্রিপশনে আর আলাদা করে লিখতে হবে না।</p>
           </div>
         </div>
 
-        <div class="card" style="margin-bottom: 1.5rem;">
-          <div class="section-heading">
-            <span class="section-number"><i class='bx bx-palette' style="font-size:1rem"></i></span>
-            <div><h3>থিম ও রঙ (Theme & Colors)</h3><p>অ্যাপের চেহারা কাস্টমাইজ করুন</p></div>
-          </div>
-          
-          <div style="margin-bottom: 1.5rem;">
-            <label class="field"><span>ডার্ক মোড</span></label>
-            <div class="theme-picker" id="themePicker">
-              <div class="theme-option" data-val="system"><i class='bx bx-desktop'></i> সিস্টেম</div>
-              <div class="theme-option" data-val="light"><i class='bx bx-sun'></i> লাইট</div>
-              <div class="theme-option" data-val="dark"><i class='bx bx-moon'></i> ডার্ক</div>
-            </div>
-          </div>
+        <!-- ═══════════ সাধারণ — চেম্বার ও চিকিৎসক ═══════════ -->
+        <div class="page-panel active" id="panel-general">
+          <form id="generalForm" autocomplete="off">
 
-          <div>
-            <label class="field"><span>অ্যাপের প্রাথমিক রঙ (Accent Color)</span></label>
-            <div class="color-picker" id="colorPicker">
-              <!-- Colors added via JS -->
+            <div class="card">
+              <div class="section-heading">
+                <span class="section-number"><i class='bx bx-user-voice' style="font-size:1rem"></i></span>
+                <div><h3>চিকিৎসকের তথ্য</h3><p>প্রেসক্রিপশনের উপরে যা ছাপা হবে</p></div>
+              </div>
+              <div class="grid two">
+                <label class="field"><span>চিকিৎসকের নাম</span>
+                  <input name="docName" placeholder="যেমন: ডাঃ মোঃ আব্দুর রহমান"/></label>
+                <label class="field"><span>ডিগ্রি / পদবি</span>
+                  <input name="docQual" placeholder="যেমন: DHMS, BHMS"/></label>
+                <label class="field"><span>রেজি. নম্বর</span><input name="docReg"/></label>
+                <label class="field"><span>মোবাইল</span><input name="docPhone" type="tel"/></label>
+                <label class="field full"><span>বিশেষত্ব / পরিচিতি <em class="fld-opt">(ঐচ্ছিক)</em></span>
+                  <input name="docSpecialty" placeholder="যেমন: ক্লাসিক্যাল হোমিওপ্যাথি বিশেষজ্ঞ"/></label>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-heading">
+                <span class="section-number"><i class='bx bx-buildings' style="font-size:1rem"></i></span>
+                <div><h3>চেম্বারের তথ্য</h3><p>নাম, ঠিকানা, ফোন ও সময়</p></div>
+              </div>
+              <div class="grid two">
+                <label class="field"><span>চেম্বারের নাম</span>
+                  <input name="clinicName" placeholder="যেমন: হোমিও কেয়ার চেম্বার"/></label>
+                <label class="field"><span>চেম্বারের ফোন <em class="fld-opt">(ঐচ্ছিক)</em></span>
+                  <input name="clinicPhone" type="tel"/></label>
+                <label class="field full"><span>ঠিকানা</span>
+                  <textarea name="clinicAddress" rows="2" placeholder="বাড়ি/রোড, এলাকা, শহর"></textarea></label>
+                <label class="field full"><span>ভিজিটের সময় <em class="fld-opt">(ঐচ্ছিক)</em></span>
+                  <input name="clinicHours" placeholder="যেমন: শনি–বৃহঃ, বিকাল ৪টা–রাত ৯টা"/></label>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-heading">
+                <span class="section-number"><i class='bx bx-image' style="font-size:1rem"></i></span>
+                <div><h3>লোগো</h3><p>প্রেসক্রিপশনের লেটারহেডে বসবে — ঐচ্ছিক</p></div>
+              </div>
+              <div class="logo-picker">
+                <img id="logoPreview" alt="লোগো" hidden/>
+                <span id="logoEmpty" class="logo-empty"><i class='bx bx-image-add'></i> কোনো লোগো নেই</span>
+                <input id="logoFile" type="file" accept="image/*" hidden/>
+                <button class="btn ghost btn-sm" id="logoPickBtn" type="button">বেছে নিন</button>
+                <button class="btn ghost danger btn-sm" id="logoRemoveBtn" type="button" hidden>মুছুন</button>
+              </div>
+              <p class="set-hint">ছবিটি ছোট করে এই ব্রাউজারেই রাখা হয় — কোথাও পাঠানো হয় না।</p>
+            </div>
+
+            <div class="set-actions">
+              <button class="btn primary" type="submit"><i class='bx bx-save'></i> সংরক্ষণ করুন</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ═══════════ প্রেসক্রিপশন ═══════════ -->
+        <div class="page-panel" id="panel-prescription">
+          <div class="set-split">
+            <form id="rxForm" autocomplete="off">
+
+              <div class="card">
+                <div class="section-heading">
+                  <span class="section-number"><i class='bx bx-palette' style="font-size:1rem"></i></span>
+                  <div><h3>প্রেসক্রিপশনের ডিজাইন</h3><p>কাগজ কেমন দেখাবে</p></div>
+                </div>
+                <div class="tpl-picker">
+                  <label class="tpl-opt"><input name="template" type="radio" value="classic"/>
+                    <span class="tpl-swatch tpl-swatch-classic"></span><span>ক্লাসিক</span></label>
+                  <label class="tpl-opt"><input name="template" type="radio" value="modern"/>
+                    <span class="tpl-swatch tpl-swatch-modern"></span><span>মডার্ন</span></label>
+                  <label class="tpl-opt"><input name="template" type="radio" value="minimal"/>
+                    <span class="tpl-swatch tpl-swatch-minimal"></span><span>মিনিমাল</span></label>
+                </div>
+
+                <div class="grid two" style="margin-top:1.25rem;">
+                  <label class="field"><span>কাগজের মাপ</span>
+                    <select name="pageSize">
+                      <option value="a4">A4 — ২১০ × ২৯৭ মি.মি.</option>
+                      <option value="a5">A5 — ১৪৮ × ২১০ মি.মি.</option>
+                      <option value="letter">Letter — ৮.৫ × ১১ ইঞ্চি</option>
+                      <option value="legal">Legal — ৮.৫ × ১৪ ইঞ্চি</option>
+                    </select></label>
+                  <label class="field"><span>কাগজের মার্জিন</span>
+                    <select name="pageMargin">
+                      <option value="10">সরু — ১০ মি.মি.</option>
+                      <option value="14">স্বাভাবিক — ১৪ মি.মি.</option>
+                      <option value="20">চওড়া — ২০ মি.মি.</option>
+                    </select></label>
+                </div>
+                <p class="set-hint">প্রিভিউ ও প্রিন্ট — দুটোই এই মাপে হবে। স্ক্রিনের আকার বদলালেও কাগজের অনুপাত বদলাবে না।</p>
+              </div>
+
+              <div class="card">
+                <div class="section-heading">
+                  <span class="section-number"><i class='bx bx-list-check' style="font-size:1rem"></i></span>
+                  <div><h3>ডিফল্ট পরামর্শ</h3><p>প্রতিটি নতুন প্রেসক্রিপশনে আগে থেকেই বসে থাকবে — দরকারে বদলানো যাবে</p></div>
+                </div>
+                <div class="grid two">
+                  <label class="field"><span>ডিফল্ট ফলোআপ</span>
+                    <select name="followUp"><option value="">নির্বাচন করুন</option>
+                      <option>৩ দিন পর</option><option>৭ দিন পর</option><option>১৫ দিন পর</option>
+                      <option>১ মাস পর</option><option>২ মাস পর</option><option>প্রয়োজন অনুযায়ী</option></select></label>
+                  <label class="field full"><span>খাদ্য ও জীবনযাপন পরামর্শ</span>
+                    <textarea name="dietAdvice" rows="3" placeholder="যেমন: কড়া গন্ধ, কফি ও কাঁচা পেঁয়াজ এড়িয়ে চলুন।"></textarea></label>
+                  <label class="field full"><span>সাধারণ নির্দেশনা</span>
+                    <textarea name="generalAdvice" rows="3" placeholder="যেমন: ঔষধ খাওয়ার ১৫ মিনিট আগে-পরে কিছু খাবেন না।"></textarea></label>
+                </div>
+              </div>
+
+              <div class="set-actions">
+                <button class="btn primary" type="submit"><i class='bx bx-save'></i> সংরক্ষণ করুন</button>
+              </div>
+            </form>
+
+            <!-- demo preview: real layout, sample Bangla content -->
+            <div class="set-preview-col">
+              <div class="set-preview-head">
+                <i class='bx bx-show'></i> নমুনা প্রিভিউ
+                <span>উদাহরণ তথ্য দিয়ে দেখানো</span>
+              </div>
+              <div class="rx-paper-fit"><div class="rx-sheet" id="demoSheet"></div></div>
             </div>
           </div>
         </div>
 
-        <form id="settingsForm">
-          <div class="card" style="margin-bottom: 1.5rem;">
+        <!-- ═══════════ চেহারা ═══════════ -->
+        <div class="page-panel" id="panel-appearance">
+          <div class="card">
             <div class="section-heading">
-              <span class="section-number"><i class='bx bx-clinic' style="font-size:1rem"></i></span>
-              <div><h3>চিকিৎসকের তথ্য (Doctor Profile)</h3><p>এই তথ্যগুলো প্রেসক্রিপশনে স্বয়ংক্রিয়ভাবে ব্যবহৃত হবে</p></div>
+              <span class="section-number"><i class='bx bx-palette' style="font-size:1rem"></i></span>
+              <div><h3>থিম ও রঙ</h3><p>অ্যাপের চেহারা — সাথে সাথেই বদলাবে</p></div>
             </div>
-            <div class="grid two">
-              <label class="field"><span>চিকিৎসকের নাম</span><input name="docName" placeholder="যেমন: ডাঃ মোঃ আব্দুর রহমান"/></label>
-              <label class="field"><span>ডিগ্রি / পদবি</span><input name="docQual" placeholder="যেমন: DHMS, BHMS"/></label>
-              <label class="field"><span>রেজি. নম্বর</span><input name="docReg"/></label>
-              <label class="field"><span>মোবাইল</span><input name="docPhone"/></label>
-              <label class="field full"><span>চেম্বারের নাম ও ঠিকানা</span><textarea name="docClinic" rows="3" placeholder="ক্লিনিকের নাম, ঠিকানা, ভিজিটের সময় ইত্যাদি"></textarea></label>
+
+            <div style="margin-bottom:1.5rem;">
+              <label class="field"><span>ডার্ক মোড</span></label>
+              <div class="theme-picker" id="themePicker">
+                <div class="theme-option" data-val="system"><i class='bx bx-desktop'></i> সিস্টেম</div>
+                <div class="theme-option" data-val="light"><i class='bx bx-sun'></i> লাইট</div>
+                <div class="theme-option" data-val="dark"><i class='bx bx-moon'></i> ডার্ক</div>
+              </div>
             </div>
-            
-            <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
-              <button class="btn primary" type="submit"><i class='bx bx-save'></i> সেটিংস সংরক্ষণ করুন</button>
+
+            <div>
+              <label class="field"><span>অ্যাপের প্রাথমিক রঙ</span></label>
+              <div class="color-picker" id="colorPicker"></div>
             </div>
           </div>
-        </form>
+        </div>
 
       </div>
     </main>
+    <footer class="app-footer">
+      <span>© হোমিও কেস স্টুডিও — শিক্ষামূলক ও গবেষণার উদ্দেশ্যে তৈরি। চিকিৎসার সিদ্ধান্ত চিকিৎসকের।</span>
+      <span>সব ডেটা এই ব্রাউজারেই সংরক্ষিত — কোথাও পাঠানো হয় না।</span>
+    </footer>
   </div>
 </div>
 
 <script src="assets/js/shell.js"></script>
+<script src="assets/js/rx-sheet.js"></script>
 <script src="assets/js/settings.js"></script>
 </body>
 </html>

@@ -22,7 +22,6 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-  const DOC_KEY = 'rx_doctor_v1';      // letterhead, remembered
   const DRAFT_KEY = 'rx_draft_v1';     // this prescription in progress
   const SAVED_KEY = 'rx_saved_v1';     // history
   const CASE_KEY = 'homeoCaseDraft';
@@ -38,6 +37,7 @@
   const form = document.getElementById('rxForm');
   const itemsHost = document.getElementById('rxItems');
   const sheet = document.getElementById('rxSheet');
+  const sheetPreview = document.getElementById('rxSheetPreview');
 
   let items = [];        // [{ remedy, potency, form, repeat, when, days, note, source }]
 
@@ -122,72 +122,46 @@
     }));
   }
 
-  /* ==================== the printed sheet ==================== */
+  /* ==================== the printed sheet ====================
+     Rendered by the shared RxSheet module so this page and the settings
+     page's demo preview can never disagree about what the paper looks
+     like. Who is prescribing comes from Shell.profile (edited once, on the
+     settings page); only the per-prescription fields live in this form. */
   function paint() {
-    const name = val('patientName'), age = val('age'), gender = val('gender');
-    const meds = items.filter(it => it.remedy.trim());
-
-    const line = it => {
-      const bits = [it.potency, it.form].filter(Boolean).join(' · ');
-      const how = [it.repeat, it.when, it.days].filter(Boolean).join(' · ');
-      return `<tr>
-        <td class="rs-rx">
-          <b>${esc(it.remedy)}</b>${bits ? `<span>${esc(bits)}</span>` : ''}
-          ${it.note ? `<em>${esc(it.note)}</em>` : ''}
-        </td>
-        <td class="rs-how">${how ? esc(how) : '<span class="rs-dim">—</span>'}</td>
-      </tr>`;
+    const profile = Shell.profile.get();
+    const set = Shell.rxSettings.get();
+    const rx = {
+      patientName: val('patientName'), age: val('age'), gender: val('gender'),
+      caseNo: val('caseNo'), rxDate: val('rxDate'), diagnosis: val('diagnosis'),
+      meds: items,
+      dietAdvice: val('dietAdvice'), generalAdvice: val('generalAdvice'),
+      followUp: val('followUp'), followUpDate: val('followUpDate')
     };
-
-    sheet.innerHTML = `
-      <div class="rs-head">
-        <div class="rs-doc">
-          <b>${esc(val('docName') || 'চিকিৎসকের নাম')}</b>
-          ${val('docQual') ? `<span>${esc(val('docQual'))}</span>` : ''}
-          ${val('docReg') ? `<span>রেজি. ${esc(val('docReg'))}</span>` : ''}
-        </div>
-        <div class="rs-clinic">
-          ${val('docClinic') ? esc(val('docClinic')).replace(/\n/g, '<br>') : ''}
-          ${val('docPhone') ? `<div>মোবাইল: ${esc(val('docPhone'))}</div>` : ''}
-        </div>
-      </div>
-
-      <div class="rs-patient">
-        <div><label>রোগী</label><b>${esc(name || '—')}</b></div>
-        <div><label>বয়স / লিঙ্গ</label><b>${esc([age, gender].filter(Boolean).join(' / ') || '—')}</b></div>
-        <div><label>কেস নং</label><b>${esc(val('caseNo') || '—')}</b></div>
-        <div><label>তারিখ</label><b>${esc(bnDate(val('rxDate')) || '—')}</b></div>
-      </div>
-
-      ${val('diagnosis') ? `<div class="rs-dx"><label>সংক্ষেপ</label>${esc(val('diagnosis'))}</div>` : ''}
-
-      <div class="rs-body">
-        <div class="rs-rxmark">℞</div>
-        ${meds.length ? `<table class="rs-table"><tbody>${meds.map(line).join('')}</tbody></table>`
-          : `<p class="rs-empty">এখনো কোনো ঔষধ লেখা হয়নি — বাঁ পাশে ঔষধের নাম দিন।</p>`}
-      </div>
-
-      ${val('dietAdvice') ? `<div class="rs-adv"><label>খাদ্য ও জীবনযাপন</label>
-        <p>${esc(val('dietAdvice')).replace(/\n/g, '<br>')}</p></div>` : ''}
-      ${val('generalAdvice') ? `<div class="rs-adv"><label>নির্দেশনা</label>
-        <p>${esc(val('generalAdvice')).replace(/\n/g, '<br>')}</p></div>` : ''}
-
-      <div class="rs-foot">
-        <div class="rs-follow">
-          ${val('followUp') || val('followUpDate')
-            ? `<label>পরবর্তী সাক্ষাৎ</label><b>${esc([val('followUp'), bnDate(val('followUpDate'))].filter(Boolean).join(' · '))}</b>`
-            : ''}
-        </div>
-        <div class="rs-sign"><span></span>চিকিৎসকের স্বাক্ষর</div>
-      </div>`;
+    const sheets = [sheet, sheetPreview];
+    RxSheet.paintSheets(sheets, profile, rx, set.template);
+    RxSheet.applyPage(sheets, set.pageSize, set.pageMargin);
+    RxSheet.fitSheets();
     saveDraft();
+  }
+
+  /* ==================== panels ==================== */
+  function showPanel(name) {
+    const id = name === 'saved' ? 'saved' : 'new';
+    ['new', 'saved'].forEach(p => {
+      const el = document.getElementById('panel-' + p);
+      if (el) el.classList.toggle('active', p === id);
+    });
+    // the sheet is scaled to its column, and a hidden column has no width —
+    // so it has to be re-fitted once the builder is actually on screen
+    if (id === 'new') RxSheet.fitSheets();
+  }
+
+  function panelFromHash() {
+    showPanel((location.hash || '').replace('#', ''));
   }
 
   /* ==================== prefill from case + repertory ==================== */
   function prefill() {
-    const doc = Shell.store.get(DOC_KEY, null) || {};
-    Object.entries(doc).forEach(([k, v]) => setVal(k, v));
-
     const draft = Shell.store.get(DRAFT_KEY, null);
     if (draft) {                       // resume an unfinished prescription first
       Object.entries(draft.fields || {}).forEach(([k, v]) => setVal(k, v));
@@ -198,6 +172,7 @@
 
     const c = Shell.store.get(CASE_KEY, null) || {};
     const b = Shell.bridge.get() || {};
+    const set = Shell.rxSettings.get();
 
     setVal('patientName', c.patientName || b.patient || '');
     setVal('caseNo', c.caseNo || b.caseNo || '');
@@ -205,8 +180,10 @@
     setVal('gender', c.gender || '');
     setVal('rxDate', todayISO());
     setVal('diagnosis', c.previousDiagnosis || c.mainCategory || '');
-    setVal('followUp', c.followUp || '');
-    setVal('dietAdvice', c.dietAdvice || '');
+    // this case's own wording wins; the settings default only fills a blank
+    setVal('followUp', c.followUp || set.followUp || '');
+    setVal('dietAdvice', c.dietAdvice || set.dietAdvice || '');
+    setVal('generalAdvice', set.generalAdvice || '');
 
     // One row per remedy the doctor already named in the case, in clinical
     // order. These are the doctor's own choices, so they carry no source tag.
@@ -269,7 +246,9 @@
   function fields() {
     const o = {};
     form.querySelectorAll('input, select, textarea').forEach(el => {
-      if (el.name) o[el.name] = el.value;
+      if (!el.name) return;
+      if (el.type === 'radio' && !el.checked) return;   // only the checked one in a group counts
+      o[el.name] = el.value;
     });
     return o;
   }
@@ -277,22 +256,21 @@
   let t = null;
   function saveDraft() {
     clearTimeout(t);
+    // Only this prescription. The letterhead is not written from here — it
+    // belongs to the settings page, and having both write the same record is
+    // exactly what used to make one silently erase the other's fields.
     t = setTimeout(() => {
       Shell.store.set(DRAFT_KEY, { fields: fields(), items: items });
-      // the letterhead is worth remembering across prescriptions
-      const f = fields();
-      Shell.store.set(DOC_KEY, {
-        docName: f.docName, docQual: f.docQual, docReg: f.docReg,
-        docPhone: f.docPhone, docClinic: f.docClinic,
-      });
     }, 400);
   }
 
   function asText() {
     const L = [];
+    const p = Shell.profile.get();
     L.push('প্রেসক্রিপশন');
-    if (val('docName')) L.push(`${val('docName')}${val('docQual') ? ', ' + val('docQual') : ''}`);
-    if (val('docClinic')) L.push(val('docClinic'));
+    if (p.docName) L.push(`${p.docName}${p.docQual ? ', ' + p.docQual : ''}`);
+    if (p.clinicName) L.push(p.clinicName);
+    if (p.clinicAddress) L.push(p.clinicAddress);
     L.push('');
     L.push(`রোগী: ${val('patientName') || '—'}   বয়স/লিঙ্গ: ${[val('age'), val('gender')].filter(Boolean).join(' / ') || '—'}`);
     L.push(`কেস নং: ${val('caseNo') || '—'}   তারিখ: ${bnDate(val('rxDate')) || '—'}`);
@@ -313,13 +291,34 @@
     return L.join('\n');
   }
 
+  let savedQuery = '';
+
   function renderSaved() {
     const list = Shell.store.get(SAVED_KEY, []) || [];
-    const wrap = document.getElementById('savedWrap');
     const host = document.getElementById('savedList');
-    if (!list.length) { wrap.hidden = true; return; }
-    wrap.hidden = false;
-    host.innerHTML = list.map((r, i) => `
+    if (!host) return;
+
+    // The index into the *stored* list is carried on each row, so deleting
+    // while a search is active removes the row you clicked rather than
+    // whatever happens to sit at that position in the filtered view.
+    const q = savedQuery.trim().toLowerCase();
+    const rows = list
+      .map((r, i) => ({ r, i }))
+      .filter(({ r }) => !q || [r.patient, r.caseNo, r.summary]
+        .some(v => String(v || '').toLowerCase().includes(q)));
+
+    if (!list.length) {
+      host.innerHTML = `<div class="mm-empty"><i class='bx bx-folder-open'></i>
+        এখনো কোনো প্রেসক্রিপশন সংরক্ষণ করা হয়নি।</div>`;
+      return;
+    }
+    if (!rows.length) {
+      host.innerHTML = `<div class="mm-empty"><i class='bx bx-search-alt'></i>
+        এই খোঁজায় কিছু মেলেনি।</div>`;
+      return;
+    }
+
+    host.innerHTML = rows.map(({ r, i }) => `
       <div class="recent-row">
         <span class="recent-ic"><i class='bx bx-receipt'></i></span>
         <span class="recent-txt">
@@ -328,15 +327,19 @@
         <button class="btn ghost btn-sm" data-load="${i}" type="button">খুলুন</button>
         <button class="btn ghost btn-sm danger" data-drop="${i}" type="button"><i class='bx bx-trash'></i></button>
       </div>`).join('');
+
     host.querySelectorAll('[data-load]').forEach(b => b.addEventListener('click', () => {
       const r = list[+b.dataset.load];
-      Object.entries(r.fields || {}).forEach(([k, v]) => { const el = form.querySelector(`[name="${k}"]`); if (el) el.value = v || ''; });
+      Object.entries(r.fields || {}).forEach(([k, v]) => setVal(k, v));
       items = (r.items || []).map(x => Object.assign(blankItem(), x));
-      renderItems(); paint();
+      renderItems();
+      location.hash = 'new';           // the builder is where it opens
+      paint();
       Shell.toast('সংরক্ষিত প্রেসক্রিপশন খোলা হয়েছে।', 'ok');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }));
     host.querySelectorAll('[data-drop]').forEach(b => b.addEventListener('click', () => {
+      if (!confirm('এই সংরক্ষিত প্রেসক্রিপশনটি মুছে যাবে। ঠিক আছে?')) return;
       list.splice(+b.dataset.drop, 1);
       Shell.store.set(SAVED_KEY, list);
       renderSaved();
@@ -352,11 +355,61 @@
       items.push(blankItem()); renderItems(); paint();
     });
 
+    const sSearch = document.getElementById('savedSearch');
+    const sClear = document.getElementById('savedSearchClear');
+    sSearch.addEventListener('input', () => {
+      savedQuery = sSearch.value;
+      sClear.style.display = sSearch.value ? '' : 'none';
+      renderSaved();
+    });
+    sClear.addEventListener('click', () => {
+      sSearch.value = ''; savedQuery = '';
+      sClear.style.display = 'none';
+      renderSaved();
+    });
+
+    window.addEventListener('hashchange', panelFromHash);
+
     document.getElementById('printRx').addEventListener('click', () => {
       if (!items.some(i => i.remedy.trim())) {
         Shell.toast('অন্তত একটি ঔষধ লিখুন।', 'warn'); return;
       }
       window.print();
+    });
+
+    /* ---- print preview: mobile only — on desktop the sheet is already
+       shown beside the editor, so a modal of the same thing would be pure
+       duplication. The button is hidden by CSS above the breakpoint; this
+       guard keeps the two from disagreeing if the window is resized. ---- */
+    const modal = document.getElementById('previewModal');
+    const openPreview = () => {
+      modal.hidden = false;
+      RxSheet.fitSheets(modal);        // size it once it actually has a width
+    };
+    const closePreview = () => { modal.hidden = true; };
+    document.getElementById('previewRx').addEventListener('click', openPreview);
+    document.getElementById('previewCloseBtn').addEventListener('click', closePreview);
+    document.getElementById('previewBackdrop').addEventListener('click', closePreview);
+    document.getElementById('previewPrintBtn').addEventListener('click', () => {
+      if (!items.some(i => i.remedy.trim())) {
+        Shell.toast('অন্তত একটি ঔষধ লিখুন।', 'warn'); return;
+      }
+      window.print();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !modal.hidden) closePreview();
+    });
+
+    // the sheet is scaled to its column, so both have to be recomputed when
+    // that column's width changes — and the modal closed if we cross into
+    // desktop, where its trigger no longer exists
+    let rt = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(rt);
+      rt = setTimeout(() => {
+        if (window.innerWidth > 1100 && !modal.hidden) closePreview();
+        RxSheet.fitSheets();
+      }, 150);
     });
 
     document.getElementById('copyRx').addEventListener('click', async () => {
@@ -381,9 +434,10 @@
     document.getElementById('clearRx').addEventListener('click', () => {
       if (!confirm('এই প্রেসক্রিপশনের লেখা মুছে যাবে। চিকিৎসকের তথ্য ও সংরক্ষিত তালিকা থাকবে। ঠিক আছে?')) return;
       Shell.store.del(DRAFT_KEY);
+      // the letterhead is not in this form any more, so everything here is
+      // per-prescription and safe to clear outright
       form.querySelectorAll('input, select, textarea').forEach(el => {
-        if (!el.name || el.name.startsWith('doc')) return;   // keep the letterhead
-        el.value = '';
+        if (el.name) el.value = '';
       });
       items = [blankItem()];
       setVal('rxDate', todayISO());
@@ -397,6 +451,7 @@
     renderBridge();
     renderItems();
     bind();
+    panelFromHash();
     paint();
     renderSaved();
     const n = items.filter(i => i.remedy.trim()).length;

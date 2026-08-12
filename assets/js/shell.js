@@ -19,7 +19,11 @@
       items: [
         { id: 'dashboard', href: 'index.html', icon: 'bx-grid-alt', label: 'ড্যাশবোর্ড' },
         { id: 'case', href: 'case.html', icon: 'bx-clipboard', label: 'কেস টেকিং ফর্ম', meta: '৯ ধাপ' },
-        { id: 'prescription', href: 'prescription.html', icon: 'bx-receipt', label: 'প্রেসক্রিপশন' }
+        { id: 'prescription', href: 'prescription.html', icon: 'bx-receipt', label: 'প্রেসক্রিপশন',
+          children: [
+            { id: 'rx-new', href: 'prescription.html#new', icon: 'bx-edit', label: 'নতুন প্রেসক্রিপশন' },
+            { id: 'rx-saved', href: 'prescription.html#saved', icon: 'bx-folder-open', label: 'সংরক্ষিত তালিকা' }
+          ] }
       ]
     },
     {
@@ -52,7 +56,12 @@
     {
       group: 'সম্পর্কে',
       items: [
-        { id: 'settings', href: 'settings.html', icon: 'bx-cog', label: 'সেটিংস' },
+        { id: 'settings', href: 'settings.html', icon: 'bx-cog', label: 'সেটিংস',
+          children: [
+            { id: 'settings-general', href: 'settings.html#general', icon: 'bx-buildings', label: 'সাধারণ' },
+            { id: 'settings-rx', href: 'settings.html#prescription', icon: 'bx-receipt', label: 'প্রেসক্রিপশন' },
+            { id: 'settings-look', href: 'settings.html#appearance', icon: 'bx-palette', label: 'চেহারা' }
+          ] },
         { id: 'author', href: 'author.html', icon: 'bx-id-card', label: 'লেখক পরিচিতি' }
       ]
     }
@@ -111,10 +120,23 @@
   // is the active page (no separate expand/collapse click needed) — each
   // child is a same-page hash link, highlighted against location.hash so
   // e.g. acutes.html#remedies shows "ওষুধের তালিকা" as the active sub-item.
+  // An empty hash means "this page's default section". Which section that is
+  // differs per page (acutes → wizard, settings → general), so it's taken
+  // from the active item's own first child rather than hardcoded.
+  function defaultHash(active) {
+    for (const g of NAV) {
+      for (const it of g.items) {
+        if (it.id === active && it.children && it.children.length) {
+          const h = it.children[0].href;
+          return h.includes('#') ? '#' + h.split('#')[1] : '';
+        }
+      }
+    }
+    return '';
+  }
+
   function sidebarHtml(active) {
-    // an empty hash on the active page means its default section — acutes.js
-    // treats no-hash as "wizard", so that's the fallback here too
-    const curHash = location.hash || '#wizard';
+    const curHash = location.hash || defaultHash(active);
     const subActive = href => href.includes('#') && ('#' + href.split('#')[1]) === curHash;
     return `
       <div class="sb-brand">
@@ -129,11 +151,14 @@
           <div class="sb-group">
             <div class="sb-group-label">${g.group}</div>
             ${g.items.map(it => `
-              <a class="sb-link ${it.id === active ? 'active' : ''}" href="${it.href}"
-                 ${it.id === active ? 'aria-current="page"' : ''}>
+              <a class="sb-link ${it.id === active ? 'active' : ''}${it.children ? ' has-sub' : ''}"
+                 href="${it.href}"
+                 ${it.id === active ? 'aria-current="page"' : ''}
+                 ${it.children ? `aria-expanded="${it.id === active}"` : ''}>
                 <i class='bx ${it.icon}'></i>
                 <span class="sb-lbl">${it.label}</span>
                 ${it.meta ? `<span class="sb-meta">${it.meta}</span>` : ''}
+                ${it.children ? `<i class='bx bx-chevron-down sb-caret'></i>` : ''}
               </a>
               ${it.children && it.id === active ? `
                 <div class="sb-submenu">
@@ -154,9 +179,9 @@
   // Keeps the sidebar submenu's active sub-item in sync when the hash
   // changes without a page reload (clicking another sub-link while already
   // on that page) — cheaper than re-rendering the whole sidebar.
-  function bindSubmenuHashSync() {
+  function bindSubmenuHashSync(active) {
     window.addEventListener('hashchange', () => {
-      const curHash = location.hash || '#wizard';
+      const curHash = location.hash || defaultHash(active);
       document.querySelectorAll('.sb-sublink').forEach(a => {
         const href = a.getAttribute('href') || '';
         const on = href.includes('#') && ('#' + href.split('#')[1]) === curHash;
@@ -187,7 +212,7 @@
     if (sidebar) {
       sidebar.innerHTML = sidebarHtml(active);
       updateSidebarBadges();
-      bindSubmenuHashSync();
+      bindSubmenuHashSync(active);
     }
     if (topbar) {
       topbar.innerHTML = topbarHtml(page);
@@ -384,7 +409,64 @@
     clear() { store.del(BRIDGE_KEY); }
   };
 
-  global.Shell = { APP, NAV, bnNum, store, toast, addAction, setChip, init, bridge, getGreeting };
+  /* ---------------- clinic profile + per-module settings ----------------
+     Who the prescriber is (name, degree, chamber, logo) is *one* fact about
+     the practice, not something each page should ask for again. It lives
+     here so the settings page owns the editing and every other page only
+     reads — previously the prescription page and the settings page each had
+     their own copy of the same five fields writing to the same key, and
+     saving on one silently deleted what the other had added.
+
+       clinic_profile_v1  { docName, docQual, docReg, docPhone,
+                            clinicName, clinicAddress, clinicPhone,
+                            clinicHours, docLogo }
+       rx_settings_v1     { template, dietAdvice, generalAdvice, followUp }
+
+     Both are patch-merged, never wholesale-replaced, so a page that knows
+     about only some of the keys cannot drop the rest. */
+  const PROFILE_KEY = 'clinic_profile_v1';
+  const RXSET_KEY = 'rx_settings_v1';
+  const LEGACY_DOC_KEY = 'rx_doctor_v1';
+
+  function makeStore(key, migrate) {
+    return {
+      get() {
+        let cur = store.get(key, null);
+        if (!cur && typeof migrate === 'function') {
+          cur = migrate();
+          if (cur) store.set(key, cur);
+        }
+        return cur || {};
+      },
+      /* Merge, never replace — see the note above. */
+      patch(p) {
+        const next = Object.assign({}, this.get(), p);
+        store.set(key, next);
+        return next;
+      }
+    };
+  }
+
+  /* One-time lift of the old single-blob key into its two successors, so an
+     existing user's letterhead and chosen template survive the split. */
+  const profile = makeStore(PROFILE_KEY, () => {
+    const old = store.get(LEGACY_DOC_KEY, null);
+    if (!old) return null;
+    return {
+      docName: old.docName || '', docQual: old.docQual || '',
+      docReg: old.docReg || '', docPhone: old.docPhone || '',
+      clinicAddress: old.docClinic || '', docLogo: old.docLogo || ''
+    };
+  });
+
+  const rxSettings = makeStore(RXSET_KEY, () => {
+    const old = store.get(LEGACY_DOC_KEY, null);
+    if (!old) return null;
+    return { template: old.docTemplate || 'classic' };
+  });
+
+  global.Shell = { APP, NAV, bnNum, store, toast, addAction, setChip, init, bridge,
+                   getGreeting, profile, rxSettings };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
