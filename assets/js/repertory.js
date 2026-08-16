@@ -424,7 +424,11 @@
           chapterShort: chapter.bn || chapter.en,
           ids: ids,
           gr: gr,
-          n: ids.length
+          n: ids.length,
+          // Kent's redirect-only entries ('ABANDONED (See Forsaken)') carry no
+          // remedies of their own — the cross-reference IS the content, so it
+          // has to reach the list or the row reads as an empty rubric.
+          see: rb.see || []
         };
         chapter.rubrics.push(rubric);
         rubricById.set(rubric.id, rubric);
@@ -887,22 +891,43 @@
         currentChapter = rb.chapterId;
         html += `<div class="rub-chapter-group" data-chapter="${currentChapter}"><h4 class="rub-chapter-title">${esc(rb.chapterLabel)}</h4>`;
       }
+      // A redirect-only entry has nothing to repertorise on, so it is shown as
+      // a signpost to the rubric that does, not as a pickable row.
+      const xref = !rb.n && rb.see.length;
       html += `
-      <div class="rub ${S.picked.has(rb.id) ? 'picked' : ''}" data-id="${rb.id}" title="রুব্রিক #${idx+1}">
-        <span class="rub-plus"><i class='bx ${S.picked.has(rb.id) ? 'bx-check' : 'bx-plus'}'></i></span>
+      <div class="rub ${xref ? 'xref' : ''} ${S.picked.has(rb.id) ? 'picked' : ''}" data-id="${rb.id}"
+           ${xref ? '' : `title="রুব্রিক #${idx+1}"`}>
+        <span class="rub-plus"><i class='bx ${xref ? 'bx-right-arrow-alt' : (S.picked.has(rb.id) ? 'bx-check' : 'bx-plus')}'></i></span>
         <span class="rub-txt">
           <span class="rub-name">${esc(rb.name)}${rb.bn ? ` <span style="color:var(--text-muted);font-size:0.8125rem;">${esc(rb.bn)}</span>` : ''}${rb.level > 1 ? ` <span class="rub-lvl" title="${bn(rb.level)} স্তরের সাব-রুব্রিক">${'·'.repeat(Math.min(rb.level - 1, 6))}</span>` : ''}</span>
-          <span class="rub-ch">${rb.page ? ` · পৃ. ${bn(rb.page)}` : ''}</span>
+          <span class="rub-ch">${xref ? `দেখুন: ${esc(rb.see.join(', '))}` : ''}${rb.page ? ` · পৃ. ${bn(rb.page)}` : ''}</span>
         </span>
-        <span class="rub-n rub-n-${Math.min(rb.n, 50)}" title="${bn(rb.n)} ওষুধ">${bn(rb.n)}</span>
-        ${rubricPreview(rb, 5)}
+        ${xref ? '' : `<span class="rub-n rub-n-${Math.min(rb.n, 50)}" title="${bn(rb.n)} ওষুধ">${bn(rb.n)}</span>`}
+        ${xref ? '' : rubricPreview(rb, 5)}
       </div>`;
     });
     if (currentChapter !== null) html += '</div>';
     host.innerHTML = html + pagerHtml(pages);
 
     host.querySelectorAll('.rub').forEach(el => {
-      el.addEventListener('click', () => toggleRubric(el.dataset.id));
+      el.addEventListener('click', () => {
+        // Following a cross-reference means searching for what it points at —
+        // picking the signpost itself would add a rubric with no remedies.
+        if (el.classList.contains('xref')) {
+          const rb = S.book.rubricById.get(el.dataset.id);
+          const target = rb && rb.see[0];
+          if (target) {
+            const box = document.getElementById('rubSearch');
+            box.value = target;
+            S.search = target;
+            S.page = 0;
+            document.getElementById('rubSearchClear').style.display = '';
+            renderRubrics();
+          }
+          return;
+        }
+        toggleRubric(el.dataset.id);
+      });
     });
     // Phase 5: Drag-to-reorder (on tray list)
     host.querySelectorAll('[draggable="true"]').forEach(el => {

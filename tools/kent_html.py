@@ -306,6 +306,43 @@ def first_word(s):
     return re.split(r'[ ,;]', s.strip('() '), 1)[0].strip('.,').lower()
 
 
+def split_remedies(raw):
+    """The ':' that divides rubric text from its remedy list, or None.
+
+    A cross-reference can carry its own colon inside the brackets —
+    'slow (See Feeble: Thin Stream, Retarded)' — and splitting there hands the
+    rest of the reference to the remedy parser as if it were drug names. Only a
+    colon at bracket depth zero is the real separator.
+    """
+    depth = 0
+    for m in SPLIT.finditer(raw):
+        depth += raw.count('(', 0, m.start()) + raw.count('[', 0, m.start())
+        depth -= raw.count(')', 0, m.start()) + raw.count(']', 0, m.start())
+        if depth <= 0:
+            return m
+        depth = 0
+    return None
+
+
+def first_segment(s):
+    """The head's own name, up to the first comma that separates ancestors.
+
+    Kent's catchwords carry parenthesised alternatives that contain commas —
+    'MOTIONS of head (shaking, nodding, waving, etc.)' — so a plain
+    split(',')[0] cuts the name in half and leaves an unclosed bracket on every
+    sub-rubric beneath it. Only a comma at bracket depth zero divides ancestors.
+    """
+    depth = 0
+    for i, ch in enumerate(s):
+        if ch in '([':
+            depth += 1
+        elif ch in ')]':
+            depth = max(0, depth - 1)
+        elif ch == ',' and depth == 0:
+            return s[:i].strip()
+    return s.strip()
+
+
 class PathStack:
     """The ancestor chain, carried across page and file boundaries.
 
@@ -338,7 +375,7 @@ class PathStack:
         *catchword* is unambiguous, so it can repair level 1 when the carried
         chain has drifted (chapter change, or a page the export shuffled).
         """
-        catch = head.split(',')[0].strip()
+        catch = first_segment(head)
         cur = self.levels.get(1)
         if cur and first_word(cur) == first_word(catch):
             return False
@@ -375,7 +412,7 @@ def parse_file(path, stack, stats, out):
         # <dir> depth is absolute: banner depth = main rubric depth = level 1
         level = max(1, para.depth - base + 1)
 
-        m = SPLIT.search(raw)
+        m = split_remedies(raw)
         name_part = raw[:m.start()] if m else raw
         name, see = clean_name(name_part)
         if not name:
@@ -396,7 +433,8 @@ def parse_file(path, stack, stats, out):
             # 'FOOD, bacon, amel.' is the rubric FOOD with sub 'bacon, amel.'.
             # Keeping the whole line as level 1 would nest every later sibling
             # ('beer agg.') under 'bacon, amel.' instead of under FOOD.
-            catch, _, rest = name.partition(',')
+            catch = first_segment(name)
+            rest = name[len(catch):].lstrip(', ')
             stack.set(1, catch.strip())
             if rest.strip():
                 stack.set(2, rest.strip())
@@ -405,7 +443,17 @@ def parse_file(path, stack, stats, out):
             stack.set(level, name)
 
         if not m:
-            continue                       # heading only; remedies are in children
+            # A heading with no remedy list. Usually its remedies are simply in
+            # the sub-rubrics below it — but Kent also prints ~1,340 entries
+            # that exist *only* to redirect: 'ABANDONED (See Forsaken)'. Those
+            # are real entries in the book, and dropping them means a search
+            # for 'Abandoned' finds nothing at all, so they are emitted with an
+            # empty remedy list and their cross-reference intact.
+            if see:
+                out.append(Rubric(para.chapter[0], para.chapter[1],
+                                  stack.path(level), [], para.page, see))
+                stats['cross_reference'] += 1
+            continue
         toks = remedy_tokens(para.runs, m.end())
         if not toks:
             stats['no_remedies'] += 1

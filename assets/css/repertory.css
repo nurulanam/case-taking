@@ -194,6 +194,14 @@
 }
 .rub:hover { background: var(--primary-bg); }
 .rub.picked { background: var(--primary-bg); border-color: var(--primary-light); }
+
+/* Kent's redirect-only entries ('ABANDONED — see Forsaken') hold no remedies,
+   so they read as a signpost rather than something to tick: clicking one runs
+   the search it points at instead of adding an empty rubric to the case. */
+.rub.xref { border-style: dashed; border-color: var(--border); }
+.rub.xref .rub-name { font-style: italic; color: var(--text-muted); }
+.rub.xref .rub-ch { color: var(--primary); font-weight: 600; }
+.rub.xref:hover .rub-plus { background: var(--accent, var(--primary)); }
 .rub-plus {
   width: 24px; height: 24px; flex-shrink: 0; border-radius: 7px;
   display: flex; align-items: center; justify-content: center;

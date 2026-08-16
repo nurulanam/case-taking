@@ -189,7 +189,10 @@ for num, name_en in sorted(CHAPTER_FILES.values()):
                 dropped_tokens += 1
                 continue
             pairs.append((index_of[ab], g))
-        if not pairs:
+        # A rubric with no resolvable remedy is dropped — except Kent's
+        # redirect-only entries ('ABANDONED (See Forsaken)'), which have no
+        # remedies by design and are kept so the name is still findable.
+        if not pairs and not r.see:
             continue
         key = (r.name, r.level)
         if key not in acc:
