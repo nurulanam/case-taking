@@ -1114,19 +1114,116 @@ SEG.update({
     'quantities': 'পরিমাণ', 'often': 'ঘন ঘন',
 })
 
+# The long tail lives in its own module so this one stays the readable core
+# vocabulary. SEG wins on a clash — its entries are the hand-checked ones.
+from kent_bn_ext import SEG_EXT
+for _k, _v in SEG_EXT.items():
+    SEG.setdefault(_k, _v)
+
 # ---------------------------------------------------------------- clock times
+# Kent's time-of-aggravation rubrics are mechanical and there are hundreds of
+# them ('10-30 p.m.', '11 a.m. to 4 p.m.', 'until 2 a.m.', 'noon to 3 p.m.'),
+# so they are generated rather than listed. He writes half hours with a hyphen,
+# '10-30 p.m.' meaning half past ten, not a range.
 BN_DIGITS = str.maketrans('0123456789', '০১২৩৪৫৬৭৮৯')
-_AM = re.compile(r'^(\d{1,2})(?::(\d{2}))?\s*a\.?\s*m\.?$', re.I)
-_PM = re.compile(r'^(\d{1,2})(?::(\d{2}))?\s*p\.?\s*m\.?$', re.I)
-_RANGE = re.compile(r'^(\d{1,2})\s*to\s*(\d{1,2})\s*([ap])\.?\s*m\.?$', re.I)
+_CLOCK = re.compile(r'^(\d{1,2})\s*[:\-]\s*(\d{2})\s*([ap])\.?\s*m\.?$', re.I)
+_HOUR = re.compile(r'^(\d{1,2})\s*([ap])\.?\s*m\.?$', re.I)
+_BARE = re.compile(r'^(\d{1,2})$')
+_NAMED = {
+    'noon': 'দুপুর ১২টা', 'midnight': 'মধ্যরাত', 'morning': 'সকাল',
+    'forenoon': 'সকাল', 'afternoon': 'বিকাল', 'evening': 'সন্ধ্যা',
+    'night': 'রাত', 'daybreak': 'ভোর', 'daytime': 'দিনের বেলা',
+    'sunrise': 'সূর্যোদয়', 'sunset': 'সূর্যাস্ত', 'bed time': 'শোয়ার সময়',
+    'bedtime': 'শোয়ার সময়',
+}
+_SPLIT_RANGE = re.compile(r'\s+(?:to|till|until)\s+', re.I)
+_UNTIL = re.compile(r'^(?:to|till|until|lasting till|lasting until)\s+(.+)$', re.I)
+_AFTER = re.compile(r'^after\s+(.+)$', re.I)
+_BEFORE = re.compile(r'^before\s+(.+)$', re.I)
+_AT = re.compile(r'^at\s+(.+)$', re.I)
 
 
 def _clock(hour, minute, meridiem):
     h = int(hour)
+    # 12 is the one hour whose name does not follow from the number: 12 a.m. is
+    # midnight and 12 p.m. is noon, and Kent writes both as plain '12'.
+    if h == 12 and not minute:
+        return 'মধ্যরাত' if meridiem == 'a' else 'দুপুর ১২টা'
     part = ('ভোর' if h < 6 else 'সকাল') if meridiem == 'a' else \
            ('দুপুর' if h < 3 else ('বিকাল' if h < 6 else 'রাত'))
-    t = str(h) + (f':{minute}' if minute else '')
-    return f'{part} {t.translate(BN_DIGITS)}টা'
+    if minute:
+        return f'{part} {(str(h) + ":" + minute).translate(BN_DIGITS)}'
+    return f'{part} {str(h).translate(BN_DIGITS)}টা'
+
+
+def _gen(a):
+    """Genitive: 'রাত ১০টা' -> 'রাত ১০টার', so 'after 10 p.m.' does not come
+    out as the ungrammatical 'রাত ১০টা-এর পর'."""
+    return a[:-2] + 'টার' if a.endswith('টা') else a + '-এর'
+
+
+def _loc(a):
+    """Locative: 'সকাল ১১টা' -> 'সকাল ১১টায়'."""
+    return a[:-2] + 'টায়' if a.endswith('টা') else a + '-এ'
+
+
+def _atom(s, meridiem=None):
+    """One point in time — '4 p.m.', '10-30 a.m.', 'noon' — or None.
+
+    `meridiem` supplies a.m./p.m. for the bare half of a range like
+    '7 until 10 a.m.', where Kent states it only once.
+    """
+    s = s.strip().rstrip('.').strip()
+    named = _NAMED.get(s.lower())
+    if named:
+        return named
+    m = _CLOCK.match(s)
+    if m:
+        return _clock(m.group(1), m.group(2), m.group(3).lower())
+    m = _HOUR.match(s)
+    if m:
+        return _clock(m.group(1), None, m.group(2).lower())
+    m = _BARE.match(s)
+    if m and meridiem:
+        # '9 a.m. to 12' is nine to noon, never nine to midnight
+        return 'দুপুর ১২টা' if m.group(1) == '12' else _clock(m.group(1), None, meridiem)
+    return None
+
+
+def _meridiem(s):
+    m = _CLOCK.match(s.strip().rstrip('.')) or _HOUR.match(s.strip().rstrip('.'))
+    return m.group(3).lower() if m and m.lastindex == 3 else \
+        (m.group(2).lower() if m else None)
+
+
+def bn_time(s):
+    """Bangla for a time-of-day expression, or None if it is not one."""
+    s = s.strip()
+    solo = _atom(s)
+    if solo:
+        return solo
+    parts = _SPLIT_RANGE.split(s)
+    if len(parts) == 2:
+        mer = _meridiem(parts[0]) or _meridiem(parts[1])
+        a, b = _atom(parts[0], mer), _atom(parts[1], mer)
+        if a and b:
+            return f'{a} থেকে {b} পর্যন্ত'
+    parts = re.split(r'\s+or\s+', s, flags=re.I)
+    if len(parts) == 2:
+        mer = _meridiem(parts[0]) or _meridiem(parts[1])
+        a, b = _atom(parts[0], mer), _atom(parts[1], mer)
+        if a and b:
+            return f'{a} বা {b}'
+    for rx, fmt in ((_UNTIL, lambda a: f'{a} পর্যন্ত'),
+                    (_AFTER, lambda a: f'{_gen(a)} পর'),
+                    (_BEFORE, lambda a: f'{_gen(a)} আগে'),
+                    (_AT, _loc)):
+        m = rx.match(s)
+        if m:
+            a = _atom(m.group(1))
+            if a:
+                return fmt(a)
+    return None
 
 
 def bn_segment(seg):
@@ -1137,15 +1234,7 @@ def bn_segment(seg):
     hit = SEG.get(s) or SEG.get(s.lower()) or SEG.get(s[:1].upper() + s[1:])
     if hit:
         return hit
-    m = _AM.match(s) or _PM.match(s)
-    if m:
-        return _clock(m.group(1), m.group(2), 'a' if _AM.match(s) else 'p')
-    m = _RANGE.match(s)
-    if m:
-        a = _clock(m.group(1), None, m.group(3).lower())
-        b = _clock(m.group(2), None, m.group(3).lower())
-        return f'{a} থেকে {b}'
-    return None
+    return bn_time(s)
 
 
 def bn_rubric(name):

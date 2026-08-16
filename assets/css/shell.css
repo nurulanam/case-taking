@@ -132,8 +132,14 @@ body {
 }
 .sb-link {
   display: flex; align-items: center; gap: 0.625rem;
+  width: 100%;
   padding: 0.5625rem 0.625rem;
   border-radius: 9px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
   color: var(--sb-text);
   text-decoration: none;
   font-size: 0.9375rem; font-weight: 500;
@@ -168,7 +174,8 @@ body {
 
 /* A caret marks the items that have a submenu, so it's obvious there is more
    underneath even from a page where the submenu isn't currently expanded. It
-   points down once its parent is the active page and the list is showing. */
+   points down once the submenu is toggled open — independent of whether that
+   item is the active page, since any group can now be expanded to browse. */
 .sb-caret {
   flex-shrink: 0;
   font-size: 1rem !important;
@@ -177,17 +184,20 @@ body {
   transition: transform 0.18s ease, opacity 0.15s;
 }
 .sb-link:hover .sb-caret { opacity: 0.9; }
-.sb-link.active .sb-caret { opacity: 1; transform: rotate(0deg); }
+.sb-link.expanded .sb-caret { opacity: 1; transform: rotate(0deg); }
 
 /* Submenu — a page's own in-page tabs, moved to the sidebar (acutes.html's
-   five sections) so the content area gets that vertical space back. Shown
-   only while the parent item is the active page. */
+   five sections) so the content area gets that vertical space back. Always
+   in the DOM (so any group can be toggled open, not just the active one),
+   collapsed unless its parent button carries .expanded. */
 .sb-submenu {
-  display: flex; flex-direction: column; gap: 1px;
+  display: none;
+  flex-direction: column; gap: 1px;
   margin: 0.25rem 0 0.625rem 1.375rem;
   padding-left: 0.75rem;
   position: relative;
 }
+.sb-submenu.expanded { display: flex; }
 /* the spine runs the height of the group, with each item hanging off it by
    its own short connector — reads as a branch rather than a second list */
 .sb-submenu::before {

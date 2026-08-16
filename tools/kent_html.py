@@ -46,11 +46,54 @@ CHAPTER_FILES = {
 CHAPTER_UPPER = {v[1].upper(): v for v in CHAPTER_FILES.values()}
 CHAPTER_UPPER['LARYNX AND TRACHEA'] = CHAPTER_FILES['kentlary']
 CHAPTER_UPPER['EXTERNAL THROAT'] = CHAPTER_FILES['kentexth']
+# Two mid-page banners anchor only part of their heading — '<p>GENITALIA <a
+# NAME="FEMALE">FEMALE</a></p>' and '<a NAME="PROSTATE">PROSTATE</a> GLAND'.
+# The page-range guard in anchor_chapter() is what keeps these short keys from
+# matching an unrelated '(See Female)' link somewhere else in the book.
+CHAPTER_UPPER['PROSTATE'] = CHAPTER_FILES['kentpros']
+CHAPTER_UPPER['FEMALE'] = CHAPTER_FILES['kentgenf']
+
+# Each chapter's page span, exactly as the book's own contents page prints it
+# (homeoint.org/books/kentrep/index.htm). Chapters do not start on file
+# boundaries — Stool opens halfway down page 635, which page file kent0635.htm
+# shares with the tail of Rectum — and on those pages the banner is a bare
+# <a NAME="STOOL">STOOL</a> with no page anchor and no chapter link, so the
+# href-driven switch below never fires and the chapter's whole first page was
+# being filed under the previous chapter. The spans let a NAME anchor be
+# trusted as a chapter start when the page agrees, and rejected when it is
+# only a '(See Back)' cross-reference target sitting in some other chapter.
+CHAPTER_PAGES = {
+    1: (1, 95),      2: (96, 106),    3: (107, 234),   4: (235, 270),
+    5: (271, 285),   6: (285, 320),   7: (321, 323),   8: (324, 354),
+    9: (355, 396),  10: (397, 430),  11: (430, 447),  12: (448, 470),
+    13: (471, 475), 14: (476, 540),  15: (541, 605),  16: (606, 635),
+    17: (635, 644), 18: (645, 680),  19: (645, 662),  20: (662, 667),
+    21: (667, 668), 22: (669, 680),  23: (681, 692),  24: (693, 714),
+    25: (714, 745), 26: (746, 762),  27: (762, 777),  28: (778, 811),
+    29: (812, 821), 30: (822, 883),  31: (884, 951),  32: (952, 1233),
+    33: (1234, 1258), 34: (1259, 1277), 35: (1278, 1292), 36: (1293, 1302),
+    37: (1303, 1340), 38: (1341, 1423),
+}
+
+
+def anchor_chapter(name, page):
+    """A <a name="..."> that is this chapter's own banner, else None.
+
+    'Urinary organs' is excluded: the book prints it as an umbrella heading
+    over Bladder/Kidneys/Prostate/Urethra and its span covers all four, so
+    honouring its anchor would swallow them.
+    """
+    hit = CHAPTER_UPPER.get(name.upper().replace('_', ' ').strip())
+    if not hit or page is None or hit[0] == 18:
+        return None
+    lo, hi = CHAPTER_PAGES[hit[0]]
+    return hit if lo <= page <= hi else None
 
 TAG = re.compile(r'<(/?)([a-zA-Z][a-zA-Z0-9]*)([^>]*)>')
 COLOR = re.compile(r'color\s*=\s*"?#?([0-9a-fA-F]{6})', re.I)
 HREF = re.compile(r'href\s*=\s*"([^"]+)"', re.I)
 ANAME = re.compile(r'name\s*=\s*"P(\d+)"', re.I)
+NAMEANY = re.compile(r'name\s*=\s*"([^"]+)"', re.I)
 RULE = re.compile(r'^[-\s>»<«*]+$')
 SEE = re.compile(r'\(\s*See\b(.*?)\)', re.I | re.S)
 # 'HEAD p. 156' and 'HEADp. 155' both occur — a \b before the p only matches the
@@ -148,6 +191,13 @@ def walk(path):
                 page = int(n.group(1))
                 if pending_chapter:
                     chapter, pending_chapter = pending_chapter, None
+            else:
+                # a mid-page chapter banner: <a NAME="STOOL">STOOL</a>
+                nm = NAMEANY.search(attr)
+                if nm:
+                    hit = anchor_chapter(nm.group(1), page)
+                    if hit:
+                        chapter, pending_chapter = hit, None
     if inp and runs:
         out.append(Para(runs, pdepth, chapter, page, base))
     return out

@@ -42,7 +42,7 @@ from r_kent1 import K1
 from r_kent2 import K2
 from r_kent3 import K3
 from r_kent4 import K4
-from kent_bn import SEG, CHAPTER_BN, bn_rubric, bn_coverage
+from kent_bn import SEG, CHAPTER_BN, bn_rubric, bn_coverage, bn_segment
 from r_remedies_bn import BN as REMEDY_BN
 
 _DATA = os.path.join(HERE, '..', 'assets', 'data', 'repatories')
@@ -257,6 +257,21 @@ for num, name_en in sorted(CHAPTER_FILES.values()):
         'rubrics': rows,
     })
 
+# ---------------------------------------------------------------- bn glossary
+# The page composes a rubric's Bangla by looking each comma-part up here, so
+# ship the *resolved* answer for every part Kent actually uses — including the
+# ones kent_bn derives by rule rather than stores, like '11 a.m. to 4 p.m.'.
+# Doing it here means the browser needs no rules of its own and so cannot drift
+# from what the Python side produced.
+glossary = dict(SEG)
+for r in rubs:
+    for part in r.name.split(','):
+        part = part.strip()
+        if part and part not in glossary:
+            bn = bn_segment(part)
+            if bn:
+                glossary[part] = bn
+
 # ---------------------------------------------------------------- search index
 search = []
 for rec in remedies:
@@ -349,7 +364,7 @@ roster_doc = {
         'remedies_basic_entry_only': len(remedies) - full_mm,
     },
     'remedies': remedies,
-    'bn_glossary': SEG,
+    'bn_glossary': glossary,
     'search_index': search,
 }
 with open(OUT_ROSTER, 'w', encoding='utf-8') as f:

@@ -150,30 +150,55 @@
         ${NAV.map(g => `
           <div class="sb-group">
             <div class="sb-group-label">${g.group}</div>
-            ${g.items.map(it => `
-              <a class="sb-link ${it.id === active ? 'active' : ''}${it.children ? ' has-sub' : ''}"
-                 href="${it.href}"
+            ${g.items.map(it => {
+              // An item with children is a toggle, never a link — clicking
+              // it used to navigate to it.href *and* the browser would jump
+              // away before the submenu had a chance to open, so the only
+              // way to reach a child was to land on the parent page first
+              // and back out. A <button> can't navigate by accident.
+              const tag = it.children ? 'button' : 'a';
+              const expanded = it.id === active;
+              return `
+              <${tag} class="sb-link ${it.id === active ? 'active' : ''}${it.children ? ' has-sub' : ''}${expanded ? ' expanded' : ''}"
+                 data-id="${it.id}"
+                 ${tag === 'a' ? `href="${it.href}"` : 'type="button"'}
                  ${it.id === active ? 'aria-current="page"' : ''}
-                 ${it.children ? `aria-expanded="${it.id === active}"` : ''}>
+                 ${it.children ? `aria-expanded="${expanded}"` : ''}>
                 <i class='bx ${it.icon}'></i>
                 <span class="sb-lbl">${it.label}</span>
                 ${it.meta ? `<span class="sb-meta">${it.meta}</span>` : ''}
                 ${it.children ? `<i class='bx bx-chevron-down sb-caret'></i>` : ''}
-              </a>
-              ${it.children && it.id === active ? `
-                <div class="sb-submenu">
+              </${tag}>
+              ${it.children ? `
+                <div class="sb-submenu${expanded ? ' expanded' : ''}">
                   ${it.children.map(c => `
                     <a class="sb-sublink ${subActive(c.href) ? 'active' : ''}" href="${c.href}">
                       <i class='bx ${c.icon}'></i>
                       <span class="sb-lbl">${c.label}</span>
                     </a>`).join('')}
-                </div>` : ''}`).join('')}
+                </div>` : ''}`;
+            }).join('')}
           </div>`).join('')}
       </nav>
       <div class="sb-foot">
         <span class="sb-ver"><i class='bx bx-package'></i> সংস্করণ ${APP.version}</span>
         <div style="margin-top:0.5rem;">সম্পূর্ণ অফলাইন · ডেটা শুধু এই ব্রাউজারে থাকে</div>
       </div>`;
+  }
+
+  // A has-sub button only ever toggles its own submenu open or closed — it
+  // never navigates, so opening it to look for a section doesn't also jump
+  // you to that page's default tab first.
+  function bindSubmenuToggle() {
+    document.querySelectorAll('.sb-link.has-sub').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sub = btn.nextElementSibling;
+        const open = !btn.classList.contains('expanded');
+        btn.classList.toggle('expanded', open);
+        btn.setAttribute('aria-expanded', String(open));
+        if (sub && sub.classList.contains('sb-submenu')) sub.classList.toggle('expanded', open);
+      });
+    });
   }
 
   // Keeps the sidebar submenu's active sub-item in sync when the hash
@@ -212,6 +237,7 @@
     if (sidebar) {
       sidebar.innerHTML = sidebarHtml(active);
       updateSidebarBadges();
+      bindSubmenuToggle();
       bindSubmenuHashSync(active);
     }
     if (topbar) {
