@@ -1226,6 +1226,30 @@ def bn_time(s):
     return None
 
 
+def split_parts(name):
+    """A rubric's comma-separated parts, respecting brackets.
+
+    Kent's catchwords carry parenthesised alternatives that contain commas —
+    'MOTIONS of head (shaking, nodding, waving, etc.)'. Splitting on every
+    comma tears that into 'Motions of head (shaking' and 'etc.)', which are
+    not terms at all: they cannot be looked up, so the parenthetical came out
+    half Bangla and half English. Only a comma outside brackets divides parts.
+    """
+    out, depth, cur = [], 0, ''
+    for ch in name:
+        if ch in '([':
+            depth += 1
+        elif ch in ')]':
+            depth = max(0, depth - 1)
+        if ch == ',' and depth == 0:
+            out.append(cur.strip())
+            cur = ''
+        else:
+            cur += ch
+    out.append(cur.strip())
+    return [p for p in out if p]
+
+
 def bn_segment(seg):
     """Bangla for one comma-separated part of a rubric name, or None."""
     s = seg.strip()
@@ -1243,7 +1267,7 @@ def bn_rubric(name):
     Untranslated parts are kept verbatim in English so the name still points at
     the right rubric; `full` tells the caller whether anything was left over.
     """
-    parts = [p.strip() for p in name.split(',')]
+    parts = split_parts(name)
     out, missing = [], 0
     for p in parts:
         bn = bn_segment(p)

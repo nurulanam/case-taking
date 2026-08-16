@@ -334,9 +334,27 @@
     return null;
   }
 
+  /* Kent's catchwords carry parenthesised alternatives containing commas —
+     'MOTIONS of head (shaking, nodding, waving, etc.)'. Splitting on every
+     comma tears that into 'Motions of head (shaking' and 'etc.)', which are
+     not terms and cannot be looked up, so the parenthetical rendered half
+     Bangla and half English. Only a comma outside brackets divides parts. */
+  function splitParts(name) {
+    const out = [];
+    let depth = 0, cur = '';
+    for (const ch of name) {
+      if (ch === '(' || ch === '[') depth++;
+      else if (ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
+      if (ch === ',' && depth === 0) { out.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    out.push(cur.trim());
+    return out.filter(Boolean);
+  }
+
   function composeBn(name, gloss) {
     let any = false;
-    const out = name.split(',').map(p => {
+    const out = splitParts(name).map(p => {
       const bnPart = segBn(p, gloss);
       if (bnPart === null) return p.trim();
       any = true;
