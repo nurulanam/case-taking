@@ -77,7 +77,7 @@ shared_doc = {
         'title_en': 'Shared remedy roster + Bangla materia medica',
         'version': '1.0-shared',
         'note_bn': ('সব রিপার্টরি এই একটি তালিকা ব্যবহার করে — রুব্রিকের "r" ক্ষেত্রের সংখ্যা '
-                    'এই remedies অ্যারের ক্রমিক অবস্থান। তাই ক্রম বদলালে সব রিপার্টরি ভেঙে যাবে।'),
+                    'এই ওষুধ-তালিকার ক্রমিক অবস্থান। তাই ক্রম বদলালে সব রিপার্টরি ভেঙে যাবে।'),
         'remedies_total': len(remedies),
         'remedies_with_full_materia_medica': full_mm,
         'remedies_basic_entry_only': len(remedies) - full_mm,

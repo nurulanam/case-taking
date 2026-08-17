@@ -298,7 +298,7 @@ db = {
         'version': '6.0-kent-complete',
         'format': 'compact-v6',
         'format_note_bn': ('প্রতিটি রুব্রিকের "r" ক্ষেত্রে ওষুধগুলো "ইনডেক্স:গ্রেড" আকারে আছে — '
-                           'ইনডেক্স হলো remedies তালিকার ক্রমিক অবস্থান, গ্রেড ১ হলে তা বাদ দেওয়া হয়।'),
+                           'ইনডেক্স হলো ওষুধ তালিকার ক্রমিক অবস্থান, গ্রেড ১ হলে তা বাদ দেওয়া হয়।'),
         'chapters': len(chapters_out),
         'rubrics_total': total_rub,
         'remedies_total': len(remedies),
@@ -360,7 +360,7 @@ roster_doc = {
         'title_en': 'Shared remedy roster + Bangla materia medica',
         'version': '1.0-shared',
         'note_bn': ('সব রিপার্টরি এই একটি তালিকা ব্যবহার করে — রুব্রিকের "r" ক্ষেত্রের সংখ্যা '
-                    'এই remedies অ্যারের ক্রমিক অবস্থান। তাই ক্রম বদলালে সব রিপার্টরি ভেঙে যাবে।'),
+                    'এই ওষুধ-তালিকার ক্রমিক অবস্থান। তাই ক্রম বদলালে সব রিপার্টরি ভেঙে যাবে।'),
         'remedies_total': len(remedies),
         'remedies_with_bangla_name': with_bn,
         'remedies_with_full_materia_medica': full_mm,
