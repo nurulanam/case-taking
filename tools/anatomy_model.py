@@ -448,7 +448,6 @@ def derive_hotspots(parts):
         'abdomen':  (0.600, 'F', 0.07, None),
         'urinary':  (0.512, 'F', 0.05, None),
         'genitals': (0.478, 'F', 0.04, None),
-        'rectum':   (0.452, 'B', 0.020, None),
         'leg':      (0.290, 'L', None, (-0.20, -0.04)),
         'foot':     (0.022, 'L', None, (-0.24, -0.04)),
         'backhead': (0.955, 'B', 0.06, None),
@@ -461,14 +460,25 @@ def derive_hotspots(parts):
         if h:
             out[rid] = h
 
-    # The anus is in the perineum: on the midline, roughly 6 cm *below* the
-    # pubis, low in the gluteal cleft. Two earlier attempts got this wrong —
-    # anchoring it to the prostate put it 6 cm high, and pairing it to the
-    # genitals *height* kept it level with the pubis when it belongs below.
-    # Both then took the most-posterior midline vertex, which at pubic height
-    # is the buttock, 11 cm behind the anus. Measured from the mesh: the midline
-    # back surface recedes to z -0.15 at the hip and converges toward the
-    # perineum as it descends, so the cleft bottom is the low, converged point.
+    # The chapter is Rectum, and the rectum is the inferior end of the large
+    # intestine at roughly y -0.02 — not the anus, which is 6 cm lower in the
+    # perineum. Anchoring to the anus was a genuine regression: it is precise
+    # but it buries the marker inside the gluteal cleft, where it is occluded
+    # from every normal viewing angle and effectively unclickable. A picker
+    # marker has to sit on a surface the user can actually see and hit, so take
+    # the height from the organ and project it out to the posterior skin.
+    li = mesh.get('large intestine')
+    if li is not None:
+        end = li[li[:, 1] < li[:, 1].min() + 0.05]
+        ry = float(end[:, 1].mean())
+        m = ((skin[:, 1] >= ry - 0.02) & (skin[:, 1] <= ry + 0.02)
+             & (np.abs(skin[:, 0]) <= 0.02))
+        pts = skin[m]
+        if len(pts):
+            p = pts[pts[:, 2].argmin()]
+            out['rectum'] = {'position': f'{p[0]:.3f} {ry:.3f} {p[2]-0.02:.3f}',
+                             'normal': '0 0 -1'}
+
     # Arms and hands are found from the mesh, not a fraction: in this abducted
     # pose the hand is the lowest part of the laterally-extended limb mass, and
     # a stature fraction alone cannot tell arm from ribcage.
@@ -496,7 +506,7 @@ def derive_hotspots(parts):
 EXPECT = {
     'head': 0.975, 'face': 0.905, 'eye': 0.937, 'ear': 0.925, 'nose': 0.925,
     'mouth': 0.905, 'throat': 0.858, 'chest': 0.720, 'stomach': 0.685,
-    'abdomen': 0.600, 'urinary': 0.512, 'genitals': 0.478, 'rectum': 0.452,
+    'abdomen': 0.600, 'urinary': 0.512, 'genitals': 0.478, 'rectum': 0.492,
     'leg': 0.290, 'foot': 0.022, 'backhead': 0.955, 'nape': 0.852,
     'back': 0.700,
 }
@@ -530,15 +540,18 @@ def cmd_audit():
     hs = h['hotspots']
     def px(k):
         return [float(t) for t in hs[k]['position'].split()] if k in hs else None
+    # A marker buried in a crevice is unusable however accurate it is, so the
+    # rectum marker is checked for reachability: opposed to the genitals,
+    # on the midline, and far enough out on the posterior surface to be seen.
     g, rc = px('genitals'), px('rectum')
     if g and rc:
-        drop = (g[1] - rc[1]) * 100            # positive = anus below pubis
         opposed = (g[2] > 0) and (rc[2] < 0)
         midline = abs(rc[0]) < 0.03
-        print(f'genitals/rectum: anus {drop:.1f} cm below pubis, opposed={opposed}, '
-              f'midline={midline}')
-        if not (3 <= drop <= 11 and opposed and midline):
-            worst.append(('genitals/rectum', 'anus not in the perineum'))
+        onsurface = rc[2] < -0.12
+        print(f'rectum: opposed={opposed} midline={midline} '
+              f'on visible surface={onsurface} (z={rc[2]:+.3f})')
+        if not (opposed and midline and onsurface):
+            worst.append(('rectum', 'not reachable on the posterior surface'))
 
     for a, hd in (('arm', 'hand'),):
         pa, ph = px(a), px(hd)
