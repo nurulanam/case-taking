@@ -149,7 +149,44 @@
     bindShell();
     S.source = Shell.store.get(SRC_STORE, null);
     renderCaseBridge();
-    restore();
+    // ?book=kent&ch=3 wins over the saved session — it means the user just
+    // asked for a specific chapter somewhere else (the body map) and landing
+    // them back in last week's case instead would ignore that.
+    if (!(await deepLink())) restore();
+  }
+
+  /* ==================== deep link ====================
+     Chapters are addressed by Kent's printed number, not by the internal
+     'c<index>' id, so a link stays valid if the chapter array is ever
+     reordered — and ?ch=3 is something a human can read and type. */
+  async function deepLink() {
+    const q = new URLSearchParams(location.search);
+    const bookId = q.get('book');
+    const chNum = parseInt(q.get('ch'), 10);
+    if (!bookId && !chNum) return false;
+
+    const entry = (S.manifest.repertories || []).find(x => x.id === (bookId || 'kent'));
+    if (!entry) {
+      Shell.toast('চাওয়া রিপার্টরিটি পাওয়া যায়নি।', 'warn');
+      return false;
+    }
+    await loadBook(entry, 0);
+    if (!S.book) return false;
+
+    if (chNum) {
+      const ch = S.book.chapters.find(c => c.num === chNum);
+      if (ch) {
+        S.chapter = ch.id;
+        S.page = 0;
+        renderChapters();
+        renderRubrics();
+        Shell.toast(`${ch.bn || ch.en} অধ্যায় — ${bn(ch.rubrics.length)}টি রুব্রিক।`, 'ok');
+      } else {
+        Shell.toast(`${bn(chNum)} নম্বর অধ্যায় এই বইয়ে নেই।`, 'warn');
+      }
+    }
+    setStep(2);
+    return true;
   }
 
   /* ==================== case-form hand-off ====================

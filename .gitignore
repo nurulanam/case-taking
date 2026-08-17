@@ -1,0 +1,4 @@
+
+# raw HRA downloads (64 MB) are a build input, not a shipped asset
+tools/.cache/
+assets/data/models/*.zip

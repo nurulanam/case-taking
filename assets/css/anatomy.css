@@ -1,0 +1,434 @@
+/* ==========================================================================
+   শরীর-চিত্রে রুব্রিক — anatomical body map
+   The figure is drawn, not photographed: gradients do the volume, a lit-from-
+   upper-left ramp across each limb reads as round, and the organ layer sits
+   under a transparent hit layer so the art is never fighting the interaction.
+   Every colour is a token so dark mode is a palette swap, not a second figure.
+   ========================================================================== */
+
+:root {
+  --an-accent: #0e7490;
+  --an-accent-bg: #ecfeff;
+
+  /* skin ramp: highlight -> midtone -> shadow -> core shadow */
+  --an-skin1: #fbe3ca;
+  --an-skin2: #f3c9a2;
+  --an-skin3: #dfa375;
+  --an-skin4: #bd7f52;
+  --an-outline: #a2673f;
+
+  /* viscera */
+  --an-lung1: #f0a9b0;
+  --an-lung2: #d4737f;
+  --an-heart1: #e2564f;
+  --an-heart2: #ab2b2c;
+  --an-liver1: #b5665a;
+  --an-liver2: #8a4038;
+  --an-stom1: #e8b48b;
+  --an-stom2: #c1855c;
+  --an-gut1: #eec49c;
+  --an-gut2: #c9945f;
+  --an-blad1: #f2d98f;
+  --an-blad2: #cbab52;
+  --an-kidney: #9c5b52;
+  --an-bone1: #f5efe2;
+  --an-bone2: #d8cdb8;
+  --an-hair: #3f3226;
+  --an-iris: #5b4632;
+  --an-nail: #fbe6d5;
+  --an-lips: #c9736b;
+  --an-thyroid: #c98b7a;
+  --an-spleen: #7e4b63;
+  --an-pancreas: #d9b678;
+  --an-gall: #7fa05a;
+}
+[data-theme="dark"] {
+  --an-accent: #22d3ee;
+  --an-accent-bg: rgba(34, 211, 238, 0.14);
+
+  --an-skin1: #d3a279;
+  --an-skin2: #b98459;
+  --an-skin3: #96613d;
+  --an-skin4: #70452a;
+  --an-outline: #53311c;
+
+  --an-lung1: #c07c86;
+  --an-lung2: #8d4a56;
+  --an-heart1: #b8433f;
+  --an-heart2: #7d1f21;
+  --an-liver1: #8d4f45;
+  --an-liver2: #632c26;
+  --an-stom1: #b98a68;
+  --an-stom2: #8f6242;
+  --an-gut1: #bd9670;
+  --an-gut2: #946a43;
+  --an-blad1: #bfa761;
+  --an-blad2: #8f7a37;
+  --an-kidney: #7a453e;
+  --an-bone1: #d9d2c3;
+  --an-bone2: #a99f8a;
+  --an-hair: #241c14;
+  --an-iris: #7d6a4e;
+  --an-nail: #e2c3a8;
+  --an-lips: #a3564f;
+  --an-thyroid: #a06b5c;
+  --an-spleen: #653a4e;
+  --an-pancreas: #ab8d58;
+  --an-gall: #617c44;
+}
+
+/* Any explicit `display` beats the UA's [hidden] rule, and this file sets
+   display on nearly every component — so state it once, up front, rather than
+   rediscovering it each time a panel refuses to hide. */
+[hidden] { display: none !important; }
+
+/* ── layout ───────────────────────────────────────────────── */
+.an-wrap {
+  display: grid;
+  grid-template-columns: minmax(300px, 400px) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+/* ── figure column ── */
+.an-figure {
+  position: sticky;
+  top: calc(var(--tb-h) + 0.75rem);
+  padding: 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.an-viewsw {
+  display: flex;
+  gap: 0.375rem;
+  padding: 0.25rem;
+  margin-bottom: 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+}
+.an-vb {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .16s, color .16s;
+}
+.an-vb.active { background: var(--surface); color: var(--an-accent); box-shadow: var(--shadow-sm); }
+
+/* [hidden] must win over this display, or both views stack on the page */
+.an-svgbox { display: block; }
+.an-svgbox[hidden] { display: none; }
+.an-svgbox svg { display: block; width: 100%; height: auto; max-height: 68vh; margin-inline: auto; }
+
+/* ── 3D view ───────────────────────────────────────────────── */
+.an-3dhost {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  max-height: 68vh;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--surface2), var(--surface));
+  overflow: hidden;
+}
+.an-3dhost model-viewer { width: 100%; height: 100%; --poster-color: transparent; }
+.an-3dmsg[hidden] { display: none; }
+.an-3dmsg {
+  position: absolute; inset: 0;
+  display: grid; place-content: center; justify-items: center; gap: 0.625rem;
+  padding: 1.5rem; text-align: center;
+  color: var(--text-muted);
+}
+.an-3dmsg i { font-size: 2.25rem; color: var(--an-accent); opacity: .8; }
+.an-3dmsg p { margin: 0; font-size: 0.875rem; line-height: 1.7; max-width: 32ch; }
+.an-3dmsg code {
+  display: inline-block; margin-top: .25rem; padding: .125rem .375rem;
+  border-radius: 6px; background: var(--surface2);
+  font-size: 0.75rem; color: var(--an-accent);
+}
+.an-3dmsg .an-3dbtn { margin-top: .25rem; }
+
+/* Hotspot marker.
+   Twenty always-on labels overlapped into an unreadable pile, so the resting
+   state is just a dot; the label appears on hover, focus or selection. The dot
+   stays a generous tap target even though it looks small. */
+.an-hs {
+  --hs: var(--an-accent);
+  position: relative;
+  display: grid; place-items: center;
+  width: 1.5rem; height: 1.5rem;
+  padding: 0;
+  border: 0; background: none;
+  cursor: pointer;
+  font: inherit;
+}
+.an-hs::before {
+  content: '';
+  width: 0.6875rem; height: 0.6875rem;
+  border-radius: 50%;
+  background: var(--hs);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--hs) 45%, transparent), var(--shadow-sm);
+  transition: transform .14s, background .14s;
+}
+.an-hs:hover::before, .an-hs:focus-visible::before { transform: scale(1.35); }
+.an-hs.on::before { background: #fff; border-color: var(--hs); transform: scale(1.45); }
+
+.an-hs .an-hs-l {
+  position: absolute;
+  inset-inline-start: 1.125rem;
+  top: 50%;
+  transform: translateY(-50%) scale(.92);
+  transform-origin: left center;
+  display: flex; align-items: center; gap: 0.3125rem;
+  padding: 0.1875rem 0.5rem;
+  border: 1px solid var(--hs);
+  border-radius: 999px;
+  background: var(--glass-bg-dense);
+  backdrop-filter: blur(6px);
+  color: var(--text);
+  font-size: 0.6875rem; font-weight: 700;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  opacity: 0; pointer-events: none;
+  transition: opacity .14s, transform .14s;
+}
+.an-hs:hover .an-hs-l, .an-hs:focus-visible .an-hs-l, .an-hs.on .an-hs-l {
+  opacity: 1; transform: translateY(-50%) scale(1);
+}
+.an-hs.on .an-hs-l { background: var(--an-accent); color: #fff; border-color: var(--an-accent); }
+.an-hs .an-hs-n { opacity: .75; font-weight: 400; }
+/* model-viewer hides hotspots whose surface faces away from the camera */
+.an-hs[data-visibility="hidden"] { opacity: 0; pointer-events: none; transition: opacity .2s; }
+
+/* ── overlay controls ── */
+.an-ctl {
+  position: absolute; z-index: 5;
+  display: flex; gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--glass-bg-dense);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-sm);
+}
+.an-ctl-tr { top: 0.5rem; inset-inline-end: 0.5rem; flex-direction: column; border-radius: var(--radius); }
+.an-ctl-bl { bottom: 0.5rem; inset-inline-start: 0.5rem; }
+.an-cbtn {
+  display: grid; place-items: center;
+  width: 1.875rem; height: 1.875rem;
+  border: 0; border-radius: 50%;
+  background: none; color: var(--text);
+  font: inherit; font-size: 1.0625rem; cursor: pointer;
+  transition: background .14s, color .14s;
+}
+.an-cbtn:hover { background: var(--an-accent-bg); color: var(--an-accent); }
+.an-cbtn.on { background: var(--an-accent); color: #fff; }
+.an-cbtn.wide {
+  width: auto; padding: 0 0.5625rem; border-radius: 999px;
+  font-size: 0.6875rem; font-weight: 700;
+}
+.an-cbtn.wide.active { background: var(--an-accent); color: #fff; }
+
+/* ── organ visibility ── */
+.an-organs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  max-height: 11rem; overflow-y: auto;
+  padding: 0.5rem;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface2);
+}
+.an-org {
+  display: flex; align-items: center; gap: 0.375rem;
+  padding: 0.3125rem 0.4375rem;
+  border: 1px solid transparent; border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text); font: inherit; font-size: 0.6875rem; font-weight: 600;
+  text-align: start; cursor: pointer;
+}
+.an-org:hover { border-color: var(--an-accent); }
+.an-org .sw {
+  width: 0.6875rem; height: 0.6875rem; flex: 0 0 auto;
+  border-radius: 3px; border: 1px solid rgba(0,0,0,.2);
+}
+.an-org.off { opacity: .42; }
+.an-org.off .sw { background: transparent !important; }
+
+.an-3dbar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem;
+  margin-top: 0.5rem;
+}
+.an-3dbtn {
+  display: inline-flex; align-items: center; gap: 0.3125rem;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text);
+  font: inherit; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+}
+.an-3dbtn:hover { border-color: var(--an-accent); color: var(--an-accent); }
+.an-3dbtn.on { background: var(--an-accent); border-color: var(--an-accent); color: #fff; }
+/* skin opacity — the whole point of an organ model is seeing through the body */
+.an-3dskin {
+  display: inline-flex; align-items: center; gap: 0.375rem;
+  padding: 0.3125rem 0.625rem;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-muted); font-size: 0.75rem; font-weight: 600;
+  cursor: pointer;
+}
+.an-3dskin i { color: var(--an-accent); font-size: 0.9375rem; }
+.an-3dskin input[type="range"] { width: 5.5rem; accent-color: var(--an-accent); cursor: pointer; }
+
+.an-3dattr {
+  margin-inline-start: auto;
+  color: var(--text-light); font-size: 0.6875rem;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%;
+}
+.an-cal-live { outline: 2px dashed var(--an-accent); outline-offset: 3px; }
+
+.an-hint {
+  margin: 0.5rem 0 0;
+  display: flex; align-items: center; gap: 0.375rem;
+  color: var(--text-light);
+  font-size: 0.75rem;
+}
+
+/* ── the drawing ──
+   The art layer never takes a pointer; the hit layer above it is transparent
+   until hovered. Without this the organ paths would swallow clicks meant for
+   the region band behind them. */
+.an-art, .an-art * { pointer-events: none; }
+.an-outline-s { fill: none; stroke: var(--an-outline); stroke-opacity: .55; stroke-width: 1.1; }
+.an-crease { fill: none; stroke: var(--an-outline); stroke-opacity: .32; stroke-width: 1; stroke-linecap: round; }
+.an-rib { fill: none; stroke: var(--an-bone2); stroke-opacity: .75; stroke-width: 2.2; stroke-linecap: round; }
+.an-gutline { fill: none; stroke: var(--an-gut2); stroke-opacity: .85; stroke-width: 5.5; stroke-linecap: round; }
+.an-boneline { fill: none; stroke: var(--an-bone2); stroke-opacity: .9; stroke-width: 3.4; stroke-linecap: round; }
+.an-bronchus { fill: none; stroke: var(--an-bone2); stroke-opacity: .8; stroke-width: 2.6; stroke-linecap: round; }
+.an-ureter { fill: none; stroke: var(--an-blad2); stroke-opacity: .7; stroke-width: 1.8; stroke-linecap: round; }
+
+/* ── interactive regions ── */
+.an-r {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 1.5;
+  cursor: pointer;
+  transition: fill .16s, stroke .16s;
+  outline: none;
+}
+.an-r:hover { fill: var(--an-accent); fill-opacity: .3; stroke: var(--an-accent); }
+.an-r:focus-visible { stroke: var(--an-accent); stroke-width: 2.5; stroke-dasharray: 4 3; }
+.an-r.on { fill: var(--an-accent); fill-opacity: .42; stroke: var(--an-accent); stroke-width: 2; }
+/* small facial targets need a visible resting hint or they are undiscoverable */
+.an-r.an-sm { stroke: var(--an-outline); stroke-opacity: .35; }
+.an-r.an-sm:hover, .an-r.an-sm.on { stroke-opacity: 1; }
+
+/* ── side column ── */
+.an-side { min-width: 0; display: flex; flex-direction: column; gap: 1rem; }
+
+.an-sel {
+  padding: 1rem 1.125rem;
+  border: 1px solid var(--border);
+  border-inline-start: 3px solid var(--an-accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.an-sel-head { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.75rem; }
+.an-sel-ic {
+  display: grid; place-items: center;
+  width: 2.25rem; height: 2.25rem; flex: 0 0 auto;
+  border-radius: 10px;
+  background: var(--an-accent-bg); color: var(--an-accent);
+  font-size: 1.25rem;
+}
+.an-sel-head h3 { margin: 0; font-size: 1.0625rem; }
+.an-sel-head p { margin: 0.125rem 0 0; color: var(--text-muted); font-size: 0.8125rem; }
+.an-sel-empty { display: flex; align-items: center; gap: 0.625rem; color: var(--text-muted); font-size: 0.875rem; }
+.an-sel-empty i { font-size: 1.5rem; color: var(--text-light); }
+
+.an-block {
+  padding: 1rem 1.125rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.an-block h3 {
+  display: flex; align-items: center; gap: 0.5rem;
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem; font-weight: 700;
+  letter-spacing: .03em; text-transform: uppercase;
+  color: var(--text-muted);
+}
+.an-block h3 i { color: var(--an-accent); font-size: 1rem; }
+.an-note { margin: -0.375rem 0 0.75rem; color: var(--text-light); font-size: 0.75rem; line-height: 1.6; }
+
+.an-list { display: flex; flex-direction: column; gap: 0.375rem; }
+.an-i {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: start;
+  cursor: pointer;
+  transition: border-color .16s, background .16s, transform .16s;
+}
+.an-i:hover { border-color: var(--an-accent); background: var(--an-accent-bg); transform: translateX(2px); }
+.an-i.on { border-color: var(--an-accent); background: var(--an-accent-bg); }
+.an-i-bn { flex: 1; min-width: 0; font-weight: 600; }
+.an-i-bn small { display: block; color: var(--text-light); font-weight: 400; font-size: 0.6875rem; }
+.an-i-n {
+  flex: 0 0 auto;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: var(--surface2);
+  color: var(--an-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.an-i > i { color: var(--text-light); font-size: 1.125rem; flex: 0 0 auto; }
+.an-i:hover > i { color: var(--an-accent); }
+
+/* chapter rows inside the selected-region card */
+.an-ch { display: flex; flex-direction: column; gap: 0.375rem; }
+.an-open {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4375rem;
+  margin-top: 0.75rem; padding: 0.625rem 1rem;
+  border: 0; border-radius: var(--radius-sm);
+  background: var(--an-accent); color: #fff;
+  font: inherit; font-size: 0.875rem; font-weight: 700;
+  cursor: pointer; width: 100%;
+}
+.an-open:hover { filter: brightness(1.08); }
+
+/* ── responsive ── */
+@media (max-width: 900px) {
+  .an-wrap { grid-template-columns: minmax(0, 1fr); }
+  .an-figure { position: static; }
+  .an-svgbox svg { max-height: 54vh; }
+}
+@media (max-width: 560px) {
+  .an-figure { padding: 0.625rem; }
+  .an-svgbox svg { max-height: 48vh; }
+}

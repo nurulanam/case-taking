@@ -49,6 +49,7 @@
     {
       group: 'রেফারেন্স',
       items: [
+        { id: 'anatomy', href: 'anatomy.html', icon: 'bx-body', label: 'শরীর-চিত্রে রুব্রিক', meta: '৩৮' },
         { id: 'materia', href: 'materia.html', icon: 'bx-capsule', label: 'মেটেরিয়া মেডিকা', meta: '৭২৫' },
         { id: 'organon', href: 'organon.html', icon: 'bx-book-content', label: 'অর্গানন অব মেডিসিন', meta: '২৯১',
           children: [
