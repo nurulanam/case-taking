@@ -394,107 +394,169 @@ def cmd_build():
 def derive_hotspots(parts):
     """Place each region's marker on the real skin surface.
 
-    Guessing coordinates was the wrong instinct: the model is centred on the
-    origin, not standing on it, so every hand-written Y was out by ~0.9. The
-    meshes already know where everything is, so read it off them instead —
-    take the organ that defines a region, and push out to the skin vertex that
-    is furthest front (or back) within that organ's height band.
+    Anchored to anthropometric landmark heights, expressed as a fraction of
+    stature, rather than to organ mid-heights. The organ-anchored version put
+    the anus 6 cm too high (it followed the prostate) and the back marker at
+    chest level, because an organ's centre is not the surface landmark a
+    practitioner points at. `python3 tools/anatomy_model.py audit` re-checks
+    every marker against this table.
+
+    dir: 'F' front (+Z), 'B' back (-Z), 'L' lateral (-X).
+    xlim: how far off the midline the search may wander — midline structures
+    such as the anus must not drift onto a buttock.
     """
     mesh = {n: V for n, V, _N, _F, _c in parts}
     skin = mesh.get('skin')
     if skin is None:
         return {}
+    bot, top = float(skin[:, 1].min()), float(skin[:, 1].max())
+    H = top - bot
 
-    def band(y_lo, y_hi, x_lo=-9, x_hi=9, front=True):
-        m = ((skin[:, 1] >= y_lo) & (skin[:, 1] <= y_hi) &
-             (skin[:, 0] >= x_lo) & (skin[:, 0] <= x_hi))
+    def surface(frac, dir_, xlim=None, xrange_=None, band=0.02, push=0.02):
+        y = bot + frac * H
+        m = (skin[:, 1] >= y - band) & (skin[:, 1] <= y + band)
+        if xlim is not None:
+            m &= np.abs(skin[:, 0]) <= xlim
+        if xrange_ is not None:
+            m &= (skin[:, 0] >= xrange_[0]) & (skin[:, 0] <= xrange_[1])
         pts = skin[m]
         if not len(pts):
             return None
-        i = pts[:, 2].argmax() if front else pts[:, 2].argmin()
-        p = pts[i]
-        # nudge clear of the surface so the marker is not z-fighting the skin
-        z = p[2] + (0.02 if front else -0.02)
-        return {'position': f'{p[0]:.3f} {p[1]:.3f} {z:.3f}',
-                'normal': f'0 0 {1 if front else -1}'}
+        if dir_ == 'F':
+            p = pts[pts[:, 2].argmax()]
+            off, n = (0, 0, push), '0 0 1'
+        elif dir_ == 'B':
+            p = pts[pts[:, 2].argmin()]
+            off, n = (0, 0, -push), '0 0 -1'
+        else:
+            p = pts[pts[:, 0].argmin()]
+            off, n = (-push, 0, 0), '-1 0 0'
+        return {'position': f'{p[0]+off[0]:.3f} {p[1]+off[1]:.3f} {p[2]+off[2]:.3f}',
+                'normal': n}
 
-    def ymid(name, default=None):
-        V = mesh.get(name)
-        if V is None:
-            return default
-        return float((V[:, 1].min() + V[:, 1].max()) / 2)
-
-    top = float(skin[:, 1].max())
-    bot = float(skin[:, 1].min())
-    span = top - bot
-
-    # heights anchored to real organs where one exists, else to body fractions
-    y_brain = ymid('brain', top - 0.09)
-    y_larynx = ymid('larynx', top - 0.20)
-    y_heart = ymid('heart', top - 0.34)
-    y_liver = ymid('liver', top - 0.46)
-    y_gut = ymid('small intestine', top - 0.56)
-    y_blad = ymid('urinary bladder', top - 0.70)
-    y_pros = ymid('prostate', top - 0.74)
-
-    eps = 0.03
-    spec = {
-        'head':     (y_brain + 0.03, top,                -9, 9, True),
-        'face':     (y_brain - 0.09, y_brain - 0.03,    0.03, 0.09, True),
-        'eye':      (y_brain - 0.06, y_brain - 0.02,   -0.06, -0.01, True),
-        'ear':      (y_brain - 0.08, y_brain - 0.02,      -9, 9, True),
-        'nose':     (y_brain - 0.10, y_brain - 0.05,   -0.015, 0.015, True),
-        'mouth':    (y_brain - 0.13, y_brain - 0.09,   -0.03, 0.03, True),
-        'throat':   (y_larynx - eps, y_larynx + eps,      -9, 9, True),
-        'chest':    (y_heart - 0.04, y_heart + 0.06,      -9, 9, True),
-        'stomach':  (y_liver - 0.02, y_liver + 0.04,    0.01, 9, True),
-        'abdomen':  (y_gut - 0.04, y_gut + 0.04,          -9, 9, True),
-        'urinary':  (y_blad - eps, y_blad + eps,          -9, 9, True),
-        'genitals': (y_pros - 0.07, y_pros - 0.03,     -0.04, 0.04, True),
-        'leg':      (bot + span * 0.30, bot + span * 0.36, -0.20, -0.05, True),
-        'foot':     (bot + 0.01, bot + 0.06,             -0.22, -0.04, True),
-        'backhead': (y_brain, top,                        -9, 9, False),
-        'nape':     (y_larynx - eps, y_larynx + eps,      -9, 9, False),
-        'back':     (y_heart - 0.06, y_heart + 0.06,      -9, 9, False),
-        'rectum':   (y_pros - 0.03, y_pros + 0.05,     -0.05, 0.05, False),
-        'backleg':  (bot + span * 0.30, bot + span * 0.36, -0.20, -0.05, False),
-        'backfoot': (bot + 0.01, bot + 0.06,             -0.22, -0.04, False),
+    # region -> (stature fraction, direction, xlim, xrange)
+    L = {
+        'head':     (0.975, 'F', 0.06, None),
+        'face':     (0.905, 'F', None, (0.02, 0.08)),
+        'eye':      (0.937, 'F', None, (-0.05, -0.015)),
+        'nose':     (0.925, 'F', 0.015, None),
+        'mouth':    (0.905, 'F', 0.03, None),
+        'ear':      (0.925, 'L', None, None),
+        'throat':   (0.858, 'F', 0.03, None),
+        'chest':    (0.720, 'F', 0.09, None),
+        'stomach':  (0.685, 'F', 0.07, None),
+        'abdomen':  (0.600, 'F', 0.07, None),
+        'urinary':  (0.512, 'F', 0.05, None),
+        'genitals': (0.478, 'F', 0.04, None),
+        'rectum':   (0.452, 'B', 0.020, None),
+        'leg':      (0.290, 'L', None, (-0.20, -0.04)),
+        'foot':     (0.022, 'L', None, (-0.24, -0.04)),
+        'backhead': (0.955, 'B', 0.06, None),
+        'nape':     (0.852, 'B', 0.04, None),
+        'back':     (0.700, 'B', 0.08, None),
     }
     out = {}
-    for rid, (lo, hi, xlo, xhi, front) in spec.items():
-        h = band(lo, hi, xlo, xhi, front)
+    for rid, (frac, dir_, xlim, xr) in L.items():
+        h = surface(frac, dir_, xlim, xr)
         if h:
             out[rid] = h
-    # Limbs and ears must be placed by *lateral* extreme, not by depth: taking
-    # the front-most vertex in an arm's height band lands on the edge of the
-    # chest, which is what put the arm marker on the torso. This pose is the
-    # anatomical one — arms abducted — so the widest point of the whole body is
-    # the hand, and the arm proper is the widest point higher up.
-    def lateral(y_lo, y_hi, front=None, push=0.02):
-        m = (skin[:, 1] >= y_lo) & (skin[:, 1] <= y_hi)
-        if front is not None:
-            m &= (skin[:, 2] >= 0) if front else (skin[:, 2] < 0)
-        pts = skin[m]
-        if not len(pts):
-            return None
-        p = pts[pts[:, 0].argmin()]
-        return {'position': f'{p[0]-push:.3f} {p[1]:.3f} {p[2]:.3f}',
-                'normal': '-1 0 0'}
 
-    # widest slice of the body = the hand; step up the arm for the arm marker
-    lo_h = bot + span * 0.47
-    hi_h = bot + span * 0.53
-    for rid, yl, yh, fr in (('hand', lo_h, hi_h, None),
-                            ('backhand', lo_h, hi_h, False),
-                            ('arm', bot + span * 0.62, bot + span * 0.68, None),
-                            ('backarm', bot + span * 0.62, bot + span * 0.68, False),
-                            ('ear', y_brain - 0.08, y_brain - 0.02, None)):
-        h = lateral(yl, yh, fr)
-        if h:
-            out[rid] = h
+    # The anus is in the perineum: on the midline, roughly 6 cm *below* the
+    # pubis, low in the gluteal cleft. Two earlier attempts got this wrong —
+    # anchoring it to the prostate put it 6 cm high, and pairing it to the
+    # genitals *height* kept it level with the pubis when it belongs below.
+    # Both then took the most-posterior midline vertex, which at pubic height
+    # is the buttock, 11 cm behind the anus. Measured from the mesh: the midline
+    # back surface recedes to z -0.15 at the hip and converges toward the
+    # perineum as it descends, so the cleft bottom is the low, converged point.
+    # Arms and hands are found from the mesh, not a fraction: in this abducted
+    # pose the hand is the lowest part of the laterally-extended limb mass, and
+    # a stature fraction alone cannot tell arm from ribcage.
+    limb = skin[np.abs(skin[:, 0]) > 0.40]
+    if len(limb):
+        tip = float(limb[:, 1].min())
+        m = ((skin[:, 1] >= tip + 0.02) & (skin[:, 1] <= tip + 0.10)
+             & (np.abs(skin[:, 0]) > 0.36))
+        pts = skin[m]
+        if len(pts):
+            p = pts[pts[:, 0].argmin()]
+            out['hand'] = {'position': f'{p[0]-0.02:.3f} {p[1]:.3f} {p[2]:.3f}',
+                           'normal': '-1 0 0'}
+    m = (skin[:, 1] >= bot + H * 0.60) & (skin[:, 1] <= bot + H * 0.64)
+    pts = skin[m]
+    if len(pts):
+        p = pts[pts[:, 0].argmin()]
+        out['arm'] = {'position': f'{p[0]-0.02:.3f} {p[1]:.3f} {p[2]:.3f}',
+                      'normal': '-1 0 0'}
     return out
+
+
+# expected landmark height per region, as a fraction of stature — the audit
+# compares the shipped hotspots against these and flags anything over 4 cm out
+EXPECT = {
+    'head': 0.975, 'face': 0.905, 'eye': 0.937, 'ear': 0.925, 'nose': 0.925,
+    'mouth': 0.905, 'throat': 0.858, 'chest': 0.720, 'stomach': 0.685,
+    'abdomen': 0.600, 'urinary': 0.512, 'genitals': 0.478, 'rectum': 0.452,
+    'leg': 0.290, 'foot': 0.022, 'backhead': 0.955, 'nape': 0.852,
+    'back': 0.700,
+}
+
+
+def cmd_audit():
+    h = json.load(open(HOTSPOTS, encoding='utf-8'))
+    lo, hi = h['bounds']['skin']
+    bot, top = lo[1], hi[1]
+    H = top - bot
+    print(f'body height {H:.3f} units  (feet {bot:.3f}, vertex {top:.3f})\n')
+    print(f'{"region":<10} {"y":>7} {"frac":>6} {"expect":>7} {"off cm":>7}   x       z')
+    worst = []
+    for k, v in h['hotspots'].items():
+        x, y, z = [float(t) for t in v['position'].split()]
+        frac = (y - bot) / H
+        e = EXPECT.get(k)
+        off = (frac - e) * H * 100 if e else None
+        flag = ''
+        if off is not None and abs(off) > 4:
+            flag = '  <-- OFF'
+            worst.append((k, round(off, 1)))
+        offs = f'{off:>7.1f}' if off is not None else f'{"-":>7}'
+        es = f'{e:>7.3f}' if e else f'{"-":>7}'
+        print(f'{k:<10} {y:>7.3f} {frac:>6.3f} {es} {offs}   {x:+.3f}  {z:+.3f}{flag}')
+    # The limbs get no stature fraction: this pose is abducted, so the hand sits
+    # near hip height rather than the 0.38 a hanging arm would give. Check them
+    # against the mesh instead — a limb marker must be well off the torso, and
+    # the arm must sit above the hand.
+    print()
+    hs = h['hotspots']
+    def px(k):
+        return [float(t) for t in hs[k]['position'].split()] if k in hs else None
+    g, rc = px('genitals'), px('rectum')
+    if g and rc:
+        drop = (g[1] - rc[1]) * 100            # positive = anus below pubis
+        opposed = (g[2] > 0) and (rc[2] < 0)
+        midline = abs(rc[0]) < 0.03
+        print(f'genitals/rectum: anus {drop:.1f} cm below pubis, opposed={opposed}, '
+              f'midline={midline}')
+        if not (3 <= drop <= 11 and opposed and midline):
+            worst.append(('genitals/rectum', 'anus not in the perineum'))
+
+    for a, hd in (('arm', 'hand'),):
+        pa, ph = px(a), px(hd)
+        if not pa or not ph:
+            worst.append((a, 'missing')); continue
+        lateral = abs(pa[0]) > 0.30 and abs(ph[0]) > 0.40
+        stacked = pa[1] > ph[1]
+        print(f'{a}/{hd}: |x| {abs(pa[0]):.3f}/{abs(ph[0]):.3f} lateral={lateral}  '
+              f'arm above hand={stacked}')
+        if not (lateral and stacked):
+            worst.append((f'{a}/{hd}', 'limb geometry'))
+
+    if worst:
+        print(f'FAIL — {len(worst)} marker(s) more than 4 cm out: {worst}')
+        sys.exit(1)
+    print(f'PASS — all {len(EXPECT)} landmark-anchored markers within 4 cm')
 
 
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else 'build'
-    {'fetch': cmd_fetch, 'build': cmd_build}[cmd]()
+    {'fetch': cmd_fetch, 'build': cmd_build, 'audit': cmd_audit}[cmd]()

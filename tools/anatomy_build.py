@@ -23,30 +23,30 @@ OUT = os.path.join(ROOT, 'assets', 'data', 'anatomy.json')
 # chapters a practitioner reaches for when thinking about that region
 # (cough under chest, stool under rectum, urine under the urinary tract).
 REGIONS = [
+    # Ordered head to toe. Limbs carry view 'both': an arm is one object seen
+    # from either side, and giving them front/back twins put four duplicate
+    # labels in the 3D list (two rows each reading পা, হাত ও আঙুল, বাহু,
+    # পায়ের পাতা) and stranded মলদ্বার in the middle of them.
     ('head',      'মাথা',            'front', [3, 2]),
+    ('face',      'মুখমণ্ডল',        'front', [9]),
     ('eye',       'চোখ',             'front', [4, 5]),
     ('ear',       'কান',             'front', [6, 7]),
     ('nose',      'নাক',             'front', [8]),
-    ('face',      'মুখমণ্ডল',        'front', [9]),
     ('mouth',     'মুখগহ্বর ও দাঁত', 'front', [10, 11]),
+    ('backhead',  'মাথার পিছন',      'back',  [3]),
     ('throat',    'গলা',             'front', [12, 13, 26]),
+    ('nape',      'ঘাড় ও বাইরের গলা', 'back',  [13]),
     ('chest',     'বুক ও শ্বাস',     'front', [30, 27, 28, 29]),
+    ('back',      'পিঠ',             'back',  [31]),
     ('stomach',   'পাকস্থলী',        'front', [14]),
     ('abdomen',   'উদর',             'front', [15]),
     ('urinary',   'মূত্রতন্ত্র',      'front', [19, 20, 22, 23, 18, 21]),
     ('genitals',  'জননাঙ্গ',         'front', [24, 25]),
-    ('arm',       'বাহু',            'front', [32]),
-    ('hand',      'হাত ও আঙুল',      'front', [32]),
-    ('leg',       'পা',              'front', [32]),
-    ('foot',      'পায়ের পাতা',      'front', [32]),
-    ('backhead',  'মাথার পিছন',      'back',  [3]),
-    ('nape',      'ঘাড় ও বাইরের গলা', 'back',  [13]),
-    ('back',      'পিঠ',             'back',  [31]),
     ('rectum',    'মলদ্বার',         'back',  [16, 17]),
-    ('backarm',   'বাহু',            'back',  [32]),
-    ('backhand',  'হাত ও আঙুল',      'back',  [32]),
-    ('backleg',   'পা',              'back',  [32]),
-    ('backfoot',  'পায়ের পাতা',      'back',  [32]),
+    ('arm',       'বাহু',            'both',  [32]),
+    ('hand',      'হাত ও আঙুল',      'both',  [32]),
+    ('leg',       'পা',              'both',  [32]),
+    ('foot',      'পায়ের পাতা',      'both',  [32]),
 ]
 
 # no location on any figure — listed separately, never pinned to a body part
@@ -102,8 +102,13 @@ def main():
     json.dump(out, open(OUT, 'w', encoding='utf-8'), ensure_ascii=False,
               separators=(',', ':'))
     kb = os.path.getsize(OUT) / 1024
-    print(f'regions        : {len(regions)} ({sum(1 for r in regions if r["view"]=="front")} front, '
-          f'{sum(1 for r in regions if r["view"]=="back")} back)')
+    import collections as _c
+    dup = {k: v for k, v in _c.Counter(r['label'] for r in regions).items() if v > 1}
+    if dup:
+        sys.exit(f'duplicate region labels would appear in the 3D list: {dup}')
+    byview = _c.Counter(r['view'] for r in regions)
+    print(f'regions        : {len(regions)} '
+          f'({byview["front"]} front, {byview["back"]} back, {byview["both"]} both)')
     print(f'chapters mapped: {len(used)} on the figure + {len(WHOLEBODY)} whole-body '
           f'+ {len(NONLOCAL)} non-local = {len(ch)}')
     # sum over distinct chapters — arm and leg both point at Extremities, and

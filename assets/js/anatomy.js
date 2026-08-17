@@ -73,10 +73,12 @@
     </button>`;
 
   function renderList() {
-    // the 3D model shows the whole body at once, so list every region there
+    // The 3D model shows the whole body at once, so list everything there. On a
+    // flat figure, show that side plus the limbs — those carry view 'both'
+    // because an arm is the same arm from either side.
     const rows = S.view === 'model'
       ? S.data.regions
-      : S.data.regions.filter(r => r.view === S.view);
+      : S.data.regions.filter(r => r.view === S.view || r.view === 'both');
     $('anList').innerHTML = rows.map(rowRegion).join('');
     syncActive();
     markCalTarget();
@@ -126,7 +128,7 @@
     // a region can live on the other view (the list is per-view, the figure
     // is not) — follow it rather than selecting something invisible. The 3D
     // model carries every region, so it never needs to switch.
-    if (S.view !== 'model' && r.view !== S.view) setView(r.view);
+    if (S.view !== 'model' && r.view !== 'both' && r.view !== S.view) setView(r.view);
     S.sel = r;
     renderSel();
     syncActive();
@@ -355,7 +357,10 @@
   function setPan(on) {
     M.pan = on;
     $('anPan').classList.toggle('on', on);
+    $('anPan').setAttribute('aria-pressed', on);
+    $('anPan').title = on ? 'সরানো বন্ধ করুন' : 'সরান (হাত)';
     $('an3dHost').classList.toggle('panning', on);
+    if (!on) $('an3dHost').classList.remove('grabbing');
     if (M.mv) M.mv.toggleAttribute('disable-tap', on);
   }
 
@@ -363,6 +368,10 @@
     let last = null;
     host.addEventListener('pointerdown', e => {
       if (!M.pan || e.button !== 0) return;
+      // The controls and hotspots live *inside* the host, so capturing the
+      // pointer here would swallow the click that turns pan mode back off —
+      // trapping the user in it. Only drags on the model itself pan.
+      if (e.target.closest('.an-ctl, .an-hs, button, input, label, a')) return;
       last = { x: e.clientX, y: e.clientY };
       host.classList.add('grabbing');
       host.setPointerCapture(e.pointerId);
@@ -511,6 +520,10 @@
 
     $('anPan').addEventListener('click', () => setPan(!M.pan));
     wirePan($('an3dHost'));
+    // a second way out, in case a drag ever leaves the mode stuck
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && M.pan) setPan(false);
+    });
 
     $('anSpin').addEventListener('click', () => {
       if (!M.mv) return;
