@@ -85,7 +85,7 @@
 /* ── layout ───────────────────────────────────────────────── */
 .an-wrap {
   display: grid;
-  grid-template-columns: minmax(300px, 400px) minmax(0, 1fr);
+  grid-template-columns: minmax(340px, 48%) minmax(0, 1fr);
   gap: 1.25rem;
   align-items: start;
 }
@@ -130,14 +130,14 @@
 /* [hidden] must win over this display, or both views stack on the page */
 .an-svgbox { display: block; }
 .an-svgbox[hidden] { display: none; }
-.an-svgbox svg { display: block; width: 100%; height: auto; max-height: 68vh; margin-inline: auto; }
+.an-svgbox svg { display: block; width: 100%; height: auto; max-height: 78vh; margin-inline: auto; }
 
 /* ── 3D view ───────────────────────────────────────────────── */
 .an-3dhost {
   position: relative;
   width: 100%;
-  aspect-ratio: 3 / 4;
-  max-height: 68vh;
+  aspect-ratio: 4 / 5;
+  max-height: 78vh;
   border-radius: var(--radius);
   background: linear-gradient(180deg, var(--surface2), var(--surface));
   overflow: hidden;
@@ -211,6 +211,11 @@
 .an-hs .an-hs-n { opacity: .75; font-weight: 400; }
 /* model-viewer hides hotspots whose surface faces away from the camera */
 .an-hs[data-visibility="hidden"] { opacity: 0; pointer-events: none; transition: opacity .2s; }
+
+/* hand tool: left-drag slides the camera target instead of orbiting, which is
+   the only way to get a body part off-centre and fill the frame with it */
+.an-3dhost.panning { cursor: grab; }
+.an-3dhost.panning.grabbing { cursor: grabbing; }
 
 /* ── overlay controls ── */
 .an-ctl {
@@ -412,6 +417,18 @@
 
 /* chapter rows inside the selected-region card */
 .an-ch { display: flex; flex-direction: column; gap: 0.375rem; }
+.an-sel-act { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+.an-sel-act .an-open { margin-top: 0; flex: 1 1 12rem; }
+.an-zoom {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4375rem;
+  flex: 0 0 auto;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--an-accent); border-radius: var(--radius-sm);
+  background: var(--an-accent-bg); color: var(--an-accent);
+  font: inherit; font-size: 0.8125rem; font-weight: 700; cursor: pointer;
+}
+.an-zoom:hover { background: var(--an-accent); color: #fff; }
+
 .an-open {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.4375rem;
   margin-top: 0.75rem; padding: 0.625rem 1rem;

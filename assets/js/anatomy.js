@@ -107,9 +107,14 @@
         </div>
       </div>
       <div class="an-ch">${r.chapters.map(rowChapter).join('')}</div>
-      <button class="an-open" data-chapter="${r.chapters[0].num}">
-        <i class='bx bx-book-bookmark'></i> ${esc(r.chapters[0].bn)} অধ্যায় খুলুন
-      </button>`;
+      <div class="an-sel-act">
+        <button class="an-zoom" data-focus="${esc(r.id)}">
+          <i class='bx bx-zoom-in'></i> এই অংশে জুম
+        </button>
+        <button class="an-open" data-chapter="${r.chapters[0].num}">
+          <i class='bx bx-book-bookmark'></i> ${esc(r.chapters[0].bn)} অধ্যায় খুলুন
+        </button>
+      </div>`;
   }
 
   function pick(id) {
@@ -153,7 +158,7 @@
      drawn figure stays one tap away and takes over automatically if WebGL or
      the model file is unavailable. */
   const M = { started: false, ready: false, cfg: null, cal: false, calId: null,
-              saved: {} };
+              saved: {}, pan: false };
   const CAL_KEY = 'anatomy_hotspots_cal_v1';
 
   function msg(html) { $('an3dMsg').innerHTML = html; $('an3dMsg').hidden = false; }
@@ -207,7 +212,7 @@
     // close and cropped the body.
     mv.setAttribute('camera-target', '0m 0m 0m');
     mv.setAttribute('camera-orbit', '0deg 90deg 3.8m');
-    mv.setAttribute('min-camera-orbit', 'auto auto 0.9m');
+    mv.setAttribute('min-camera-orbit', 'auto auto 0.22m');
     mv.setAttribute('max-camera-orbit', 'auto auto 7m');
     mv.setAttribute('field-of-view', '32deg');
     mv.setAttribute('min-field-of-view', '10deg');
@@ -226,6 +231,7 @@
       b.setAttribute('aria-label', `${r.label} — ${r.rubrics} রুব্রিক`);
       b.innerHTML = `<span class="an-hs-l">${esc(r.label)}` +
                     `<span class="an-hs-n">${bn(r.rubrics)}</span></span>`;
+      b.addEventListener('dblclick', ev => { ev.stopPropagation(); focusRegion(r.id); });
       mv.appendChild(b);
     });
 
@@ -295,7 +301,7 @@
   function zoom(f) {
     const o = orbit({});
     if (!o) return;
-    setOrbit(Object.assign(o, { radius: Math.min(7, Math.max(0.9, o.radius * f)) }));
+    setOrbit(Object.assign(o, { radius: Math.min(7, Math.max(0.22, o.radius * f)) }));
   }
   function preset(thetaDeg) {
     if (!M.mv) return;
@@ -308,6 +314,93 @@
     M.mv.cameraTarget = '0m 0m 0m';
     M.mv.fieldOfView = '32deg';
     preset(0);
+  }
+
+  /* ── hand tool ──
+     Orbiting alone always keeps the body centred, so a close look at the face
+     was impossible: zooming in just filled the frame with the chest. Sliding
+     the camera *target* is what lets a part sit centre-frame at high zoom.
+     model-viewer pans natively on right-drag / two-finger, which nobody
+     discovers, so this makes plain left-drag do it. */
+  function worldAxes() {
+    const o = M.mv.getCameraOrbit();
+    const sp = Math.sin(o.phi), cp = Math.cos(o.phi);
+    const st = Math.sin(o.theta), ct = Math.cos(o.theta);
+    const f = [sp * st, cp, sp * ct];               // target -> camera
+    let r = [f[2], 0, -f[0]];                        // cross(worldUp, f)
+    const rl = Math.hypot(r[0], r[2]) || 1;
+    r = [r[0] / rl, 0, r[2] / rl];
+    const u = [                                      // cross(f, r)
+      f[1] * r[2] - f[2] * r[1],
+      f[2] * r[0] - f[0] * r[2],
+      f[0] * r[1] - f[1] * r[0],
+    ];
+    return { right: r, up: u, radius: o.radius };
+  }
+
+  function panBy(dx, dy) {
+    if (!M.mv) return;
+    const { right, up, radius } = worldAxes();
+    const t = M.mv.getCameraTarget();
+    const fov = parseFloat(M.mv.getFieldOfView()) * Math.PI / 180;
+    const h = M.mv.getBoundingClientRect().height || 1;
+    // world units per pixel at the target plane, so panning tracks the pointer
+    const k = 2 * radius * Math.tan(fov / 2) / h;
+    const nx = t.x - right[0] * dx * k + up[0] * dy * k;
+    const ny = t.y - right[1] * dx * k + up[1] * dy * k;
+    const nz = t.z - right[2] * dx * k + up[2] * dy * k;
+    M.mv.cameraTarget = `${nx.toFixed(4)}m ${ny.toFixed(4)}m ${nz.toFixed(4)}m`;
+  }
+
+  function setPan(on) {
+    M.pan = on;
+    $('anPan').classList.toggle('on', on);
+    $('an3dHost').classList.toggle('panning', on);
+    if (M.mv) M.mv.toggleAttribute('disable-tap', on);
+  }
+
+  function wirePan(host) {
+    let last = null;
+    host.addEventListener('pointerdown', e => {
+      if (!M.pan || e.button !== 0) return;
+      last = { x: e.clientX, y: e.clientY };
+      host.classList.add('grabbing');
+      host.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    }, true);
+    host.addEventListener('pointermove', e => {
+      if (!M.pan || !last) return;
+      panBy(e.clientX - last.x, e.clientY - last.y);
+      last = { x: e.clientX, y: e.clientY };
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
+    const end = e => {
+      if (!last) return;
+      last = null;
+      host.classList.remove('grabbing');
+      try { host.releasePointerCapture(e.pointerId); } catch (_) {}
+    };
+    host.addEventListener('pointerup', end, true);
+    host.addEventListener('pointercancel', end, true);
+  }
+
+  /* Frame one region: put its hotspot at the centre of the view and move in
+     close. This is what makes "show me the face" actually work. */
+  function focusRegion(id) {
+    if (!M.mv || !M.cfg) return;
+    const spots = Object.assign({}, M.cfg.hotspots, M.saved);
+    const s = spots[id];
+    if (!s) return;
+    const [x, y, z] = s.position.split(/\s+/).map(v => parseFloat(v));
+    if ([x, y, z].some(Number.isNaN)) return;
+    setView('model');
+    M.mv.cameraTarget = `${x}m ${y}m ${z}m`;
+    // close enough to fill the frame, backed off along the region's own normal
+    const n = (s.normal || '0 0 1').split(/\s+/).map(v => parseFloat(v) || 0);
+    const theta = Math.atan2(n[0], n[2]) * 180 / Math.PI;
+    M.mv.cameraOrbit = `${theta.toFixed(1)}deg 82deg 0.62m`;
+    document.querySelectorAll('[data-orbit]').forEach(b => b.classList.remove('active'));
   }
 
   /* ── per-organ visibility ──
@@ -412,7 +505,12 @@
       if (ob) return preset(+ob.dataset.orbit);
       const org = e.target.closest('[data-organ]');
       if (org) return toggleOrgan(org.dataset.organ);
+      const fo = e.target.closest('[data-focus]');
+      if (fo) return focusRegion(fo.dataset.focus);
     });
+
+    $('anPan').addEventListener('click', () => setPan(!M.pan));
+    wirePan($('an3dHost'));
 
     $('anSpin').addEventListener('click', () => {
       if (!M.mv) return;
