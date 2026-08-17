@@ -17,11 +17,15 @@
 
   const MARK_KEY = 'organon_marks_v1';
   const FONT_KEY = 'organon_font_v1';
+  const SEC_KEY = 'organon_section_v1';
   const FONT_MIN = 0.9375, FONT_MAX = 1.5, FONT_STEP = 0.0625;
 
   const S = {
     data: null,
     byNum: new Map(),
+    secOf: new Map(),        // aphorism number -> section id
+    secIx: new Map(),        // section id -> index in data.sections
+    sec: null,               // chapter currently on screen
     marks: new Set(store.get(MARK_KEY, [])),
     font: store.get(FONT_KEY, 1.0625),
     q: ''
@@ -38,7 +42,14 @@
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(json => {
         S.data = json;
-        json.aphorisms.forEach(a => S.byNum.set(a.n, a));
+        json.aphorisms.forEach(a => {
+          S.byNum.set(a.n, a);
+          S.secOf.set(a.n, a.section);
+        });
+        json.sections.forEach((s, i) => S.secIx.set(s.id, i));
+        // come back to the chapter you were last reading, not to §1
+        const saved = store.get(SEC_KEY, null);
+        S.sec = S.secIx.has(saved) ? saved : json.sections[0].id;
         renderStats();
         renderPrinciples();
         renderToc();
@@ -115,22 +126,69 @@
       </article>`;
   }
 
+  /* Render one chapter, not the whole book. End to end the Organon lays out
+     to ~182,000px — 215 phone screens — and the browser pays ~208ms of layout
+     for it, none of which the reader can use. A chapter is 8-40 aphorisms,
+     which is both a sane scroll and a sane unit of study. Search below still
+     covers all 291. */
   function renderStream() {
-    const secs = new Map(S.data.sections.map(s => [s.id, s]));
-    let html = '', cur = null;
-    S.data.aphorisms.forEach(a => {
-      if (a.section !== cur) {
-        cur = a.section;
-        const s = secs.get(cur);
-        html += `<div class="og-sechead" id="s-${esc(s.id)}">
-                   <i class='bx ${esc(s.icon)}'></i>
-                   <h3>${esc(s.title)}</h3>
-                   <span>§ ${bn(s.from)}–${bn(s.to)}</span>
-                 </div>`;
-      }
-      html += aphorismHtml(a);
-    });
-    $('orgStream').innerHTML = html;
+    const s = S.data.sections[S.secIx.get(S.sec)];
+    const list = S.data.aphorisms.filter(a => a.section === S.sec);
+    $('orgStream').innerHTML =
+      `<div class="og-sechead" id="s-${esc(s.id)}">
+         <i class='bx ${esc(s.icon)}'></i>
+         <h3>${esc(s.title)}</h3>
+         <span>§ ${bn(s.from)}–${bn(s.to)}</span>
+       </div>` + list.map(aphorismHtml).join('');
+    renderWhere(s, list.length);
+    renderPager();
+    markTocActive(S.sec);
+    store.set(SEC_KEY, S.sec);
+  }
+
+  function renderWhere(s, count) {
+    $('orgWhere').innerHTML =
+      `<i class='bx ${esc(s.icon)}'></i><b>${esc(s.title)}</b>
+       <span>${bn(count)}টি সূত্র · § ${bn(s.from)}–${bn(s.to)}</span>`;
+  }
+
+  function renderPager() {
+    const i = S.secIx.get(S.sec);
+    const all = S.data.sections;
+    const prev = all[i - 1], next = all[i + 1];
+    const btn = (s, dir) => s
+      ? `<button class="og-pg ${dir}" data-sec="${esc(s.id)}">
+           ${dir === 'prev' ? `<i class='bx bx-chevron-right'></i>` : ''}
+           <span><small>${dir === 'prev' ? 'আগের অধ্যায়' : 'পরের অধ্যায়'}</small>${esc(s.title)}</span>
+           ${dir === 'next' ? `<i class='bx bx-chevron-left'></i>` : ''}
+         </button>`
+      : `<button class="og-pg ${dir}" disabled><span><small>${
+           dir === 'prev' ? 'এটিই প্রথম অধ্যায়' : 'এটিই শেষ অধ্যায়'}</small></span></button>`;
+    $('orgPager').innerHTML =
+      btn(prev, 'prev') +
+      `<button class="og-pg-top" id="orgPagerTop" aria-label="উপরে ফিরুন"><i class='bx bx-up-arrow-alt'></i></button>` +
+      btn(next, 'next');
+  }
+
+  function setSection(id, { scroll = true } = {}) {
+    if (!S.secIx.has(id)) return;
+    S.sec = id;
+    if (S.q) { $('orgSearch').value = ''; S.q = ''; $('orgSearchX').hidden = true; $('orgStatus').hidden = true; }
+    renderStream();
+    closeToc();
+    if (scroll) scrollToEl($('s-' + id));
+    history.replaceState(null, '', '#s-' + id);
+  }
+
+  /* content-visibility means off-screen cards have only an estimated height,
+     so the first scroll can land short once the real ones resolve. Correcting
+     on the next frame costs nothing and removes the drift. */
+  function scrollToEl(el) {
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    requestAnimationFrame(() => setTimeout(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 260));
   }
 
   function renderMarks() {
@@ -162,19 +220,25 @@
     if (!S.q) {
       renderStream();
       status.hidden = true;
+      $('orgPager').hidden = false;
       return;
     }
+    // searching leaves chapter mode and looks at the whole book
     const hits = S.data.aphorisms.filter(a =>
       a.body.some(t => t.includes(S.q)) || a.footnotes.some(t => t.includes(S.q)));
 
     status.hidden = false;
     status.textContent = hits.length
-      ? `“${S.q}” — ${bn(hits.length)}টি সূত্রে পাওয়া গেছে`
+      ? `“${S.q}” — গোটা অর্গাননে ${bn(hits.length)}টি সূত্রে পাওয়া গেছে`
       : `“${S.q}” — কোনো সূত্রে পাওয়া যায়নি`;
+    $('orgWhere').innerHTML =
+      `<i class='bx bx-search'></i><b>খোঁজার ফলাফল</b><span>সব অধ্যায় জুড়ে</span>`;
+    $('orgPager').hidden = true;
 
     stream.innerHTML = hits.length
       ? hits.map(a => highlight(aphorismHtml(a), S.q)).join('')
       : emptyBox('bx-search-alt', 'অন্য শব্দ দিয়ে চেষ্টা করুন।');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   /* Highlight only inside text nodes of the already-escaped card markup, so
@@ -189,6 +253,8 @@
   }
 
   /* ================= navigation ================= */
+  /* A § can be anywhere in the book, so jumping to one means switching to its
+     chapter first — otherwise the card simply is not in the DOM. */
   function gotoAphorism(n) {
     n = Number(n);
     if (!S.byNum.has(n)) {
@@ -196,27 +262,28 @@
       return;
     }
     showPanel('read');
-    if (S.q) { $('orgSearch').value = ''; runSearch(''); }
+    const sec = S.secOf.get(n);
+    if (sec !== S.sec || S.q) {
+      S.sec = sec;
+      if (S.q) { $('orgSearch').value = ''; S.q = ''; $('orgSearchX').hidden = true; }
+      $('orgStatus').hidden = true;
+      $('orgPager').hidden = false;
+      renderStream();
+    }
+    closeToc();
     requestAnimationFrame(() => {
       const el = $('a' + n);
       if (!el) return;
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      scrollToEl(el);
       el.classList.add('hit');
-      setTimeout(() => el.classList.remove('hit'), 1600);
+      setTimeout(() => el.classList.remove('hit'), 1800);
       history.replaceState(null, '', '#a' + n);
     });
   }
 
   function gotoSection(id) {
     showPanel('read');
-    if (S.q) { $('orgSearch').value = ''; runSearch(''); }
-    requestAnimationFrame(() => {
-      const el = $('s-' + id);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      closeToc();
-      markTocActive(id);
-      history.replaceState(null, '', '#s-' + id);
-    });
+    setSection(id);
   }
 
   function markTocActive(id) {
@@ -310,17 +377,34 @@
     $('orgTocBtn').addEventListener('click', () => $('orgToc').classList.toggle('open'));
     $('orgTocX').addEventListener('click', closeToc);
 
-    window.addEventListener('hashchange', openFromHash);
+    // the pager's top button is re-rendered on every chapter change
+    document.addEventListener('click', e => {
+      if (e.target.closest('#orgPagerTop, #orgUp')) toTop();
+    });
 
-    // keep the contents pane pointing at whatever section is on screen
-    const heads = [...document.querySelectorAll('.og-sechead')];
-    if ('IntersectionObserver' in window && heads.length) {
-      const io = new IntersectionObserver(entries => {
-        const vis = entries.filter(x => x.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
-        if (vis) markTocActive(vis.target.id.slice(2));
-      }, { rootMargin: '-70px 0px -70% 0px' });
-      heads.forEach(h => io.observe(h));
+    // The floating button and the pager's own top button do the same job, so
+    // the floater stands down whenever the pager is on screen rather than
+    // hovering over it.
+    const up = $('orgUp');
+    let pagerVisible = false, ticking = false;
+    const syncUp = () => up.classList.toggle('on', window.scrollY > 900 && !pagerVisible);
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { syncUp(); ticking = false; });
+    }, { passive: true });
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => {
+        pagerVisible = e.isIntersecting;
+        syncUp();
+      }, { rootMargin: '0px 0px -40px 0px' }).observe($('orgPager'));
     }
+
+    window.addEventListener('hashchange', openFromHash);
+  }
+
+  function toTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 })();

@@ -57,7 +57,12 @@
         <div id="panel-read" class="page-panel">
           <div class="og-read">
 
-            <!-- ── left: contents ── -->
+            <!-- ── left: contents ──
+                 The column wrapper is the grid item and stretches to the row
+                 height; the pane inside is what sticks. Making the pane itself
+                 the grid item collapses its box to its own height, leaving a
+                 sticky element with nowhere to travel. -->
+            <div class="og-toc-col">
             <aside class="og-toc" id="orgToc">
               <div class="og-toc-head">
                 <span>সূচিপত্র</span>
@@ -65,6 +70,7 @@
               </div>
               <div class="og-toc-list" id="orgTocList"></div>
             </aside>
+            </div>
 
             <!-- ── right: the text ── -->
             <section class="og-main">
@@ -84,10 +90,12 @@
                   <i class='bx bx-font-size'></i>
                   <button id="orgFontUp" aria-label="বড়"><i class='bx bx-plus'></i></button>
                 </div>
+                <div class="og-where" id="orgWhere"></div>
               </div>
 
               <div class="og-status" id="orgStatus" hidden></div>
               <div class="og-stream" id="orgStream"></div>
+              <nav class="og-pager" id="orgPager" aria-label="অধ্যায় পরিবর্তন"></nav>
             </section>
           </div>
         </div>
@@ -98,6 +106,10 @@
         </div>
 
         <p class="disclaimer" id="orgDisc"></p>
+
+        <button class="og-up" id="orgUp" aria-label="উপরে ফিরুন" title="উপরে ফিরুন">
+          <i class='bx bx-up-arrow-alt'></i>
+        </button>
 
       </div>
     </main>

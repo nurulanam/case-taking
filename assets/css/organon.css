@@ -11,7 +11,13 @@
   --og-accent-bg: #f5f3ff;       /* study page never looks like a case form   */
   --og-quote: #b45309;
   --og-read: 1.0625rem;          /* live font size, nudged by the type buttons */
+  /* The shell's topbar is itself position:sticky at top:0, so anything of ours
+     that sticks must start below it or it scrolls underneath and vanishes.
+     shell.css hard-codes 56px at its 860px breakpoint rather than moving
+     --tb-h, so mirror that here instead of trusting --tb-h alone. */
+  --og-topbar: var(--tb-h);
 }
+@media (max-width: 860px) { :root { --og-topbar: 56px; } }
 [data-theme="dark"] {
   --og-accent: #a78bfa;
   --og-accent-bg: rgba(167, 139, 250, 0.14);
@@ -155,14 +161,16 @@
   display: grid;
   grid-template-columns: 258px minmax(0, 1fr);
   gap: 1.125rem;
-  align-items: start;
+  /* no align-items:start — the contents column must stretch to the row so the
+     pane inside it has room to stick */
 }
+.og-toc-col { min-width: 0; }
 
 /* ── contents ── */
 .og-toc {
   position: sticky;
-  top: 0.5rem;
-  max-height: calc(100vh - 6rem);
+  top: calc(var(--og-topbar) + 0.75rem);
+  max-height: calc(100vh - var(--og-topbar) - 2.5rem);
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border);
@@ -212,9 +220,10 @@
 .og-main { min-width: 0; }
 .og-bar {
   position: sticky;
-  top: 0;
-  z-index: 6;
+  top: var(--og-topbar);
+  z-index: 20;
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
   padding: 0.625rem;
@@ -310,6 +319,7 @@
   border-bottom: 2px solid var(--og-accent);
 }
 .og-sechead:first-child { margin-top: 0; }
+.og-sechead { scroll-margin-top: calc(var(--og-topbar) + 4rem); }
 .og-sechead i { color: var(--og-accent); font-size: 1.25rem; }
 .og-sechead h3 { margin: 0; font-size: 1rem; font-weight: 700; }
 .og-sechead span { margin-inline-start: auto; color: var(--text-light); font-size: 0.75rem; font-weight: 700; }
@@ -320,7 +330,13 @@
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--shadow-sm);
-  scroll-margin-top: 4.5rem;
+  scroll-margin-top: calc(var(--og-topbar) + 4rem);
+  /* Laying out a whole chapter of justified Bangla is the expensive part —
+     measured at 208ms for the full book. This lets the browser skip layout
+     and paint for cards that are off screen; the intrinsic size keeps the
+     scrollbar honest so the thumb does not jump as they materialise. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 340px;
 }
 .og-a.hit { border-color: var(--og-accent); box-shadow: 0 0 0 3px var(--og-accent-bg); }
 .og-a-top { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
@@ -391,6 +407,95 @@
 
 mark.og-hl { background: #fde68a; color: #78350f; border-radius: 3px; padding: 0 .1em; }
 [data-theme="dark"] mark.og-hl { background: #78350f; color: #fde68a; }
+
+/* ── chapter pager ──────────────────────────────────────────
+   The book is 215 phone-screens end to end. Reading it as one scroll means
+   no sense of place and no way back, so the stream shows one chapter at a
+   time and these move between them. Search still spans all 291. */
+.og-pager {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.5rem;
+  align-items: stretch;
+  margin-top: 1rem;
+}
+.og-pg {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-align: start;
+  cursor: pointer;
+  transition: border-color .16s, background .16s;
+}
+.og-pg:hover:not(:disabled) { border-color: var(--og-accent); background: var(--og-accent-bg); }
+.og-pg:disabled { opacity: .35; cursor: default; }
+.og-pg.next { justify-content: flex-end; text-align: end; }
+.og-pg i { font-size: 1.125rem; color: var(--og-accent); flex: 0 0 auto; }
+.og-pg span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.og-pg small { display: block; color: var(--text-light); font-size: 0.6875rem; }
+.og-pg-top {
+  display: grid;
+  place-items: center;
+  padding: 0 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+.og-pg-top:hover { border-color: var(--og-accent); color: var(--og-accent); }
+
+/* current chapter, shown in the sticky bar so you always know where you are */
+.og-where {
+  flex: 1 1 100%;
+  order: 9;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding-top: 0.125rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 0;
+}
+.og-where i { color: var(--og-accent); font-size: 0.9375rem; }
+.og-where b { color: var(--text); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.og-where span { margin-inline-start: auto; flex: 0 0 auto; color: var(--text-light); }
+
+/* ── back to top ── */
+.og-up {
+  position: fixed;
+  inset-inline-end: 1rem;
+  bottom: 1.25rem;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  width: 2.75rem; height: 2.75rem;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--glass-bg-dense);
+  backdrop-filter: blur(8px);
+  color: var(--og-accent);
+  font-size: 1.375rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity .18s, transform .18s, visibility .18s;
+}
+.og-up.on { opacity: 1; visibility: visible; transform: none; }
+/* clear the fixed bottom nav that shell.css shows below 861px */
+@media (max-width: 860px) { .og-up { bottom: calc(4.75rem + env(safe-area-inset-bottom)); } }
 
 .og-empty {
   display: grid;
