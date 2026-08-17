@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>অর্গানন অব মেডিসিন — হোমিও কেস স্টুডিও</title>
+<meta content="ডাঃ স্যামুয়েল হ্যানিম্যানের অর্গানন অব মেডিসিন, ষষ্ঠ সংস্করণ — সূত্র ১ থেকে ২৯১ পর্যন্ত সম্পূর্ণ বাংলা পাঠ ও মূলনীতি।" name="description"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='45' font-size='38' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23fff'%3E%E0%A6%B9%3C/text%3E%3C/svg%3E"/>
+<link href="assets/css/base.css" rel="stylesheet"/>
+<link href="assets/css/shell.css" rel="stylesheet"/>
+<link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
+<link href="assets/css/organon.css" rel="stylesheet"/>
+</head>
+<body data-page="organon" data-title="অর্গানন অব মেডিসিন" data-crumb="রেফারেন্স">
+
+<div class="app-root">
+  <aside class="app-sidebar" id="appSidebar"></aside>
+  <div class="app-backdrop" id="appBackdrop"></div>
+  <div class="app-main">
+    <header class="app-topbar" id="appTopbar"></header>
+    <main class="app-content">
+      <div class="content-inner">
+
+        <div class="page-head">
+          <div class="page-icon"><i class='bx bx-book-content'></i></div>
+          <div class="page-head-txt">
+            <h2>অর্গানন অব মেডিসিন</h2>
+            <p>ডাঃ স্যামুয়েল হ্যানিম্যান · ষষ্ঠ সংস্করণ · সূত্র ১–২৯১ সম্পূর্ণ বাংলায়</p>
+          </div>
+          <div class="page-head-actions">
+            <span class="tb-chip muted"><b id="orgTotal">—</b>&nbsp;সূত্র</span>
+            <span class="tb-chip muted"><b id="orgNotes">—</b>&nbsp;পাদটীকা</span>
+          </div>
+        </div>
+
+        <div class="page-tabs" role="tablist">
+          <button class="page-tab-btn active" data-panel="principles" role="tab"><i class='bx bx-bulb'></i> মূলনীতি</button>
+          <button class="page-tab-btn" data-panel="read" role="tab"><i class='bx bx-book-open'></i> সম্পূর্ণ পাঠ</button>
+          <button class="page-tab-btn" data-panel="marks" role="tab"><i class='bx bx-bookmark'></i> চিহ্নিত<span class="og-tabn" id="orgMarkN"></span></button>
+        </div>
+
+        <!-- ══════════ PANEL: FOUNDATIONAL PRINCIPLES ══════════ -->
+        <div id="panel-principles" class="page-panel active">
+          <div class="og-intro">
+            <div class="og-intro-mark">হ্যা</div>
+            <div class="og-intro-txt">
+              <h3>হোমিওপ্যাথির ভিত্তি</h3>
+              <p>অর্গাননের ২৯১টি সূত্রে যে নীতিগুলি ছড়িয়ে আছে, নিচে সেগুলিই একত্রে।
+                 প্রতিটি কার্ডে যে সূত্র-সংখ্যা দেওয়া, সেখানেই হ্যানিম্যান নিজে কথাটি
+                 বলেছেন — কার্ডে ক্লিক করলে সেই মূল পাঠ খুলে যাবে।</p>
+            </div>
+          </div>
+          <div class="og-prin-grid" id="orgPrinGrid"></div>
+        </div>
+
+        <!-- ══════════ PANEL: FULL TEXT ══════════ -->
+        <div id="panel-read" class="page-panel">
+          <div class="og-read">
+
+            <!-- ── left: contents ── -->
+            <aside class="og-toc" id="orgToc">
+              <div class="og-toc-head">
+                <span>সূচিপত্র</span>
+                <button class="og-toc-x" id="orgTocX" aria-label="বন্ধ করুন"><i class='bx bx-x'></i></button>
+              </div>
+              <div class="og-toc-list" id="orgTocList"></div>
+            </aside>
+
+            <!-- ── right: the text ── -->
+            <section class="og-main">
+              <div class="og-bar">
+                <button class="og-toc-btn" id="orgTocBtn" aria-label="সূচিপত্র"><i class='bx bx-menu'></i></button>
+                <div class="og-search">
+                  <i class='bx bx-search'></i>
+                  <input type="text" id="orgSearch" placeholder="পাঠের ভিতরে খুঁজুন…" autocomplete="off"/>
+                  <button class="og-clear" id="orgSearchX" hidden aria-label="মুছুন"><i class='bx bx-x'></i></button>
+                </div>
+                <div class="og-jump">
+                  <span>§</span>
+                  <input type="text" id="orgJump" inputmode="numeric" placeholder="১৫৩" aria-label="সূত্র নম্বরে যান"/>
+                </div>
+                <div class="og-type" role="group" aria-label="লেখার আকার">
+                  <button id="orgFontDn" aria-label="ছোট"><i class='bx bx-minus'></i></button>
+                  <i class='bx bx-font-size'></i>
+                  <button id="orgFontUp" aria-label="বড়"><i class='bx bx-plus'></i></button>
+                </div>
+              </div>
+
+              <div class="og-status" id="orgStatus" hidden></div>
+              <div class="og-stream" id="orgStream"></div>
+            </section>
+          </div>
+        </div>
+
+        <!-- ══════════ PANEL: BOOKMARKS ══════════ -->
+        <div id="panel-marks" class="page-panel">
+          <div class="og-stream og-stream-marks" id="orgMarkStream"></div>
+        </div>
+
+        <p class="disclaimer" id="orgDisc"></p>
+
+      </div>
+    </main>
+    <footer class="app-footer">
+      <span>© হোমিও কেস স্টুডিও — শিক্ষামূলক ও গবেষণার উদ্দেশ্যে তৈরি। চিকিৎসার সিদ্ধান্ত চিকিৎসকের।</span>
+      <span>সব ডেটা এই ব্রাউজারেই সংরক্ষিত — কোথাও পাঠানো হয় না।</span>
+    </footer>
+  </div>
+</div>
+
+<script src="assets/js/shell.js"></script>
+<script src="assets/js/organon.js"></script>
+</body>
+</html>

@@ -50,6 +50,12 @@
       group: 'রেফারেন্স',
       items: [
         { id: 'materia', href: 'materia.html', icon: 'bx-capsule', label: 'মেটেরিয়া মেডিকা', meta: '৭২৫' },
+        { id: 'organon', href: 'organon.html', icon: 'bx-book-content', label: 'অর্গানন অব মেডিসিন', meta: '২৯১',
+          children: [
+            { id: 'organon-principles', href: 'organon.html#principles', icon: 'bx-bulb', label: 'মূলনীতি' },
+            { id: 'organon-read', href: 'organon.html#read', icon: 'bx-book-open', label: 'সম্পূর্ণ পাঠ' },
+            { id: 'organon-marks', href: 'organon.html#marks', icon: 'bx-bookmark', label: 'চিহ্নিত সূত্র' }
+          ] },
         { id: 'compare', href: 'miasm.html#compare', icon: 'bx-table', label: 'মায়াজম তুলনা' }
       ]
     },
