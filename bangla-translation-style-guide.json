@@ -1,0 +1,880 @@
+{
+  "translation_system": {
+    "name": "Universal Homeopathic Medical Translation Guide",
+    "version": "1.0.0",
+    "language": "bn-BD",
+    "target_language": "Bangla",
+    "domain": "Homeopathic Medical Literature",
+    "scope": [
+      "repertory",
+      "materia_medica",
+      "clinical_notes",
+      "medical_terminology",
+      "symptom_descriptions",
+      "case_descriptions",
+      "historical_homeopathic_texts",
+      "therapeutic_notes",
+      "pharmacological_descriptions",
+      "anatomical_descriptions",
+      "pathological_descriptions"
+    ],
+    "compatible_sources": [
+      "Kent",
+      "Boericke",
+      "Clarke",
+      "Hering",
+      "Allen",
+      "Boger",
+      "Phatak",
+      "Nash",
+      "Lippe",
+      "Farrington",
+      "Knerr",
+      "Bönninghausen",
+      "Hahnemann",
+      "other_homeopathic_sources"
+    ]
+  },
+
+  "core_objective": {
+    "primary_goal": "Preserve the exact meaning of the source while producing natural, medically understandable and terminology-consistent Bangla.",
+    "translation_priority": [
+      "semantic_accuracy",
+      "clinical_accuracy",
+      "anatomical_accuracy",
+      "structural_accuracy",
+      "terminology_consistency",
+      "source_style_preservation",
+      "natural_bangla",
+      "readability"
+    ],
+    "golden_rule": "Never improve the Bangla by changing, weakening, strengthening, interpreting or inventing the medical meaning of the source."
+  },
+
+  "translation_modes": {
+    "repertory": {
+      "description": "Short rubric and sub-rubric translation.",
+      "priority": [
+        "clinical meaning",
+        "rubric structure",
+        "modality",
+        "location",
+        "condition",
+        "brevity"
+      ],
+      "style": "Concise clinical Bangla",
+      "allow_explanation": false
+    },
+
+    "materia_medica": {
+      "description": "Translation of descriptive remedy literature.",
+      "priority": [
+        "meaning",
+        "clinical nuance",
+        "sentence relationship",
+        "symptom characteristics",
+        "natural Bangla"
+      ],
+      "style": "Natural medical Bangla",
+      "allow_explanation": false
+    },
+
+    "clinical_description": {
+      "description": "Translation of clinical observations and case descriptions.",
+      "priority": [
+        "clinical meaning",
+        "temporal relationship",
+        "causation",
+        "symptom characteristics",
+        "natural Bangla"
+      ],
+      "style": "Professional medical Bangla",
+      "allow_explanation": false
+    },
+
+    "terminology": {
+      "description": "Translation of isolated medical terminology.",
+      "priority": [
+        "standard terminology",
+        "anatomical accuracy",
+        "medical accuracy",
+        "consistency"
+      ],
+      "style": "Canonical terminology",
+      "allow_explanation": false
+    },
+
+    "historical_text": {
+      "description": "Translation of old or archaic homeopathic literature.",
+      "priority": [
+        "historical meaning",
+        "source terminology",
+        "clinical meaning",
+        "readability"
+      ],
+      "style": "Historically faithful modern Bangla",
+      "allow_explanation": false
+    }
+  },
+
+  "source_preservation": {
+    "rules": [
+      "Original English source must remain unchanged in the source field.",
+      "Translation must never modify the original source.",
+      "Historical spelling must not be silently modernized.",
+      "Old medical terminology must not be replaced with modern terminology if doing so changes source identity.",
+      "Abbreviations must be interpreted only when their meaning is sufficiently certain.",
+      "Unknown or ambiguous terminology must be flagged instead of guessed."
+    ]
+  },
+
+  "semantic_rules": {
+    "preserve": [
+      "body_part",
+      "anatomical_location",
+      "laterality",
+      "direction",
+      "time",
+      "frequency",
+      "duration",
+      "sequence",
+      "intensity",
+      "quality",
+      "sensation",
+      "causation",
+      "modality",
+      "aggravation",
+      "amelioration",
+      "condition",
+      "negation",
+      "comparison",
+      "movement",
+      "position",
+      "relationship"
+    ],
+
+    "never_remove": [
+      "not",
+      "never",
+      "does not",
+      "fails to",
+      "only",
+      "even",
+      "before",
+      "after",
+      "during",
+      "while",
+      "until",
+      "from",
+      "toward",
+      "through",
+      "left",
+      "right",
+      "both",
+      "slight",
+      "violent",
+      "severe"
+    ],
+
+    "never_add": [
+      "diagnosis",
+      "treatment",
+      "dosage",
+      "remedy",
+      "clinical advice",
+      "homeopathic interpretation",
+      "causal explanation",
+      "modern medical explanation",
+      "unsupported anatomical interpretation"
+    ]
+  },
+
+  "translation_method": {
+    "steps": [
+      {
+        "step": 1,
+        "name": "Identify source type",
+        "action": "Determine whether the text is a rubric, sub-rubric, materia medica prose, clinical description or terminology."
+      },
+      {
+        "step": 2,
+        "name": "Parse grammar",
+        "action": "Identify subject, object, verb, modifier, preposition, condition and relationship."
+      },
+      {
+        "step": 3,
+        "name": "Identify clinical meaning",
+        "action": "Determine the medical meaning before translating."
+      },
+      {
+        "step": 4,
+        "name": "Resolve terminology",
+        "action": "Use the canonical terminology dictionary."
+      },
+      {
+        "step": 5,
+        "name": "Preserve structure",
+        "action": "Preserve placeholders, hierarchy, conditions and modifiers."
+      },
+      {
+        "step": 6,
+        "name": "Generate Bangla",
+        "action": "Produce concise and natural Bangla."
+      },
+      {
+        "step": 7,
+        "name": "Validate",
+        "action": "Compare the Bangla against the original for semantic loss or distortion."
+      }
+    ]
+  },
+
+  "canonical_abbreviations": {
+    "agg.": {
+      "meaning": "aggravation",
+      "bangla": "বৃদ্ধি"
+    },
+    "amel.": {
+      "meaning": "amelioration",
+      "bangla": "উপশম"
+    },
+    "aversion": {
+      "bangla": "অনাগ্রহ / বিরাগ"
+    },
+    "desire": {
+      "bangla": "ইচ্ছা / আকাঙ্ক্ষা"
+    },
+    "complaint": {
+      "bangla": "অভিযোগ / উপসর্গ"
+    },
+    "thro'": {
+      "bangla": "মধ্য দিয়ে"
+    }
+  },
+
+  "aggravation_rules": {
+    "canonical_term": "বৃদ্ধি",
+    "patterns": {
+      "X agg.": "X-এ বৃদ্ধি",
+      "X aggravates": "X-এ বৃদ্ধি",
+      "aggravated by X": "X-এ বৃদ্ধি",
+      "worse from X": "X-এ বৃদ্ধি",
+      "worse when X": "X হলে বৃদ্ধি"
+    },
+    "do_not_use_as_default": [
+      "অবনতি",
+      "খারাপ",
+      "আরও খারাপ"
+    ]
+  },
+
+  "amelioration_rules": {
+    "canonical_term": "উপশম",
+    "patterns": {
+      "X amel.": "X-এ উপশম",
+      "ameliorated by X": "X-এ উপশম",
+      "better from X": "X-এ উপশম",
+      "better when X": "X হলে উপশম"
+    }
+  },
+
+  "placeholder_policy": {
+    "symbol": "-",
+    "purpose": "Incomplete rubric or phrase-এর grammatical placeholder.",
+    "preserve_exactly": true,
+    "rules": {
+      "of": "-এর",
+      "from": "-থেকে",
+      "in": "-এ",
+      "on": "-এ / -এর উপর",
+      "to": "-এ / -দিকে",
+      "into": "-এর ভিতরে / -এ",
+      "through": "-এর মধ্য দিয়ে",
+      "over": "-এর উপর",
+      "under": "-এর নিচে",
+      "around": "-এর চারপাশে"
+    },
+    "examples": {
+      "roots of": "-এর গোড়া",
+      "running in": "-এ বয়ে যাওয়া",
+      "rising from": "-থেকে উঠে আসা",
+      "sensation of": "-এর অনুভূতি"
+    }
+  },
+
+  "anatomical_translation": {
+    "principle": "Use standard Bangla anatomical terminology. Add the English medical term in parentheses when it improves precision or user recognition.",
+    "preferred_format": "Bangla term (English/medical term)",
+    "examples": {
+      "head": "মাথা",
+      "brain": "মস্তিষ্ক",
+      "tongue": "জিহ্বা",
+      "throat": "গলা",
+      "pharynx": "গলবিল (ফ্যারিংক্স)",
+      "larynx": "কণ্ঠনালি (ল্যারিংক্স)",
+      "oesophagus": "খাদ্যনালি (ইসোফ্যাগাস)",
+      "stomach": "পাকস্থলী",
+      "intestine": "অন্ত্র",
+      "rectum": "মলাশয়",
+      "anus": "মলদ্বার",
+      "uterus": "জরায়ু",
+      "ovary": "ডিম্বাশয়",
+      "vagina": "যোনি",
+      "penis": "পুরুষাঙ্গ",
+      "testes": "অণ্ডকোষ",
+      "scrotum": "অণ্ডথলি",
+      "kidney": "বৃক্ক (কিডনি)",
+      "bladder": "মূত্রথলি",
+      "spleen": "প্লীহা",
+      "liver": "যকৃত",
+      "heart": "হৃদযন্ত্র",
+      "lung": "ফুসফুস",
+      "spine": "মেরুদণ্ড",
+      "sacrum": "ত্রিকাস্থি",
+      "scapula": "স্ক্যাপুলা (কাঁধের হাড়)",
+      "sphincter": "সংকোচক পেশি (স্ফিঙ্কটার)",
+      "sciatic nerve": "সায়াটিক স্নায়ু",
+      "molar": "পেষণদাঁত (মোলার)"
+    }
+  },
+
+  "anatomical_safety": {
+    "rules": [
+      "Do not infer an anatomical structure when the source is ambiguous.",
+      "Do not replace a specific structure with a broader region.",
+      "Do not translate a historical anatomical term using an unrelated modern structure.",
+      "If a term has multiple possible anatomical meanings, flag it for review."
+    ],
+    "example": {
+      "source": "cord",
+      "action": "Do not automatically translate as spinal cord.",
+      "status": "REVIEW"
+    }
+  },
+
+  "laterality": {
+    "left": "বাম",
+    "right": "ডান",
+    "both": "উভয়",
+    "bilateral": "উভয় পাশে",
+    "same_side": "একই পাশে",
+    "opposite_side": "বিপরীত পাশে",
+    "rules": [
+      "Never remove laterality.",
+      "Never infer laterality.",
+      "Never replace left/right with generic body-part terminology."
+    ]
+  },
+
+  "directional_terms": {
+    "up": "উপরে",
+    "upward": "উপরের দিকে",
+    "down": "নিচে",
+    "downward": "নিচের দিকে",
+    "inward": "ভিতরের দিকে",
+    "outward": "বাইরের দিকে",
+    "forward": "সামনে",
+    "backward": "পিছনে",
+    "from": "থেকে",
+    "toward": "দিকে",
+    "through": "মধ্য দিয়ে",
+    "around": "চারপাশে",
+    "between": "মাঝে",
+    "under": "নিচে",
+    "over": "উপরে"
+  },
+
+  "temporal_terms": {
+    "morning": "সকাল / সকালে",
+    "evening": "সন্ধ্যা / সন্ধ্যায়",
+    "night": "রাত / রাতে",
+    "midnight": "মধ্যরাত",
+    "day": "দিন",
+    "daily": "প্রতিদিন",
+    "weekly": "সাপ্তাহিক",
+    "before": "আগে",
+    "after": "পরে",
+    "during": "সময়",
+    "while": "সময়",
+    "until": "পর্যন্ত",
+    "on_waking": "জেগে উঠলে",
+    "after_waking": "জেগে ওঠার পরে",
+    "before_sleep": "ঘুমের আগে",
+    "during_sleep": "ঘুমের সময়"
+  },
+
+  "frequency": {
+    "always": "সবসময়",
+    "often": "প্রায়ই",
+    "frequently": "ঘন ঘন",
+    "sometimes": "কখনো কখনো",
+    "occasionally": "মাঝে মাঝে",
+    "seldom": "কদাচিৎ",
+    "rarely": "খুব কম",
+    "never": "কখনো নয়",
+    "every_day": "প্রতিদিন",
+    "every_time": "প্রতিবার"
+  },
+
+  "intensity": {
+    "slight": "সামান্য",
+    "slightest": "সামান্যতম",
+    "mild": "মৃদু",
+    "moderate": "মাঝারি",
+    "severe": "তীব্র",
+    "violent": "প্রচণ্ড",
+    "intense": "তীব্র",
+    "extreme": "অত্যন্ত তীব্র"
+  },
+
+  "sensation_patterns": {
+    "sensation": "অনুভূতি",
+    "sensation_of_X": "X-এর অনুভূতি",
+    "sensation_as_if_X": "যেন X এমন অনুভূতি",
+    "feeling_of_X": "X-এর অনুভূতি",
+    "as_if": "যেন",
+    "like": "মতো",
+    "as_from": "যেন ... থেকে",
+    "as_if_from": "যেন ... থেকে"
+  },
+
+  "symptom_quality": {
+    "pain": "ব্যথা",
+    "ache": "ব্যথা",
+    "soreness": "ব্যথা / স্পর্শকাতর ব্যথা",
+    "burning": "জ্বালাপোড়া",
+    "stinging": "হুল ফোটার মতো ব্যথা",
+    "shooting": "ছুটন্ত / ছুটে যাওয়ার মতো",
+    "stabbing": "ছুরিকাঘাতের মতো",
+    "throbbing": "ধুকপুক করা",
+    "tearing": "ছিঁড়ে যাওয়ার মতো",
+    "cramping": "মোচড়ানো ব্যথা",
+    "spasm": "খিঁচুনি",
+    "spasmodic": "খিঁচুনিজনিত / খিঁচুনি-সদৃশ",
+    "itching": "চুলকানি",
+    "numbness": "অবশভাব",
+    "tingling": "ঝিনঝিন অনুভূতি",
+    "heaviness": "ভারী ভাব",
+    "weakness": "দুর্বলতা",
+    "coldness": "শীতলতা",
+    "heat": "উত্তাপ",
+    "roughness": "খসখসে ভাব",
+    "dryness": "শুষ্কতা",
+    "moisture": "আর্দ্রতা",
+    "pressure": "চাপ",
+    "tightness": "টানটান ভাব",
+    "constriction": "সংকোচন / চেপে ধরা অনুভূতি"
+  },
+
+  "movement_terms": {
+    "walking": "হাঁটা",
+    "running": "দৌড়ানো",
+    "jumping": "লাফানো",
+    "sitting": "বসা",
+    "standing": "দাঁড়ানো",
+    "lying": "শোয়া",
+    "stooping": "ঝুঁকে থাকা",
+    "rising": "উঠে আসা / ওঠা",
+    "turning": "ঘোরানো",
+    "rotating": "ঘোরানো",
+    "shaking": "কাঁপা / কাঁপুনি",
+    "rubbing": "ঘষা",
+    "scratching": "আঁচড়ানো",
+    "pressing": "চাপ দেওয়া"
+  },
+
+  "position_rules": {
+    "sitting": "বসে",
+    "standing": "দাঁড়িয়ে",
+    "lying": "শুয়ে",
+    "lying_on_back": "চিত হয়ে শুয়ে",
+    "lying_on_left_side": "বাম কাতে শুয়ে",
+    "lying_on_right_side": "ডান কাতে শুয়ে",
+    "sitting_erect": "সোজা হয়ে বসে",
+    "sitting_bent_forward": "সামনে ঝুঁকে বসে",
+    "sitting_bent_backward": "পিছনে হেলে বসে"
+  },
+
+  "pathology_terms": {
+    "inflammation": "প্রদাহ",
+    "swelling": "ফোলা",
+    "ulcer": "আলসার / ঘা",
+    "eruption": "উদ্গমন / ফুসকুড়ি",
+    "rash": "ফুসকুড়ি",
+    "discharge": "ক্ষরণ",
+    "secretion": "ক্ষরণ",
+    "excretion": "রেচন",
+    "suppuration": "পুঁজ হওয়া",
+    "hemorrhage": "রক্তক্ষরণ",
+    "congestion": "রক্তসঞ্চয় / congestion",
+    "necrosis": "নেক্রোসিস / টিস্যু-মৃত্যু",
+    "atrophy": "ক্ষয় / অ্যাট্রোফি",
+    "hypertrophy": "অতিবৃদ্ধি",
+    "induration": "কঠিন হয়ে যাওয়া",
+    "softening": "নরম হয়ে যাওয়া"
+  },
+
+  "disease_name_policy": {
+    "rules": [
+      "Use established Bangla disease names where available.",
+      "Use transliteration when no reliable Bangla equivalent exists.",
+      "Do not invent disease names.",
+      "Preserve historical disease terminology when clinically significant."
+    ],
+    "examples": {
+      "scorbutus": "স্কার্ভি",
+      "scarlet fever": "স্কারলেট জ্বর",
+      "septicemia": "সেপটিসেমিয়া",
+      "roseola": "রোজিওলা",
+      "enuresis": "অনিচ্ছাকৃত মূত্রত্যাগ"
+    }
+  },
+
+  "chemical_and_drug_policy": {
+    "rules": [
+      "Use standard Bangla chemical/drug names.",
+      "Do not translate a drug name into a descriptive phrase.",
+      "Keep canonical spelling consistent."
+    ],
+    "examples": {
+      "quinine": "কুইনাইন",
+      "mercury": "পারদ",
+      "sulphur": "গন্ধক",
+      "arsenic": "আর্সেনিক"
+    }
+  },
+
+  "food_and_substance_policy": {
+    "examples": {
+      "salt": "নুন",
+      "salad": "সালাদ",
+      "sausage": "সসেজ",
+      "sauerkraut": "গাঁজানো বাঁধাকপি",
+      "rye": "রাই শস্য",
+      "roast lamb": "ভুনা মেষশাবকের মাংস",
+      "sherry": "শেরি মদ"
+    },
+    "rules": [
+      "Use common Bangla terminology.",
+      "Do not convert food into a generic category if the source is specific.",
+      "Preserve dietary modality."
+    ]
+  },
+
+  "negation_policy": {
+    "not": "নয় / না",
+    "never": "কখনো নয়",
+    "does_not": "দেয় না / হয় না",
+    "fails_to": "ব্যর্থ হয় / হয় না",
+    "without": "ছাড়া",
+    "rules": [
+      "Negation must never be omitted.",
+      "Negation must remain attached to the correct clause."
+    ]
+  },
+
+  "comparison_policy": {
+    "than": "চেয়ে",
+    "more": "বেশি",
+    "less": "কম",
+    "same": "একই",
+    "different": "ভিন্ন",
+    "similar": "সদৃশ / অনুরূপ",
+    "examples": {
+      "slower than the beat of heart": "হৃৎস্পন্দনের চেয়ে মন্থর",
+      "same time each day": "প্রতিদিন একই সময়ে"
+    }
+  },
+
+  "causation_policy": {
+    "from": "থেকে",
+    "due_to": "কারণে",
+    "after": "পরে",
+    "following": "পরবর্তী / পরে",
+    "caused_by": "দ্বারা সৃষ্ট",
+    "after_abuse": "অপব্যবহারের পরে",
+    "rules": [
+      "Temporal causation must not be converted into confirmed medical causation.",
+      "Translate 'after' as temporal sequence unless the source explicitly states causation."
+    ]
+  },
+
+  "historical_terminology": {
+    "rules": [
+      "Preserve the historical concept.",
+      "Do not silently substitute a modern diagnosis.",
+      "If the historical term has a well-established modern equivalent, use Bangla transliteration plus modern equivalent only when useful.",
+      "Flag uncertain historical terminology."
+    ]
+  },
+
+  "repertory_structure": {
+    "rules": [
+      "Do not change rubric hierarchy.",
+      "Do not merge separate rubrics.",
+      "Do not split one rubric into multiple rubrics.",
+      "Do not add interpretation.",
+      "Preserve incomplete phrases.",
+      "Preserve modality information.",
+      "Preserve location and condition."
+    ]
+  },
+
+  "materia_medica_structure": {
+    "rules": [
+      "Preserve paragraph meaning.",
+      "Preserve causal and temporal relationships.",
+      "Preserve symptom sequence.",
+      "Do not convert descriptive prose into rubric format.",
+      "Do not shorten unless explicitly requested.",
+      "Do not add modern explanations."
+    ]
+  },
+
+  "natural_bangla": {
+    "principle": "Translation must sound like professional Bangla medical writing rather than machine-translated English.",
+    "rules": [
+      "Avoid English word order when unnatural in Bangla.",
+      "Avoid unnecessary literal translation.",
+      "Use concise clinical expressions.",
+      "Avoid decorative language.",
+      "Avoid archaic Bangla unless the source requires it.",
+      "Do not sacrifice medical precision for readability."
+    ]
+  },
+
+  "literal_translation_exceptions": {
+    "rule": "Literal translation is acceptable when the literal form preserves the clinical meaning and is natural enough in Bangla.",
+    "do_not_translate_literally_when": [
+      "the result changes anatomical meaning",
+      "the result sounds medically incorrect",
+      "the English phrase is an idiom",
+      "the English term is a technical medical term",
+      "the literal translation creates ambiguity"
+    ]
+  },
+
+  "technical_term_policy": {
+    "preferred_format": "Bangla equivalent (English medical term)",
+    "use_parenthetical_english_when": [
+      "term is uncommon in Bangla",
+      "term has multiple Bangla meanings",
+      "medical precision benefits from the original term",
+      "term is important for professional users"
+    ]
+  },
+
+  "ambiguity_policy": {
+    "status_values": [
+      "CLEAR",
+      "REVIEW",
+      "AMBIGUOUS",
+      "UNTRANSLATABLE"
+    ],
+    "rules": [
+      "Never guess an ambiguous medical term.",
+      "Use context from the source hierarchy when available.",
+      "If context is still insufficient, mark REVIEW.",
+      "Keep the original English term available."
+    ]
+  },
+
+  "consistency_policy": {
+    "canonical_term_required": true,
+    "rules": [
+      "The same English medical term should normally map to the same Bangla canonical term.",
+      "Synonyms may only be used when context changes the meaning.",
+      "A terminology dictionary must override free-form AI translation.",
+      "Existing approved translations must be reused."
+    ]
+  },
+
+  "duplicate_policy": {
+    "rules": [
+      "Duplicate English phrases must use the approved canonical translation.",
+      "Minor English variations such as articles should not automatically produce different Bangla translations.",
+      "Different English phrases may share the same Bangla translation when their clinical meaning is identical."
+    ]
+  },
+
+  "do_not_translate": {
+    "preserve_or_review": [
+      "remedy names",
+      "author names",
+      "book titles",
+      "Latin names",
+      "botanical names",
+      "chemical symbols",
+      "dosage notation",
+      "potency notation",
+      "historical source references"
+    ]
+  },
+
+  "quality_control": {
+    "validation_levels": {
+      "PASS": "Translation is semantically and clinically acceptable.",
+      "REVIEW": "Translation may be acceptable but requires human review.",
+      "FAIL": "Translation changes or loses important meaning."
+    },
+
+    "critical_errors": [
+      "wrong body part",
+      "wrong anatomical structure",
+      "wrong left/right",
+      "wrong direction",
+      "wrong time",
+      "wrong negation",
+      "agg translated as amel",
+      "amel translated as agg",
+      "wrong disease",
+      "wrong causation",
+      "missing clinical qualifier",
+      "invented clinical information",
+      "incorrect placeholder"
+    ],
+
+    "warning_errors": [
+      "awkward Bangla",
+      "inconsistent terminology",
+      "overly literal translation",
+      "unnecessary English",
+      "unclear historical terminology",
+      "ambiguous phrase"
+    ]
+  },
+
+  "automated_validation": {
+    "checks": [
+      "source_translation_not_empty",
+      "placeholder_preserved",
+      "agg_consistency",
+      "amel_consistency",
+      "left_right_preserved",
+      "negation_preserved",
+      "temporal_terms_preserved",
+      "anatomical_terms_preserved",
+      "numeric_values_preserved",
+      "dosage_values_preserved",
+      "percentage_values_preserved",
+      "condition_preserved",
+      "direction_preserved",
+      "canonical_terms_used",
+      "no_unapproved_medical_terms"
+    ]
+  },
+
+  "human_review_triggers": [
+    "ambiguous anatomical term",
+    "historical disease term",
+    "unknown abbreviation",
+    "OCR corruption",
+    "fragment without sufficient context",
+    "multiple possible medical meanings",
+    "translation confidence below threshold",
+    "new terminology not present in dictionary"
+  ],
+
+  "confidence_policy": {
+    "high": {
+      "range": "0.90-1.00",
+      "action": "AUTO_ACCEPT"
+    },
+    "medium": {
+      "range": "0.70-0.89",
+      "action": "REVIEW_RECOMMENDED"
+    },
+    "low": {
+      "range": "0.00-0.69",
+      "action": "MANDATORY_REVIEW"
+    }
+  },
+
+  "translation_output_schema": {
+    "source": "Original English text",
+    "translation": "Approved Bangla translation",
+    "source_type": "repertory | materia_medica | clinical | terminology | historical",
+    "status": "PASS | REVIEW | FAIL",
+    "confidence": 0.0,
+    "review_reason": null,
+    "canonical_terms_used": [],
+    "notes": null
+  },
+
+  "ai_translation_prompt": {
+    "system_role": "Universal Homeopathic Medical Literature Translator",
+    "instruction": [
+      "Translate only; do not explain.",
+      "Preserve the exact medical meaning.",
+      "Use the canonical terminology dictionary.",
+      "Preserve all anatomical, temporal, directional, conditional and modal information.",
+      "Translate agg. as বৃদ্ধি.",
+      "Translate amel. as উপশম.",
+      "Preserve '-' placeholders.",
+      "Preserve negation.",
+      "Preserve left/right and other laterality.",
+      "Preserve 'as if' as যেন.",
+      "Do not add diagnosis, treatment or homeopathic interpretation.",
+      "Do not invent missing context.",
+      "If ambiguous, return REVIEW instead of guessing.",
+      "Use natural professional Bangla.",
+      "Keep repertory translations concise.",
+      "Keep materia medica prose natural while preserving the original meaning.",
+      "Never alter the source text."
+    ]
+  },
+
+  "examples": {
+    "correct": [
+      {
+        "source": "rising from seat agg.",
+        "translation": "আসন থেকে উঠলে বৃদ্ধি",
+        "status": "PASS"
+      },
+      {
+        "source": "rubbing back amel.",
+        "translation": "পিঠ ঘষলে উপশম",
+        "status": "PASS"
+      },
+      {
+        "source": "sensation as if food lodged in",
+        "translation": "যেন খাবার -এ আটকে আছে এমন অনুভূতি",
+        "status": "PASS"
+      },
+      {
+        "source": "root of penis",
+        "translation": "পুরুষাঙ্গের গোড়া",
+        "status": "PASS"
+      },
+      {
+        "source": "left lower molars",
+        "translation": "বাম দিকের নিচের পেষণদাঁত (মোলার)",
+        "status": "PASS"
+      }
+    ],
+    "incorrect": [
+      {
+        "source": "rising from seat agg.",
+        "translation": "আসন থেকে উঠলে উপশম",
+        "reason": "agg. incorrectly translated as amel."
+      },
+      {
+        "source": "left lower molars",
+        "translation": "নিচের দাঁত",
+        "reason": "left and molar information lost"
+      },
+      {
+        "source": "small-pox fails to break out",
+        "translation": "গুটিবসন্ত হয়",
+        "reason": "negation and clinical meaning lost"
+      }
+    ]
+  },
+
+  "versioning": {
+    "policy_version": "1.0.0",
+    "terminology_dictionary_version": "1.0.0",
+    "changes_must_be_logged": true,
+    "approved_translation_changes_require_review": true
+  }
+}

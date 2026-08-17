@@ -691,7 +691,7 @@ SEG.update({
     'Twitching and jerking': 'পেশির লাফানো ও ঝাঁকানো', 'Retraction': 'সংকোচন-প্রত্যাহার',
     'Milk absent': 'দুধ না হওয়া', 'Enlargement': 'বৃদ্ধি (আকারে)', 'Colors': 'রঙ',
     'Smell': 'ঘ্রাণ', 'Rage': 'ক্রোধ', 'Mirth': 'হাস্যরস', 'Lochia': 'প্রসবোত্তর স্রাব',
-    'Indigestion (Includes Complaints After Substances Not Otherwise Described)': 'বদহজম',
+    'Indigestion (Includes Complaints After Substances Not Otherwise Described)': 'বদহজম (অন্যত্র উল্লেখ নেই এমন খাদ্যবস্তুর পরবর্তী উপসর্গসহ)',
     'Bleeding': 'রক্তক্ষরণ', 'Prolapsus': 'স্খলন (নিচে নেমে আসা)',
     'Prolapsus uterus': 'জরায়ু স্খলন', 'Indurations': 'কাঠিন্য',
     'Glittering objects': 'ঝলমলে বস্তু', 'Fancies': 'কল্পনা', 'Fall': 'পতন',
