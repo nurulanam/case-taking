@@ -52,50 +52,233 @@
   /* ==================== Phase 5: Repertory UX ==================== */
 
   // Fuzzy search: "hesache" → "Headache" (typo tolerance)
-  function fuzzyMatch(haystack, needle) {
-    haystack = norm(haystack);
-    needle = norm(needle);
-    let h = 0, n = 0;
-    while (h < haystack.length && n < needle.length) {
-      if (haystack[h] === needle[n]) n++;
-      h++;
-    }
-    return n === needle.length;
+  /* ==================== search ====================
+
+     What was here before had three problems, all of which showed up as
+     "the search isn't good enough":
+
+       1. Matching was subsequence-based, so "fear" matched any rubric with
+          f…e…a…r in order — 6,222 hits against 322 real ones, and "ear"
+          pulled in 26,830 of 67,445 rubrics. The signal was buried.
+       2. Nothing was scored. Results were ordered by depth and remedy count,
+          so an exact "Anxiety" could sit below hundreds of unrelated rubrics.
+          There was no "best match at the top" because there was no notion of
+          a better match.
+       3. Bangla went through a hand-written 22-word table, while the book
+          already ships an 18,741-entry Bangla glossary that was never
+          consulted.
+
+     Now: tokens must all match (AND), each match is scored by how strong it
+     is, and Bangla is resolved through the real glossary in both directions. */
+
+  /* ============ stage 1: normalise ============
+     Bangla has several ways to spell the same word that compare unequal as
+     byte strings, so a raw indexOf misses real matches. Three are fixed here
+     because they are encoding differences, not spelling choices:
+
+       - NFC, so a vowel sign written as a combining sequence matches the
+         composed form;
+       - ZWJ/ZWNJ stripped — invisible joiners a Bangla keyboard inserts
+         freely, which otherwise split a word in the middle;
+       - the nukta letters ড় ঢ় য় decomposed to base + nukta, since the same
+         letter exists both as a single code point (U+09DC) and as a pair, and
+         glossary and rubric text do not agree on which to use.
+
+     This is lossless — nothing here changes which words match, only which
+     encodings of the same word do. */
+  const RE_ZW = /[​‌‍­﻿]/g;
+  const NUKTA_PAIR = {
+    'ড়': 'ড়',   // ড় -> ড + nukta
+    'ঢ়': 'ঢ়',   // ঢ় -> ঢ + nukta
+    'য়': 'য়'    // য় -> য + nukta
+  };
+  function bnNorm(str) {
+    if (!str) return '';
+    return String(str).normalize('NFC')
+      .replace(RE_ZW, '')
+      .replace(/[ড়ঢ়য়]/g, c => NUKTA_PAIR[c])
+      .toLowerCase();
   }
 
-  // Bilingual search: Bangla symptoms → English rubrics
-  // Bengali symptom words mapped to common rubric keywords
-  const BN_TO_EN_MAP = {
-    'মাথা': 'head',
-    'ব্যথা': 'pain',
-    'জ্বর': 'fever',
-    'কাশি': 'cough',
-    'গলা': 'throat',
-    'পেট': 'stomach',
-    'বমি': 'vomit',
-    'দুর্বল': 'weak',
-    'ঘুম': 'sleep',
-    'উদ্বেগ': 'anxiety',
-    'শ্বাস': 'breath',
-    'হৃদয়': 'heart',
-    'চোখ': 'eye',
-    'কান': 'ear',
-    'নাক': 'nose',
-    'দাত': 'tooth',
-    'ত্বক': 'skin',
-    'চর্ম': 'skin',
-    'যৌন': 'sexual',
-    'মাসিক': 'menses',
-    'জরায়ু': 'uterus',
-    'স্তন': 'breast'
-  };
+  /* Lenient fold for the fuzzy stage only. These ARE spelling differences —
+     pairs Bengali writers genuinely interchange (ি/ী, ু/ূ, শ/ষ/স, ন/ণ, জ/য) —
+     so folding them raises recall but loses precision, and a match found only
+     after folding must never outrank a real one. It is confined to the fuzzy
+     tier for that reason. */
+  function bnFold(str) {
+    return bnNorm(str)
+      .replace(/[়ঁঃ্]/g, '')  // nukta, chandrabindu, visarga, hasanta
+      .replace(/ী/g, 'ি')                // ী -> ি
+      .replace(/ূ/g, 'ু')                // ূ -> ু
+      .replace(/ৈ/g, 'ে')                // ৈ -> ে
+      .replace(/ৌ/g, 'ো')                // ৌ -> ো
+      .replace(/[শষ]/g, 'স')        // শ, ষ -> স
+      .replace(/ণ/g, 'ন')                // ণ -> ন
+      .replace(/য/g, 'জ')                // য -> জ
+      .replace(/ৎ/g, 'ত');               // ৎ -> ত
+  }
 
-  function bilingualSearch(text) {
-    let expanded = text;
-    for (const [bn, en] of Object.entries(BN_TO_EN_MAP)) {
-      if (text.includes(bn)) expanded += ' ' + en;
+  /* ============ synonyms / aliases ============
+     Two attested sources, no invented equivalences. A guessed synonym would
+     quietly route a practitioner to the wrong rubric, which is worse than
+     returning nothing.
+
+       xLang  — the book's own 18,741-entry Bangla glossary, inverted.
+       rb.see — Kent's printed cross-references ("ABANDONED (See Forsaken)").
+                These are the repertory declaring its own aliases, so they are
+                the most trustworthy source available and cost nothing to use. */
+  let xLang = new Map();
+
+  function addCross(a, b) {
+    if (!a || !b) return;
+    if (!xLang.has(a)) xLang.set(a, new Set());
+    const set = xLang.get(a);
+    if (set.size < 4) set.add(b);      // a token with 40 synonyms matches noise
+  }
+
+  /* The glossary is {english segment: bangla segment} for every phrase the book
+     uses, so inverting it gives Bangla->English across the whole vocabulary.
+
+     Only *unambiguous* pairs are kept. Pairing every English word with every
+     Bangla word in a segment (the first attempt) meant "Anxiety, night" ->
+     "উদ্বেগ, রাত" also taught the engine anxiety=রাত and night=উদ্বেগ; with that
+     fan-out a search for "anxiety" matched 33,456 of 67,445 rubrics. A pair is
+     only trusted when each side reduces to a single significant word.
+
+     The mapping is deliberately one-way, Bangla -> English: a rubric's own
+     Bangla name is already searched directly, so expanding English queries
+     into Bangla as well only re-matched rows that had already matched. */
+  function buildCrossLanguage(gloss) {
+    xLang = new Map();
+    if (!gloss) return;
+    for (const en in gloss) {
+      const bnText = gloss[en];
+      if (!bnText) continue;
+      const enWords = String(en).toLowerCase().match(/[a-z]{3,}/g) || [];
+      const bnWords = bnNorm(bnText).match(/[ঀ-৿]{2,}/g) || [];
+      if (enWords.length !== 1 || bnWords.length !== 1) continue;
+      addCross(bnWords[0], enWords[0]);
     }
-    return expanded;
+  }
+
+  const STOP_EN = new Set(['the', 'and', 'with', 'from', 'for', 'of', 'in', 'on', 'at', 'to']);
+
+  function tokenize(q) {
+    return (bnNorm(q).match(/[a-z0-9]{2,}|[ঀ-৿]{2,}/g) || [])
+      .filter(t => !STOP_EN.has(t));
+  }
+
+  /* ============ stages 2-5: how strongly one token hits one field ============
+     Bands are separated widely enough that a weaker stage can never overtake a
+     stronger one on boosts alone, which is what "best match at the top"
+     requires:
+
+        exact whole field   1000
+        prefix               600
+        token / word-start   420
+        substring            150
+
+     A field is a lowered, normalised string; hits are ordered by how much of
+     the field the query accounts for. */
+  const RE_WORD_EDGE = /[\s,;(–—\-৷]/;
+
+  function fieldScore(field, tok) {
+    if (!field) return 0;
+    const pos = field.indexOf(tok);
+    if (pos < 0) return 0;
+    if (pos === 0) return field.length === tok.length ? 1000 : 600;
+    return RE_WORD_EDGE.test(field[pos - 1]) ? 420 : 150;
+  }
+
+  function tokenScore(tok, rb) {
+    const name = rb.nameN || (rb.nameN = bnNorm(rb.name));
+    let best = fieldScore(name, tok);
+
+    // the rubric's own Bangla name is a first-class field, not a fallback
+    if (rb.bnN === undefined) rb.bnN = bnNorm(rb.bn);
+    best = Math.max(best, fieldScore(rb.bnN, tok));
+    if (best) return best;
+
+    // chapter next, capped well under a name hit so "Cough, dry" still beats
+    // every other rubric that merely lives in the Cough chapter
+    if (rb.chapN) {
+      const c = fieldScore(rb.chapN, tok);
+      if (c) return Math.min(c, 200);
+    }
+
+    /* alias stage — Kent's own cross-references first, then the glossary.
+       Both sit below every direct hit above. */
+    if (rb.seeN === undefined) {
+      rb.seeN = (rb.see && rb.see.length) ? bnNorm(rb.see.join(' ')) : '';
+    }
+    if (rb.seeN && fieldScore(rb.seeN, tok)) return 240;
+
+    // Only a Bangla token needs translating — an English one has already been
+    // tested against both the name and the Bangla name.
+    const alts = /[ঀ-৿]/.test(tok) ? xLang.get(tok) : null;
+    if (alts) {
+      for (const alt of alts) {
+        if (alt.length < 3) continue;
+        const p = name.indexOf(alt);
+        if (p === 0) return 220;
+        if (p > 0 && RE_WORD_EDGE.test(name[p - 1])) return 180;
+        if (p > 0) return 90;
+        if (rb.bnN && rb.bnN.indexOf(alt) >= 0) return 180;
+        if (rb.chapN && rb.chapN.indexOf(alt) >= 0) return 120;
+      }
+    }
+    return 0;
+  }
+
+  /* ============ stage 6: fuzzy ============
+     Fold-based matching, and only for tokens long enough that folding cannot
+     collapse them onto something unrelated. Folded fields are built on demand
+     and cached per row, because this stage runs only when the strict pipeline
+     came back empty — computing them for all 67,445 rows up front would cost
+     more memory than the rest of the book. */
+  function foldScore(tok, rb) {
+    if (rb.nameF === undefined) {
+      rb.nameF = bnFold(rb.name);
+      rb.bnF = bnFold(rb.bn);
+    }
+    const f = bnFold(tok);
+    if (f.length < 3) return 0;
+    const a = fieldScore(rb.nameF, f);
+    const b = fieldScore(rb.bnF, f);
+    // squeezed into a band below every strict stage
+    return Math.max(a, b) ? Math.min(140, Math.max(a, b) / 5 + 60) : 0;
+  }
+
+  /* ============ stages 7-8: relevance + rank ============ */
+  function scoreRubric(tokens, rb, opts) {
+    const fuzzy = opts && opts.fuzzy;
+    let total = 0;
+    for (const t of tokens) {
+      let sc = tokenScore(t, rb);
+      if (!sc && fuzzy) sc = foldScore(t, rb);
+      if (!sc) return -1;              // AND: every token has to land somewhere
+      total += sc;
+    }
+
+    // all tokens present *and* in the typed order reads as a phrase match
+    if (tokens.length > 1) {
+      const name = rb.nameN;
+      let cur = -1, ordered = true;
+      for (const t of tokens) {
+        const at = name.indexOf(t, cur + 1);
+        if (at < 0) { ordered = false; break; }
+        cur = at;
+      }
+      if (ordered) total += 260;
+    }
+
+    // Kent's deepest sub-rubrics outnumber the main ones many times over, so a
+    // shallow rubric is the likelier intent; a well-attested one likewise.
+    total += Math.max(0, 80 - (rb.level - 1) * 26);
+    total += Math.min(50, rb.n * 0.6);
+    // a short name containing the query is a tighter fit than a long one
+    total += Math.max(0, 60 - rb.nameN.length * 0.5);
+    return total;
   }
 
   // Recent rubrics: track and retrieve last 20 used
@@ -319,6 +502,7 @@
         search_index: shared.search_index,
       });
       S.book = normalise(raw, entry);
+      buildCrossLanguage(shared.bn_glossary);
       S.bookMeta = entry;
       S.picked.clear();
       S.chapter = 'all'; S.search = ''; S.showAll = false; S.page = 0;
@@ -470,6 +654,15 @@
           id: chapter.id + ':r' + ri,
           src: rb.src || 'curated',
           name: name,
+          // searched on every keystroke across 67,445 rows, so lowered once
+          // here instead of inside the filter
+          nameN: bnNorm(name),
+          // In Kent the chapter carries part of the rubric's meaning: the Cough
+          // chapter holds a rubric named only "Dry, night", whose real clinical
+          // name is "Cough, dry, night". Searching the name alone therefore
+          // fails for the way practitioners actually type. Kept as its own
+          // field so a chapter hit can score below a name hit.
+          chapN: bnNorm((chapter.en || '') + ' ' + (chapter.bn || '')),
           bn: rb.bangla_name || rb.bangla || rb.name_bn || composeBn(name, gloss),
           level: rb.level || 1,
           page: rb.page || 0,
@@ -872,24 +1065,50 @@
   function visibleRubrics() {
     if (!S.book) return [];
     const raw = S.search.trim();
-    const q = raw.toLowerCase();
-    const expandedQ = bilingualSearch(raw).toLowerCase(); // Phase 5: bilingual search
-    const hits = S.book.rubrics.filter(rb => {
-      if (S.chapter !== 'all' && rb.chapterId !== S.chapter) return false;
-      if (!q) return true;
-      // Phase 5: exact match, fuzzy match, or bilingual match
-      const nameMatch = rb.name.toLowerCase().includes(q) || fuzzyMatch(rb.name, q);
-      const bnMatch = rb.bn && (rb.bn.includes(raw) || expandedQ.split(/\s+/).some(w => rb.name.toLowerCase().includes(w)));
-      const chapterMatch = rb.chapterLabel.toLowerCase().includes(q) || rb.chapterLabel.includes(raw);
-      return nameMatch || bnMatch || chapterMatch;
-    });
-    /* A complete Kent puts ~66,000 rubrics behind one list, and the deepest
-       sub-rubrics ('…, evening, bed, in, amel.') outnumber the main ones many
-       times over. Shallow rubrics first — with the biggest first inside a level
-       — means the head of the list is the part a practitioner reaches for,
-       instead of whichever branch happens to come first in the book. */
-    return hits.sort((a, b) => a.level - b.level || b.n - a.n ||
-                               a.name.localeCompare(b.name));
+    const inChapter = rb => S.chapter === 'all' || rb.chapterId === S.chapter;
+
+    /* No query: keep the old browse order. Shallow rubrics first — with the
+       biggest first inside a level — means the head of the list is the part a
+       practitioner reaches for, instead of whichever branch happens to come
+       first in the book. */
+    if (!raw) {
+      return S.book.rubrics.filter(inChapter)
+        .sort((a, b) => a.level - b.level || b.n - a.n || a.name.localeCompare(b.name));
+    }
+
+    const tokens = tokenize(raw);
+    if (!tokens.length) {
+      return S.book.rubrics.filter(inChapter)
+        .sort((a, b) => a.level - b.level || b.n - a.n || a.name.localeCompare(b.name));
+    }
+
+    /* Stages run strictest-first over the whole chapter selection, and the
+       loose stage runs only if the strict one found nothing. Reversing that
+       order is what used to turn 322 real "fear" matches into 6,222 — recall
+       we do not need buries the precision we do. */
+    const scored = [];
+    for (const rb of S.book.rubrics) {
+      if (!inChapter(rb)) continue;
+      const sc = scoreRubric(tokens, rb);
+      if (sc >= 0) scored.push({ rb, sc });
+    }
+
+    if (!scored.length) {
+      for (const rb of S.book.rubrics) {
+        if (!inChapter(rb)) continue;
+        const sc = scoreRubric(tokens, rb, { fuzzy: true });
+        if (sc >= 0) scored.push({ rb, sc });
+      }
+      S.fuzzyFallback = scored.length > 0;
+    } else {
+      S.fuzzyFallback = false;
+    }
+
+    scored.sort((a, b) => b.sc - a.sc ||
+                          a.rb.level - b.rb.level ||
+                          b.rb.n - a.rb.n ||
+                          a.rb.name.localeCompare(b.rb.name));
+    return scored.map(x => x.rb);
   }
 
   // Phase 5: recent rubrics live in their own compact strip above the list,

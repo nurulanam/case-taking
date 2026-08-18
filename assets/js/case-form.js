@@ -1,6 +1,11 @@
 (() => {
   'use strict';
 
+  // rubric names come from the repertory data and are injected as HTML, so
+  // they are escaped rather than trusted
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
   // State
   const TOTAL_STEPS = 9;
   let currentStep = 1;
@@ -30,14 +35,29 @@
   // Initialization
   function init() {
     initStepNav();
+    initPills();
     initChips();
     bindEvents();
+    bindRubricUI();
+    bindComplaintRemoval();
+    bindShortcuts();
+    bindSuggest();
     
     // Default 1 complaint
     if(complaintsContainer.children.length === 0) {
       addComplaint();
     }
     
+
+    // Auto case number: yyyy-nnn, counting saved prescriptions this year.
+    // Only ever fills a blank box, so a practitioner's own numbering wins.
+    const caseBox = form.querySelector('[name="caseNo"]');
+    if (caseBox && !caseBox.value) {
+      const yr = new Date().getFullYear();
+      const saved = Shell.store.get('rx_saved_v1', []) || [];
+      const used = saved.filter(r => String(r.caseNo || '').startsWith(String(yr))).length;
+      caseBox.value = `${yr}-${String(used + 1).padStart(3, '0')}`;
+    }
 
     // Set default date to today's local date if not already filled
     const visitDate = document.querySelector('input[name="visitDate"]');
@@ -50,14 +70,22 @@
     }
 
     restoreDraft();
+    renderRubrics();            // draft may have carried a rubric list back
     updateUI();
     updateGenderPanels();
+    updateRedFlagBanner();
     applyIncomingRepertory();   // after the draft, so the hand-off is not overwritten
   }
 
   // --- UI & Navigation ---
   function initStepNav() {
     document.querySelectorAll('.step-tab').forEach((tab) => {
+      // completion pip, prepended once so the markup stays a plain button
+      if (!tab.querySelector('.step-mark')) {
+        const m = document.createElement('span');
+        m.className = 'step-mark';
+        tab.insertBefore(m, tab.firstChild);
+      }
       tab.addEventListener('click', () => {
         const step = parseInt(tab.dataset.step);
         if (validateCurrentStep()) goToStep(step);
@@ -70,6 +98,40 @@
     currentStep = step;
     updateUI();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* A step counts as filled when it holds something the practitioner typed or
+     ticked — walking past a step is not the same as answering it, and the old
+     "completed = index < current" rule claimed steps were done that were still
+     entirely blank. */
+  function stepHasData(idx) {
+    const sec = formSteps[idx];
+    if (!sec) return false;
+    return [...sec.querySelectorAll('input, select, textarea')].some(el => {
+      if (!el.name && el.id !== 'rubricsJson') return false;
+      if (el.type === 'checkbox' || el.type === 'radio') return el.checked;
+      // machine-provided defaults are not answers: the date and the case
+      // number are filled in for the practitioner, so counting them would
+      // mark step 1 complete before a single question was asked
+      if (el.type === 'date' || el.name === 'caseNo') return false;
+      return !!(el.value || '').trim();
+    });
+  }
+
+  function updateStepMarks() {
+    let filled = 0;
+    document.querySelectorAll('.step-tab').forEach((tab, idx) => {
+      const has = stepHasData(idx);
+      if (has) filled++;
+      tab.classList.toggle('filled', has);
+    });
+    const note = document.getElementById('stepProgressNote');
+    if (note) {
+      note.innerHTML = filled
+        ? `<i class='bx bx-check-circle'></i> <b>${Shell.bnNum(filled)}</b>/${Shell.bnNum(TOTAL_STEPS)} ধাপে তথ্য দেওয়া হয়েছে`
+        : `<i class='bx bx-info-circle'></i> শুরু করুন — শুধু নাম, বয়স ও লিঙ্গ আবশ্যক`;
+    }
+    return filled;
   }
 
   function updateUI() {
@@ -90,14 +152,16 @@
     
     document.querySelectorAll('.step-tab').forEach((tab, idx) => {
       tab.classList.toggle('active', (idx + 1) === currentStep);
-      tab.classList.toggle('completed', (idx + 1) < currentStep);
     });
+    updateStepMarks();
 
     // Scroll active tab into view (smoothly)
     const activeTab = document.querySelector(`.step-tab[data-step="${currentStep}"]`);
     if (activeTab) {
       activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
+
+    if (currentStep === TOTAL_STEPS) renderCaseSummary();
 
     // Buttons
     prevBtn.style.display = currentStep > 1 ? 'block' : 'none';
@@ -131,6 +195,91 @@
     });
   }
 
+  /* ==================== single-select pills ====================
+     A dropdown hides its options behind a tap and needs a second tap to
+     choose; on a phone, mid-consultation, that is the slowest control on the
+     form. These render the same options as visible pills — one tap, nothing
+     hidden — and keep a real <input> underneath so autosave, the draft
+     restore and the report all keep working unchanged.
+
+       <div class="pills" data-pills="appetite"
+            data-options="বেশি|স্বাভাবিক|কম" data-other="1"></div>
+
+     data-other adds an অন্যান্য pill that reveals a free-text box, so a
+     fixed list never becomes a dead end. */
+  function initPills() {
+    document.querySelectorAll('.pills').forEach(host => {
+      const name = host.dataset.pills;
+      if (!name || host.dataset.built) return;
+      host.dataset.built = '1';
+      const opts = (host.dataset.options || '').split('|').filter(Boolean);
+      const wantOther = host.dataset.other === '1';
+
+      const store = document.createElement('input');
+      store.type = 'hidden';
+      store.name = name;
+      host.appendChild(store);
+
+      const other = document.createElement('input');
+      other.type = 'text';
+      other.className = 'pill-other';
+      other.placeholder = 'লিখুন…';
+      other.hidden = true;
+
+      const buttons = [];
+      const select = (val, fromOther) => {
+        store.value = val;
+        /* The force argument must be a real boolean. `a || (undefined && b)`
+           evaluates to `undefined`, and classList.toggle treats an undefined
+           second argument as *omitted* — so it toggled each pill instead of
+           setting it, turning every option on. */
+        buttons.forEach(b => b.classList.toggle('on',
+          b.dataset.v === val || (fromOther === true && b.dataset.v === '__other__')));
+        store.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+
+      opts.forEach(o => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pill';
+        btn.dataset.v = o;
+        btn.textContent = o;
+        btn.addEventListener('click', () => {
+          const already = store.value === o;
+          other.hidden = true;
+          other.value = '';
+          select(already ? '' : o);   // tapping the chosen pill clears it
+        });
+        host.appendChild(btn);
+        buttons.push(btn);
+      });
+
+      if (wantOther) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pill pill-other-btn';
+        btn.dataset.v = '__other__';
+        btn.textContent = 'অন্যান্য';
+        btn.addEventListener('click', () => {
+          other.hidden = !other.hidden;
+          if (other.hidden) { other.value = ''; select(''); }
+          else { select('', true); other.focus(); }
+        });
+        host.appendChild(btn);
+        buttons.push(btn);
+        host.appendChild(other);
+        other.addEventListener('input', () => select(other.value.trim(), true));
+      }
+
+      // restoring a draft: a value not in the list came from অন্যান্য
+      host._apply = val => {
+        if (!val) { select(''); other.hidden = true; return; }
+        if (opts.includes(val)) { other.hidden = true; select(val); }
+        else if (wantOther) { other.hidden = false; other.value = val; select(val, true); }
+      };
+    });
+  }
+
   // --- Chips UI ---
   function initChips() {
     document.querySelectorAll('.chips').forEach(container => {
@@ -156,47 +305,108 @@
         // Add active class toggle for styling
         checkbox.addEventListener('change', () => {
           label.classList.toggle('active', checkbox.checked);
+          if (name === 'redFlags') updateRedFlagBanner();
+          updateStepMarks();
         });
       });
     });
   }
 
   // --- Dynamic Complaints ---
-  function addComplaint() {
+  /* A complaint is the unit repertorisation actually works from, so each one
+     carries location / sensation / modality / concomitant of its own rather
+     than only a description. The detail half is folded away: the top three
+     fields answer most cases, and showing all eleven at once made every
+     complaint card a wall. */
+  function addComplaint(prefill) {
     complaintCount++;
     const id = complaintCount;
     const div = document.createElement('div');
     div.className = 'sub-card complaint-item';
     div.id = `comp-${id}`;
     div.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <h4 style="margin:0;color:var(--primary);">অভিযোগ ${id}</h4>
-        ${id > 1 ? `<button type="button" class="btn ghost danger" onclick="window._removeComp(${id})" style="padding:4px 8px;font-size:12px;">সরান</button>` : ''}
+      <div class="complaint-head">
+        <span class="c-num">${Shell.bnNum(id)}</span>
+        <h4>অভিযোগ</h4>
+        ${id > 1 ? `<button type="button" class="c-rm" data-rm-comp="${id}">সরান</button>` : ''}
       </div>
       <div class="grid two tight">
-        <label class="field full"><span>সমস্যা</span><input name="comp_desc_${id}" placeholder="যেমন: তীব্র মাথা ব্যথা"></label>
-        <label class="field"><span>সময়কাল</span><input name="comp_duration_${id}" placeholder="কতদিন ধরে"></label>
-        <label class="field"><span>তীব্রতা</span><input name="comp_severity_${id}" placeholder="১-১০"></label>
+        <label class="field full"><span>কী সমস্যা?</span><input name="comp_desc_${id}" placeholder="যেমন: তীব্র মাথা ব্যথা"></label>
+        <label class="field"><span>কতদিন ধরে</span><input name="comp_duration_${id}" placeholder="যেমন: ৩ মাস"></label>
+        <label class="field"><span>তীব্রতা (১–১০)</span><input name="comp_severity_${id}" type="number" min="1" max="10" inputmode="numeric" placeholder="৭"></label>
       </div>
+      <details class="c-more">
+        <summary><i class='bx bx-chevron-right'></i> বিস্তারিত — স্থান, অনুভূতি, বৃদ্ধি/উপশম</summary>
+        <div class="c-more-body grid two tight">
+          <label class="field"><span>কোথায়</span><input name="comp_location_${id}" placeholder="যেমন: কপালের ডান পাশে"></label>
+          <label class="field"><span>কোন দিকে</span>
+            <select name="comp_side_${id}">
+              <option value="">নির্বাচন করুন</option><option>ডান</option><option>বাম</option>
+              <option>দুই দিকে</option><option>মাঝখানে</option><option>দিক বদলায়</option>
+            </select>
+          </label>
+          <label class="field"><span>কেমন অনুভূতি</span><input name="comp_sensation_${id}" placeholder="জ্বালা, ছুরিকাঘাত, ভারী…"></label>
+          <label class="field"><span>কীভাবে শুরু</span>
+            <select name="comp_onset_${id}">
+              <option value="">নির্বাচন করুন</option><option>হঠাৎ</option><option>ধীরে ধীরে</option>
+              <option>কোনো ঘটনার পর</option><option>সংক্রমণের পর</option><option>আঘাতের পর</option>
+              <option>মানসিক ঘটনার পর</option><option>প্রসব/অপারেশনের পর</option>
+              <option>ওষুধ শুরুর পর</option><option>অজানা</option>
+            </select>
+          </label>
+          <label class="field"><span>কিসে বাড়ে</span><input name="comp_worse_${id}" placeholder="যেমন: রোদে, নড়াচড়ায়"></label>
+          <label class="field"><span>কিসে কমে</span><input name="comp_better_${id}" placeholder="যেমন: চাপ দিলে, বিশ্রামে"></label>
+          <label class="field"><span>কখন বেশি</span><input name="comp_time_${id}" placeholder="যেমন: সকালে, মধ্যরাতে"></label>
+          <label class="field"><span>সঙ্গে আর কী হয়</span><input name="comp_concomitant_${id}" placeholder="যেমন: বমিভাব, ঘাম"></label>
+        </div>
+      </details>
     `;
     complaintsContainer.appendChild(div);
+    if (prefill) {
+      const d = div.querySelector(`[name="comp_desc_${id}"]`);
+      if (d) d.value = prefill;
+    }
+    return div;
   }
-  window._removeComp = function(id) {
-    const el = document.getElementById(`comp-${id}`);
-    if (el) el.remove();
-  };
+
+  function bindComplaintRemoval() {
+    complaintsContainer.addEventListener('click', e => {
+      const btn = e.target.closest('[data-rm-comp]');
+      if (!btn) return;
+      const el = document.getElementById(`comp-${btn.dataset.rmComp}`);
+      if (el) { el.remove(); saveDraft(); updateStepMarks(); }
+    });
+  }
 
   // --- Event Bindings ---
   function bindEvents() {
-    nextBtn.addEventListener('click', () => { if (validateCurrentStep()) goToStep(currentStep + 1); });
+    nextBtn.addEventListener('click', () => {
+      if (!validateCurrentStep()) return;
+      /* Leaving step 1 means the patient is identified, so the case is
+         committed right there instead of waiting for the debounce — a browser
+         closed mid-case should never lose the identity that was just typed. */
+      if (currentStep === 1) commitCase();
+      goToStep(currentStep + 1);
+    });
     prevBtn.addEventListener('click', () => goToStep(currentStep - 1));
     genderSelect.addEventListener('change', updateGenderPanels);
     addComplaintBtn.addEventListener('click', addComplaint);
     
-    // Generate Report
+    // Generate Report — the readable one
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       generateReport();
+      const lbl = document.getElementById('outputLabel');
+      if (lbl) lbl.textContent = 'ক্লিনিক্যাল রিপোর্ট';
+    });
+
+    // and the machine-shaped one
+    const aiBtn = document.getElementById('aiBtn');
+    if (aiBtn) aiBtn.addEventListener('click', () => {
+      aiOutput.value = generateAiReport();
+      const lbl = document.getElementById('outputLabel');
+      if (lbl) lbl.textContent = 'এআই ফরম্যাট';
+      Shell.toast('এআই ফরম্যাট তৈরি — খালি ঘরগুলো বাদ দেওয়া হয়েছে।', 'ok');
     });
     
     // Copy
@@ -277,13 +487,128 @@
     return out.slice(0, 24);
   }
 
-  function rubricInputs() {
-    return [1, 2, 3, 4, 5, 6].map(n => form.querySelector(`[name="rubric${n}"]`)).filter(Boolean);
+  /* ==================== rubric store ====================
+     Rubrics used to live in six fixed text inputs, so the structured record
+     the repertory sends — {name, bn, chapter, page, grade} — was flattened
+     into a string, the grade became part of that string, and a case could
+     never hold more than six. They are kept as objects now: unlimited,
+     de-duplicated, grade still editable, and every one still individually
+     removable. The array is mirrored into a hidden field so the existing
+     generic autosave picks it up without needing a special case. */
+  let rubrics = [];
+
+  const rubKey = r => `${(r.chapter || '').trim()}|${(r.name || '').trim()}`.toLowerCase();
+
+  function syncRubricField() {
+    const box = document.getElementById('rubricsJson');
+    if (box) box.value = rubrics.length ? JSON.stringify(rubrics) : '';
+  }
+
+  function renderRubrics() {
+    const host = document.getElementById('rubList');
+    const count = document.getElementById('rubCount');
+    const clear = document.getElementById('rubClear');
+    if (!host) return;
+
+    if (count) count.textContent = Shell.bnNum(rubrics.length);
+    if (clear) clear.hidden = !rubrics.length;
+
+    host.innerHTML = rubrics.length ? rubrics.map((r, i) => `
+      <div class="rub-row" data-i="${i}">
+        <span class="rub-n">${Shell.bnNum(i + 1)}</span>
+        <span class="rub-txt">
+          <b>${r.chapter ? `<span class="rub-chap">${esc(r.chapter)}</span>` : ''}${esc(r.name)}</b>
+          ${r.bn ? `<small>${esc(r.bn)}</small>` : ''}
+        </span>
+        <select class="rub-grade" data-grade="${i}" aria-label="তীব্রতা">
+          <option value="1"${r.grade == 1 ? ' selected' : ''}>তীব্রতা ১</option>
+          <option value="2"${r.grade == 2 ? ' selected' : ''}>তীব্রতা ২</option>
+          <option value="3"${r.grade == 3 ? ' selected' : ''}>তীব্রতা ৩</option>
+        </select>
+        <button class="rub-rm" type="button" data-rm="${i}" aria-label="বাদ দিন"><i class='bx bx-x'></i></button>
+      </div>`).join('') : `
+      <div class="rub-empty">
+        <i class='bx bx-book-bookmark'></i>
+        <p>এখনো কোনো রুব্রিক নেই। উপরের বোতামে রিপার্টরি খুলে বাছুন, অথবা নিচে নিজে লিখুন।</p>
+      </div>`;
+    syncRubricField();
+  }
+
+  function addRubrics(list, { announce = true } = {}) {
+    const seen = new Set(rubrics.map(rubKey));
+    let added = 0;
+    list.forEach(r => {
+      const rec = {
+        name: (r.name || '').trim(),
+        bn: (r.bn || '').trim(),
+        chapter: (r.chapter || '').trim(),
+        page: r.page || 0,
+        grade: Number(r.grade) || 1,
+      };
+      if (!rec.name) return;
+      const k = rubKey(rec);
+      if (seen.has(k)) return;      // the same rubric picked twice is one rubric
+      seen.add(k);
+      rubrics.push(rec);
+      added++;
+    });
+    renderRubrics();
+    saveDraft();
+    if (announce && added) {
+      Shell.toast(`${Shell.bnNum(added)}টি রুব্রিক যোগ হয়েছে।`, 'ok');
+    } else if (announce && !added && list.length) {
+      Shell.toast('এই রুব্রিকগুলো আগেই যোগ করা আছে।', 'info');
+    }
+    return added;
+  }
+
+  function bindRubricUI() {
+    const host = document.getElementById('rubList');
+    if (host) {
+      host.addEventListener('click', e => {
+        const rm = e.target.closest('[data-rm]');
+        if (!rm) return;
+        rubrics.splice(+rm.dataset.rm, 1);
+        renderRubrics();
+        saveDraft();
+      });
+      host.addEventListener('change', e => {
+        const g = e.target.closest('[data-grade]');
+        if (!g) return;
+        rubrics[+g.dataset.grade].grade = Number(g.value) || 1;
+        syncRubricField();
+        saveDraft();
+      });
+    }
+
+    const clear = document.getElementById('rubClear');
+    if (clear) clear.addEventListener('click', () => {
+      if (!rubrics.length) return;
+      if (!confirm(`${Shell.bnNum(rubrics.length)}টি রুব্রিক মুছে যাবে। নিশ্চিত?`)) return;
+      rubrics = [];
+      renderRubrics();
+      saveDraft();
+    });
+
+    // manual entry, for practitioners not going through the repertory
+    const input = document.getElementById('rubManual');
+    const addBtn = document.getElementById('rubAddBtn');
+    const addManual = () => {
+      const v = (input.value || '').trim();
+      if (!v) return;
+      addRubrics([{ name: v, grade: 1 }]);
+      input.value = '';
+      input.focus();
+    };
+    if (addBtn) addBtn.addEventListener('click', addManual);
+    if (input) input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); addManual(); }
+    });
   }
 
   /* Buttons only. Applying an incoming hand-off is deliberately NOT done here:
-     bindEvents() runs before restoreDraft(), so filling the rubric boxes at this
-     point would have them immediately overwritten by the restored draft and the
+     bindEvents() runs before restoreDraft(), so filling the rubric list at this
+     point would have it immediately overwritten by the restored draft and the
      step reset out from under the user. See applyIncomingRepertory(), called
      after the draft is back. */
   function bindRepertoryButtons() {
@@ -309,7 +634,6 @@
       saveDraft();
       Shell.bridge.patch({ patient: getVal('patientName'), caseNo: getVal('caseNo') });
     });
-
   }
 
   /* Called after restoreDraft(), so what the repertory sent wins over the older
@@ -322,15 +646,12 @@
   }
 
   function applyRubricsFromRepertory(b) {
-    const boxes = rubricInputs();
-    b.rubrics.slice(0, boxes.length).forEach((r, i) => {
-      // chapter first: Kent uses the same rubric name in several chapters, so
-      // without it two different picks read as one duplicate line
-      const head = r.chapter ? `[${r.chapter}] ` : '';
-      const label = r.bn ? `${head}${r.name} — ${r.bn}` : `${head}${r.name}`;
-      boxes[i].value = r.grade ? `${label} (তীব্রতা ${Shell.bnNum(r.grade)})` : label;
-    });
-    let msg = `রিপার্টরি থেকে ${Shell.bnNum(Math.min(b.rubrics.length, boxes.length))}টি রুব্রিক বসানো হয়েছে`;
+    // merge, not replace — a second trip to the repertory should extend the
+    // case's rubric list rather than throw away the first trip's picks
+    const added = addRubrics(b.rubrics, { announce: false });
+    let msg = added
+      ? `রিপার্টরি থেকে ${Shell.bnNum(added)}টি রুব্রিক যোগ হয়েছে`
+      : 'রিপার্টরির রুব্রিকগুলো আগেই যোগ করা ছিল';
 
     // only offer the remedy when the doctor has not already written one, so a
     // considered choice is never silently overwritten by the machine ranking
@@ -346,13 +667,366 @@
     goToStep(TOTAL_STEPS);
   }
 
+  /* ==================== red flags ====================
+     A ticked red flag is the one input on this form that should interrupt
+     rather than blend in, so it raises a full-width alarm naming exactly
+     which findings were ticked. */
+  function updateRedFlagBanner() {
+    const banner = document.getElementById('redFlagBanner');
+    const list = document.getElementById('redFlagList');
+    if (!banner || !list) return;
+    const flags = getChecksArray('redFlags');
+    banner.hidden = !flags.length;
+    list.innerHTML = flags.map(f => `<span>${esc(f)}</span>`).join('');
+  }
+
+  /* ==================== case summary ====================
+     Step 9 opens on what the case actually says. Built from the fields
+     already filled rather than asking for anything new, and silent about
+     every section left blank. */
+  function renderCaseSummary() {
+    const host = document.getElementById('caseSummary');
+    if (!host) return;
+
+    const complaints = [];
+    for (let i = 1; i <= complaintCount; i++) {
+      const d = getVal(`comp_desc_${i}`);
+      if (d) complaints.push(d);
+    }
+
+    const rows = [
+      ['রোগী', [getVal('patientName'), ageText(), getVal('gender')].filter(Boolean).join(' · ')],
+      ['কেসের ধরন', getVal('caseType')],
+      ['প্রধান অভিযোগ', complaints.join(' · ')],
+      ['সবচেয়ে কষ্টদায়ক', getVal('priorityComplaint')],
+      ['কারণ', getChecks('cause')],
+      ['অনুভূতি', getChecks('sensation')],
+      ['বৃদ্ধি', getChecks('worseModalities')],
+      ['উপশম', getChecks('betterModalities')],
+      ['মানসিক', getChecks('mindSymptoms')],
+      ['ভয়', getChecks('fearSymptoms')],
+      ['আকাঙ্ক্ষা', getChecks('cravings')],
+      ['অরুচি', getChecks('aversions')],
+      ['তাপ সহ্যক্ষমতা', getChecks('thermalSymptoms')],
+      ['বিশেষ লক্ষণ', getVal('peculiarSymptoms')],
+      ['জরুরি লক্ষণ', getChecks('redFlags')],
+      ['রুব্রিক', rubrics.map(r => r.name).join(' · ')],
+    ].filter(([, v]) => v && v.trim());
+
+    host.innerHTML = rows.length
+      ? rows.map(([k, v]) => `<div class="sum-row"><b>${esc(k)}</b><span>${esc(v)}</span></div>`).join('')
+      : `<div class="sum-empty">আগের ধাপগুলো পূরণ করলে এখানে কেসের সারাংশ দেখাবে।</div>`;
+  }
+
+  /* years + months are two boxes but one clinical fact */
+  function ageText() {
+    const y = getVal('ageYears'), m = getVal('ageMonths');
+    if (!y && !m) return '';
+    const parts = [];
+    if (y) parts.push(`${Shell.bnNum(y)} বছর`);
+    if (m) parts.push(`${Shell.bnNum(m)} মাস`);
+    return parts.join(' ');
+  }
+
+  /* Persist immediately and make the case visible to the rest of the app.
+     The dashboard and the prescription builder both read the bridge, so the
+     patient and case number are published here rather than only at hand-off. */
+  function commitCase() {
+    clearTimeout(saveTimer);
+    saveDraft();
+    const patient = getVal('patientName');
+    if (patient) {
+      Shell.bridge.patch({ from: 'case', patient, caseNo: getVal('caseNo') });
+      Shell.toast(`${patient} — কেস সংরক্ষিত হয়েছে।`, 'ok');
+    }
+  }
+
+  /* Keyboard workflow. Alt+arrows walk the steps and Ctrl+S forces a save —
+     both ignored while a select is open or a modifier combo belongs to the
+     browser, so nothing native is stolen. */
+  function bindShortcuts() {
+    document.addEventListener('keydown', e => {
+      if (e.altKey && !e.ctrlKey && !e.metaKey) {
+        if (e.key === 'ArrowRight') { e.preventDefault(); if (validateCurrentStep()) goToStep(currentStep + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); goToStep(currentStep - 1); }
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        saveDraft();
+        Shell.toast('খসড়া সংরক্ষিত।', 'ok');
+      }
+    });
+  }
+
+  /* ==================== rubric autosuggest ====================
+     The notes fields feed repertorisation, but only if what gets written in
+     them is wording the repertory actually uses. Left to free text, a case
+     says "ঘুম আসে না" and Kent files it under "অনিদ্রা" — the search then
+     finds nothing and the practitioner concludes the rubric is missing.
+     Suggesting Kent's own vocabulary while typing closes that gap without
+     forcing anyone through the repertory page first.
+
+     Deliberately partial, per the brief: these are notes fields, not a
+     rubric picker. Accepting a suggestion writes plain text, adds no rubric
+     to the case, and can be edited or ignored. Step 9's picker stays the
+     only place a rubric is formally attached.
+
+     assets/data/case-suggest.json is 227KB and most sessions never open a
+     notes field, so it is fetched on first focus rather than at page load —
+     the same reason the Organon reads a chapter at a time. */
+  // Step 9's prescribing boxes suggest remedy names instead of rubrics.
+  const REMEDY_FIELDS = ['constitutionalRemedy', 'acuteRemedy', 'intercurrent',
+                         'nosode', 'biochemic', 'flowerTherapy'];
+
+  const SUGGEST_URL = 'assets/data/case-suggest.json';
+  let suggestData = null;
+  let suggestLoad = null;
+
+  function loadSuggest() {
+    if (suggestLoad) return suggestLoad;
+    suggestLoad = fetch(SUGGEST_URL)
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => { suggestData = d; return d; })
+      /* Autosuggest is a convenience; the field stays a plain textarea if the
+         file is missing, so a failed fetch must not surface as an error. */
+      .catch(() => null);
+    return suggestLoad;
+  }
+
+  /* Terms for one field, resolved through fields -> groups -> chapters. The
+     chapter tags along because in Kent it carries part of the meaning: the
+     Stool chapter's "Soft" is soft *stool*, and a bare "নরম" in a dropdown
+     would be unreadable. */
+  const suggestCache = new Map();
+  function suggestTerms(field) {
+    // Never cache before the fetch resolves — an early call would memoise the
+    // empty pool and the field would stay silent for the rest of the session.
+    if (!suggestData) return [];
+    if (suggestCache.has(field)) return suggestCache.get(field);
+    const d = suggestData;
+    let out = [];
+    const key = d && d.fields && d.fields[field];
+    const grp = key && d.groups && d.groups[key];
+    if (grp) {
+      const limit = grp.limit || 60;
+      out = (grp.chapters || []).flatMap(cn => {
+        const ch = (d.chapters || {})[cn];
+        if (!ch) return [];
+        return ch.terms.slice(0, limit).map(([en, bn, n]) => ({
+          en, bn, n,
+          label: bn || en,
+          chap: ch.bn || cn,
+          bnLc: (bn || '').toLowerCase(),
+          enLc: en.toLowerCase()
+        }));
+      });
+    }
+    suggestCache.set(field, out);
+    return out;
+  }
+
+  function remedyTerms() {
+    if (!suggestData) return [];
+    if (suggestCache.has('__rx')) return suggestCache.get('__rx');
+    const out = ((suggestData && suggestData.remedies) || []).map(([en, bn, n]) => ({
+      en, bn, n: n || 0, rx: true,
+      label: bn || en,
+      chap: bn ? en : '',       // Latin name as the sub-label when Bangla exists
+      bnLc: (bn || '').toLowerCase(),
+      enLc: en.toLowerCase()
+    }));
+    suggestCache.set('__rx', out);
+    return out;
+  }
+
+  /* Same tiering as the repertory search, so a term ranks the same in both
+     places: whole-value beats prefix beats word-start beats mid-word. Without
+     the word-boundary tier, typing "ঘুম" put "অঘুম-জাতীয়" above "ঘুমের" purely
+     on string position. */
+  function tier(hay, q) {
+    if (!hay) return -1;
+    const i = hay.indexOf(q);
+    if (i < 0) return -1;
+    if (i === 0) return hay.length === q.length ? 1000 : 600;
+    return /[\s,;(–—-]/.test(hay[i - 1]) ? 420 : 150;
+  }
+
+  /* Bangla and English are scored as separate haystacks and the better of the
+     two wins. Concatenating them into one string looked equivalent but was
+     not: an English query could never reach the prefix tier because the
+     Bangla name sat in front of it, so "arsen" ranked "Aurum Arsenicum"
+     (word-boundary) above "Arsenicum Album" (should be prefix). */
+  function suggestScore(t, q) {
+    const s = Math.max(tier(t.bnLc, q), tier(t.enLc, q));
+    if (s < 0) return -1;
+    if (t.rx) {
+      /* Remedy counts span 3 to 9,033, so a linear boost would let one
+         polychrest outrank a whole tier. Log-scaled and capped below the
+         600-vs-420 tier gap, it only ever reorders within a tier. */
+      return s + Math.min(150, Math.log(t.n + 1) * 17);
+    }
+    return s
+      + Math.min(60, t.n * 0.25)           // broader rubrics first
+      + Math.max(0, 40 - t.label.length);  // shorter, more general wording
+  }
+
+  /* A notes field holds several symptoms, comma-separated, so the query is
+     the segment the caret sits in — not the whole box. Matching the whole box
+     stopped suggesting anything the moment a first symptom was written. */
+  function activeSegment(el) {
+    const pos = el.selectionStart ?? el.value.length;
+    const upto = el.value.slice(0, pos);
+    const start = Math.max(upto.lastIndexOf(','), upto.lastIndexOf('\n')) + 1;
+    return { start, end: pos, text: el.value.slice(start, pos).trim() };
+  }
+
+  function bindSuggest() {
+    /* case.html writes its text boxes as a bare <input name="..."> with no
+       type attribute, so an input[type="text"] selector matched none of the
+       step-9 remedy fields. Match on what the browser resolved instead, and
+       skip the typed boxes (number/date/checkbox) where a rubric dropdown
+       makes no sense. */
+    const SKIP_TYPES = new Set(['checkbox', 'radio', 'number', 'date', 'time',
+                                'hidden', 'file', 'range', 'color', 'submit',
+                                'button', 'email', 'tel', 'url', 'password']);
+    /* Each entry pairs a control with the vocabulary key to look it up under.
+       For a named field that is just its name; for a pill group's "অন্যান্য"
+       box, which carries no name of its own, it is the group's name — that box
+       is where a selection field becomes free text, so it needs the same
+       vocabulary as any notes field. */
+    const fields = [];
+    document.querySelectorAll('textarea[name], input[name]').forEach(el => {
+      if (el.dataset.suggest === 'off') return;
+      if (el.tagName === 'INPUT' && SKIP_TYPES.has(el.type)) return;
+      // the hidden store behind each pill group is an input[name] too
+      if (el.closest('.pills')) return;
+      fields.push({ el, key: el.name });
+    });
+    document.querySelectorAll('.pills[data-pills] .pill-other').forEach(el => {
+      fields.push({ el, key: el.closest('.pills').dataset.pills });
+    });
+
+    fields.forEach(({ el, key }) => {
+      let box = null, items = [], sel = -1, open = false;
+
+      const kind = REMEDY_FIELDS.includes(key) ? 'rx' : 'note';
+
+      const close = () => {
+        open = false; sel = -1;
+        if (box) box.hidden = true;
+        el.setAttribute('aria-expanded', 'false');
+      };
+
+      const ensureBox = () => {
+        if (box) return box;
+        const wrap = el.closest('label, .field') || el.parentElement;
+        if (getComputedStyle(wrap).position === 'static') wrap.style.position = 'relative';
+        box = document.createElement('div');
+        box.className = 'cs-pop';
+        box.setAttribute('role', 'listbox');
+        box.hidden = true;
+        wrap.appendChild(box);
+        /* mousedown, not click: click fires after the field's blur, by which
+           point the caret offsets the insertion needs are already gone. */
+        box.addEventListener('mousedown', ev => {
+          const row = ev.target.closest('.cs-row');
+          if (!row) return;
+          ev.preventDefault();
+          accept(+row.dataset.i);
+        });
+        return box;
+      };
+
+      const accept = i => {
+        const t = items[i];
+        if (!t) return;
+        const seg = activeSegment(el);
+        const before = el.value.slice(0, seg.start);
+        const after = el.value.slice(seg.end);
+        const pad = before && !/[\s]$/.test(before) ? ' ' : '';
+        const text = t.label;
+        el.value = before + pad + text + after;
+        const caret = (before + pad + text).length;
+        el.setSelectionRange(caret, caret);
+        close();
+        el.focus();
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+
+      const render = () => {
+        const b = ensureBox();
+        if (!items.length) { close(); return; }
+        b.innerHTML = items.map((t, i) => `
+          <div class="cs-row${i === sel ? ' on' : ''}" role="option" data-i="${i}"
+               aria-selected="${i === sel}">
+            <span class="cs-nm">${esc(t.label)}</span>
+            ${t.chap ? `<span class="cs-ch">${esc(t.chap)}</span>` : ''}
+          </div>`).join('');
+        b.hidden = false;
+        open = true;
+        el.setAttribute('aria-expanded', 'true');
+      };
+
+      const refresh = () => {
+        const pool = kind === 'rx' ? remedyTerms() : suggestTerms(key);
+        if (!pool.length) { close(); return; }
+        const q = activeSegment(el).text.toLowerCase();
+        // Two characters is the floor: one Bangla letter matches most of the
+        // vocabulary and the dropdown becomes noise rather than a shortlist.
+        if (q.length < 2) { close(); return; }
+        items = pool
+          .map(t => ({ t, s: suggestScore(t, q) }))
+          .filter(x => x.s >= 0)
+          .sort((a, b) => b.s - a.s || a.t.label.length - b.t.label.length)
+          .slice(0, 8)
+          .map(x => x.t);
+        sel = -1;
+        render();
+      };
+
+      const armed = () => (kind === 'rx'
+        ? true
+        : !!(suggestData && suggestData.fields && suggestData.fields[key]));
+
+      el.addEventListener('focus', () => {
+        loadSuggest().then(() => { if (armed() && document.activeElement === el) refresh(); });
+      });
+      el.addEventListener('input', () => { if (suggestData && armed()) refresh(); });
+      el.addEventListener('blur', () => setTimeout(close, 120));
+
+      el.addEventListener('keydown', e => {
+        if (!open) return;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          sel = e.key === 'ArrowDown'
+            ? (sel + 1) % items.length
+            : (sel <= 0 ? items.length - 1 : sel - 1);
+          render();
+        } else if (e.key === 'Enter' && sel >= 0) {
+          // Only swallow Enter once a row is actually highlighted, so an open
+          // dropdown never blocks a newline in a notes field.
+          e.preventDefault();
+          accept(sel);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          close();
+        } else if (e.key === 'Tab' && sel >= 0) {
+          accept(sel);
+        }
+      });
+
+      if (armed() || kind === 'rx') el.setAttribute('autocomplete', 'off');
+    });
+  }
+
   // --- Draft autosave (localStorage) ---
   const DRAFT_KEY = 'homeoCaseDraft';
   let saveTimer = null;
 
   function scheduleSave() {
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(saveDraft, 700);
+    saveTimer = setTimeout(() => { saveDraft(); updateStepMarks(); }, 700);
   }
 
   function collectDraft() {
@@ -378,6 +1052,20 @@
   function markSaved(data) {
     const n = Object.keys(data).filter(k => !k.startsWith('__')).length;
     Shell.setChip(n ? `খসড়া সংরক্ষিত · ${Shell.bnNum(n)}টি ঘর` : 'খসড়া খালি', n ? 'bx-check-circle' : 'bx-save', !n);
+
+    /* The indicator is a transient toast (opacity:0 until .show), so writing
+       into it without toggling the class left the confirmation invisible —
+       an autosave the practitioner cannot see is one they cannot trust. */
+    const ind = document.getElementById('autosaveIndicator');
+    if (ind && n) {
+      const t = new Date();
+      const hh = t.getHours() % 12 || 12, mm = String(t.getMinutes()).padStart(2, '0');
+      const ap = t.getHours() < 12 ? 'AM' : 'PM';
+      ind.textContent = `সংরক্ষিত ${Shell.bnNum(hh)}:${Shell.bnNum(mm)} ${ap}`;
+      ind.classList.add('show');
+      clearTimeout(ind._t);
+      ind._t = setTimeout(() => ind.classList.remove('show'), 2500);
+    }
   }
 
   function restoreDraft() {
@@ -396,10 +1084,17 @@
           if (box) { box.checked = true; box.dispatchEvent(new Event('change', { bubbles: false })); }
         });
       } else {
+        const host = document.querySelector(`.pills[data-pills="${CSS.escape(name)}"]`);
+        if (host && host._apply) { host._apply(val); return; }
         const el = form.querySelector(`[name="${CSS.escape(name)}"]`);
         if (el && el.type !== 'checkbox') el.value = val;
       }
     });
+
+    // the hidden field is only a transport for autosave; the array is truth
+    if (data.rubricsJson) {
+      try { rubrics = JSON.parse(data.rubricsJson) || []; } catch (e) { rubrics = []; }
+    }
 
     if (data.__step) currentStep = Math.min(TOTAL_STEPS, Math.max(1, parseInt(data.__step) || 1));
     markSaved(data);
@@ -444,6 +1139,115 @@
     const content = lines.filter(Boolean).join('\n');
     const rendered = formatSection(title, content);
     if (rendered) out.push(rendered);
+  }
+
+  /* ==================== AI export ====================
+     A second, machine-shaped rendering of the same case. The readable report
+     is for a human reading a printout; this one is for pasting into a model,
+     so it is flat KEY: value with no box drawing, and every empty field is
+     dropped rather than emitted as a blank line — an LLM given twenty empty
+     headings spends its attention on the headings. */
+  function generateAiReport() {
+    const L = [];
+    const put = (k, v) => { if (v && String(v).trim()) L.push(`${k}: ${v}`); };
+
+    const complaints = [];
+    const details = [];
+    for (let i = 1; i <= complaintCount; i++) {
+      const d = getVal(`comp_desc_${i}`);
+      if (!d) continue;
+      complaints.push(d);
+      const bits = [
+        getVal(`comp_location_${i}`) && `location=${getVal(`comp_location_${i}`)}`,
+        getVal(`comp_side_${i}`) && `side=${getVal(`comp_side_${i}`)}`,
+        getVal(`comp_sensation_${i}`) && `sensation=${getVal(`comp_sensation_${i}`)}`,
+        getVal(`comp_onset_${i}`) && `onset=${getVal(`comp_onset_${i}`)}`,
+        getVal(`comp_duration_${i}`) && `duration=${getVal(`comp_duration_${i}`)}`,
+        getVal(`comp_severity_${i}`) && `severity=${getVal(`comp_severity_${i}`)}/10`,
+        getVal(`comp_worse_${i}`) && `worse=${getVal(`comp_worse_${i}`)}`,
+        getVal(`comp_better_${i}`) && `better=${getVal(`comp_better_${i}`)}`,
+        getVal(`comp_time_${i}`) && `time=${getVal(`comp_time_${i}`)}`,
+        getVal(`comp_concomitant_${i}`) && `with=${getVal(`comp_concomitant_${i}`)}`,
+      ].filter(Boolean);
+      if (bits.length) details.push(`  ${d} — ${bits.join('; ')}`);
+    }
+
+    L.push('=== HOMEOPATHIC CASE (Bangla) ===');
+    put('CASE TYPE', getVal('caseType') || getVal('visitType'));
+    put('PATIENT', [getVal('patientName'), ageText(), getVal('gender')].filter(Boolean).join(', '));
+    put('OCCUPATION', getVal('occupation'));
+    put('DIAGNOSIS SO FAR', getVal('previousDiagnosis'));
+
+    put('CHIEF COMPLAINT', complaints.join(' | '));
+    if (details.length) L.push('COMPLAINT DETAIL:\n' + details.join('\n'));
+    put('MOST DISTRESSING', getVal('priorityComplaint'));
+    put('PATIENT GOAL', getVal('caseGoal'));
+
+    put('HISTORY', getVal('illnessStory'));
+    put('ONSET', getVal('onsetHow'));
+    put('CAUSATION', getChecks('cause'));
+    put('LOCATION', getChecks('exactLocation'));
+    put('SENSATION', getChecks('sensation'));
+    put('RADIATION', getChecks('radiation'));
+    put('DURATION', getVal('episodeDuration'));
+    put('FREQUENCY', getVal('episodeFrequency'));
+    put('WORSE TIME', getChecks('worseTime'));
+    put('CONCOMITANTS', getVal('concomitantSymptoms'));
+    put('PROGRESSION', getVal('diseaseProgress'));
+
+    put('MODALITIES WORSE', getChecks('worseModalities'));
+    put('MODALITIES BETTER', getChecks('betterModalities'));
+    put('MODALITY NOTES', getVal('modalityNotes'));
+
+    put('MENTALS', getChecks('mindSymptoms'));
+    put('FEARS', getChecks('fearSymptoms'));
+    put('MENTAL CAUSATION', getVal('mentalCause'));
+    put('PERSONALITY CHANGE', getChecks('personalityChange'));
+
+    put('APPETITE', getVal('appetite'));
+    put('THIRST', getVal('thirst'));
+    put('CRAVINGS', getChecks('cravings'));
+    put('AVERSIONS', getChecks('aversions'));
+    put('FOOD AGGRAVATION', getChecks('foodAggravation'));
+
+    put('THERMAL', getChecks('thermalSymptoms'));
+    put('SWEAT', getChecks('sweatSymptoms'));
+    put('SLEEP', getVal('sleepQuality'));
+    put('DREAMS', getChecks('dreams'));
+    put('STOOL', [getVal('stoolFrequency'), getVal('stoolConsistency'), getVal('stoolNotes')].filter(Boolean).join(', '));
+    put('URINE', [getVal('urineFrequency'), getVal('urineColor'), getVal('urineNotes')].filter(Boolean).join(', '));
+    put('DIGESTION', getChecks('digestiveSymptoms'));
+
+    put('MALE', getChecks('maleSymptoms'));
+    put('FEMALE MENSES', [getVal('femaleCycle'), getVal('femaleFlow'), getVal('femalePain')].filter(Boolean).join(', '));
+    put('FEMALE PROBLEMS', getVal('femaleProblems'));
+
+    put('PAST HISTORY', getChecks('pastHistory'));
+    put('SUPPRESSION', getVal('suppressionHistory'));
+    put('FAMILY HISTORY', getChecks('familyHistory'));
+    put('ALLERGY', getVal('allergyHistory'));
+    put('SKIN', getChecks('skinSymptoms'));
+    put('CURRENT MEDICATION', [getVal('currentAllopathy'), getVal('currentHomeopathy'), getVal('currentHerbal')].filter(Boolean).join(' | '));
+    put('REPORTS', getVal('otherReports'));
+    put('OBSERVATION', [getVal('tongue'), getVal('face'), getVal('observationNotes')].filter(Boolean).join(', '));
+
+    put('PECULIAR SYMPTOMS', getVal('peculiarSymptoms'));
+    put('RED FLAGS', getChecks('redFlags'));
+
+    if (rubrics.length) {
+      L.push('SELECTED RUBRICS:\n' + rubrics.map(r =>
+        `  - ${r.chapter ? '[' + r.chapter + '] ' : ''}${r.name}${r.bn ? ' (' + r.bn + ')' : ''} [grade ${r.grade}]`
+      ).join('\n'));
+    }
+    put('MIASM (practitioner)', getChecks('miasm'));
+    put('REMEDY CONSIDERED', [getVal('constitutionalRemedy'), getVal('acuteRemedy')].filter(Boolean).join(', '));
+
+    const asks = getChecks('aiNeeds');
+    if (asks) L.push(`\nANALYSIS REQUESTED: ${asks}`);
+    put('EXTRA INSTRUCTION', getVal('additionalInstruction'));
+
+    L.push('\nNOTE: এটি শিক্ষামূলক বিশ্লেষণের জন্য। চূড়ান্ত সিদ্ধান্ত চিকিৎসকের।');
+    return L.join('\n');
   }
 
   function generateReport() {
@@ -493,7 +1297,7 @@
       fieldItem('তারিখ', getVal('visitDate')),
       fieldItem('পরামর্শের ধরন', getVal('visitType')),
       fieldItem('নাম', getVal('patientName')),
-      fieldItem('বয়স', getVal('age')),
+      fieldItem('বয়স', ageText()),
       fieldItem('লিঙ্গ', getVal('gender')),
       fieldItem('বৈবাহিক অবস্থা', getVal('maritalStatus')),
       fieldItem('পেশা', getVal('occupation')),
@@ -512,17 +1316,18 @@
     let cIdx = 1;
     for(let i=1; i<=complaintCount; i++) {
       const d = getVal(`comp_desc_${i}`);
-      const dur = getVal(`comp_duration_${i}`);
-      const sev = getVal(`comp_severity_${i}`);
-      if(d) {
-        let compLine = `  ${cIdx}. ${d}`;
-        let details = [];
-        if(dur) details.push(`সময়কাল: ${dur}`);
-        if(sev) details.push(`তীব্রতা: ${sev}`);
-        if(details.length > 0) compLine += ` | ${details.join(' | ')}`;
-        compList.push(compLine);
-        cIdx++;
-      }
+      if (!d) continue;
+      compList.push(`  ${cIdx}. ${d}`);
+      // one labelled line per detail actually filled — a complaint with no
+      // detail stays a single clean line instead of eight empty ones
+      [['সময়কাল', 'duration'], ['তীব্রতা', 'severity'], ['স্থান', 'location'],
+       ['দিক', 'side'], ['অনুভূতি', 'sensation'], ['শুরু', 'onset'],
+       ['বৃদ্ধি', 'worse'], ['উপশম', 'better'], ['সময়', 'time'],
+       ['সঙ্গে', 'concomitant']].forEach(([label, key]) => {
+        const v = getVal(`comp_${key}_${i}`);
+        if (v) compList.push(`       ◦ ${label}: ${v}`);
+      });
+      cIdx++;
     }
     if(getVal('priorityComplaint')) compList.push(fieldItem('সবচেয়ে কষ্টদায়ক', getVal('priorityComplaint')));
     if(getVal('caseGoal')) compList.push(fieldItem('চিকিৎসা লক্ষ্য', getVal('caseGoal')));
@@ -729,7 +1534,8 @@
     
     // Doctor Notes
     pushSection(out, "চিকিৎসকের পর্যালোচনা", [
-      fieldItem('রুব্রিক্স', [getVal('rubric1'), getVal('rubric2'), getVal('rubric3'), getVal('rubric4'), getVal('rubric5'), getVal('rubric6')].filter(Boolean).join(', ')),
+      rubrics.length ? listGroup('নির্বাচিত রুব্রিক', rubrics.map(r =>
+        `${r.chapter ? '[' + r.chapter + '] ' : ''}${r.name}${r.bn ? ' — ' + r.bn : ''} (তীব্রতা ${Shell.bnNum(r.grade)})`)) : '',
       listGroup('সম্ভাব্য মায়াজম', getChecksArray('miasm')),
       fieldItem('গঠনগত ঔষধ', getVal('constitutionalRemedy')),
       fieldItem('আকস্মিক ঔষধ', getVal('acuteRemedy')),
@@ -803,23 +1609,43 @@
     setTimeout(() => indicator.classList.remove('show'), 3500);
   }
 
-  // Quick-add symptom chips
+  /* Quick-add symptom chips.
+     These used to append the symptom as a line of text in the
+     "সবচেয়ে কষ্টদায়ক" box, which is a different question — the chip is a
+     chief complaint, so it now becomes one: filling the first empty
+     complaint card, or adding a new one when they are all in use. */
   function initQuickAddChips() {
-    const quickChips = document.querySelectorAll('#quickChips .quick-chip');
-    quickChips.forEach(chip => {
-      chip.addEventListener('click', (e) => {
+    document.querySelectorAll('#quickChips .quick-chip').forEach(chip => {
+      chip.addEventListener('click', e => {
         e.preventDefault();
         const symptom = chip.dataset.add;
-        const box = document.querySelector('[name="priorityComplaint"]');
-        if (box) {
-          const current = box.value.trim();
-          const newVal = current ? current + '\n' + symptom : symptom;
-          box.value = newVal;
-          box.dispatchEvent(new Event('input', { bubbles: true }));
-          chip.classList.add('active');
-          setTimeout(() => chip.classList.remove('active'), 600);
-          scheduleAutosave();
+        if (!symptom) return;
+
+        // already recorded? don't silently add a duplicate card
+        for (let i = 1; i <= complaintCount; i++) {
+          if (getVal(`comp_desc_${i}`) === symptom) {
+            Shell.toast(`“${symptom}” আগেই যোগ করা আছে।`, 'info');
+            return;
+          }
         }
+
+        let target = null;
+        for (let i = 1; i <= complaintCount; i++) {
+          const el = form.querySelector(`[name="comp_desc_${i}"]`);
+          if (el && !el.value.trim()) { target = el; break; }
+        }
+        if (target) {
+          target.value = symptom;
+          target.dispatchEvent(new Event('input', { bubbles: true }));
+        } else {
+          addComplaint(symptom);
+        }
+
+        chip.classList.add('active');
+        setTimeout(() => chip.classList.remove('active'), 600);
+        saveDraft();
+        updateStepMarks();
+        Shell.toast(`“${symptom}” অভিযোগে যোগ হয়েছে।`, 'ok');
       });
     });
   }
@@ -883,16 +1709,10 @@
   }
 
   // Track step completion for progress indicator
-  function updateStepCompletion() {
-    const tabs = document.querySelectorAll('.step-tab');
-    tabs.forEach((tab, idx) => {
-      const stepNum = idx + 1;
-      const step = document.querySelector(`.form-step[data-step-title]`); // All steps
-      if (stepNum < currentStep) {
-        tab.classList.add('completed');
-      }
-    });
-  }
+  /* updateStepCompletion() removed: it marked every step before the current
+     one "completed" regardless of whether anything had been entered, looked
+     up a step element it never used, and now contradicts updateStepMarks(),
+     which reports actual data. */
 
   // Enhance init to include Phase 4 features
   const originalInit = init;
@@ -901,11 +1721,11 @@
     initQuickAddChips();
     initInlineValidation();
     applySmartDefaults();
-    updateStepCompletion();
 
-    // Auto-save on any input
-    form.addEventListener('input', scheduleAutosave);
-    form.addEventListener('change', scheduleAutosave);
+    /* Autosave is already bound in bindEvents() via scheduleSave(); binding
+       scheduleAutosave() here as well meant two timers writing the same draft
+       and two different renderings fighting over #autosaveIndicator, so the
+       Bangla "সর্বশেষ সংরক্ষণ" line was overwritten 2s later by a bare clock. */
   }
 
   // Go!

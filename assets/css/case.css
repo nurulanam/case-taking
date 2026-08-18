@@ -1,0 +1,312 @@
+/* ==========================================================================
+   কেস টেকিং ফর্ম — v2 components
+   Only the new pieces live here; the original .field / .chips / .step-tab
+   styling stays in base.css so nothing already working is disturbed.
+   ========================================================================== */
+
+/* Every component below sets an explicit `display`, which beats the UA's
+   [hidden] rule — so state it once here rather than rediscovering it each
+   time a panel refuses to hide. */
+[hidden] { display: none !important; }
+
+/* ── step completion state ────────────────────────────────────────
+   A tab now reports whether that step actually holds data, not just
+   whether the practitioner has walked past it — "visited" and "filled"
+   are different questions and only the second one is useful. */
+.step-tab .step-mark {
+  display: inline-grid; place-items: center;
+  width: 1rem; height: 1rem; flex: 0 0 auto;
+  margin-inline-end: 0.3125rem;
+  border-radius: 50%;
+  font-size: 0.625rem; font-weight: 700; line-height: 1;
+}
+.step-tab.filled .step-mark { background: var(--success); color: #fff; }
+.step-tab.filled .step-mark::before { content: '✓'; }
+.step-tab:not(.filled) .step-mark {
+  border: 1.5px solid var(--border); color: transparent;
+}
+.step-tab.active:not(.filled) .step-mark { border-color: var(--primary); }
+
+.step-progress-note {
+  display: flex; align-items: center; gap: 0.375rem;
+  margin-top: 0.25rem;
+  color: var(--text-muted); font-size: 0.75rem;
+}
+.step-progress-note b { color: var(--primary); }
+
+/* ── grouped identity cards (step 1) ── */
+.id-split { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: 0.875rem; }
+
+/* age: two small number boxes reading as one field */
+.age-group { display: flex; align-items: flex-end; gap: 0.5rem; }
+.age-group .age-part { flex: 1 1 0; min-width: 0; }
+.age-group .age-unit {
+  padding-bottom: 0.625rem;
+  color: var(--text-muted); font-size: 0.8125rem; white-space: nowrap;
+}
+
+/* ── red flag banner ──
+   Ticking a red flag is the one thing on this form that should stop the
+   practitioner rather than scroll past, so it gets a full-width alarm
+   instead of another quiet chip row. */
+.redflag-banner {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  margin: 0.875rem 0 0;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--danger);
+  border-inline-start: 4px solid var(--danger);
+  border-radius: var(--radius);
+  background: var(--danger-bg);
+}
+.redflag-banner > i { color: var(--danger); font-size: 1.375rem; flex: 0 0 auto; }
+.redflag-banner b { display: block; color: var(--danger); font-size: 0.9375rem; }
+.redflag-banner p { margin: 0.25rem 0 0; color: var(--text); font-size: 0.8125rem; line-height: 1.65; }
+.redflag-banner .rf-list { margin-top: 0.4375rem; display: flex; flex-wrap: wrap; gap: 0.3125rem; }
+.redflag-banner .rf-list span {
+  padding: 0.125rem 0.5rem; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--danger);
+  color: var(--danger); font-size: 0.6875rem; font-weight: 700;
+}
+
+/* ── modality groups ──
+   Forty chips in one undifferentiated wall is a real cognitive load; the
+   same forty split by axis can be scanned. */
+.mod-group { margin-bottom: 0.75rem; }
+.mod-group:last-child { margin-bottom: 0; }
+.mod-group-h {
+  display: flex; align-items: center; gap: 0.375rem;
+  margin-bottom: 0.375rem;
+  color: var(--text-muted);
+  font-size: 0.6875rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .03em;
+}
+.mod-group-h i { font-size: 0.9375rem; color: var(--primary); }
+
+/* ── complaint card ── */
+.complaint-item { position: relative; }
+.complaint-head {
+  display: flex; align-items: center; gap: 0.5rem;
+  margin-bottom: 0.625rem;
+}
+.complaint-head h4 { margin: 0; color: var(--primary); font-size: 0.9375rem; }
+.complaint-head .c-num {
+  display: grid; place-items: center;
+  width: 1.5rem; height: 1.5rem; flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--primary); color: #fff;
+  font-size: 0.75rem; font-weight: 700;
+}
+.complaint-head .c-rm {
+  margin-inline-start: auto;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text-muted);
+  font: inherit; font-size: 0.75rem; cursor: pointer;
+}
+.complaint-head .c-rm:hover { border-color: var(--danger); color: var(--danger); }
+
+/* the detail half is folded away — the top three fields answer most cases,
+   and the rest would otherwise triple the height of every complaint */
+.c-more { margin-top: 0.5rem; }
+.c-more > summary {
+  display: inline-flex; align-items: center; gap: 0.375rem;
+  color: var(--primary); font-size: 0.8125rem; font-weight: 700;
+  cursor: pointer; list-style: none; user-select: none;
+}
+.c-more > summary::-webkit-details-marker { display: none; }
+.c-more > summary i { transition: transform .16s; }
+.c-more[open] > summary i { transform: rotate(90deg); }
+.c-more-body { margin-top: 0.5rem; }
+
+/* ── rubric picker (step 9) ──
+   Replaces six fixed text boxes. Rubrics arrive from the repertory as
+   structured records ({name, bn, chapter, page, grade}); flattening them
+   into strings threw away the grade and the chapter and capped the case at
+   six, so they are kept as objects and rendered as rows. */
+.rub-head {
+  display: flex; align-items: center; gap: 0.5rem;
+  margin-bottom: 0.625rem;
+}
+.rub-count {
+  padding: 0.125rem 0.5rem; border-radius: 999px;
+  background: var(--primary-bg); color: var(--primary);
+  font-size: 0.75rem; font-weight: 700;
+}
+.rub-clear {
+  margin-inline-start: auto;
+  border: 0; background: none; color: var(--text-muted);
+  font: inherit; font-size: 0.75rem; font-weight: 700; cursor: pointer;
+}
+.rub-clear:hover { color: var(--danger); text-decoration: underline; }
+
+.rub-list { display: flex; flex-direction: column; gap: 0.375rem; }
+.rub-row {
+  display: flex; align-items: center; gap: 0.625rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.rub-row:hover { border-color: var(--primary); }
+.rub-n {
+  display: grid; place-items: center;
+  width: 1.375rem; height: 1.375rem; flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--surface2); color: var(--text-muted);
+  font-size: 0.6875rem; font-weight: 700;
+}
+.rub-txt { flex: 1; min-width: 0; }
+.rub-txt b { display: block; font-size: 0.8125rem; font-weight: 600; line-height: 1.4; }
+.rub-txt small { display: block; color: var(--text-light); font-size: 0.6875rem; margin-top: .0625rem; }
+.rub-chap {
+  display: inline-block; margin-inline-end: 0.3125rem;
+  padding: 0.0625rem 0.375rem; border-radius: 4px;
+  background: var(--primary-bg); color: var(--primary);
+  font-size: 0.625rem; font-weight: 700;
+}
+/* grade is clinical weight, so it stays editable after the hand-off */
+.rub-grade {
+  flex: 0 0 auto;
+  padding: 0.25rem 0.375rem;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--field-bg, var(--surface)); color: var(--text);
+  font: inherit; font-size: 0.75rem;
+}
+.rub-rm {
+  flex: 0 0 auto;
+  width: 1.75rem; height: 1.75rem;
+  display: grid; place-items: center;
+  border: 0; border-radius: 6px;
+  background: none; color: var(--text-light);
+  font-size: 1.125rem; cursor: pointer;
+}
+.rub-rm:hover { background: var(--danger-bg); color: var(--danger); }
+
+.rub-empty {
+  display: grid; place-items: center; gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  border: 1px dashed var(--border); border-radius: var(--radius);
+  color: var(--text-muted); text-align: center;
+}
+.rub-empty i { font-size: 1.75rem; color: var(--text-light); opacity: .6; }
+.rub-empty p { margin: 0; font-size: 0.8125rem; line-height: 1.65; max-width: 40ch; }
+
+.rub-add { display: flex; gap: 0.5rem; margin-top: 0.625rem; }
+.rub-add input {
+  flex: 1; min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--field-bg, var(--surface)); color: var(--text);
+  font: inherit; font-size: 0.8125rem;
+}
+.rub-add input:focus { outline: 2px solid var(--primary); outline-offset: -1px; border-color: transparent; }
+
+/* ── analysis launchpad (step 9) ── */
+.launch-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.launch {
+  flex: 1 1 10rem; min-width: 0;
+  display: flex; align-items: center; gap: 0.5625rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text);
+  text-decoration: none;
+  transition: border-color .16s, transform .16s;
+}
+.launch:hover { border-color: var(--primary); transform: translateY(-2px); }
+.launch i:first-child {
+  display: grid; place-items: center; flex: 0 0 auto;
+  width: 2rem; height: 2rem; border-radius: 9px;
+  background: var(--primary-bg); color: var(--primary); font-size: 1.0625rem;
+}
+.launch b { display: block; font-size: 0.8125rem; font-weight: 700; }
+.launch small { display: block; color: var(--text-light); font-size: 0.6875rem; }
+
+/* ── auto case summary (step 9) ── */
+.case-sum { display: flex; flex-direction: column; gap: 0.5rem; }
+.sum-row {
+  display: flex; gap: 0.625rem;
+  padding: 0.5rem 0.625rem;
+  border-inline-start: 3px solid var(--primary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--surface2);
+  font-size: 0.8125rem;
+}
+.sum-row b { flex: 0 0 8rem; color: var(--text-muted); font-weight: 700; font-size: 0.75rem; }
+.sum-row span { flex: 1; min-width: 0; line-height: 1.6; }
+.sum-empty { color: var(--text-light); font-size: 0.8125rem; padding: 0.75rem; text-align: center; }
+
+/* ── mobile ── */
+@media (max-width: 700px) {
+  .sum-row { flex-direction: column; gap: 0.125rem; }
+  .sum-row b { flex: none; }
+  .rub-row { flex-wrap: wrap; }
+  .rub-txt { flex: 1 1 100%; order: 2; }
+  .rub-add { flex-direction: column; }
+
+  /* the step buttons are the primary way through a 9-step form on a phone,
+     so they stay reachable instead of scrolling away with the content */
+  .form-nav {
+    position: sticky; bottom: 0; z-index: 20;
+    padding: 0.625rem;
+    margin-inline: -1rem;
+    background: var(--glass-bg-dense);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border);
+  }
+  .form-nav .btn { min-height: 2.75rem; }
+}
+
+/* ── single-select pills ──
+   Replaces dropdowns on the short-list questions. A <select> costs two taps
+   and hides its options until the first one; these cost one tap and show
+   everything, which matters most on a phone during a consultation. */
+.pills { display: flex; flex-wrap: wrap; gap: 0.375rem; align-items: center; }
+.pill {
+  padding: 0.4375rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit; font-size: 0.8125rem;
+  cursor: pointer;
+  transition: border-color .14s, background .14s, color .14s;
+}
+.pill:hover { border-color: var(--primary); color: var(--primary); }
+.pill.on {
+  background: var(--primary); border-color: var(--primary); color: #fff;
+  font-weight: 600;
+}
+.pill-other-btn { border-style: dashed; }
+.pill-other {
+  flex: 1 1 9rem; min-width: 0;
+  padding: 0.4375rem 0.625rem;
+  border: 1px solid var(--primary); border-radius: var(--radius-sm);
+  background: var(--field-bg, var(--surface)); color: var(--text);
+  font: inherit; font-size: 0.8125rem;
+}
+.pill-other:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
+
+/* ==================== rubric autosuggest ====================
+   Anchored to the .field/label wrapper, which case-form.js gives
+   position:relative on demand. z-index sits above the sticky form-nav so a
+   dropdown opened on the last field of a step is not clipped by it. */
+.cs-pop{
+  position:absolute; left:0; right:0; top:100%; z-index:60;
+  margin-top:.25rem; max-height:17rem; overflow-y:auto;
+  background:var(--surface-2, var(--surface)); border:1px solid var(--border);
+  border-radius:.5rem; box-shadow:0 10px 28px rgba(0,0,0,.35);
+}
+.cs-pop[hidden]{ display:none !important; }
+.cs-row{
+  display:flex; align-items:baseline; gap:.5rem; justify-content:space-between;
+  padding:.45rem .6rem; cursor:pointer; border-bottom:1px solid var(--border);
+}
+.cs-row:last-child{ border-bottom:0; }
+.cs-row:hover,.cs-row.on{ background:var(--primary-bg, rgba(15,118,110,.16)); }
+.cs-nm{ font-size:.9375rem; color:var(--text); }
+/* The chapter is context, not the term — it must never read as part of the
+   name a practitioner is about to insert. */
+.cs-ch{
+  flex:0 0 auto; font-size:.75rem; color:var(--text-muted);
+  padding:.05rem .35rem; border:1px solid var(--border); border-radius:.75rem;
+}

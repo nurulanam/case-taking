@@ -1,0 +1,1898 @@
+{
+  "$schema_note": "Generated from case.html by tools/case_form_structure.py — do not hand-edit; re-run the script after changing the form.",
+  "source_of_truth": "case.html (static markup, not schema-driven at runtime)",
+  "unused_legacy_file": "assets/data/case-form.json is not fetched by any script — an older schema kept in the repo but not wired to anything.",
+  "behavior_file": "assets/js/case-form.js",
+  "total_steps": 9,
+  "patterns": {
+    "field": "label.field > span (label text) + input|select|textarea; .field.full spans both grid columns",
+    "chips": "div.chips[.compact][data-checks=name][data-options='a|b|c'] renders one toggle button per option; case-form.js reads data-checks as the field name and collects ticked options into an array under that name",
+    "sub_card": "div.sub-card groups a themed cluster of fields inside a step's .card; .sub-card.warning-card is the same, styled for the step-3 red-flag block",
+    "gender_conditional": "div.sub-card.gender-panel[data-show-for=value] stays mounted at all times; case-form.js shows only the panel matching the #gender select",
+    "complaint_repeater": "step 2's #complaintsContainer starts empty and is filled by addComplaint() in case-form.js on load and on '+ আরও অভিযোগ যোগ করুন' — the one part of the form templated in JS, not static HTML. Fields per complaint: comp_desc_N, comp_duration_N, comp_severity_N."
+  },
+  "data_flow": {
+    "autosave": "every field change serialized to localStorage under 'homeoCaseDraft', restored by restoreDraft() on load",
+    "repertory_handoff": "#toRepertoryBtn (step 9) sends current complaints to repertory.html; rubric1..rubric6 are filled back in on return",
+    "prescription_handoff": "#toRxFromCase links to prescription.html?from=case, which reads the same draft",
+    "report_generation": "submitting the form (#generateBtn, type=submit) calls generateReport(), which writes a plain-Bangla-text summary of every filled field into #aiOutput; #copyBtn / #downloadBtn export it"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "nav_label": "পরিচিতি",
+      "title": "রোগী ও কেসের পরিচিতি",
+      "subtitle": "রোগীর পরিচয় আর কেসের তথ্য আলাদা — শুধু নাম, বয়স ও লিঙ্গ আবশ্যক।",
+      "section_number_bn": "১",
+      "fields": [
+        {
+          "widget": "text",
+          "label": "রোগীর নাম*",
+          "name": "patientName",
+          "full_width": true,
+          "placeholder": "পূর্ণ নাম",
+          "required": true
+        },
+        {
+          "widget": "select",
+          "label": "লিঙ্গ*",
+          "name": "gender",
+          "options": [
+            "পুরুষ",
+            "মহিলা",
+            "অন্যান্য",
+            "বলতে অনিচ্ছুক"
+          ]
+        },
+        {
+          "widget": "tel",
+          "label": "মোবাইল",
+          "name": "mobile",
+          "placeholder": "রোগী/অভিভাবকের নম্বর"
+        },
+        {
+          "widget": "select",
+          "label": "বৈবাহিক অবস্থা",
+          "name": "maritalStatus",
+          "options": [
+            "অবিবাহিত",
+            "বিবাহিত",
+            "তালাকপ্রাপ্ত",
+            "বিধবা/বিপত্নীক",
+            "প্রযোজ্য নয়"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "পেশা",
+          "name": "occupation",
+          "options": [
+            "গৃহিণী",
+            "শিক্ষার্থী",
+            "চাকরিজীবী",
+            "ব্যবসায়ী",
+            "কৃষক",
+            "শ্রমিক",
+            "স্বাস্থ্যকর্মী/ডাক্তার",
+            "অবসরপ্রাপ্ত",
+            "বেকার",
+            "অন্যান্য"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "ঠিকানা",
+          "name": "address",
+          "full_width": true,
+          "placeholder": "গ্রাম/এলাকা, উপজেলা, জেলা",
+          "rows": 2
+        },
+        {
+          "widget": "text",
+          "label": "ওজন",
+          "name": "weight",
+          "placeholder": "যেমন: ৬৫ কেজি"
+        },
+        {
+          "widget": "text",
+          "label": "উচ্চতা",
+          "name": "height",
+          "placeholder": "যেমন: ৫ ফুট ৬ ইঞ্চি"
+        },
+        {
+          "widget": "select",
+          "label": "রক্তের গ্রুপ",
+          "name": "bloodGroup",
+          "options": [
+            "এ পজিটিভ",
+            "এ নেগেটিভ",
+            "বি পজিটিভ",
+            "বি নেগেটিভ",
+            "ও পজিটিভ",
+            "ও নেগেটিভ",
+            "এবি পজিটিভ",
+            "এবি নেগেটিভ",
+            "জানা নেই"
+          ]
+        },
+        {
+          "widget": "text",
+          "label": "কেস নম্বর",
+          "name": "caseNo",
+          "placeholder": "স্বয়ংক্রিয়"
+        },
+        {
+          "widget": "date",
+          "label": "তারিখ",
+          "name": "visitDate"
+        },
+        {
+          "widget": "select",
+          "label": "কেসের ধরন",
+          "name": "caseType",
+          "options": [
+            "তীব্র (Acute)",
+            "দীর্ঘস্থায়ী (Chronic)",
+            "ফলোআপ"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "পরামর্শের ধরন",
+          "name": "visitType",
+          "options": [
+            "প্রথমবার",
+            "ফলোআপ",
+            "অনলাইন",
+            "চেম্বার",
+            "জরুরি পরামর্শ"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "প্রধান রোগের বিভাগ",
+          "name": "mainCategory",
+          "full_width": true,
+          "options": [
+            "দীর্ঘস্থায়ী রোগ",
+            "আকস্মিক রোগ",
+            "চর্মরোগ",
+            "শ্বাসতন্ত্র",
+            "পেট ও হজম",
+            "মাথা/স্নায়ু",
+            "নারী রোগ",
+            "শিশু রোগ",
+            "মানসিক/আবেগজনিত",
+            "অন্যান্য"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "আগের রোগ নির্ণয়/ডায়াগনসিস",
+          "name": "previousDiagnosis",
+          "full_width": true,
+          "placeholder": "ডাক্তারের দেওয়া নাম, রিপোর্ট অনুযায়ী রোগ, সন্দেহজনক রোগ ইত্যাদি",
+          "rows": 2
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "nav_label": "প্রধান অভিযোগ",
+      "title": "প্রধান অভিযোগ",
+      "subtitle": "প্রতিটি সমস্যার সময়কাল, দিক, তীব্রতা ও বিশেষ বৈশিষ্ট্য লিখুন।",
+      "section_number_bn": "২",
+      "fields": [
+        {
+          "widget": "textarea",
+          "label": "সবচেয়ে কষ্টদায়ক অভিযোগ",
+          "name": "priorityComplaint",
+          "full_width": true,
+          "placeholder": "রোগী কোন সমস্যাকে সবচেয়ে গুরুত্বপূর্ণ বলছে? কেন?",
+          "rows": 3
+        },
+        {
+          "widget": "textarea",
+          "label": "রোগীর চিকিৎসা লক্ষ্য/প্রত্যাশা",
+          "name": "caseGoal",
+          "full_width": true,
+          "placeholder": "রোগী কী উন্নতি আশা করছে, কত দ্রুত, কোন বিষয়ে বেশি উদ্বিগ্ন?",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "step": 3,
+      "nav_label": "রোগের বিবরণ",
+      "title": "বর্তমান রোগের বিস্তারিত ইতিহাস",
+      "subtitle": "রোগের শুরু, কারণ, অনুভূতি, বিস্তার ও রোগের গতিপথ লিখুন।",
+      "section_number_bn": "৩",
+      "fields": [
+        {
+          "widget": "textarea",
+          "label": "ধারাবাহিক রোগের গল্প",
+          "name": "illnessStory",
+          "full_width": true,
+          "placeholder": "প্রথমে কী হয়েছিল, তারপর কীভাবে পরিবর্তন হয়েছে, এখন কী অবস্থা—নিজ ভাষায় লিখুন",
+          "rows": 5
+        },
+        {
+          "widget": "select",
+          "label": "কখন/কীভাবে শুরু",
+          "name": "onsetHow",
+          "options": [
+            "হঠাৎ শুরু",
+            "ধীরে ধীরে শুরু",
+            "নির্দিষ্ট ঘটনার পর",
+            "অজানা"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "cause",
+          "label": "সম্ভাব্য কারণ",
+          "compact": true,
+          "options": [
+            "ঠান্ডা লাগা",
+            "আঘাত/ইনজুরি",
+            "মানসিক আঘাত/চাপ",
+            "সংক্রমণ",
+            "খাদ্যজনিত",
+            "আবহাওয়া পরিবর্তন",
+            "ওষুধের প্রভাব",
+            "বংশগত",
+            "পরিশ্রম/ক্লান্তি",
+            "অজানা",
+            "অন্যান্য"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "exactLocation",
+          "label": "ঠিক কোথায়",
+          "compact": true,
+          "options": [
+            "মাথা",
+            "চোখ",
+            "কান",
+            "মুখ/গলা",
+            "বুক",
+            "পেট",
+            "পিঠ",
+            "কোমর",
+            "হাত",
+            "পা",
+            "জয়েন্ট/সন্ধি",
+            "ত্বক",
+            "সারা শরীর",
+            "অন্যান্য"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "sensation",
+          "label": "ব্যথা/অনুভূতির ধরন",
+          "compact": true,
+          "options": [
+            "জ্বালাপোড়া",
+            "ছুরিকাঘাতের মতো",
+            "ভারী ভাব",
+            "চাপ দেওয়ার মতো",
+            "কাটা কাটা ভাব",
+            "ঝিনঝিন",
+            "অসাড়",
+            "স্পন্দনশীল/দপদপ",
+            "টানটান ভাব",
+            "খিঁচুনি জাতীয়",
+            "চুলকানি",
+            "অবশ ভাব"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "radiation",
+          "label": "ব্যথা/সমস্যা ছড়ায় কোথায়",
+          "compact": true,
+          "options": [
+            "ছড়ায় না",
+            "ডানদিকে",
+            "বামদিকে",
+            "উপরের দিকে",
+            "নিচের দিকে",
+            "পিঠের দিকে",
+            "বুকের দিকে",
+            "হাতে",
+            "পায়ে"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "কতক্ষণ থাকে",
+          "name": "episodeDuration",
+          "options": [
+            "কয়েক সেকেন্ড",
+            "কয়েক মিনিট",
+            "প্রায় ১ ঘণ্টা",
+            "কয়েক ঘণ্টা",
+            "সারাদিন",
+            "কয়েকদিন",
+            "ক্রমাগত/সবসময়"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "কতবার হয়",
+          "name": "episodeFrequency",
+          "options": [
+            "দিনে কয়েকবার",
+            "দিনে ১ বার",
+            "সপ্তাহে কয়েকবার",
+            "মাসে কয়েকবার",
+            "মাঝে মাঝে (অনিয়মিত)",
+            "ক্রমাগত"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "worseTime",
+          "label": "কোন সময়ে বেশি",
+          "compact": true,
+          "options": [
+            "সকালে",
+            "দুপুরে",
+            "সন্ধ্যায়",
+            "রাতে",
+            "মধ্যরাতে",
+            "ভোরে",
+            "নির্দিষ্ট নেই"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "আনুষঙ্গিক লক্ষণ",
+          "name": "concomitantSymptoms",
+          "placeholder": "একসাথে বমি, ঘাম, মাথা ঘোরা, শ্বাসকষ্ট, ভয়, তৃষ্ণা ইত্যাদি",
+          "rows": 3
+        },
+        {
+          "widget": "textarea",
+          "label": "আগে/পরে কী হয়",
+          "name": "beforeAfterSymptoms",
+          "placeholder": "সমস্যার আগে কী লক্ষণ আসে, পরে কী পরিবর্তন হয়",
+          "rows": 3
+        },
+        {
+          "widget": "select",
+          "label": "রোগের ক্রম/পরিবর্তন",
+          "name": "diseaseProgress",
+          "options": [
+            "ক্রমশ বাড়ছে",
+            "ক্রমশ কমছে",
+            "একই রকম আছে",
+            "ওঠানামা করছে"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "আগে কী চিকিৎসা নিয়েছেন ও ফল",
+          "name": "treatmentTaken",
+          "placeholder": "এলোপ্যাথি/হোমিও/হারবাল, কী ফল হয়েছে",
+          "rows": 3
+        },
+        {
+          "widget": "textarea",
+          "label": "ওষুধ/খাবারে অস্বাভাবিক প্রতিক্রিয়া",
+          "name": "medicineReaction",
+          "placeholder": "অ্যালার্জি, অতিরিক্ত সংবেদনশীলতা, পার্শ্বপ্রতিক্রিয়া",
+          "rows": 3
+        },
+        {
+          "widget": "chips",
+          "name": "redFlags",
+          "label": "জরুরি নোট",
+          "compact": false,
+          "options": [
+            "শ্বাসকষ্ট",
+            "তীব্র বুক ব্যথা",
+            "অজ্ঞান/খিঁচুনি",
+            "অতিরিক্ত রক্তপাত",
+            "উচ্চ জ্বর দীর্ঘস্থায়ী",
+            "দ্রুত ওজন কমা",
+            "প্রস্রাব বন্ধ",
+            "পক্ষাঘাত/মুখ বেঁকে যাওয়া"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "জরুরি নোট",
+          "name": "redFlagNote",
+          "placeholder": "কখন থেকে, কতটা তীব্র, কী ব্যবস্থা নেওয়া হয়েছে",
+          "rows": 2
+        }
+      ]
+    },
+    {
+      "step": 4,
+      "nav_label": "বৃদ্ধি/উপশম",
+      "title": "বৃদ্ধি ও উপশম কারণ",
+      "subtitle": "কিসে রোগ বাড়ে বা কমে—হোমিওপ্যাথিতে খুব গুরুত্বপূর্ণ।",
+      "section_number_bn": "৪",
+      "fields": [
+        {
+          "widget": "chips",
+          "name": "worseModalities",
+          "label": null,
+          "compact": true,
+          "options": [
+            "সকালে",
+            "দুপুরে",
+            "সন্ধ্যায়",
+            "রাতে",
+            "মধ্যরাতে",
+            "ভোরে"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "worseModalities",
+          "label": null,
+          "compact": true,
+          "options": [
+            "গরমে",
+            "ঠান্ডায়",
+            "আর্দ্রতায়",
+            "শুকনো আবহাওয়ায়",
+            "বর্ষায়",
+            "শীতে",
+            "গ্রীষ্মে",
+            "বাতাসে",
+            "ধুলোয়",
+            "রোদে",
+            "গোসলের পরে"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "worseModalities",
+          "label": null,
+          "compact": true,
+          "options": [
+            "নড়াচড়ায়",
+            "বিশ্রামে",
+            "হাঁটলে",
+            "দৌড়ালে",
+            "সিঁড়িতে উঠলে",
+            "শুয়ে",
+            "ডান কাতে",
+            "বাম কাতে",
+            "বসলে",
+            "দাঁড়ালে"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "worseModalities",
+          "label": null,
+          "compact": true,
+          "options": [
+            "গরম খাবারে",
+            "ঠান্ডা খাবারে",
+            "দুধে",
+            "মিষ্টিতে",
+            "খাওয়ার পরে",
+            "খালি পেটে"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "worseModalities",
+          "label": null,
+          "compact": true,
+          "options": [
+            "রাগে",
+            "দুঃখে",
+            "ভয় পেলে",
+            "চিন্তায়",
+            "ঘুম কম হলে",
+            "মাসিকের আগে",
+            "মাসিকের সময়",
+            "মাসিকের পরে"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "betterModalities",
+          "label": null,
+          "compact": true,
+          "options": [
+            "গরমে",
+            "ঠান্ডায়",
+            "খোলা বাতাসে",
+            "গরম সেক দিলে",
+            "ঠান্ডা সেক দিলে",
+            "গরম পানিতে",
+            "ঠান্ডা পানিতে"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "betterModalities",
+          "label": null,
+          "compact": true,
+          "options": [
+            "হাঁটলে",
+            "বিশ্রামে",
+            "শুয়ে",
+            "বসলে",
+            "মাথা উঁচু করলে",
+            "চাপ দিলে",
+            "শক্ত করে বাঁধলে"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "betterModalities",
+          "label": null,
+          "compact": true,
+          "options": [
+            "খাবার খেলে",
+            "ঢেকুরে",
+            "বায়ু ত্যাগে",
+            "বমিতে",
+            "ঘামে",
+            "ঘুমে"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "betterModalities",
+          "label": null,
+          "compact": true,
+          "options": [
+            "একা থাকলে",
+            "সঙ্গ পেলে"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "বৃদ্ধি/উপশমের বিশেষ মন্তব্য",
+          "name": "modalityNotes",
+          "placeholder": "কোন লক্ষণ কোন অবস্থায় বাড়ে/কমে—বিস্তারিত লিখুন",
+          "rows": 4
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "nav_label": "মানসিক",
+      "title": "মানসিক ও সাধারণ লক্ষণ",
+      "subtitle": "স্বভাব, ভয়, খাদ্যরুচি, ক্ষুধা, পিপাসা ও পছন্দ-অপছন্দ।",
+      "section_number_bn": "৫",
+      "fields": [
+        {
+          "widget": "chips",
+          "name": "mindSymptoms",
+          "label": "মানসিক লক্ষণ",
+          "compact": true,
+          "options": [
+            "রাগী",
+            "শান্ত",
+            "সংবেদনশীল",
+            "অভিমানী",
+            "ভীতু",
+            "উদ্বেগ",
+            "হতাশা",
+            "সন্দেহপ্রবণ",
+            "তাড়াহুড়া করে",
+            "ধীর/অলস",
+            "ভুলে যায়",
+            "মনোযোগ কম",
+            "একা থাকতে চায়",
+            "সঙ্গ পছন্দ",
+            "কান্নাকাটি করে",
+            "সান্ত্বনায় ভালো",
+            "সান্ত্বনায় খারাপ",
+            "ঈর্ষা",
+            "অপরাধবোধ",
+            "অস্থির",
+            "শব্দে বিরক্ত",
+            "আলোতে বিরক্ত",
+            "ভিড় অপছন্দ",
+            "পরিচ্ছন্নতা নিয়ে অতিরিক্ত চিন্তা",
+            "আত্মবিশ্বাস কম",
+            "মৃত্যুভয়",
+            "রোগভয়"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "fearSymptoms",
+          "label": "ভয়",
+          "compact": true,
+          "options": [
+            "অন্ধকার",
+            "একা থাকা",
+            "উচ্চতা",
+            "পানি",
+            "বজ্রপাত",
+            "সাপ",
+            "কুকুর",
+            "চোর",
+            "ভূত/অদৃশ্য কিছু",
+            "মৃত্যু",
+            "রোগ",
+            "দারিদ্র্য",
+            "পরীক্ষা/মঞ্চ",
+            "বন্ধ ঘর"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "মানসিক কারণ/আঘাত",
+          "name": "mentalCause",
+          "placeholder": "দুঃখ, অপমান, ভয়, প্রেমঘটিত, আর্থিক চাপ, পারিবারিক সমস্যা",
+          "rows": 3
+        },
+        {
+          "widget": "chips",
+          "name": "personalityChange",
+          "label": "স্বভাবের পরিবর্তন",
+          "compact": true,
+          "options": [
+            "রাগী হয়ে গেছে",
+            "শান্ত হয়ে গেছে",
+            "অন্তর্মুখী হয়ে গেছে",
+            "খিটখিটে হয়ে গেছে",
+            "অলস হয়ে গেছে",
+            "উদ্বিগ্ন হয়ে গেছে",
+            "আগের মতোই আছে"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "ক্ষুধা",
+          "name": "appetite",
+          "options": [
+            "বেশি",
+            "স্বাভাবিক",
+            "কম",
+            "নেই",
+            "পরিবর্তনশীল"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "পিপাসা",
+          "name": "thirst",
+          "options": [
+            "বেশি",
+            "স্বাভাবিক",
+            "কম",
+            "একেবারে কম",
+            "বারবার অল্প অল্প",
+            "একবারে বেশি"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "প্রতিদিন পানি",
+          "name": "waterAmount",
+          "options": [
+            "১ লিটারের কম",
+            "১-২ লিটার",
+            "২-৩ লিটার",
+            "৩ লিটারের বেশি"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "পানীয়ের তাপমাত্রা পছন্দ",
+          "name": "drinkTemperature",
+          "options": [
+            "ঠান্ডা",
+            "গরম",
+            "স্বাভাবিক",
+            "বরফ ঠান্ডা"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "cravings",
+          "label": "ক্ষুধা",
+          "compact": true,
+          "options": [
+            "মিষ্টি",
+            "নোনতা",
+            "টক",
+            "ঝাল",
+            "মাছ",
+            "মাংস",
+            "ডিম",
+            "দুধ",
+            "চা",
+            "কফি",
+            "ঠান্ডা পানি",
+            "গরম খাবার",
+            "ভাত",
+            "রুটি",
+            "বরফ",
+            "মাটি/চুন/অখাদ্য"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "aversions",
+          "label": "ক্ষুধা",
+          "compact": true,
+          "options": [
+            "মিষ্টি",
+            "দুধ",
+            "মাংস",
+            "মাছ",
+            "ডিম",
+            "তেল",
+            "চর্বি",
+            "ঝাল",
+            "টক",
+            "গন্ধযুক্ত খাবার"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "foodAggravation",
+          "label": "ক্ষুধা",
+          "compact": true,
+          "options": [
+            "দুধে",
+            "ডিমে",
+            "মাছে",
+            "মাংসে",
+            "তৈলাক্ত খাবারে",
+            "ডালে",
+            "পেঁয়াজে",
+            "রসুনে",
+            "গম/রুটিতে",
+            "মিষ্টিতে",
+            "ঝালে",
+            "টকে"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "খাদ্যাভ্যাসের বিশেষ মন্তব্য",
+          "name": "foodNotes",
+          "placeholder": "সময়মতো খাওয়া, ক্ষুধা লাগলে আচরণ, অস্বাভাবিক রুচি, উপবাসে সমস্যা ইত্যাদি",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "step": 6,
+      "nav_label": "সিস্টেম",
+      "title": "শরীরের সিস্টেম অনুযায়ী লক্ষণ",
+      "subtitle": "হজম, মল, প্রস্রাব, ঘুম, ঘাম এবং তাপ সহ্যক্ষমতা।",
+      "section_number_bn": "৬",
+      "fields": [
+        {
+          "widget": "chips",
+          "name": "digestiveSymptoms",
+          "label": "হজমের মন্তব্য",
+          "compact": true,
+          "options": [
+            "গ্যাস",
+            "ঢেকুর",
+            "টক ঢেকুর",
+            "বুক জ্বালা",
+            "পেট ফাঁপা",
+            "বায়ু ত্যাগে আরাম",
+            "ঢেকুরে আরাম",
+            "কোষ্ঠকাঠিন্য",
+            "পাতলা পায়খানা",
+            "অসম্পূর্ণ মলত্যাগ",
+            "বমিভাব",
+            "বমি",
+            "পেট ব্যথা",
+            "ক্ষুধামন্দা"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "হজমের মন্তব্য",
+          "name": "digestionNotes",
+          "placeholder": "কোন খাবারে, কোন সময়ে, কীভাবে বাড়ে/কমে",
+          "rows": 3
+        },
+        {
+          "widget": "select",
+          "label": "দিনে কতবার",
+          "name": "stoolFrequency",
+          "options": [
+            "দিনে ১ বার",
+            "দিনে ২-৩ বার",
+            "২-৩ দিনে ১ বার",
+            "সপ্তাহে ২-৩ বার",
+            "অনিয়মিত"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "রং",
+          "name": "stoolColor",
+          "options": [
+            "স্বাভাবিক (বাদামি)",
+            "কালচে",
+            "হলুদাভ",
+            "সবুজাভ",
+            "ফ্যাকাশে/মাটির রং",
+            "লালচে"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "গন্ধ",
+          "name": "stoolSmell",
+          "options": [
+            "স্বাভাবিক",
+            "টক গন্ধ",
+            "পচা দুর্গন্ধ",
+            "গন্ধহীন"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "শক্ত/নরম",
+          "name": "stoolConsistency",
+          "options": [
+            "স্বাভাবিক",
+            "শক্ত",
+            "নরম",
+            "পানির মতো",
+            "আঠালো"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "রক্ত",
+          "name": "stoolBlood",
+          "options": [
+            "নেই",
+            "সামান্য",
+            "বেশি"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "শ্লেষ্মা",
+          "name": "stoolMucus",
+          "options": [
+            "নেই",
+            "আছে"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "কৃমি",
+          "name": "stoolWorm",
+          "options": [
+            "নেই",
+            "আছে"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "বেগ/চাপ",
+          "name": "stoolUrge",
+          "options": [
+            "স্বাভাবিক",
+            "তাড়াহুড়ার বেগ",
+            "বেগ কম",
+            "অসম্পূর্ণ ভাব"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "ব্যথা/জ্বালা",
+          "name": "stoolPain",
+          "options": [
+            "নেই",
+            "মলত্যাগের আগে",
+            "মলত্যাগের সময়",
+            "মলত্যাগের পরে"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "মলের মন্তব্য",
+          "name": "stoolNotes",
+          "full_width": true,
+          "rows": 2
+        },
+        {
+          "widget": "select",
+          "label": "বারবার হয়",
+          "name": "urineFrequency",
+          "options": [
+            "স্বাভাবিক",
+            "বেশি",
+            "কম"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "জ্বালা",
+          "name": "urineBurning",
+          "options": [
+            "নেই",
+            "আছে"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "রং",
+          "name": "urineColor",
+          "options": [
+            "স্বাভাবিক (হলুদ)",
+            "গাঢ় হলুদ",
+            "লালচে",
+            "ঘোলাটে",
+            "বর্ণহীন"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "গন্ধ",
+          "name": "urineSmell",
+          "options": [
+            "স্বাভাবিক",
+            "তীব্র গন্ধ",
+            "গন্ধহীন"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "রাতে কয়বার",
+          "name": "urineNight",
+          "options": [
+            "০ বার",
+            "১ বার",
+            "২ বার",
+            "৩+ বার"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "ফোঁটা ফোঁটা",
+          "name": "urineDripping",
+          "options": [
+            "নেই",
+            "আছে"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "ধরে রাখতে পারে",
+          "name": "urineRetention",
+          "options": [
+            "স্বাভাবিক",
+            "ধরে রাখতে কষ্ট হয়"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "হঠাৎ বেগ",
+          "name": "urineUrgency",
+          "options": [
+            "নেই",
+            "আছে"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "ব্যথা",
+          "name": "urinePain",
+          "options": [
+            "নেই",
+            "আছে"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "তলানি/বালু",
+          "name": "urineSediment",
+          "options": [
+            "নেই",
+            "আছে"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "অনিচ্ছায় প্রস্রাব",
+          "name": "urineIncontinence",
+          "options": [
+            "নেই",
+            "হাঁচি/কাশিতে",
+            "ঘুমে",
+            "সবসময়"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "প্রস্রাবের মন্তব্য",
+          "name": "urineNotes",
+          "full_width": true,
+          "rows": 2
+        },
+        {
+          "widget": "select",
+          "label": "ঘুম",
+          "name": "sleepQuality",
+          "options": [
+            "ভালো",
+            "কম",
+            "বেশি",
+            "ভাঙা ভাঙা",
+            "ঘুম আসতে দেরি",
+            "ভোরে ঘুম ভাঙে"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "sleepPosition",
+          "label": "ঘুম",
+          "compact": true,
+          "options": [
+            "ডান কাতে",
+            "বাম কাতে",
+            "চিৎ হয়ে",
+            "উপুড় হয়ে",
+            "হাঁটু ভাঁজ করে",
+            "মাথা উঁচু করে"
+          ]
+        },
+        {
+          "widget": "chips",
+          "name": "dreams",
+          "label": "ঘুম",
+          "compact": true,
+          "options": [
+            "সাপ",
+            "পানি",
+            "মৃত মানুষ",
+            "ভয়",
+            "চোর",
+            "আগুন",
+            "পড়ে যাওয়া",
+            "উড়ে যাওয়া",
+            "ঝগড়া",
+            "পরীক্ষা",
+            "যৌন স্বপ্ন",
+            "একই স্বপ্ন বারবার"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "ঘুমের মন্তব্য",
+          "name": "sleepNotes",
+          "rows": 2
+        },
+        {
+          "widget": "chips",
+          "name": "sweatSymptoms",
+          "label": "ঘামের মন্তব্য",
+          "compact": true,
+          "options": [
+            "বেশি",
+            "কম",
+            "মাথায়",
+            "বগলে",
+            "হাতে",
+            "পায়ে",
+            "দুর্গন্ধ",
+            "রাতে",
+            "ঘুমে",
+            "সহজে ঘামে",
+            "টক গন্ধ"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "ঘামের মন্তব্য",
+          "name": "sweatNotes",
+          "rows": 2
+        },
+        {
+          "widget": "chips",
+          "name": "thermalSymptoms",
+          "label": "ঘামের মন্তব্য",
+          "compact": true,
+          "options": [
+            "গরম সহ্য করতে পারে না",
+            "ঠান্ডা সহ্য করতে পারে না",
+            "ফ্যান পছন্দ",
+            "কম্বল পছন্দ",
+            "খোলা বাতাস পছন্দ",
+            "খোলা বাতাস অপছন্দ",
+            "গোসল অপছন্দ",
+            "ঠান্ডা পানিতে গোসল পছন্দ",
+            "গরম পানিতে গোসল পছন্দ"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "তাপ সহ্যক্ষমতার মন্তব্য",
+          "name": "thermalNotes",
+          "rows": 2
+        }
+      ]
+    },
+    {
+      "step": 7,
+      "nav_label": "যৌন/নারী/শিশু",
+      "title": "যৌন, নারী ও শিশু ইতিহাস",
+      "subtitle": "প্রাসঙ্গিক হলে পূরণ করুন। লিঙ্গ অনুযায়ী অংশ স্বয়ংক্রিয়ভাবে দেখাবে।",
+      "section_number_bn": "৭",
+      "fields": [
+        {
+          "widget": "chips",
+          "name": "sexualGeneral",
+          "label": "সাধারণ মন্তব্য",
+          "compact": true,
+          "options": [
+            "যৌন ইচ্ছা কম",
+            "যৌন ইচ্ছা বেশি",
+            "যৌন সম্পর্কে উদ্বেগ",
+            "সঙ্গমে ব্যথা",
+            "যৌন রোগের ইতিহাস",
+            "গোপন সমস্যা বলতে লজ্জা/ভয়"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "সাধারণ মন্তব্য",
+          "name": "sexualNotes",
+          "rows": 2
+        },
+        {
+          "widget": "textarea",
+          "label": "জন্ম ইতিহাস",
+          "name": "childBirth",
+          "placeholder": "স্বাভাবিক/সিজার, সময়মতো/অকাল, জন্ম ওজন",
+          "rows": 2
+        },
+        {
+          "widget": "textarea",
+          "label": "বৃদ্ধি ও মাইলফলক",
+          "name": "childMilestone",
+          "placeholder": "বসা, হাঁটা, কথা বলা, দাঁত ওঠা",
+          "rows": 2
+        },
+        {
+          "widget": "select",
+          "label": "টিকা",
+          "name": "childVaccination",
+          "options": [
+            "সম্পূর্ণ",
+            "আংশিক",
+            "হয়নি"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "খাওয়ানো",
+          "name": "childFeeding",
+          "rows": 2
+        },
+        {
+          "widget": "textarea",
+          "label": "আচরণ",
+          "name": "childBehavior",
+          "rows": 2
+        },
+        {
+          "widget": "textarea",
+          "label": "বারবার সংক্রমণ",
+          "name": "childInfection",
+          "rows": 2
+        },
+        {
+          "widget": "textarea",
+          "label": "শিশু ইতিহাসের মন্তব্য",
+          "name": "childNotes",
+          "full_width": true,
+          "rows": 3
+        }
+      ],
+      "gender_conditional_panels": [
+        {
+          "show_for": "পুরুষ",
+          "title": "পুরুষের জন্য",
+          "fields": [
+            {
+              "widget": "chips",
+              "name": "maleSymptoms",
+              "label": "পুরুষ ইতিহাসের মন্তব্য",
+              "compact": true,
+              "options": [
+                "যৌন দুর্বলতা",
+                "দ্রুত বীর্যপাত",
+                "উত্থান সমস্যা",
+                "স্বপ্নদোষ",
+                "ধাতুপাত",
+                "প্রস্টেটের সমস্যা",
+                "অণ্ডকোষে ব্যথা/স্ফীতি",
+                "বীর্যে রক্ত/অস্বাভাবিকতা"
+              ]
+            },
+            {
+              "widget": "textarea",
+              "label": "পুরুষ ইতিহাসের মন্তব্য",
+              "name": "maleNotes",
+              "rows": 3
+            }
+          ]
+        },
+        {
+          "show_for": "মহিলা",
+          "title": "মহিলাদের জন্য",
+          "fields": [
+            {
+              "widget": "text",
+              "label": "প্রথম মাসিকের বয়স",
+              "name": "femaleMenarche"
+            },
+            {
+              "widget": "select",
+              "label": "মাসিক চক্র",
+              "name": "femaleCycle",
+              "options": [
+                "নিয়মিত",
+                "অনিয়মিত"
+              ]
+            },
+            {
+              "widget": "select",
+              "label": "মাসিক কতদিন থাকে",
+              "name": "femaleDuration",
+              "options": [
+                "২-৩ দিন",
+                "৪-৫ দিন",
+                "৬-৭ দিন",
+                "৭ দিনের বেশি"
+              ]
+            },
+            {
+              "widget": "text",
+              "label": "শেষ মাসিকের তারিখ",
+              "name": "femaleLmp"
+            },
+            {
+              "widget": "select",
+              "label": "রক্তের পরিমাণ",
+              "name": "femaleFlow",
+              "options": [
+                "কম",
+                "স্বাভাবিক",
+                "বেশি",
+                "অতিরিক্ত"
+              ]
+            },
+            {
+              "widget": "select",
+              "label": "রক্তের রং",
+              "name": "femaleColor",
+              "options": [
+                "উজ্জ্বল লাল",
+                "গাঢ় লাল",
+                "কালচে",
+                "বাদামি"
+              ]
+            },
+            {
+              "widget": "select",
+              "label": "ব্যথা",
+              "name": "femalePain",
+              "options": [
+                "নেই",
+                "মৃদু",
+                "মাঝারি",
+                "তীব্র"
+              ]
+            },
+            {
+              "widget": "select",
+              "label": "জমাট",
+              "name": "femaleClot",
+              "options": [
+                "নেই",
+                "আছে"
+              ]
+            },
+            {
+              "widget": "select",
+              "label": "সাদা স্রাব",
+              "name": "femaleLeucorrhoea",
+              "options": [
+                "নেই",
+                "সাদা",
+                "হলুদাভ",
+                "দুর্গন্ধযুক্ত",
+                "চুলকানিসহ"
+              ]
+            },
+            {
+              "widget": "select",
+              "label": "গর্ভাবস্থা",
+              "name": "femalePregnancy",
+              "options": [
+                "নেই",
+                "চলমান",
+                "অতীতে ছিল"
+              ]
+            },
+            {
+              "widget": "select",
+              "label": "প্রসব ইতিহাস",
+              "name": "femaleDelivery",
+              "options": [
+                "প্রযোজ্য নয়",
+                "স্বাভাবিক প্রসব",
+                "সিজারিয়ান"
+              ]
+            },
+            {
+              "widget": "select",
+              "label": "গর্ভপাত/মৃত সন্তান",
+              "name": "femaleMiscarriage",
+              "options": [
+                "নেই",
+                "১ বার",
+                "২ বার",
+                "৩+ বার"
+              ]
+            },
+            {
+              "widget": "select",
+              "label": "মেনোপজ",
+              "name": "femaleMenopause",
+              "options": [
+                "হয়নি",
+                "হয়েছে"
+              ]
+            },
+            {
+              "widget": "select",
+              "label": "দুগ্ধদান",
+              "name": "femaleLactation",
+              "options": [
+                "না",
+                "হ্যাঁ"
+              ]
+            },
+            {
+              "widget": "textarea",
+              "label": "নারী রোগ/সমস্যা",
+              "name": "femaleProblems",
+              "full_width": true,
+              "placeholder": "ফাইব্রয়েড, সিস্ট, বন্ধ্যাত্ব, জরায়ু সমস্যা, স্তন সমস্যা ইত্যাদি",
+              "rows": 3
+            },
+            {
+              "widget": "textarea",
+              "label": "মহিলা ইতিহাসের মন্তব্য",
+              "name": "femaleNotes",
+              "full_width": true,
+              "rows": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "step": 8,
+      "nav_label": "ইতিহাস/রিপোর্ট",
+      "title": "অতীত, পারিবারিক ইতিহাস, রিপোর্ট ও পর্যবেক্ষণ",
+      "subtitle": "পুরনো রোগ, পরিবার, ত্বক, চলতি ওষুধ, পরীক্ষা ও চিকিৎসকের পর্যবেক্ষণ।",
+      "section_number_bn": "৮",
+      "fields": [
+        {
+          "widget": "chips",
+          "name": "pastHistory",
+          "label": "অতীত ইতিহাসের বিস্তারিত",
+          "compact": true,
+          "options": [
+            "টাইফয়েড",
+            "যক্ষা",
+            "জন্ডিস",
+            "ডায়াবেটিস",
+            "উচ্চ রক্তচাপ",
+            "হাঁপানি",
+            "অপারেশন",
+            "দুর্ঘটনা",
+            "করোনা",
+            "ডেঙ্গু",
+            "ম্যালেরিয়া",
+            "নিউমোনিয়া",
+            "কিডনি রোগ",
+            "পাথর",
+            "থাইরয়েড",
+            "মৃগী",
+            "স্ট্রোক",
+            "ক্যান্সার",
+            "যৌনবাহিত রোগ"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "অতীত ইতিহাসের বিস্তারিত",
+          "name": "pastHistoryDetails",
+          "placeholder": "কবে হয়েছিল, কতদিন, কী চিকিৎসা, কী ফল",
+          "rows": 3
+        },
+        {
+          "widget": "textarea",
+          "label": "লক্ষণ চাপা পড়ার ইতিহাস",
+          "name": "suppressionHistory",
+          "placeholder": "চর্মরোগে মলম, দীর্ঘ অ্যান্টিবায়োটিক, স্টেরয়েড, হরমোন, ব্যথানাশক ইত্যাদি",
+          "rows": 3
+        },
+        {
+          "widget": "textarea",
+          "label": "অ্যালার্জি",
+          "name": "allergyHistory",
+          "placeholder": "ওষুধ, খাবার, ধুলো, ফুলের রেণু, প্রাণী ইত্যাদি",
+          "rows": 3
+        },
+        {
+          "widget": "textarea",
+          "label": "আসক্তি/অভ্যাস",
+          "name": "addictionHistory",
+          "placeholder": "ধূমপান, পান, মদ, মাদক, অতিরিক্ত চা/কফি, রাত জাগা",
+          "rows": 3
+        },
+        {
+          "widget": "chips",
+          "name": "familyHistory",
+          "label": "পারিবারিক ইতিহাসের বিস্তারিত",
+          "compact": true,
+          "options": [
+            "ডায়াবেটিস",
+            "ক্যান্সার",
+            "উচ্চ রক্তচাপ",
+            "হৃদরোগ",
+            "হাঁপানি",
+            "মানসিক রোগ",
+            "কিডনি রোগ",
+            "যক্ষা",
+            "চর্মরোগ",
+            "আর্থ্রাইটিস",
+            "থাইরয়েড",
+            "মাইগ্রেন",
+            "আসক্তি"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "পারিবারিক ইতিহাসের বিস্তারিত",
+          "name": "familyHistoryDetails",
+          "placeholder": "কোন আত্মীয়, বয়স, রোগের ধরন",
+          "rows": 3
+        },
+        {
+          "widget": "chips",
+          "name": "skinSymptoms",
+          "label": "ত্বকের বিস্তারিত",
+          "compact": true,
+          "options": [
+            "চুলকানি",
+            "আঁচিল",
+            "একজিমা",
+            "সোরিয়াসিস",
+            "ফোড়া",
+            "দাদ",
+            "এলার্জি",
+            "চুল পড়া",
+            "খুশকি",
+            "নখ ভঙ্গুর",
+            "ঘা শুকাতে দেরি",
+            "রং পরিবর্তন"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "ত্বকের বিস্তারিত",
+          "name": "skinNotes",
+          "placeholder": "স্থান, রং, চুলকানি কখন, স্রাব, গন্ধ, শুকনো/ভেজা",
+          "rows": 3
+        },
+        {
+          "widget": "textarea",
+          "label": "এলোপ্যাথি",
+          "name": "currentAllopathy",
+          "placeholder": "নাম, ডোজ, কতদিন",
+          "rows": 3
+        },
+        {
+          "widget": "textarea",
+          "label": "হোমিওপ্যাথি",
+          "name": "currentHomeopathy",
+          "placeholder": "নাম, শক্তি, কতদিন",
+          "rows": 3
+        },
+        {
+          "widget": "textarea",
+          "label": "হারবাল/দেশি",
+          "name": "currentHerbal",
+          "rows": 3
+        },
+        {
+          "widget": "textarea",
+          "label": "সাপ্লিমেন্ট/ভিটামিন",
+          "name": "currentSupplements",
+          "rows": 3
+        },
+        {
+          "widget": "textarea",
+          "label": "ওষুধে পার্শ্বপ্রতিক্রিয়া/নির্ভরতা",
+          "name": "currentSideEffects",
+          "full_width": true,
+          "rows": 3
+        },
+        {
+          "widget": "text",
+          "label": "রক্তচাপ",
+          "name": "bp",
+          "placeholder": "যেমন: ১২০/৮০"
+        },
+        {
+          "widget": "text",
+          "label": "নাড়ির গতি",
+          "name": "pulse"
+        },
+        {
+          "widget": "text",
+          "label": "তাপমাত্রা",
+          "name": "temperature"
+        },
+        {
+          "widget": "text",
+          "label": "শ্বাসের হার",
+          "name": "respiration"
+        },
+        {
+          "widget": "text",
+          "label": "অক্সিজেন মাত্রা",
+          "name": "spo2"
+        },
+        {
+          "widget": "text",
+          "label": "রক্তে শর্করা",
+          "name": "sugar"
+        },
+        {
+          "widget": "text",
+          "label": "হিমোগ্লোবিন",
+          "name": "hb"
+        },
+        {
+          "widget": "select",
+          "label": "রক্তের সাধারণ পরীক্ষা",
+          "name": "cbc",
+          "options": [
+            "করা হয়নি",
+            "স্বাভাবিক",
+            "অস্বাভাবিক"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "প্রস্রাব পরীক্ষা",
+          "name": "urineReport",
+          "options": [
+            "করা হয়নি",
+            "স্বাভাবিক",
+            "অস্বাভাবিক"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "এক্স-রে",
+          "name": "xray",
+          "options": [
+            "করা হয়নি",
+            "স্বাভাবিক",
+            "অস্বাভাবিক"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "আল্ট্রাসনোগ্রাম",
+          "name": "usg",
+          "options": [
+            "করা হয়নি",
+            "স্বাভাবিক",
+            "অস্বাভাবিক"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "হৃদযন্ত্রের রেখাচিত্র",
+          "name": "ecg",
+          "options": [
+            "করা হয়নি",
+            "স্বাভাবিক",
+            "অস্বাভাবিক"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "ইকো",
+          "name": "echo",
+          "options": [
+            "করা হয়নি",
+            "স্বাভাবিক",
+            "অস্বাভাবিক"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "সিটি/এমআরআই",
+          "name": "ctMri",
+          "options": [
+            "করা হয়নি",
+            "স্বাভাবিক",
+            "অস্বাভাবিক"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "অন্যান্য রিপোর্ট",
+          "name": "otherReports",
+          "full_width": true,
+          "rows": 3
+        },
+        {
+          "widget": "select",
+          "label": "জিহ্বা",
+          "name": "tongue",
+          "options": [
+            "স্বাভাবিক",
+            "সাদা প্রলেপ",
+            "হলুদ প্রলেপ",
+            "লালচে",
+            "ফাটা",
+            "কাঁপে"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "মুখমণ্ডল",
+          "name": "face",
+          "options": [
+            "স্বাভাবিক",
+            "ফ্যাকাশে",
+            "লালচে",
+            "ফোলা",
+            "ক্লান্ত দেখায়"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "গন্ধ",
+          "name": "odour",
+          "options": [
+            "স্বাভাবিক",
+            "দুর্গন্ধ",
+            "টক গন্ধ",
+            "নেই"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "হাঁটা",
+          "name": "walking",
+          "options": [
+            "স্বাভাবিক",
+            "খোঁড়াচ্ছে",
+            "ধীর",
+            "অস্থির"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "কণ্ঠস্বর",
+          "name": "voice",
+          "options": [
+            "স্বাভাবিক",
+            "ক্ষীণ",
+            "কর্কশ",
+            "ভাঙা"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "ভঙ্গি",
+          "name": "posture",
+          "options": [
+            "স্বাভাবিক",
+            "কুঁজো",
+            "শক্ত/সোজা",
+            "নুয়ে থাকে"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "চেহারা/গঠন",
+          "name": "appearance",
+          "options": [
+            "স্বাভাবিক",
+            "দুর্বল/শীর্ণ",
+            "স্থূল",
+            "রোগা",
+            "ফোলা"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "অতিরিক্ত পর্যবেক্ষণ",
+          "name": "observationNotes",
+          "full_width": true,
+          "rows": 3
+        },
+        {
+          "widget": "textarea",
+          "label": "বিশেষ, বিরল ও অদ্ভুত লক্ষণ",
+          "name": "peculiarSymptoms",
+          "placeholder": "যে লক্ষণ সাধারণ নয়, অদ্ভুত, খুব ব্যক্তিগত বা রোগীর ক্ষেত্রে বিশেষ—বিস্তারিত লিখুন",
+          "rows": 5
+        }
+      ]
+    },
+    {
+      "step": 9,
+      "nav_label": "কপি/এআই",
+      "title": "বিশ্লেষণ ও পরবর্তী ধাপ",
+      "subtitle": "কেসের সারাংশ দেখুন, রুব্রিক বাছুন, বিশ্লেষণ টুলে যান — তারপর প্রেসক্রিপশন।",
+      "section_number_bn": "৯",
+      "fields": [
+        {
+          "widget": "chips",
+          "name": "miasm",
+          "label": "সম্ভাব্য মায়াজম",
+          "compact": true,
+          "options": [
+            "সোরা",
+            "সাইকোসিস",
+            "সিফিলিস",
+            "টিউবারকিউলার",
+            "ক্যান্সারিনিক",
+            "মিশ্র",
+            "অনির্ধারিত"
+          ]
+        },
+        {
+          "widget": "text",
+          "label": "গঠনগত ঔষধ",
+          "name": "constitutionalRemedy"
+        },
+        {
+          "widget": "text",
+          "label": "আকস্মিক ঔষধ",
+          "name": "acuteRemedy"
+        },
+        {
+          "widget": "text",
+          "label": "মধ্যবর্তী ঔষধ",
+          "name": "intercurrent"
+        },
+        {
+          "widget": "text",
+          "label": "নোসোড",
+          "name": "nosode"
+        },
+        {
+          "widget": "text",
+          "label": "বায়োকেমিক",
+          "name": "biochemic"
+        },
+        {
+          "widget": "text",
+          "label": "ফুল-চিকিৎসা প্রয়োজনে",
+          "name": "flowerTherapy"
+        },
+        {
+          "widget": "select",
+          "label": "শক্তি",
+          "name": "potency",
+          "options": [
+            "6",
+            "12",
+            "30",
+            "200",
+            "1M",
+            "10M",
+            "50M",
+            "CM",
+            "LM1",
+            "LM2",
+            "LM3",
+            "অন্যান্য"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "ডোজ",
+          "name": "dose",
+          "options": [
+            "একক ডোজ (Single dose)",
+            "পুনরাবৃত্ত ডোজ (Repeated)",
+            "ওয়েট ডোজ (Wet dose)",
+            "প্লেসিবো"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "পুনরাবৃত্তি",
+          "name": "repetition",
+          "options": [
+            "দিনে ৩ বার",
+            "দিনে ২ বার",
+            "দিনে ১ বার",
+            "সপ্তাহে ১ বার",
+            "প্রয়োজন অনুযায়ী (SOS)",
+            "শুধু ১ ডোজ"
+          ]
+        },
+        {
+          "widget": "select",
+          "label": "ফলোআপ",
+          "name": "followUp",
+          "options": [
+            "৩ দিন পর",
+            "৭ দিন পর",
+            "১৫ দিন পর",
+            "১ মাস পর",
+            "প্রয়োজন অনুযায়ী"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "খাদ্য/জীবনযাপন পরামর্শ",
+          "name": "dietAdvice",
+          "full_width": true,
+          "rows": 3
+        },
+        {
+          "widget": "chips",
+          "name": "aiNeeds",
+          "label": "অতিরিক্ত এআই নির্দেশনা",
+          "compact": true,
+          "options": [
+            "প্রধান লক্ষণ বাছাই",
+            "রুব্রিক সাজানো",
+            "সম্ভাব্য ঔষধ তুলনা",
+            "মায়াজম বিশ্লেষণ",
+            "শক্তি ও ডোজ প্রস্তাব",
+            "ফলোআপ প্রশ্ন",
+            "সতর্কতা ও রেফারাল",
+            "খাদ্য ও জীবনযাপন"
+          ]
+        },
+        {
+          "widget": "textarea",
+          "label": "অতিরিক্ত এআই নির্দেশনা",
+          "name": "additionalInstruction",
+          "placeholder": "যেমন: শিশুর কেস হিসেবে দেখুন, দীর্ঘস্থায়ী কেস, শুধু নিরাপদ পরামর্শ দিন ইত্যাদি",
+          "rows": 3
+        },
+        {
+          "widget": "textarea",
+          "label": "তৈরি রিপোর্ট",
+          "placeholder": "“ক্লিনিক্যাল রিপোর্ট” বা “এআই ফরম্যাট” চাপুন।",
+          "rows": 16,
+          "readonly": true,
+          "id": "aiOutput"
+        }
+      ]
+    }
+  ]
+}
