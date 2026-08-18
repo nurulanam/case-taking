@@ -4,45 +4,16 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>ড্যাশবোর্ড — হোমিও কেস স্টুডিও</title>
-<meta content="বাংলা ক্লাসিক্যাল হোমিওপ্যাথি ওয়ার্কস্পেস — কেস টেকিং, তীব্র রোগের তত্ত্ব ও মায়াজম বিশ্লেষণ।" name="description"/>
+<meta content="হোমিওপ্যাথিক চিকিৎসকের দৈনন্দিন ড্যাশবোর্ড — রোগী, ফলোআপ, সাম্প্রতিক কেস ও ক্লিনিক্যাল টুল।" name="description"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='45' font-size='38' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23fff'%3E%E0%A6%B9%3C/text%3E%3C/svg%3E"/>
 <link href="assets/css/base.css" rel="stylesheet"/>
 <link href="assets/css/shell.css" rel="stylesheet"/>
 <link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
-<style>
-  .mod-card {
-    opacity: 0;
-    animation: modFadeIn 0.5s ease forwards;
-  }
-  @keyframes modFadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  /* Staggered animation delays */
-  .mod-card:nth-child(1) { animation-delay: 0.05s; }
-  .mod-card:nth-child(2) { animation-delay: 0.1s; }
-  .mod-card:nth-child(3) { animation-delay: 0.15s; }
-  .mod-card:nth-child(4) { animation-delay: 0.2s; }
-  .mod-card:nth-child(5) { animation-delay: 0.25s; }
-  .mod-card:nth-child(6) { animation-delay: 0.3s; }
-  .mod-card:nth-child(7) { animation-delay: 0.35s; }
-
-  .quick-recent {
-    display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem;
-  }
-  .qr-chip {
-    display: inline-flex; align-items: center; gap: 0.375rem;
-    padding: 0.5rem 0.875rem; border-radius: 999px;
-    background: var(--surface); border: 1px solid var(--border);
-    font-size: 0.8125rem; font-weight: 600; color: var(--text);
-    text-decoration: none; transition: all 0.2s; box-shadow: var(--shadow-sm);
-  }
-  .qr-chip:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
-  .qr-chip i { font-size: 1rem; color: var(--primary); }
-</style>
+<link href="assets/css/dashboard.css" rel="stylesheet"/>
 </head>
 <body data-page="dashboard" data-title="ড্যাশবোর্ড" data-crumb="হোম">
 
+<a class="dh-skip" href="#dhStats">মূল অংশে যান</a>
 <div class="app-root">
   <aside class="app-sidebar" id="appSidebar"></aside>
   <div class="app-backdrop" id="appBackdrop"></div>
@@ -51,140 +22,138 @@
     <main class="app-content">
       <div class="content-inner">
 
-        <section class="hero">
-          <h2><span id="heroGreeting">স্বাগতম</span> — আপনার হোমিওপ্যাথি ওয়ার্কস্পেস</h2>
-          <p>কেস নেওয়া থেকে শুরু করে তীব্র রোগে সিমিলিমাম বাছাই ও মায়াজম নির্ণয় — তিনটি মডিউল একসাথে।
-             সবকিছু সম্পূর্ণ অফলাইনে চলে, কোনো ডেটা কোথাও পাঠানো হয় না।</p>
-          <div class="hero-stats" id="heroStats">
-            <div class="hero-stat"><b>৯</b><span>কেস ধাপ</span></div>
-            <div class="hero-stat"><b>…</b><span>অ্যাকিউট ওষুধ</span></div>
-            <div class="hero-stat"><b>…</b><span>মায়াজম রুব্রিক</span></div>
-            <div class="hero-stat"><b>৫</b><span>মায়াজম</span></div>
+        <!-- ══════════ 1. greeting · date ══════════ -->
+        <section class="dh-top">
+          <div class="dh-hello">
+            <h2 id="dhHello">স্বাগতম</h2>
+            <div class="dh-date" id="dhDate"></div>
+            <p class="dh-note" id="dhNameHint" hidden>
+              <a href="settings.html#general">সেটিংসে</a> নিজের নাম দিলে এখানে দেখাবে।
+            </p>
+          </div>
+
+          <!-- what this application is, kept to facts the app can back up -->
+          <div class="dh-about">
+            <p>ক্লাসিক্যাল হোমিওপ্যাথির সম্পূর্ণ বাংলা ওয়ার্কস্পেস — কেস টেকিং থেকে
+               রেপার্টরাইজেশন, মেটেরিয়া মেডিকা ও প্রেসক্রিপশন পর্যন্ত এক জায়গায়।</p>
+            <div class="dh-caps">
+              <span><b>৯৯,৪৭৫</b> রুব্রিক</span>
+              <span><b>৭২৫</b> ওষুধ</span>
+              <span><b>২৯১</b> সূত্র</span>
+              <span><i class='bx bx-wifi-off'></i> সম্পূর্ণ অফলাইন</span>
+            </div>
           </div>
         </section>
 
-        <div id="quickRecentContainer"></div>
-
-        <div class="section-heading" style="margin-bottom:1rem;">
-          <span class="section-number"><i class='bx bx-grid-alt' style="font-size:1rem"></i></span>
-          <div><h3>মডিউল</h3><p>যেটা দরকার সেটা খুলুন</p></div>
-        </div>
-
-        <div class="mod-grid">
-          <a class="mod-card" href="case.html">
-            <div class="mod-ic" style="background:var(--primary-bg);color:var(--primary);"><i class='bx bx-clipboard'></i></div>
-            <h3>কেস টেকিং ফর্ম</h3>
-            <p>৯ ধাপের সম্পূর্ণ কেস — পরিচিতি থেকে মানসিক, সিস্টেম, ইতিহাস ও রিপোর্ট পর্যন্ত। শেষে এআই-র জন্য গোছানো বাংলা রিপোর্ট কপি বা ডাউনলোড করুন।</p>
-            <div class="mod-tags">
-              <span class="mod-tag">৯ ধাপ</span><span class="mod-tag">খসড়া অটো-সেভ</span><span class="mod-tag">এআই রিপোর্ট</span>
-            </div>
-            <div class="mod-go">খুলুন <i class='bx bx-right-arrow-alt'></i></div>
-          </a>
-
-          <a class="mod-card" href="prescription.html">
-            <div class="mod-ic" style="background:var(--success-bg);color:var(--success);"><i class='bx bx-receipt'></i></div>
-            <h3>প্রেসক্রিপশন তৈরি</h3>
-            <p>কেস ও রিপার্টরির ফলাফল থেকে রোগীর তথ্য, ঔষধ, শক্তি ও পুনরাবৃত্তি নিজেই বসে যায় — যাচাই করে সরাসরি প্রিন্ট বা PDF করুন। একাধিক ঔষধ, ফলোআপ ও চিকিৎসকের লেটারহেড সহ।</p>
-            <div class="mod-tags">
-              <span class="mod-tag">অটো-পূরণ</span><span class="mod-tag">প্রিন্ট / PDF</span><span class="mod-tag">সংরক্ষণ</span>
-            </div>
-            <div class="mod-go">খুলুন <i class='bx bx-right-arrow-alt'></i></div>
-          </a>
-
-          <a class="mod-card" href="acutes.html">
-            <div class="mod-ic" style="background:var(--danger-bg);color:var(--danger);"><i class='bx bx-sitemap'></i></div>
-            <h3>তীব্র রোগের তত্ত্ব</h3>
-            <p>ডাঃ প্রফুল বিজয়কর-এর অ্যাকিউট ফ্লো চার্ট ধরে ধাপে ধাপে সিমিলিমাম — কার্যকলাপ, তাপমাত্রা ও তৃষ্ণার অক্ষে ৬২টি ওষুধ, প্রতিটির ত্রিভুজ সহ।</p>
-            <div class="mod-tags">
-              <span class="mod-tag">ফ্লো চার্ট</span><span class="mod-tag">৬২ ওষুধ</span><span class="mod-tag">ত্রিভুজ</span>
-            </div>
-            <div class="mod-go">খুলুন <i class='bx bx-right-arrow-alt'></i></div>
-          </a>
-
-          <a class="mod-card" href="miasm.html">
-            <div class="mod-ic" style="background:rgba(79, 70, 229, 0.15);color:#818cf8;"><i class='bx bx-analyse'></i></div>
-            <h3>মায়াজম বিশ্লেষক</h3>
-            <p>৬৩টি রুব্রিকে প্রতি-মায়াজম আলাদা ওজন, PQRS শ্রেণিবিন্যাস ও নির্ভরযোগ্যতা — প্রধান, সহায়ক ও মিশ্র মায়াজম, রোগের ধরন এবং কারণ-সহ ব্যাখ্যা।</p>
-            <div class="mod-tags">
-              <span class="mod-tag">৫ মায়াজম</span><span class="mod-tag">PQRS</span><span class="mod-tag">AI এক্সপোর্ট</span>
-            </div>
-            <div class="mod-go">খুলুন <i class='bx bx-right-arrow-alt'></i></div>
-          </a>
-          <a class="mod-card" href="repertory.html">
-            <div class="mod-ic" style="background:rgba(124, 58, 237, 0.15);color:#a78bfa;"><i class='bx bx-book-bookmark'></i></div>
-            <h3>রিপার্টরি</h3>
-            <p>তিনটি সম্পূর্ণ রিপার্টরি — কেন্ট, বোরিক ও ব্যোনিংহাউজেন। বই বেছে নিয়ে অধ্যায় ও রুব্রিক নির্বাচন করুন, তীব্রতা দিন — গ্রেড মিলিয়ে ওষুধ র‍্যাঙ্ক হবে, সাথে মেটেরিয়া মেডিকা মিলিয়ে দেখার সুযোগ।</p>
-            <div class="mod-tags">
-              <span class="mod-tag">৩টি রিপার্টরি</span><span class="mod-tag">৯৯,৪৭৫ রুব্রিক</span><span class="mod-tag">রেপার্টরাইজেশন</span>
-            </div>
-            <div class="mod-go">খুলুন <i class='bx bx-right-arrow-alt'></i></div>
-          </a>
-          <a class="mod-card" href="materia.html">
-            <div class="mod-ic" style="background:rgba(14, 116, 144, 0.15);color:#22d3ee;"><i class='bx bx-capsule'></i></div>
-            <h3>মেটেরিয়া মেডিকা</h3>
-            <p>৭২৫টি ওষুধের রেফারেন্স, ৬৮৬টির পূর্ণ বাংলা বিবরণ — কীনোট, মানসিক ও সাধারণ লক্ষণ, মোডালিটি, আকাঙ্ক্ষা-অরুচি, ক্লিনিক্যাল প্রয়োগ ও শক্তি। লক্ষণ দিয়েও খোঁজা যায়।</p>
-            <div class="mod-tags">
-              <span class="mod-tag">৭২৫ ওষুধ</span><span class="mod-tag">৬৮৬ বাংলা বিবরণ</span><span class="mod-tag">লক্ষণে সার্চ</span>
-            </div>
-            <div class="mod-go">খুলুন <i class='bx bx-right-arrow-alt'></i></div>
-          </a>
-          <a class="mod-card" href="anatomy.html">
-            <div class="mod-ic" style="background:rgba(14, 116, 144, 0.15);color:#22d3ee;"><i class='bx bx-body'></i></div>
-            <h3>শরীর-চিত্রে রুব্রিক</h3>
-            <p>শরীরের অংশে চাপ দিয়ে সরাসরি কেন্ট রিপার্টরির অধ্যায়ে যান — অঙ্গসহ ছবির দৃশ্য, সঙ্গে ৩ডি মডেলের সুবিধা। ৩৮টি অধ্যায়ের প্রতিটি এখান থেকে পৌঁছানো যায়।</p>
-            <div class="mod-tags">
-              <span class="mod-tag">২০টি অংশ</span><span class="mod-tag">৩৮ অধ্যায়</span><span class="mod-tag">৩ডি + ছবি</span>
-            </div>
-            <div class="mod-go">খুলুন <i class='bx bx-right-arrow-alt'></i></div>
-          </a>
-          <a class="mod-card" href="organon.html">
-            <div class="mod-ic" style="background:rgba(124, 58, 237, 0.15);color:#a78bfa;"><i class='bx bx-book-content'></i></div>
-            <h3>অর্গানন অব মেডিসিন</h3>
-            <p>ডাঃ স্যামুয়েল হ্যানিম্যানের ষষ্ঠ সংস্করণ, সূত্র ১ থেকে ২৯১ পর্যন্ত সম্পূর্ণ বাংলায় — হ্যানিম্যানের নিজস্ব পাদটীকাসহ। সঙ্গে হোমিওপ্যাথির ১৫টি মূলনীতি, প্রতিটির পাশে মূল সূত্রের লিঙ্ক।</p>
-            <div class="mod-tags">
-              <span class="mod-tag">২৯১ সূত্র</span><span class="mod-tag">১৫ মূলনীতি</span><span class="mod-tag">পাঠ ও খোঁজ</span>
-            </div>
-            <div class="mod-go">খুলুন <i class='bx bx-right-arrow-alt'></i></div>
-          </a>
-          <a class="mod-card" href="tempraz.html">
-            <div class="mod-ic" style="background:rgba(124, 58, 237, 0.15);color:#a78bfa;"><i class='bx bx-brain'></i></div>
-            <h3>Tempraz Expert System</h3>
-            <p>ডাঃ পরিনাজ হুমরানওয়ালা-র স্বভাব-ভিত্তিক পদ্ধতি — ৫টি মূল স্বভাব (প্রাণবন্ত, রাগী, বিষণ্ণ, ধীরস্থির, উদ্বিগ্ন) বিশ্লেষণ করে Temperament Quotient-এর মাধ্যমে সিমিলিমাম সংকুচিত করুন।</p>
-            <div class="mod-tags">
-              <span class="mod-tag">৫ স্বভাব</span><span class="mod-tag">TQ ক্যালকুলেটর</span><span class="mod-tag">স্বভাব-ফিল্টার</span>
-            </div>
-            <div class="mod-go">খুলুন <i class='bx bx-right-arrow-alt'></i></div>
-          </a>
-        </div>
-
-        <div class="grid two" style="gap:1rem;margin-top:1.5rem;align-items:start;">
-          <div class="card">
-            <div class="section-heading">
-              <span class="section-number"><i class='bx bx-time-five' style="font-size:1rem"></i></span>
-              <div><h3>সাম্প্রতিক কাজ</h3><p>এই ব্রাউজারে সংরক্ষিত</p></div>
-            </div>
-            <div id="recentList"></div>
+        <!-- ══ find / add a patient — its own band, off the hero ══ -->
+        <div class="dh-findbar">
+          <div class="dh-search">
+            <i class='bx bx-search'></i>
+            <input type="text" id="dhSearch" placeholder="নাম বা কেস নম্বর দিয়ে রোগী খুঁজুন…"
+                   autocomplete="off" aria-label="রোগী খুঁজুন" role="combobox"
+                   aria-expanded="false" aria-controls="dhRes" aria-autocomplete="list"/>
+            <kbd class="dh-kbd" id="dhKbd">/</kbd>
+            <button class="dh-sx" id="dhSearchX" hidden aria-label="মুছুন"><i class='bx bx-x'></i></button>
+            <div class="dh-res" id="dhRes" role="listbox" aria-label="রোগীর তালিকা" hidden></div>
           </div>
-
-          <div class="card">
-            <div class="section-heading">
-              <span class="section-number"><i class='bx bx-bulb' style="font-size:1rem"></i></span>
-              <div><h3>কাজের ধারা</h3><p>সবচেয়ে কার্যকর ক্রম</p></div>
-            </div>
-            <ol style="padding-left:1.125rem;display:flex;flex-direction:column;gap:0.625rem;">
-              <li style="font-size:0.9375rem;line-height:1.6;"><strong>কেস নিন</strong> — কেস টেকিং ফর্মে রোগীর সম্পূর্ণ তথ্য তুলুন।</li>
-              <li style="font-size:0.9375rem;line-height:1.6;"><strong>তীব্র হলে</strong> — অ্যাকিউট ফ্লো চার্টে কার্যকলাপ → তাপমাত্রা → তৃষ্ণা ধরে ওষুধ বাছুন।</li>
-              <li style="font-size:0.9375rem;line-height:1.6;"><strong>দীর্ঘস্থায়ী হলে</strong> — মায়াজম বিশ্লেষকে রুব্রিক নির্বাচন করে প্রধান ধারা নির্ণয় করুন।</li>
-              <li style="font-size:0.9375rem;line-height:1.6;"><strong>মিলিয়ে নিন</strong> — কেস রিপোর্ট ও মায়াজম JSON একসাথে রেখে চূড়ান্ত সিদ্ধান্ত নিন।</li>
-            </ol>
-          </div>
+          <button class="dh-btn" id="dhGo"><i class='bx bx-search-alt'></i> খুঁজুন</button>
+          <a class="dh-btn primary" href="case.html"><i class='bx bx-user-plus'></i> নতুন রোগী</a>
         </div>
 
-        <a class="recent-row" href="author.html" style="text-decoration:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0.875rem 1.25rem;margin-top:1rem;">
-          <span class="recent-ic"><i class='bx bx-id-card'></i></span>
-          <span class="recent-txt"><b>লেখক পরিচিতি</b><span>চিকিৎসক পরামর্শক ও ডেভেলপার — যোগাযোগের তথ্য</span></span>
-          <i class='bx bx-right-arrow-alt' style="color:var(--text-light);font-size:1.125rem;"></i>
-        </a>
+        <!-- ══════════ 2. a patient picked from search, shown here ══════════ -->
+        <section class="dh-card dh-patient" id="dhPatient" hidden></section>
+
+        <!-- ══════════ 3. the numbers that shape the day ══════════ -->
+        <section class="dh-stats" id="dhStats"></section>
+
+        <!-- ══════════ 4. clinical tools ══════════ -->
+        <section class="dh-card" style="margin-bottom:1rem;">
+          <div class="dh-card-h">
+            <i class='bx bx-grid-alt'></i>
+            <h3>ক্লিনিক্যাল টুল</h3>
+          </div>
+          <div class="dh-card-b">
+            <div class="dh-tools">
+              <a class="dh-tool" href="repertory.html">
+                <span class="dh-tool-ic" style="background:rgba(124,58,237,.15);color:#a78bfa;"><i class='bx bx-book-bookmark'></i></span>
+                <span class="dh-tool-tx"><b>রিপার্টরি</b><span>৩ বই · ৯৯,৪৭৫ রুব্রিক</span></span>
+              </a>
+              <a class="dh-tool" href="materia.html">
+                <span class="dh-tool-ic" style="background:rgba(14,116,144,.15);color:#22d3ee;"><i class='bx bx-capsule'></i></span>
+                <span class="dh-tool-tx"><b>মেটেরিয়া মেডিকা</b><span>৭২৫ ওষুধ</span></span>
+              </a>
+              <a class="dh-tool" href="miasm.html">
+                <span class="dh-tool-ic" style="background:rgba(79,70,229,.15);color:#818cf8;"><i class='bx bx-analyse'></i></span>
+                <span class="dh-tool-tx"><b>মায়াজম বিশ্লেষক</b><span>৫ মায়াজম · PQRS</span></span>
+              </a>
+              <a class="dh-tool" href="tempraz.html">
+                <span class="dh-tool-ic" style="background:rgba(124,58,237,.15);color:#a78bfa;"><i class='bx bx-brain'></i></span>
+                <span class="dh-tool-tx"><b>টেম্পরাজ</b><span>৫ স্বভাব · TQ</span></span>
+              </a>
+              <a class="dh-tool" href="acutes.html">
+                <span class="dh-tool-ic" style="background:var(--danger-bg);color:var(--danger);"><i class='bx bx-sitemap'></i></span>
+                <span class="dh-tool-tx"><b>তীব্র রোগ</b><span>৬২ ওষুধ · ফ্লো চার্ট</span></span>
+              </a>
+              <a class="dh-tool" href="organon.html">
+                <span class="dh-tool-ic" style="background:rgba(124,58,237,.15);color:#a78bfa;"><i class='bx bx-book-content'></i></span>
+                <span class="dh-tool-tx"><b>অর্গানন</b><span>২৯১ সূত্র</span></span>
+              </a>
+              <a class="dh-tool" href="anatomy.html">
+                <span class="dh-tool-ic" style="background:rgba(14,116,144,.15);color:#22d3ee;"><i class='bx bx-body'></i></span>
+                <span class="dh-tool-tx"><b>শরীর-চিত্র</b><span>৩ডি · ৩৮ অধ্যায়</span></span>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══════════ 5. today's follow-ups + quick actions ══════════ -->
+        <div class="dh-band">
+          <section class="dh-card" id="followup">
+            <div class="dh-card-h">
+              <i class='bx bx-calendar-check'></i>
+              <h3>আজকের ফলোআপ</h3>
+              <span class="dh-count" id="dhFuCount">০</span>
+            </div>
+            <div class="dh-card-b" id="dhFuBody"></div>
+          </section>
+
+          <section class="dh-card">
+            <div class="dh-card-h">
+              <i class='bx bx-bolt-circle'></i>
+              <h3>দ্রুত কাজ</h3>
+            </div>
+            <div class="dh-card-b">
+              <div class="dh-qa">
+                <a href="case.html"><i class='bx bx-clipboard'></i>নতুন কেস</a>
+                <a href="prescription.html#new"><i class='bx bx-receipt'></i>প্রেসক্রিপশন</a>
+                <a href="repertory.html"><i class='bx bx-book-bookmark'></i>রেপার্টরাইজেশন</a>
+                <a href="materia.html"><i class='bx bx-capsule'></i>মেটেরিয়া মেডিকা</a>
+                <a href="anatomy.html"><i class='bx bx-body'></i>শরীর-চিত্র</a>
+                <a href="prescription.html#saved"><i class='bx bx-folder-open'></i>সংরক্ষিত Rx</a>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ══════════ 6. work left half-finished ══════════ -->
+        <section class="dh-card" id="dhProgress" style="margin-bottom:1rem;">
+          <div class="dh-card-h">
+            <i class='bx bx-history'></i>
+            <h3>চলমান কাজ</h3>
+          </div>
+          <div class="dh-card-b" id="dhProgressBody"></div>
+        </section>
+
+        <!-- ══════════ 7. recent cases ══════════ -->
+        <section class="dh-card" id="recent" style="margin-bottom:1rem;">
+          <div class="dh-card-h">
+            <i class='bx bx-folder-open'></i>
+            <h3>সাম্প্রতিক কেস</h3>
+            <span class="dh-count" id="dhRecentCount">০</span>
+            <a class="dh-more" href="prescription.html#saved">সব দেখুন <i class='bx bx-right-arrow-alt'></i></a>
+          </div>
+          <div class="dh-card-b" id="dhRecent"></div>
+        </section>
 
       </div>
     </main>
@@ -196,87 +165,6 @@
 </div>
 
 <script src="assets/js/shell.js"></script>
-<script>
-(async function () {
-  const bn = Shell.bnNum;
-
-  // ---- live counts straight from the data files ----
-  const stats = [{ n: '৯', l: 'কেস ধাপ' }];
-  try {
-    const r = await fetch('assets/data/miasm.json');
-    const db = await r.json();
-    const rubrics = db.rubic_categories.categories.reduce((s, c) => s + c.rubles.length, 0);
-    stats.push({ n: '৬২', l: 'অ্যাকিউট ওষুধ' });
-    stats.push({ n: bn(rubrics), l: 'মায়াজম রুব্রিক' });
-    stats.push({ n: bn(Object.keys(db.miasms).length), l: 'মায়াজম' });
-  } catch (e) {
-    stats.push({ n: '৬২', l: 'অ্যাকিউট ওষুধ' }, { n: '৬৩', l: 'মায়াজম রুব্রিক' }, { n: '৫', l: 'মায়াজম' });
-  }
-  document.getElementById('heroStats').innerHTML =
-    stats.map(s => `<div class="hero-stat"><b>${s.n}</b><span>${s.l}</span></div>`).join('');
-
-  // ---- Dynamic greeting ----
-  document.getElementById('heroGreeting').textContent = Shell.getGreeting();
-
-  // ---- Recent 3 Modules Quick Access ----
-  const recentMods = Shell.store.get('recent_modules_v1', []);
-  if (recentMods.length > 0) {
-    const modsData = {
-      'case': { label: 'কেস ফর্ম', icon: 'bx-clipboard' },
-      'repertory': { label: 'রিপার্টরি', icon: 'bx-book-bookmark' },
-      'acutes': { label: 'তীব্র রোগ', icon: 'bx-sitemap' },
-      'miasm': { label: 'মায়াজম', icon: 'bx-analyse' },
-      'materia': { label: 'মেটেরিয়া', icon: 'bx-capsule' },
-      'prescription': { label: 'প্রেসক্রিপশন', icon: 'bx-receipt' },
-      'tempraz': { label: 'টেম্পরাজ', icon: 'bx-brain' }
-    };
-    const qrHtml = recentMods.map(id => {
-      const d = modsData[id];
-      if (!d) return '';
-      return `<a href="${id}.html" class="qr-chip"><i class='bx ${d.icon}'></i> ${d.label}</a>`;
-    }).join('');
-    document.getElementById('quickRecentContainer').innerHTML = 
-      `<div class="quick-recent"><span style="font-size:0.8125rem; font-weight:600; color:var(--text-muted); align-self:center; margin-right:0.5rem;">সাম্প্রতিক:</span> ${qrHtml}</div>`;
-  }
-
-  // ---- recent work from localStorage ----
-  const rows = [];
-  const draft = Shell.store.get('homeoCaseDraft', null);
-  if (draft && typeof draft === 'object') {
-    const filled = Object.values(draft).filter(v => v && String(v).trim()).length;
-    rows.push({
-      icon: 'bx-clipboard', href: 'case.html',
-      title: 'কেস ফর্মে খসড়া আছে',
-      sub: `${bn(filled)}টি ঘর পূরণ করা${draft.patientName ? ' · ' + draft.patientName : ''}`
-    });
-  }
-  const rep = Shell.store.get('repertory_case_v1', null);
-  if (rep && rep.book && (rep.picked || []).length) {
-    rows.push({
-      icon: 'bx-book-bookmark', href: 'repertory.html',
-      title: 'রিপার্টরি কেস চলছে',
-      sub: `${bn(rep.picked.length)}টি রুব্রিক নির্বাচিত · ${rep.book}`
-    });
-  }
-  const sel = Shell.store.get('miasm_selected_v1', null);
-  if (Array.isArray(sel) && sel.length) {
-    rows.push({
-      icon: 'bx-analyse', href: 'miasm.html',
-      title: 'মায়াজম বিশ্লেষণ চলছে',
-      sub: `${bn(sel.length)}টি রুব্রিক নির্বাচিত`
-    });
-  }
-  document.getElementById('recentList').innerHTML = rows.length
-    ? rows.map(r => `<a class="recent-row" href="${r.href}" style="text-decoration:none;">
-        <span class="recent-ic"><i class='bx ${r.icon}'></i></span>
-        <span class="recent-txt"><b>${r.title}</b><span>${r.sub}</span></span>
-        <i class='bx bx-right-arrow-alt' style="color:var(--text-light);font-size:1.125rem;"></i>
-      </a>`).join('')
-    : `<p style="font-size:0.875rem;color:var(--text-muted);line-height:1.7;padding:0.5rem 0;">
-         এখনো কোনো কাজ সংরক্ষিত নেই। কেস ফর্ম বা মায়াজম বিশ্লেষক খুললে খসড়া এখানে দেখাবে।</p>`;
-
-  Shell.setChip('অফলাইন · স্থানীয় সংরক্ষণ', 'bx-hdd', true);
-})();
-</script>
+<script src="assets/js/dashboard.js"></script>
 </body>
 </html>
