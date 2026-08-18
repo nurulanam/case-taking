@@ -86,7 +86,7 @@
         </div>
         <p class="og-prin-txt">${esc(p.text)}</p>
         <div class="og-prin-refs">
-          ${p.refs.map(n => `<button class="og-ref" data-goto="${n}">§ ${bn(n)}</button>`).join('')}
+          ${p.refs.map(n => `<button class="og-ref" data-goto="${n}">সূত্র ${bn(n)}</button>`).join('')}
         </div>
       </article>`).join('');
   }
@@ -98,7 +98,7 @@
         <i class='bx ${esc(s.icon)}'></i>
         <span>
           <b>${esc(s.title)}</b>
-          <small>§ ${bn(s.from)}–${bn(s.to)}</small>
+          <small>সূত্র ${bn(s.from)}–${bn(s.to)}</small>
         </span>
       </button>`).join('');
   }
@@ -114,10 +114,10 @@
     return `
       <article class="og-a" id="a${a.n}" data-n="${a.n}">
         <div class="og-a-top">
-          <span class="og-n">§ ${bn(a.n)}</span>
+          <span class="og-n">সূত্র ${bn(a.n)}</span>
           ${a.revised ? `<span class="og-rev">ষষ্ঠ সংস্করণে সংশোধিত</span>` : ''}
           <button class="og-mark${marked ? ' on' : ''}" data-mark="${a.n}"
-                  aria-label="চিহ্নিত করুন" aria-pressed="${marked}">
+                  aria-label="পাঠচিহ্ন দিন" aria-pressed="${marked}">
             <i class='bx ${marked ? 'bxs-bookmark' : 'bx-bookmark'}'></i>
           </button>
         </div>
@@ -138,7 +138,7 @@
       `<div class="og-sechead" id="s-${esc(s.id)}">
          <i class='bx ${esc(s.icon)}'></i>
          <h3>${esc(s.title)}</h3>
-         <span>§ ${bn(s.from)}–${bn(s.to)}</span>
+         <span>সূত্র ${bn(s.from)}–${bn(s.to)}</span>
        </div>` + list.map(aphorismHtml).join('');
     renderWhere(s, list.length);
     renderPager();
@@ -149,18 +149,22 @@
   function renderWhere(s, count) {
     $('orgWhere').innerHTML =
       `<i class='bx ${esc(s.icon)}'></i><b>${esc(s.title)}</b>
-       <span>${bn(count)}টি সূত্র · § ${bn(s.from)}–${bn(s.to)}</span>`;
+       <span>${bn(count)}টি সূত্র · নং ${bn(s.from)}–${bn(s.to)}</span>`;
   }
 
   function renderPager() {
     const i = S.secIx.get(S.sec);
     const all = S.data.sections;
     const prev = all[i - 1], next = all[i + 1];
+    /* The "আগের অধ্যায়" button sits on the left and should point back
+       (chevron-left); "পরের অধ্যায়" sits on the right and should point
+       forward (chevron-right). They were swapped — the left button pointed
+       right and the right button pointed left, reading as backwards. */
     const btn = (s, dir) => s
       ? `<button class="og-pg ${dir}" data-sec="${esc(s.id)}">
-           ${dir === 'prev' ? `<i class='bx bx-chevron-right'></i>` : ''}
+           ${dir === 'prev' ? `<i class='bx bx-chevron-left'></i>` : ''}
            <span><small>${dir === 'prev' ? 'আগের অধ্যায়' : 'পরের অধ্যায়'}</small>${esc(s.title)}</span>
-           ${dir === 'next' ? `<i class='bx bx-chevron-left'></i>` : ''}
+           ${dir === 'next' ? `<i class='bx bx-chevron-right'></i>` : ''}
          </button>`
       : `<button class="og-pg ${dir}" disabled><span><small>${
            dir === 'prev' ? 'এটিই প্রথম অধ্যায়' : 'এটিই শেষ অধ্যায়'}</small></span></button>`;
@@ -193,13 +197,17 @@
 
   function renderMarks() {
     const n = S.marks.size;
+    // orgMarkN lived on the in-page tab bar, now replaced by a sidebar
+    // sub-menu link (shell.js) that carries no per-page badge.
     const pill = $('orgMarkN');
-    pill.textContent = bn(n);
-    pill.classList.toggle('on', n > 0);
+    if (pill) {
+      pill.textContent = bn(n);
+      pill.classList.toggle('on', n > 0);
+    }
     const host = $('orgMarkStream');
     if (!n) {
       host.innerHTML = emptyBox('bx-bookmark',
-        'এখনও কোনো সূত্র চিহ্নিত করা হয়নি। পাঠের যেকোনো সূত্রে বুকমার্ক চিহ্নে ক্লিক করুন।');
+        'এখনও কোনো সূত্রে পাঠচিহ্ন দেওয়া হয়নি। পাঠের যেকোনো সূত্রে পাঠচিহ্নের আইকনে ক্লিক করুন।');
       return;
     }
     host.innerHTML = [...S.marks].sort((a, b) => a - b)
@@ -258,7 +266,7 @@
   function gotoAphorism(n) {
     n = Number(n);
     if (!S.byNum.has(n)) {
-      if (window.Shell) Shell.toast(`§ ${bn(n)} নামে কোনো সূত্র নেই।`, 'warn');
+      if (window.Shell) Shell.toast(`সূত্র ${bn(n)} নামে কোনো সূত্র নেই।`, 'warn');
       return;
     }
     showPanel('read');
@@ -292,8 +300,6 @@
   }
 
   function showPanel(name) {
-    document.querySelectorAll('.page-tab-btn').forEach(b =>
-      b.classList.toggle('active', b.dataset.panel === name));
     document.querySelectorAll('.page-panel').forEach(p =>
       p.classList.toggle('active', p.id === 'panel-' + name));
   }
@@ -337,8 +343,9 @@
 
   /* ================= wiring ================= */
   function wire() {
-    document.querySelectorAll('.page-tab-btn').forEach(b =>
-      b.addEventListener('click', () => showPanel(b.dataset.panel)));
+    // The in-page tab bar is gone — the three sections are sidebar sub-menu
+    // items, each a hash link, so openFromHash() is the only thing that
+    // switches panels now.
 
     // one delegated handler for every § chip, bookmark and contents row
     document.addEventListener('click', e => {

@@ -33,7 +33,29 @@
   const aiOutput = document.getElementById('aiOutput');
 
   // Initialization
+  /* case.html?new=1 — start a genuinely blank case.
+     Plain case.html restores the draft, which is right for coming back to an
+     unfinished case but made "নতুন কেস" impossible: the link reopened whoever
+     was there before. Anything unfiled is filed to the case list first, so
+     switching to a new patient can never be what loses the previous one. */
+  function startFreshIfAsked() {
+    const params = new URLSearchParams(location.search);
+    if (!params.has('new')) return;
+
+    const prev = Shell.store.get(DRAFT_KEY, null);
+    if (prev && prev.patientName && window.CaseStore) {
+      CaseStore.upsert(prev, prev.__caseId || CaseStore.newId());
+    }
+    Shell.store.del(DRAFT_KEY);
+
+    // drop the parameter so a reload does not wipe the new case in progress
+    params.delete('new');
+    const qs = params.toString();
+    history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+  }
+
   function init() {
+    startFreshIfAsked();
     initStepNav();
     initPills();
     initChips();
@@ -53,10 +75,25 @@
     // Only ever fills a blank box, so a practitioner's own numbering wins.
     const caseBox = form.querySelector('[name="caseNo"]');
     if (caseBox && !caseBox.value) {
+      /* Counting saved prescriptions was the only source of used numbers, so
+         before there was a case store every new case came out as YYYY-001 —
+         three cases in a row all claimed the same number. Take the highest
+         number already issued this year across both stores and go one past it,
+         rather than counting rows: counting repeats itself the moment anything
+         is deleted. */
       const yr = new Date().getFullYear();
-      const saved = Shell.store.get('rx_saved_v1', []) || [];
-      const used = saved.filter(r => String(r.caseNo || '').startsWith(String(yr))).length;
-      caseBox.value = `${yr}-${String(used + 1).padStart(3, '0')}`;
+      const prefix = String(yr) + '-';
+      const seen = []
+        .concat(Shell.store.get('rx_saved_v1', []) || [])
+        .concat(window.CaseStore ? CaseStore.all() : []);
+      let top = 0;
+      seen.forEach(r => {
+        const no = String((r && r.caseNo) || '');
+        if (!no.startsWith(prefix)) return;
+        const n = parseInt(no.slice(prefix.length), 10);
+        if (n > top) top = n;
+      });
+      caseBox.value = prefix + String(top + 1).padStart(3, '0');
     }
 
     // Set default date to today's local date if not already filled
@@ -731,14 +768,24 @@
   /* Persist immediately and make the case visible to the rest of the app.
      The dashboard and the prescription builder both read the bridge, so the
      patient and case number are published here rather than only at hand-off. */
+  /* The id of the record this form is editing, so re-saving updates it instead
+     of appending a copy. It travels inside the draft (__caseId) because the
+     draft is what survives a reload and what cases.html hands back when a
+     stored case is reopened. */
+  let caseId = null;
+
   function commitCase() {
     clearTimeout(saveTimer);
     saveDraft();
     const patient = getVal('patientName');
-    if (patient) {
-      Shell.bridge.patch({ from: 'case', patient, caseNo: getVal('caseNo') });
-      Shell.toast(`${patient} — কেস সংরক্ষিত হয়েছে।`, 'ok');
-    }
+    if (!patient) return;
+
+    /* Until now this toast claimed the case was saved while only a draft had
+       been written — the draft being a single slot the next patient
+       overwrites. A real record is what makes the case reachable again from
+       the list page. */
+    Shell.bridge.patch({ from: 'case', patient, caseNo: getVal('caseNo') });
+    Shell.toast(`${patient} — কেস সংরক্ষিত হয়েছে।`, 'ok');
   }
 
   /* Keyboard workflow. Alt+arrows walk the steps and Ctrl+S forces a save —
@@ -1031,6 +1078,10 @@
 
   function collectDraft() {
     const data = { __complaints: complaintCount, __step: currentStep, __saved: new Date().toISOString() };
+    /* The record id is not a form field, so it has to be re-attached on every
+       collect — otherwise the next autosave (or beforeunload) wrote a draft
+       without it and the open case quietly detached from its saved record. */
+    if (caseId) data.__caseId = caseId;
     form.querySelectorAll('input, textarea, select').forEach(el => {
       if (!el.name) return;
       if (el.type === 'checkbox') {
@@ -1044,14 +1095,41 @@
     return data;
   }
 
-  function saveDraft() {
-    const data = collectDraft();
-    if (Shell.store.set(DRAFT_KEY, data)) markSaved(data);
+  /* Files the open case into the case list. The patient's name is the gate:
+     without one there is nothing to identify a record by, and an empty form
+     touched once would otherwise litter the list with blank cases. */
+  function fileCase(data) {
+    if (!window.CaseStore) return false;
+    const name = (data.patientName || '').trim();
+    if (!name) return false;
+    if (!caseId) {
+      caseId = CaseStore.newId();
+      data.__caseId = caseId;
+      // re-persist so the id survives even if this save is the last one
+      Shell.store.set(DRAFT_KEY, data);
+    }
+    return !!CaseStore.upsert(data, caseId);
   }
 
-  function markSaved(data) {
+  function saveDraft() {
+    const data = collectDraft();
+    if (!Shell.store.set(DRAFT_KEY, data)) return;
+    /* Autosave files the case as well as the draft. Filing only on the step-1
+       "পরবর্তী" button meant everything typed afterwards lived in the draft
+       alone — a single slot the next patient overwrites — so the list showed a
+       stale copy of a case that had since been filled in. */
+    const filed = fileCase(data);
+    markSaved(data, filed);
+  }
+
+  function markSaved(data, filed) {
     const n = Object.keys(data).filter(k => !k.startsWith('__')).length;
-    Shell.setChip(n ? `খসড়া সংরক্ষিত · ${Shell.bnNum(n)}টি ঘর` : 'খসড়া খালি', n ? 'bx-check-circle' : 'bx-save', !n);
+    // "খসড়া" while there is no patient name and so nothing is filed yet;
+    // once the case is in the list, say so rather than under-reporting it.
+    const label = n
+      ? (filed ? `কেস সংরক্ষিত · ${Shell.bnNum(n)}টি ঘর` : `খসড়া সংরক্ষিত · ${Shell.bnNum(n)}টি ঘর`)
+      : 'খসড়া খালি';
+    Shell.setChip(label, n ? 'bx-check-circle' : 'bx-save', !n);
 
     /* The indicator is a transient toast (opacity:0 until .show), so writing
        into it without toggling the class left the confirmation invisible —
@@ -1071,6 +1149,10 @@
   function restoreDraft() {
     const data = Shell.store.get(DRAFT_KEY, null);
     if (!data) { Shell.setChip('খসড়া খালি', 'bx-save', true); return; }
+
+    /* Carry the record id back in, so a case reopened from cases.html saves
+       over itself instead of being filed again as a new one. */
+    if (data.__caseId) caseId = data.__caseId;
 
     // rebuild the dynamic complaint cards first
     const want = Math.max(1, parseInt(data.__complaints) || 1);

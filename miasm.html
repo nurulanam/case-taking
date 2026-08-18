@@ -33,12 +33,11 @@
         </div>
 
 
-  <div class="page-tabs" role="tablist">
-    <button class="page-tab-btn active" data-panel="analyse" role="tab"><i class='bx bx-layout'></i> কর্মক্ষেত্র</button>
-    <button class="page-tab-btn" data-panel="model" role="tab"><i class='bx bx-slider-alt'></i> স্কোরিং মডেল</button>
-    <button class="page-tab-btn" data-panel="miasms" role="tab"><i class='bx bx-book-open'></i> মায়াজম পরিচিতি</button>
-    <button class="page-tab-btn" data-panel="compare" role="tab"><i class='bx bx-table'></i> তুলনা</button>
-  </div>
+  <!-- The four sections used to be an in-page tab bar here. They are sidebar
+       sub-menu items now (see NAV in shell.js), so the page keeps the vertical
+       room and each section is linkable on its own; miasm-app.js already read
+       the hash via openPanelFromHash(), which is what drives them. -->
+
 
   <!-- ================= PANEL: WORKSPACE (split view) ================= -->
   <div id="panel-analyse" class="page-panel active">

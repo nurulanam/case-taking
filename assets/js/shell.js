@@ -15,10 +15,16 @@
 
   const NAV = [
     {
-      group: 'কেস ম্যানেজমেন্ট',
+      group: 'কেস ব্যবস্থাপনা',
       items: [
-        { id: 'dashboard', href: 'index.html', icon: 'bx-grid-alt', label: 'ড্যাশবোর্ড' },
-        { id: 'case', href: 'case.html', icon: 'bx-clipboard', label: 'কেস টেকিং ফর্ম', meta: '৯ ধাপ' },
+        { id: 'dashboard', href: 'index.html', icon: 'bx-grid-alt', label: 'সারসংক্ষেপ' },
+        { id: 'case', href: 'case.html', icon: 'bx-clipboard', label: 'কেস টেকিং', meta: '৯ ধাপ',
+          children: [
+            // These two are separate pages, not sections of one, so they carry
+            // `page` instead of a hash — see subActive() below.
+            { id: 'case-form', href: 'case.html', page: 'case', icon: 'bx-edit', label: 'কেস টেকিং ফর্ম' },
+            { id: 'case-list', href: 'cases.html', page: 'cases', icon: 'bx-folder-open', label: 'কেসের তালিকা' }
+          ] },
         { id: 'prescription', href: 'prescription.html', icon: 'bx-receipt', label: 'প্রেসক্রিপশন',
           children: [
             { id: 'rx-new', href: 'prescription.html#new', icon: 'bx-edit', label: 'নতুন প্রেসক্রিপশন' },
@@ -27,27 +33,37 @@
       ]
     },
     {
-      group: 'বিশ্লেষণ টুল',
+      group: 'বিশ্লেষণ ও ঔষধ নির্বাচন',
       items: [
         // acutes.html used to show these five as an in-page tab bar; they're
         // a sidebar submenu now so the page itself has more room, and each
         // child is just that section's hash — acutes.js reads it on load
         // and on hashchange (no page reload switching between them).
-        { id: 'acutes', href: 'acutes.html', icon: 'bx-sitemap', label: 'তীব্র রোগের তত্ত্ব', meta: '৬২',
+        { id: 'acutes', href: 'acutes.html', icon: 'bx-sitemap', label: 'তীব্র রোগ চিকিৎসা', meta: '৬২',
           children: [
-            { id: 'acutes-wizard', href: 'acutes.html#wizard', icon: 'bx-search-alt-2', label: 'ওষুধ খুঁজুন' },
-            { id: 'acutes-flow', href: 'acutes.html#flow', icon: 'bx-sitemap', label: 'ফ্লো চার্ট' },
-            { id: 'acutes-remedies', href: 'acutes.html#remedies', icon: 'bx-capsule', label: 'ওষুধের তালিকা' },
-            { id: 'acutes-theory', href: 'acutes.html#theory', icon: 'bx-book-open', label: 'তত্ত্ব' },
+            { id: 'acutes-wizard', href: 'acutes.html#wizard', icon: 'bx-search-alt-2', label: 'ঔষধ নির্বাচন' },
+            { id: 'acutes-flow', href: 'acutes.html#flow', icon: 'bx-sitemap', label: 'নির্ণয় প্রবাহ' },
+            { id: 'acutes-remedies', href: 'acutes.html#remedies', icon: 'bx-capsule', label: 'ঔষধ তালিকা' },
+            { id: 'acutes-theory', href: 'acutes.html#theory', icon: 'bx-book-open', label: 'তীব্র রোগতত্ত্ব' },
             { id: 'acutes-hering', href: 'acutes.html#hering', icon: 'bx-check-circle', label: 'হেরিং-এর সূত্র' }
           ] },
-        { id: 'miasm', href: 'miasm.html', icon: 'bx-analyse', label: 'মায়াজম বিশ্লেষক', meta: '৬৩' },
+        // miasm.html used to show these four as an in-page tab bar; they're a
+        // sidebar submenu now so the split workspace gets the vertical room
+        // back, and each child is just that section's hash — miasm-app.js
+        // already read it on load and on hashchange.
+        { id: 'miasm', href: 'miasm.html', icon: 'bx-analyse', label: 'মায়াজম বিশ্লেষক', meta: '৬৩',
+          children: [
+            { id: 'miasm-analyse', href: 'miasm.html#analyse', icon: 'bx-layout', label: 'মায়াজম নির্ণয়' },
+            { id: 'miasm-model', href: 'miasm.html#model', icon: 'bx-slider-alt', label: 'নির্ণয়ের মানদণ্ড' },
+            { id: 'miasm-miasms', href: 'miasm.html#miasms', icon: 'bx-book-open', label: 'মায়াজমের লক্ষণচিত্র' },
+            { id: 'miasm-compare', href: 'miasm.html#compare', icon: 'bx-table', label: 'মায়াজম তুলনা' }
+          ] },
         { id: 'tempraz', href: 'tempraz.html', icon: 'bx-brain', label: 'টেম্পরাজ বিশেষজ্ঞ পদ্ধতি', meta: '৫ স্বভাব' },
         { id: 'repertory', href: 'repertory.html', icon: 'bx-book-bookmark', label: 'রিপার্টরি', meta: '৩ বই' }
       ]
     },
     {
-      group: 'রেফারেন্স',
+      group: 'গ্রন্থ ও সহায়িকা',
       items: [
         { id: 'anatomy', href: 'anatomy.html', icon: 'bx-body', label: 'শরীর-চিত্রে রুব্রিক', meta: '৩৮' },
         { id: 'materia', href: 'materia.html', icon: 'bx-capsule', label: 'মেটেরিয়া মেডিকা', meta: '৭২৫' },
@@ -55,15 +71,14 @@
           children: [
             { id: 'organon-principles', href: 'organon.html#principles', icon: 'bx-bulb', label: 'মূলনীতি' },
             { id: 'organon-read', href: 'organon.html#read', icon: 'bx-book-open', label: 'সম্পূর্ণ পাঠ' },
-            { id: 'organon-marks', href: 'organon.html#marks', icon: 'bx-bookmark', label: 'চিহ্নিত সূত্র' }
-          ] },
-        { id: 'compare', href: 'miasm.html#compare', icon: 'bx-table', label: 'মায়াজম তুলনা' }
+            { id: 'organon-marks', href: 'organon.html#marks', icon: 'bx-bookmark', label: 'পাঠচিহ্ন' }
+          ] }
       ]
     },
     {
-      group: 'সম্পর্কে',
+      group: 'বিন্যাস ও পরিচিতি',
       items: [
-        { id: 'settings', href: 'settings.html', icon: 'bx-cog', label: 'সেটিংস',
+        { id: 'settings', href: 'settings.html', icon: 'bx-cog', label: 'বিন্যাস',
           children: [
             { id: 'settings-general', href: 'settings.html#general', icon: 'bx-buildings', label: 'সাধারণ' },
             { id: 'settings-rx', href: 'settings.html#prescription', icon: 'bx-receipt', label: 'প্রেসক্রিপশন' },
@@ -144,7 +159,13 @@
 
   function sidebarHtml(active) {
     const curHash = location.hash || defaultHash(active);
-    const subActive = href => href.includes('#') && ('#' + href.split('#')[1]) === curHash;
+    /* Two kinds of child: a hash pointing at a section of the parent's own
+       page, and a `page` pointing at a separate page (case.html vs
+       cases.html). The hash-only test left a page-child permanently
+       unhighlighted, so the list page looked like nothing was selected. */
+    const subActive = c => c.page
+      ? c.page === active
+      : (c.href.includes('#') && ('#' + c.href.split('#')[1]) === curHash);
     return `
       <div class="sb-brand">
         <div class="sb-mark">${APP.mark}</div>
@@ -164,12 +185,16 @@
               // way to reach a child was to land on the parent page first
               // and back out. A <button> can't navigate by accident.
               const tag = it.children ? 'button' : 'a';
-              const expanded = it.id === active;
+              // A child on its own page makes the parent current too, or the
+              // whole group would collapse while you are standing inside it.
+              const onChild = (it.children || []).some(c => c.page && c.page === active);
+              const isActive = it.id === active || onChild;
+              const expanded = isActive;
               return `
-              <${tag} class="sb-link ${it.id === active ? 'active' : ''}${it.children ? ' has-sub' : ''}${expanded ? ' expanded' : ''}"
+              <${tag} class="sb-link ${isActive ? 'active' : ''}${it.children ? ' has-sub' : ''}${expanded ? ' expanded' : ''}"
                  data-id="${it.id}"
                  ${tag === 'a' ? `href="${it.href}"` : 'type="button"'}
-                 ${it.id === active ? 'aria-current="page"' : ''}
+                 ${isActive ? 'aria-current="page"' : ''}
                  ${it.children ? `aria-expanded="${expanded}"` : ''}>
                 <i class='bx ${it.icon}'></i>
                 <span class="sb-lbl">${it.label}</span>
@@ -179,7 +204,7 @@
               ${it.children ? `
                 <div class="sb-submenu${expanded ? ' expanded' : ''}">
                   ${it.children.map(c => `
-                    <a class="sb-sublink ${subActive(c.href) ? 'active' : ''}" href="${c.href}">
+                    <a class="sb-sublink ${subActive(c) ? 'active' : ''}" href="${c.href}">
                       <i class='bx ${c.icon}'></i>
                       <span class="sb-lbl">${c.label}</span>
                     </a>`).join('')}
@@ -388,8 +413,9 @@
     if (document.getElementById('appBottomNav')) return;
     const navHtml = `
       <nav class="app-bottom-nav" id="appBottomNav">
-        <a href="index.html" class="bn-item ${active==='dashboard'?'active':''}"><i class='bx bx-grid-alt'></i><span>ড্যাশবোর্ড</span></a>
+        <a href="index.html" class="bn-item ${active==='dashboard'?'active':''}"><i class='bx bx-grid-alt'></i><span>সারসংক্ষেপ</span></a>
         <a href="case.html" class="bn-item ${active==='case'?'active':''}"><i class='bx bx-clipboard'></i><span>কেস</span></a>
+        <a href="cases.html" class="bn-item ${active==='cases'?'active':''}"><i class='bx bx-folder-open'></i><span>কেস তালিকা</span></a>
         <a href="repertory.html" class="bn-item ${active==='repertory'?'active':''}"><i class='bx bx-book-bookmark'></i><span>রিপার্টরি</span></a>
         <a href="materia.html" class="bn-item ${active==='materia'?'active':''}"><i class='bx bx-capsule'></i><span>মেটেরিয়া</span></a>
       </nav>

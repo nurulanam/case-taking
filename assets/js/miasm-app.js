@@ -503,13 +503,12 @@ function bindEvents() {
     });
   });
 
-  document.querySelectorAll('.page-tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => showPanel(btn.dataset.panel));
-  });
+  /* The in-page tab bar is gone — the four sections are sidebar sub-menu
+     items, each a hash link, so openPanelFromHash() is the only thing that
+     switches panels now. */
 }
 
 function showPanel(name) {
-  document.querySelectorAll('.page-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.panel === name));
   document.querySelectorAll('.page-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
   sizeWorkspace();
 }

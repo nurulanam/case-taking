@@ -33,11 +33,13 @@
           </div>
         </div>
 
-        <div class="page-tabs" role="tablist">
-          <button class="page-tab-btn active" data-panel="principles" role="tab"><i class='bx bx-bulb'></i> মূলনীতি</button>
-          <button class="page-tab-btn" data-panel="read" role="tab"><i class='bx bx-book-open'></i> সম্পূর্ণ পাঠ</button>
-          <button class="page-tab-btn" data-panel="marks" role="tab"><i class='bx bx-bookmark'></i> চিহ্নিত<span class="og-tabn" id="orgMarkN"></span></button>
-        </div>
+        <!-- The three sections used to be an in-page tab bar here. They are
+             sidebar sub-menu items now (see NAV in shell.js), so the page keeps
+             the vertical room and each section is linkable on its own;
+             organon.js already reads the hash via openFromHash(). The bookmark
+             count that used to sit on this tab is shown inside the "পাঠচিহ্ন"
+             panel itself instead (renderMarks()); $('orgMarkN') is gone along
+             with the tab bar, so that write is now guarded. -->
 
         <!-- ══════════ PANEL: FOUNDATIONAL PRINCIPLES ══════════ -->
         <div id="panel-principles" class="page-panel active">
@@ -82,7 +84,7 @@
                   <button class="og-clear" id="orgSearchX" hidden aria-label="মুছুন"><i class='bx bx-x'></i></button>
                 </div>
                 <div class="og-jump">
-                  <span>§</span>
+                  <i class='bx bx-hash' aria-hidden="true"></i>
                   <input type="text" id="orgJump" inputmode="numeric" placeholder="১৫৩" aria-label="সূত্র নম্বরে যান"/>
                 </div>
                 <div class="og-type" role="group" aria-label="লেখার আকার">

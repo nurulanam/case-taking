@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>কেসের তালিকা — হোমিও কেস স্টুডিও</title>
+<meta content="সংরক্ষিত সব কেসের তালিকা — খুঁজুন, ছাঁকুন, খুলুন ও রপ্তানি করুন।" name="description"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='45' font-size='38' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23fff'%3E%E0%A6%B9%3C/text%3E%3C/svg%3E"/>
+<link href="assets/css/base.css" rel="stylesheet"/>
+<link href="assets/css/shell.css" rel="stylesheet"/>
+<link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
+<link href="assets/css/cases.css" rel="stylesheet"/>
+</head>
+<body data-page="cases" data-title="কেসের তালিকা" data-crumb="কেস টেকিং › কেসের তালিকা">
+
+<div class="app-root">
+  <aside class="app-sidebar" id="appSidebar"></aside>
+  <div class="app-backdrop" id="appBackdrop"></div>
+  <div class="app-main">
+    <header class="app-topbar" id="appTopbar"></header>
+    <main class="app-content">
+      <div class="content-inner">
+
+        <!-- ══════════ heading ══════════ -->
+        <section class="cl-head">
+          <div>
+            <h2>কেসের তালিকা</h2>
+            <p id="clSub">এই ব্রাউজারে সংরক্ষিত সব কেস।</p>
+          </div>
+          <div class="cl-head-act">
+            <a class="cl-btn primary" href="case.html?new=1"><i class="bx bx-plus"></i> নতুন কেস</a>
+            <button class="cl-btn" id="clExport" type="button"><i class='bx bx-download'></i> সব রপ্তানি</button>
+          </div>
+        </section>
+
+        <!-- ══════════ in-progress draft ══════════ -->
+        <section class="cl-draft" id="clDraft" hidden></section>
+
+        <!-- ══════════ filters ══════════ -->
+        <section class="cl-bar">
+          <div class="cl-search">
+            <i class='bx bx-search'></i>
+            <input type="text" id="clQ" placeholder="নাম, কেস নম্বর, অভিযোগ বা ওষুধ দিয়ে খুঁজুন…"
+                   autocomplete="off" aria-label="কেস খুঁজুন"/>
+            <button class="cl-x" id="clQx" hidden aria-label="মুছুন" type="button"><i class='bx bx-x'></i></button>
+          </div>
+          <label class="cl-sel"><span>লিঙ্গ</span>
+            <select id="clGender"><option value="">সব</option></select>
+          </label>
+          <label class="cl-sel"><span>ধরন</span>
+            <select id="clType"><option value="">সব</option></select>
+          </label>
+          <label class="cl-sel"><span>সাজান</span>
+            <select id="clSort">
+              <option value="recent">সাম্প্রতিক আগে</option>
+              <option value="oldest">পুরোনো আগে</option>
+              <option value="name">নাম (ক → হ)</option>
+              <option value="caseNo">কেস নম্বর</option>
+            </select>
+          </label>
+        </section>
+
+        <div class="cl-count" id="clCount"></div>
+
+        <!-- ══════════ the list ══════════ -->
+        <section id="clList" aria-live="polite"></section>
+
+      </div>
+    </main>
+    <footer class="app-footer">
+      <span>© হোমিও কেস স্টুডিও — শিক্ষামূলক ও গবেষণার উদ্দেশ্যে তৈরি। চিকিৎসার সিদ্ধান্ত চিকিৎসকের।</span>
+      <span>সব ডেটা এই ব্রাউজারেই সংরক্ষিত — কোথাও পাঠানো হয় না।</span>
+    </footer>
+  </div>
+</div>
+
+<script src="assets/js/shell.js"></script>
+<script src="assets/js/case-store.js"></script>
+<script src="assets/js/cases.js"></script>
+</body>
+</html>

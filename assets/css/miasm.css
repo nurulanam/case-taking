@@ -8,28 +8,10 @@
     --m-indigo-bg: #eef2ff;
   }
 
-  /* ---- tabs / panels ---- */
-  .page-tabs {
-    display: flex; gap: 0.5rem; margin-bottom: 1.5rem;
-    border-bottom: 2px solid var(--border);
-    overflow-x: auto; scrollbar-width: none;
-  }
-  .page-tabs::-webkit-scrollbar { display: none; }
-  .page-tab-btn {
-    flex: 0 0 auto; padding: 0.625rem 1.25rem;
-    font-size: 0.875rem; font-weight: 600;
-    background: none; border: none;
-    border-bottom: 2px solid transparent; margin-bottom: -2px;
-    color: var(--text-muted); cursor: pointer; font-family: inherit;
-    transition: all 0.2s; white-space: nowrap;
-  }
-  .page-tab-btn:hover { color: var(--primary); }
-  .page-tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
-  .page-tab-btn .tab-badge {
-    display: inline-block; min-width: 18px;
-    background: var(--primary); color: #fff;
-    border-radius: 999px; font-size: 0.75rem; padding: 0 0.3125rem; margin-right: 0.25rem;
-  }
+  /* ---- panels ----
+     The .page-tabs / .page-tab-btn rules that used to sit here went with the
+     in-page tab bar; the four sections are sidebar sub-menu items now and
+     miasm-app.js switches panels off the hash. */
   .page-panel { display: none; }
   .page-panel.active { display: block; }
 
@@ -391,7 +373,6 @@
   body[data-page="miasm"] .app-content { padding-top: 1rem; padding-bottom: 1rem; }
   body[data-page="miasm"] .page-head { margin-bottom: 0.75rem; }
   body[data-page="miasm"] .page-head p { display: none; }
-  body[data-page="miasm"] .page-tabs { margin-bottom: 0.75rem; }
   /* only the split workspace needs the extra room — keep it on other tabs */
   #panel-analyse.active ~ .disclaimer { display: none; }
   .ws-head { padding: 0.875rem 1rem 0.75rem; }
