@@ -15,34 +15,34 @@
 
   const NAV = [
     {
-      group: 'কেস ব্যবস্থাপনা',
+      group: 'কেস ও প্রেসক্রিপশন',
       items: [
-        { id: 'dashboard', href: 'index.html', icon: 'bx-grid-alt', label: 'সারসংক্ষেপ' },
-        { id: 'case', href: 'case.html', icon: 'bx-clipboard', label: 'কেস টেকিং', meta: '৯ ধাপ',
+        { id: 'dashboard', href: 'index.html', icon: 'bx-grid-alt', label: 'ড্যাশবোর্ড' },
+        { id: 'case', href: 'case.html', icon: 'bx-clipboard', label: 'নতুন কেস', meta: '৯ ধাপ',
           children: [
             // These two are separate pages, not sections of one, so they carry
             // `page` instead of a hash — see subActive() below.
-            { id: 'case-form', href: 'case.html', page: 'case', icon: 'bx-edit', label: 'কেস টেকিং ফর্ম' },
-            { id: 'case-list', href: 'cases.html', page: 'cases', icon: 'bx-folder-open', label: 'কেসের তালিকা' }
+            { id: 'case-form', href: 'case.html', page: 'case', icon: 'bx-edit', label: 'কেস ফর্ম' },
+            { id: 'case-list', href: 'cases.html', page: 'cases', icon: 'bx-folder-open', label: 'সংরক্ষিত কেস' }
           ] },
         { id: 'prescription', href: 'prescription.html', icon: 'bx-receipt', label: 'প্রেসক্রিপশন',
           children: [
             { id: 'rx-new', href: 'prescription.html#new', icon: 'bx-edit', label: 'নতুন প্রেসক্রিপশন' },
-            { id: 'rx-saved', href: 'prescription.html#saved', icon: 'bx-folder-open', label: 'সংরক্ষিত তালিকা' }
+            { id: 'rx-saved', href: 'prescription.html#saved', icon: 'bx-folder-open', label: 'প্রেসক্রিপশন তালিকা' }
           ] }
       ]
     },
     {
-      group: 'বিশ্লেষণ ও ঔষধ নির্বাচন',
+      group: 'বিশ্লেষণ ও নির্বাচন',
       items: [
         // acutes.html used to show these five as an in-page tab bar; they're
         // a sidebar submenu now so the page itself has more room, and each
         // child is just that section's hash — acutes.js reads it on load
         // and on hashchange (no page reload switching between them).
-        { id: 'acutes', href: 'acutes.html', icon: 'bx-sitemap', label: 'তীব্র রোগ চিকিৎসা', meta: '৬২',
+        { id: 'acutes', href: 'acutes.html', icon: 'bx-sitemap', label: 'তীব্র কেস', meta: '৬২',
           children: [
             { id: 'acutes-wizard', href: 'acutes.html#wizard', icon: 'bx-search-alt-2', label: 'ঔষধ নির্বাচন' },
-            { id: 'acutes-flow', href: 'acutes.html#flow', icon: 'bx-sitemap', label: 'নির্ণয় প্রবাহ' },
+            { id: 'acutes-flow', href: 'acutes.html#flow', icon: 'bx-sitemap', label: 'কেস প্রবাহ' },
             { id: 'acutes-remedies', href: 'acutes.html#remedies', icon: 'bx-capsule', label: 'ঔষধ তালিকা' },
             { id: 'acutes-theory', href: 'acutes.html#theory', icon: 'bx-book-open', label: 'তীব্র রোগতত্ত্ব' },
             { id: 'acutes-hering', href: 'acutes.html#hering', icon: 'bx-check-circle', label: 'হেরিং-এর সূত্র' }
@@ -51,40 +51,40 @@
         // sidebar submenu now so the split workspace gets the vertical room
         // back, and each child is just that section's hash — miasm-app.js
         // already read it on load and on hashchange.
-        { id: 'miasm', href: 'miasm.html', icon: 'bx-analyse', label: 'মায়াজম বিশ্লেষক', meta: '৬৩',
+        { id: 'miasm', href: 'miasm.html', icon: 'bx-analyse', label: 'মায়াজম বিশ্লেষণ', meta: '৬৩',
           children: [
             { id: 'miasm-analyse', href: 'miasm.html#analyse', icon: 'bx-layout', label: 'মায়াজম নির্ণয়' },
-            { id: 'miasm-model', href: 'miasm.html#model', icon: 'bx-slider-alt', label: 'নির্ণয়ের মানদণ্ড' },
-            { id: 'miasm-miasms', href: 'miasm.html#miasms', icon: 'bx-book-open', label: 'মায়াজমের লক্ষণচিত্র' },
-            { id: 'miasm-compare', href: 'miasm.html#compare', icon: 'bx-table', label: 'মায়াজম তুলনা' }
+            { id: 'miasm-model', href: 'miasm.html#model', icon: 'bx-slider-alt', label: 'মূল মানদণ্ড' },
+            { id: 'miasm-miasms', href: 'miasm.html#miasms', icon: 'bx-book-open', label: 'লক্ষণচিত্র' },
+            { id: 'miasm-compare', href: 'miasm.html#compare', icon: 'bx-table', label: 'তুলনামূলক চার্ট' }
           ] },
-        { id: 'tempraz', href: 'tempraz.html', icon: 'bx-brain', label: 'টেম্পরাজ বিশেষজ্ঞ পদ্ধতি', meta: '৫ স্বভাব' },
-        { id: 'repertory', href: 'repertory.html', icon: 'bx-book-bookmark', label: 'রিপার্টরি', meta: '৩ বই' }
+        { id: 'tempraz', href: 'tempraz.html', icon: 'bx-brain', label: 'টেম্পারামেন্ট', meta: '৫ স্বভাব' },
+        { id: 'repertory', href: 'repertory.html', icon: 'bx-book-bookmark', label: 'রেপার্টরি', meta: '৩ বই' }
       ]
     },
     {
-      group: 'গ্রন্থ ও সহায়িকা',
+      group: 'রেফারেন্স লাইব্রেরি',
       items: [
-        { id: 'anatomy', href: 'anatomy.html', icon: 'bx-body', label: 'শরীর-চিত্রে রুব্রিক', meta: '৩৮' },
+        { id: 'anatomy', href: 'anatomy.html', icon: 'bx-body', label: 'অ্যানাটমি রুব্রিক', meta: '৩৮' },
         { id: 'materia', href: 'materia.html', icon: 'bx-capsule', label: 'মেটেরিয়া মেডিকা', meta: '৭২৫' },
         { id: 'organon', href: 'organon.html', icon: 'bx-book-content', label: 'অর্গানন অব মেডিসিন', meta: '২৯১',
           children: [
             { id: 'organon-principles', href: 'organon.html#principles', icon: 'bx-bulb', label: 'মূলনীতি' },
             { id: 'organon-read', href: 'organon.html#read', icon: 'bx-book-open', label: 'সম্পূর্ণ পাঠ' },
-            { id: 'organon-marks', href: 'organon.html#marks', icon: 'bx-bookmark', label: 'পাঠচিহ্ন' }
+            { id: 'organon-marks', href: 'organon.html#marks', icon: 'bx-bookmark', label: 'বুকমার্ক' }
           ] }
       ]
     },
     {
-      group: 'বিন্যাস ও পরিচিতি',
+      group: 'অ্যাপ সেটআপ',
       items: [
-        { id: 'settings', href: 'settings.html', icon: 'bx-cog', label: 'বিন্যাস',
+        { id: 'settings', href: 'settings.html', icon: 'bx-cog', label: 'সেটিংস',
           children: [
             { id: 'settings-general', href: 'settings.html#general', icon: 'bx-buildings', label: 'সাধারণ' },
             { id: 'settings-rx', href: 'settings.html#prescription', icon: 'bx-receipt', label: 'প্রেসক্রিপশন' },
-            { id: 'settings-look', href: 'settings.html#appearance', icon: 'bx-palette', label: 'চেহারা' }
+            { id: 'settings-look', href: 'settings.html#appearance', icon: 'bx-palette', label: 'থিম' }
           ] },
-        { id: 'author', href: 'author.html', icon: 'bx-id-card', label: 'লেখক পরিচিতি' }
+        { id: 'author', href: 'author.html', icon: 'bx-id-card', label: 'লেখক' }
       ]
     }
   ];
@@ -413,10 +413,10 @@
     if (document.getElementById('appBottomNav')) return;
     const navHtml = `
       <nav class="app-bottom-nav" id="appBottomNav">
-        <a href="index.html" class="bn-item ${active==='dashboard'?'active':''}"><i class='bx bx-grid-alt'></i><span>সারসংক্ষেপ</span></a>
+        <a href="index.html" class="bn-item ${active==='dashboard'?'active':''}"><i class='bx bx-grid-alt'></i><span>ড্যাশবোর্ড</span></a>
         <a href="case.html" class="bn-item ${active==='case'?'active':''}"><i class='bx bx-clipboard'></i><span>কেস</span></a>
         <a href="cases.html" class="bn-item ${active==='cases'?'active':''}"><i class='bx bx-folder-open'></i><span>কেস তালিকা</span></a>
-        <a href="repertory.html" class="bn-item ${active==='repertory'?'active':''}"><i class='bx bx-book-bookmark'></i><span>রিপার্টরি</span></a>
+        <a href="repertory.html" class="bn-item ${active==='repertory'?'active':''}"><i class='bx bx-book-bookmark'></i><span>রেপার্টরি</span></a>
         <a href="materia.html" class="bn-item ${active==='materia'?'active':''}"><i class='bx bx-capsule'></i><span>মেটেরিয়া</span></a>
       </nav>
     `;

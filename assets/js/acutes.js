@@ -111,7 +111,7 @@ function renderRemedyBrowser(filterActivity = null, filterThermal = null, filter
   remedies.forEach(r => {
     const div = document.createElement('div');
     div.className = 'remedy-browser-card';
-    const actLabel = { increase: 'ক্রিয়া বৃদ্ধি', decrease: 'ক্রিয়া হ্রাস', no_change: 'অপরিবর্তিত' };
+    const actLabel = { increase: 'কার্যকলাপ বৃদ্ধি', decrease: 'কার্যকলাপ হ্রাস', no_change: 'অপরিবর্তিত' };
     const actClass = { increase: 'tag-activity-inc', decrease: 'tag-activity-dec', no_change: 'tag-activity-nc' };
     div.innerHTML = `
       <div class="rbc-header" onclick="toggleRBC(this)">
@@ -125,8 +125,8 @@ function renderRemedyBrowser(filterActivity = null, filterThermal = null, filter
         <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
           <div class="tag-group" style="margin:0;">
             <span class="tag ${actClass[r.activity]}">${actLabel[r.activity]}</span>
-            <span class="tag ${r.thermal === 'hot' ? 'tag-hot' : 'tag-chilly'}">${r.thermal === 'hot' ? 'গরম' : 'ঠান্ডা'}</span>
-            <span class="tag ${r.thirst === 'thirsty' ? 'tag-thirsty' : 'tag-thirstless'}">${r.thirst === 'thirsty' ? 'তৃষ্ণাযুক্ত' : 'তৃষ্ণাহীন'}</span>
+            <span class="tag ${r.thermal === 'hot' ? 'tag-hot' : 'tag-chilly'}">${r.thermal === 'hot' ? 'গরম' : 'শীতার্ত'}</span>
+            <span class="tag ${r.thirst === 'thirsty' ? 'tag-thirsty' : 'tag-thirstless'}">${r.thirst === 'thirsty' ? 'তৃষ্ণার্ত' : 'তৃষ্ণাহীন'}</span>
           </div>
           <i class='bx bx-chevron-down expand-icon' style="color:var(--text-muted);font-size:1.25rem;"></i>
         </div>

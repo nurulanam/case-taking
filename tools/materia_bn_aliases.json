@@ -1,0 +1,3294 @@
+{
+ "$generated_by": "tools/materia_bn.py aliases — review, do not hand-edit",
+ "rule": "resolve only when the candidate has >= 1 Kent rubrics and beats the runner-up by >= 3.0x; everything else stays in English as printed",
+ "resolved": {
+  "Ars": {
+   "en": "Arsenicum Album",
+   "bn": "আর্সেনিকাম অ্যালবাম",
+   "seen": 87,
+   "by": "rubric-dominance",
+   "rubrics": 6146,
+   "margin": 6.8
+  },
+  "Rhus": {
+   "en": "Rhus Toxicodendron",
+   "bn": "রাস টক্সিকোডেনড্রন",
+   "seen": 70,
+   "by": "rubric-dominance",
+   "rubrics": 5616,
+   "margin": 9.1
+  },
+  "Puls": {
+   "en": "Pulsatilla Nigricans",
+   "bn": "পালসেটিলা নাইগ্রিকান্স",
+   "seen": 66,
+   "by": "rubric-dominance",
+   "rubrics": 6225,
+   "margin": 122.1
+  },
+  "Nux": {
+   "en": "Nux Vomica",
+   "bn": "নাক্স ভমিকা",
+   "seen": 62,
+   "by": "rubric-dominance",
+   "rubrics": 5845,
+   "margin": 3.0
+  },
+  "Sulph": {
+   "en": "Sulphur",
+   "bn": "সালফার",
+   "seen": 61,
+   "by": "rubric-dominance",
+   "rubrics": 9033,
+   "margin": 4.5
+  },
+  "Lach": {
+   "en": "Lachesis Muta",
+   "bn": "ল্যাকেসিস মিউটা",
+   "seen": 59,
+   "by": "rubric-dominance",
+   "rubrics": 5161,
+   "margin": 14.4
+  },
+  "Calc": {
+   "en": "Calcarea Carbonica",
+   "bn": "ক্যালকেরিয়া কার্বনিকা",
+   "seen": 56,
+   "by": "rubric-dominance",
+   "rubrics": 6473,
+   "margin": 3.4
+  },
+  "Bell": {
+   "en": "Belladonna",
+   "bn": "বেলাডোনা",
+   "seen": 47,
+   "by": "rubric-dominance",
+   "rubrics": 5400,
+   "margin": 771.4
+  },
+  "Camph": {
+   "en": "Camphora",
+   "bn": "ক্যাম্ফোরা",
+   "seen": 46,
+   "by": "rubric-dominance",
+   "rubrics": 1696,
+   "margin": "only-candidate"
+  },
+  "Bry": {
+   "en": "Bryonia Alba",
+   "bn": "ব্রায়োনিয়া অ্যালবা",
+   "seen": 43,
+   "by": "rubric-dominance",
+   "rubrics": 4772,
+   "margin": "only-candidate"
+  },
+  "Caust": {
+   "en": "Causticum",
+   "bn": "কষ্টিকাম",
+   "seen": 42,
+   "by": "rubric-dominance",
+   "rubrics": 4965,
+   "margin": "only-candidate"
+  },
+  "Merc": {
+   "en": "Mercurius Solubilis",
+   "bn": "মার্কিউরিয়াস সলুবিলিস",
+   "seen": 41,
+   "by": "rubric-dominance",
+   "rubrics": 5678,
+   "margin": 4.5
+  },
+  "Phos": {
+   "en": "Phosphorus",
+   "bn": "ফসফরাস",
+   "seen": 40,
+   "by": "override",
+   "reason": "Boericke writes the acid explicitly as 'Phos ac', so a bare 'Phos' is Phosphorus. Rubric margin alone is only 2x."
+  },
+  "Sep": {
+   "en": "Sepia Officinalis",
+   "bn": "সিপিয়া অফিসিনালিস",
+   "seen": 36,
+   "by": "rubric-dominance",
+   "rubrics": 6567,
+   "margin": "only-candidate"
+  },
+  "Gels": {
+   "en": "Gelsemium Sempervirens",
+   "bn": "জেলসেমিয়াম সেম্পারভাইরেন্স",
+   "seen": 34,
+   "by": "rubric-dominance",
+   "rubrics": 1878,
+   "margin": "only-candidate"
+  },
+  "Apis": {
+   "en": "Apis Mellifica",
+   "bn": "এপিস মেলিফিকা",
+   "seen": 33,
+   "by": "rubric-dominance",
+   "rubrics": 2752,
+   "margin": "only-candidate"
+  },
+  "Cham": {
+   "en": "Chamomilla",
+   "bn": "ক্যামোমিলা",
+   "seen": 32,
+   "by": "rubric-dominance",
+   "rubrics": 3071,
+   "margin": "only-candidate"
+  },
+  "Sil": {
+   "en": "Silicea Terra",
+   "bn": "সিলিসিয়া টেরা",
+   "seen": 31,
+   "by": "rubric-dominance",
+   "rubrics": 5578,
+   "margin": "only-candidate"
+  },
+  "Lycop": {
+   "en": "Lycopodium Clavatum",
+   "bn": "লাইকোপোডিয়াম ক্লাভেটাম",
+   "seen": 28,
+   "by": "rubric-dominance",
+   "rubrics": 6979,
+   "margin": 25.7
+  },
+  "China": {
+   "en": "China Officinalis",
+   "bn": "চায়না অফিসিনালিস",
+   "seen": 27,
+   "by": "rubric-dominance",
+   "rubrics": 3830,
+   "margin": "only-candidate"
+  },
+  "Sepia": {
+   "en": "Sepia Officinalis",
+   "bn": "সিপিয়া অফিসিনালিস",
+   "seen": 26,
+   "by": "rubric-dominance",
+   "rubrics": 6567,
+   "margin": "only-candidate"
+  },
+  "Acon": {
+   "en": "Aconitum Napellus",
+   "bn": "অ্যাকোনাইট ন্যাপেলাস",
+   "seen": 25,
+   "by": "rubric-dominance",
+   "rubrics": 3438,
+   "margin": 214.9
+  },
+  "Thuja": {
+   "en": "Thuja Occidentalis",
+   "bn": "থুজা অক্সিডেন্টালিস",
+   "seen": 24,
+   "by": "rubric-dominance",
+   "rubrics": 5101,
+   "margin": "only-candidate"
+  },
+  "Phos ac": {
+   "en": "Phosphoricum Acidum",
+   "bn": "ফসফরিকাম অ্যাসিডাম",
+   "seen": 23,
+   "by": "rubric-dominance",
+   "rubrics": 3548,
+   "margin": "only-candidate"
+  },
+  "Bellad": {
+   "en": "Belladonna",
+   "bn": "বেলাডোনা",
+   "seen": 23,
+   "by": "rubric-dominance",
+   "rubrics": 5400,
+   "margin": "only-candidate"
+  },
+  "Silica": {
+   "en": "Silicea Terra",
+   "bn": "সিলিসিয়া টেরা",
+   "seen": 22,
+   "by": "override",
+   "reason": "'Silica Marina' carries no rubrics and is not the remedy Boericke means; the polychrest is Silicea Terra."
+  },
+  "Arsenic": {
+   "en": "Arsenicum Album",
+   "bn": "আর্সেনিকাম অ্যালবাম",
+   "seen": 20,
+   "by": "rubric-dominance",
+   "rubrics": 6146,
+   "margin": 6.8
+  },
+  "Nat mur": {
+   "en": "Natrum Muriaticum",
+   "bn": "নেট্রাম মিউরিয়েটিকাম",
+   "seen": 20,
+   "by": "rubric-dominance",
+   "rubrics": 6175,
+   "margin": "only-candidate"
+  },
+  "Coffea": {
+   "en": "Coffea Cruda",
+   "bn": "কফিয়া ক্রুডা",
+   "seen": 18,
+   "by": "rubric-dominance",
+   "rubrics": 1273,
+   "margin": 159.1
+  },
+  "Ipec": {
+   "en": "Ipecacuanha",
+   "bn": "ইপিকাক",
+   "seen": 17,
+   "by": "rubric-dominance",
+   "rubrics": 1656,
+   "margin": "only-candidate"
+  },
+  "Hyos": {
+   "en": "Hyoscyamus Niger",
+   "bn": "হায়োসায়ামাস নাইজার",
+   "seen": 17,
+   "by": "rubric-dominance",
+   "rubrics": 2217,
+   "margin": "only-candidate"
+  },
+  "Kali bich": {
+   "en": "Kali Bichromicum",
+   "bn": "কেলি বাইক্রোমিকাম",
+   "seen": 17,
+   "by": "rubric-dominance",
+   "rubrics": 2912,
+   "margin": "only-candidate"
+  },
+  "Graph": {
+   "en": "Graphites",
+   "bn": "গ্রাফাইটিস",
+   "seen": 17,
+   "by": "rubric-dominance",
+   "rubrics": 3970,
+   "margin": "only-candidate"
+  },
+  "Canth": {
+   "en": "Cantharis Vesicatoria",
+   "bn": "ক্যান্থারিস ভেসিকেটোরিয়া",
+   "seen": 17,
+   "by": "rubric-dominance",
+   "rubrics": 2370,
+   "margin": "only-candidate"
+  },
+  "Arnica": {
+   "en": "Arnica Montana",
+   "bn": "আর্নিকা মন্টানা",
+   "seen": 17,
+   "by": "rubric-dominance",
+   "rubrics": 2881,
+   "margin": "only-candidate"
+  },
+  "Hepar": {
+   "en": "Hepar Sulphuris Calcareum",
+   "bn": "হিপার সালফার",
+   "seen": 17,
+   "by": "rubric-dominance",
+   "rubrics": 3510,
+   "margin": "only-candidate"
+  },
+  "Lyc": {
+   "en": "Lycopodium Clavatum",
+   "bn": "লাইকোপোডিয়াম ক্লাভেটাম",
+   "seen": 17,
+   "by": "rubric-dominance",
+   "rubrics": 6979,
+   "margin": 25.7
+  },
+  "Arn": {
+   "en": "Arnica Montana",
+   "bn": "আর্নিকা মন্টানা",
+   "seen": 16,
+   "by": "rubric-dominance",
+   "rubrics": 2881,
+   "margin": "only-candidate"
+  },
+  "Zinc": {
+   "en": "Zincum Metallicum",
+   "bn": "জিঙ্কাম মেটালিকাম",
+   "seen": 16,
+   "by": "rubric-dominance",
+   "rubrics": 4423,
+   "margin": 221.2
+  },
+  "Hep": {
+   "en": "Hepar Sulphuris Calcareum",
+   "bn": "হিপার সালফার",
+   "seen": 16,
+   "by": "rubric-dominance",
+   "rubrics": 3510,
+   "margin": "only-candidate"
+  },
+  "Ign": {
+   "en": "Ignatia Amara",
+   "bn": "ইগ্নেশিয়া আমারা",
+   "seen": 16,
+   "by": "rubric-dominance",
+   "rubrics": 2761,
+   "margin": "only-candidate"
+  },
+  "Pulsat": {
+   "en": "Pulsatilla Nigricans",
+   "bn": "পালসেটিলা নাইগ্রিকান্স",
+   "seen": 15,
+   "by": "rubric-dominance",
+   "rubrics": 6225,
+   "margin": 122.1
+  },
+  "Cimicif": {
+   "en": "Cimicifuga Racemosa",
+   "bn": "সিমিসিফিউগা রেসিমোসা",
+   "seen": 15,
+   "by": "rubric-dominance",
+   "rubrics": 1218,
+   "margin": "only-candidate"
+  },
+  "Verat": {
+   "en": "Veratrum Album",
+   "bn": "ভেরাট্রাম অ্যালবাম",
+   "seen": 15,
+   "by": "rubric-dominance",
+   "rubrics": 2972,
+   "margin": 6.2
+  },
+  "Mercur": {
+   "en": "Mercurius Solubilis",
+   "bn": "মার্কিউরিয়াস সলুবিলিস",
+   "seen": 15,
+   "by": "rubric-dominance",
+   "rubrics": 5678,
+   "margin": 4.5
+  },
+  "Conium": {
+   "en": "Conium Maculatum",
+   "bn": "কোনিয়াম ম্যাকুলেটাম",
+   "seen": 15,
+   "by": "rubric-dominance",
+   "rubrics": 3852,
+   "margin": "only-candidate"
+  },
+  "Kali carb": {
+   "en": "Kali Carbonicum",
+   "bn": "কেলি কার্বনিকাম",
+   "seen": 14,
+   "by": "rubric-dominance",
+   "rubrics": 4726,
+   "margin": "only-candidate"
+  },
+  "Secale": {
+   "en": "Secale Cornutum",
+   "bn": "সিকেলি কর্নুটাম",
+   "seen": 14,
+   "by": "rubric-dominance",
+   "rubrics": 1723,
+   "margin": "only-candidate"
+  },
+  "Con": {
+   "en": "Conium Maculatum",
+   "bn": "কোনিয়াম ম্যাকুলেটাম",
+   "seen": 14,
+   "by": "rubric-dominance",
+   "rubrics": 3852,
+   "margin": 77.0
+  },
+  "Alum": {
+   "en": "Alumina",
+   "bn": "অ্যালুমিনা",
+   "seen": 14,
+   "by": "rubric-dominance",
+   "rubrics": 4022,
+   "margin": 4.7
+  },
+  "Staph": {
+   "en": "Staphysagria",
+   "bn": "স্ট্যাফিসেগ্রিয়া",
+   "seen": 14,
+   "by": "rubric-dominance",
+   "rubrics": 3058,
+   "margin": "only-candidate"
+  },
+  "Iod": {
+   "en": "Iodum",
+   "bn": "আয়োডাম",
+   "seen": 14,
+   "by": "rubric-dominance",
+   "rubrics": 2290,
+   "margin": 120.5
+  },
+  "Plat": {
+   "en": "Platinum Metallicum",
+   "bn": "প্ল্যাটিনাম মেটালিকাম",
+   "seen": 14,
+   "by": "rubric-dominance",
+   "rubrics": 2383,
+   "margin": 476.6
+  },
+  "Kreos": {
+   "en": "Kreosotum",
+   "bn": "ক্রিয়োসোটাম",
+   "seen": 14,
+   "by": "rubric-dominance",
+   "rubrics": 1993,
+   "margin": "only-candidate"
+  },
+  "Petrol": {
+   "en": "Petroleum",
+   "bn": "পেট্রোলিয়াম",
+   "seen": 14,
+   "by": "rubric-dominance",
+   "rubrics": 2983,
+   "margin": "only-candidate"
+  },
+  "Cina": {
+   "en": "Cina Maritima",
+   "bn": "সিনা ম্যারিটিমা",
+   "seen": 13,
+   "by": "rubric-dominance",
+   "rubrics": 1423,
+   "margin": "only-candidate"
+  },
+  "Coff": {
+   "en": "Coffea Cruda",
+   "bn": "কফিয়া ক্রুডা",
+   "seen": 13,
+   "by": "rubric-dominance",
+   "rubrics": 1273,
+   "margin": 159.1
+  },
+  "Bapt": {
+   "en": "Baptisia Tinctoria",
+   "bn": "ব্যাপ্টিশিয়া টিংক্টোরিয়া",
+   "seen": 13,
+   "by": "rubric-dominance",
+   "rubrics": 834,
+   "margin": "only-candidate"
+  },
+  "Laches": {
+   "en": "Lachesis Muta",
+   "bn": "ল্যাকেসিস মিউটা",
+   "seen": 13,
+   "by": "rubric-dominance",
+   "rubrics": 5161,
+   "margin": "only-candidate"
+  },
+  "Berb": {
+   "en": "Berberis Vulgaris",
+   "bn": "বার্বেরিস ভালগারিস",
+   "seen": 12,
+   "by": "rubric-dominance",
+   "rubrics": 2375,
+   "margin": "only-candidate"
+  },
+  "Lilium": {
+   "en": "Lilium Tigrinum",
+   "bn": "লিলিয়াম টাইগ্রিনাম",
+   "seen": 12,
+   "by": "rubric-dominance",
+   "rubrics": 1050,
+   "margin": "only-candidate"
+  },
+  "Nit ac": {
+   "en": "Nitricum Acidum",
+   "bn": "নাইট্রিকাম অ্যাসিডাম",
+   "seen": 12,
+   "by": "rubric-dominance",
+   "rubrics": 4406,
+   "margin": "only-candidate"
+  },
+  "Nat sulph": {
+   "en": "Natrum Sulphuricum",
+   "bn": "নেট্রাম সালফিউরিকাম",
+   "seen": 12,
+   "by": "rubric-dominance",
+   "rubrics": 2266,
+   "margin": "only-candidate"
+  },
+  "Cupr": {
+   "en": "Cuprum Metallicum",
+   "bn": "কুপ্রাম মেটালিকাম",
+   "seen": 12,
+   "by": "rubric-dominance",
+   "rubrics": 2146,
+   "margin": 7.2
+  },
+  "Aur": {
+   "en": "Aurum Metallicum",
+   "bn": "অরাম মেটালিকাম",
+   "seen": 12,
+   "by": "rubric-dominance",
+   "rubrics": 2568,
+   "margin": 3.0
+  },
+  "Ambra": {
+   "en": "Ambra Grisea",
+   "bn": "অ্যাম্ব্রা গ্রিসিয়া",
+   "seen": 11,
+   "by": "rubric-dominance",
+   "rubrics": 1719,
+   "margin": "only-candidate"
+  },
+  "Hamam": {
+   "en": "Hamamelis Virginiana",
+   "bn": "হ্যামামেলিস ভার্জিনিয়ানা",
+   "seen": 11,
+   "by": "rubric-dominance",
+   "rubrics": 774,
+   "margin": "only-candidate"
+  },
+  "Aloe": {
+   "en": "Aloe Socotrina",
+   "bn": "অ্যালো সোকোট্রিনা",
+   "seen": 11,
+   "by": "rubric-dominance",
+   "rubrics": 1388,
+   "margin": "only-candidate"
+  },
+  "Ipecac": {
+   "en": "Ipecacuanha",
+   "bn": "ইপিকাক",
+   "seen": 11,
+   "by": "rubric-dominance",
+   "rubrics": 1656,
+   "margin": "only-candidate"
+  },
+  "Oxal ac": {
+   "en": "Oxalicum Acidum",
+   "bn": "অক্সালিকাম অ্যাসিডাম",
+   "seen": 11,
+   "by": "rubric-dominance",
+   "rubrics": 1066,
+   "margin": "only-candidate"
+  },
+  "Agar": {
+   "en": "Agaricus Muscarius",
+   "bn": "অ্যাগারিকাস মাসকেরিয়াস",
+   "seen": 11,
+   "by": "rubric-dominance",
+   "rubrics": 4013,
+   "margin": "only-candidate"
+  },
+  "Fluor ac": {
+   "en": "Fluoricum Acidum",
+   "bn": "ফ্লুরিকাম অ্যাসিডাম",
+   "seen": 11,
+   "by": "rubric-dominance",
+   "rubrics": 1578,
+   "margin": "only-candidate"
+  },
+  "Bryon": {
+   "en": "Bryonia Alba",
+   "bn": "ব্রায়োনিয়া অ্যালবা",
+   "seen": 10,
+   "by": "rubric-dominance",
+   "rubrics": 4772,
+   "margin": "only-candidate"
+  },
+  "Ignat": {
+   "en": "Ignatia Amara",
+   "bn": "ইগ্নেশিয়া আমারা",
+   "seen": 10,
+   "by": "rubric-dominance",
+   "rubrics": 2761,
+   "margin": "only-candidate"
+  },
+  "Hydrast": {
+   "en": "Hydrastis Canadensis",
+   "bn": "হাইড্রাস্টিস ক্যানাডেনসিস",
+   "seen": 10,
+   "by": "rubric-dominance",
+   "rubrics": 906,
+   "margin": "only-candidate"
+  },
+  "Sabad": {
+   "en": "Sabadilla",
+   "bn": "সাবাডিলা",
+   "seen": 10,
+   "by": "rubric-dominance",
+   "rubrics": 1668,
+   "margin": "only-candidate"
+  },
+  "Arg nit": {
+   "en": "Argentum Nitricum",
+   "bn": "আর্জেন্টাম নাইট্রিকাম",
+   "seen": 10,
+   "by": "rubric-dominance",
+   "rubrics": 2530,
+   "margin": "only-candidate"
+  },
+  "Lachesis": {
+   "en": "Lachesis Muta",
+   "bn": "ল্যাকেসিস মিউটা",
+   "seen": 10,
+   "by": "rubric-dominance",
+   "rubrics": 5161,
+   "margin": "only-candidate"
+  },
+  "Asaf": {
+   "en": "Asafoetida",
+   "bn": "অ্যাসাফিটিডা",
+   "seen": 10,
+   "by": "rubric-dominance",
+   "rubrics": 1588,
+   "margin": "only-candidate"
+  },
+  "Dulc": {
+   "en": "Dulcamara",
+   "bn": "ডালকামারা",
+   "seen": 10,
+   "by": "rubric-dominance",
+   "rubrics": 2237,
+   "margin": "only-candidate"
+  },
+  "Nat m": {
+   "en": "Natrum Muriaticum",
+   "bn": "নেট্রাম মিউরিয়েটিকাম",
+   "seen": 10,
+   "by": "rubric-dominance",
+   "rubrics": 6175,
+   "margin": "only-candidate"
+  },
+  "Stram": {
+   "en": "Stramonium",
+   "bn": "স্ট্র্যামোনিয়াম",
+   "seen": 10,
+   "by": "rubric-dominance",
+   "rubrics": 2505,
+   "margin": "only-candidate"
+  },
+  "Sulph ac": {
+   "en": "Sulphuricum Acidum",
+   "bn": "সালফিউরিকাম অ্যাসিডাম",
+   "seen": 10,
+   "by": "rubric-dominance",
+   "rubrics": 2022,
+   "margin": "only-candidate"
+  },
+  "Sang": {
+   "en": "Sanguinaria Canadensis",
+   "bn": "স্যাঙ্গুইনেরিয়া ক্যানাডেনসিস",
+   "seen": 10,
+   "by": "rubric-dominance",
+   "rubrics": 1368,
+   "margin": 456.0
+  },
+  "Kalmia": {
+   "en": "Kalmia Latifolia",
+   "bn": "কালমিয়া ল্যাটিফোলিয়া",
+   "seen": 9,
+   "by": "rubric-dominance",
+   "rubrics": 912,
+   "margin": "only-candidate"
+  },
+  "Chamom": {
+   "en": "Chamomilla",
+   "bn": "ক্যামোমিলা",
+   "seen": 9,
+   "by": "rubric-dominance",
+   "rubrics": 3071,
+   "margin": "only-candidate"
+  },
+  "Croton": {
+   "en": "Croton Tiglium",
+   "bn": "ক্রোটন টিগ্লিয়াম",
+   "seen": 9,
+   "by": "rubric-dominance",
+   "rubrics": 1212,
+   "margin": "only-candidate"
+  },
+  "Selen": {
+   "en": "Selenium Metallicum",
+   "bn": "সেলেনিয়াম মেটালিকাম",
+   "seen": 9,
+   "by": "rubric-dominance",
+   "rubrics": 1060,
+   "margin": "only-candidate"
+  },
+  "Colocy": {
+   "en": "Colocynthis",
+   "bn": "কলোসিন্থিস",
+   "seen": 9,
+   "by": "rubric-dominance",
+   "rubrics": 2498,
+   "margin": "only-candidate"
+  },
+  "Phosph": {
+   "en": "Phosphorus",
+   "bn": "ফসফরাস",
+   "seen": 9,
+   "by": "override",
+   "reason": "Same reasoning as 'Phos'."
+  },
+  "Asterias": {
+   "en": "Asterias Rubens",
+   "bn": "অ্যাস্টেরিয়াস রুবেন্স",
+   "seen": 9,
+   "by": "rubric-dominance",
+   "rubrics": 416,
+   "margin": "only-candidate"
+  },
+  "Caps": {
+   "en": "Capsicum Annuum",
+   "bn": "ক্যাপসিকাম অ্যানুয়াম",
+   "seen": 9,
+   "by": "rubric-dominance",
+   "rubrics": 1560,
+   "margin": "only-candidate"
+  },
+  "Naja": {
+   "en": "Naja Tripudians",
+   "bn": "নাজা ট্রাইপুডিয়ান্স",
+   "seen": 9,
+   "by": "rubric-dominance",
+   "rubrics": 871,
+   "margin": "only-candidate"
+  },
+  "Anacard": {
+   "en": "Anacardium Orientale",
+   "bn": "অ্যানাকার্ডিয়াম ওরিয়েন্টেল",
+   "seen": 9,
+   "by": "rubric-dominance",
+   "rubrics": 2237,
+   "margin": "only-candidate"
+  },
+  "Stann": {
+   "en": "Stannum Metallicum",
+   "bn": "স্ট্যানাম মেটালিকাম",
+   "seen": 9,
+   "by": "rubric-dominance",
+   "rubrics": 2238,
+   "margin": "only-candidate"
+  },
+  "Kali phos": {
+   "en": "Kali Phosphoricum",
+   "bn": "কেলি ফসফরিকাম",
+   "seen": 8,
+   "by": "rubric-dominance",
+   "rubrics": 1439,
+   "margin": "only-candidate"
+  },
+  "Bryonia": {
+   "en": "Bryonia Alba",
+   "bn": "ব্রায়োনিয়া অ্যালবা",
+   "seen": 8,
+   "by": "rubric-dominance",
+   "rubrics": 4772,
+   "margin": "only-candidate"
+  },
+  "Cicuta": {
+   "en": "Cicuta Virosa",
+   "bn": "সিকুটা ভিরোসা",
+   "seen": 8,
+   "by": "rubric-dominance",
+   "rubrics": 1440,
+   "margin": "only-candidate"
+  },
+  "Cact": {
+   "en": "Cactus Grandiflorus",
+   "bn": "ক্যাক্টাস গ্র্যান্ডিফ্লোরাস",
+   "seen": 8,
+   "by": "rubric-dominance",
+   "rubrics": 1052,
+   "margin": "only-candidate"
+  },
+  "Tabac": {
+   "en": "Tabacum",
+   "bn": "ট্যাবাকাম",
+   "seen": 8,
+   "by": "rubric-dominance",
+   "rubrics": 1364,
+   "margin": "only-candidate"
+  },
+  "Psorin": {
+   "en": "Psorinum",
+   "bn": "সোরিনাম",
+   "seen": 8,
+   "by": "rubric-dominance",
+   "rubrics": 2139,
+   "margin": "only-candidate"
+  },
+  "Camphor": {
+   "en": "Camphora",
+   "bn": "ক্যাম্ফোরা",
+   "seen": 8,
+   "by": "rubric-dominance",
+   "rubrics": 1696,
+   "margin": "only-candidate"
+  },
+  "Calc phos": {
+   "en": "Calcarea Phosphorica",
+   "bn": "ক্যালকেরিয়া ফসফরিকা",
+   "seen": 8,
+   "by": "rubric-dominance",
+   "rubrics": 1930,
+   "margin": "only-candidate"
+  },
+  "Ruta": {
+   "en": "Ruta Graveolens",
+   "bn": "রুটা গ্রেভিওলেন্স",
+   "seen": 8,
+   "by": "rubric-dominance",
+   "rubrics": 1578,
+   "margin": "only-candidate"
+  },
+  "Chin": {
+   "en": "China Officinalis",
+   "bn": "চায়না অফিসিনালিস",
+   "seen": 8,
+   "by": "rubric-dominance",
+   "rubrics": 3830,
+   "margin": 3.3
+  },
+  "Dig": {
+   "en": "Digitalis Purpurea",
+   "bn": "ডিজিটালিস পারপিউরিয়া",
+   "seen": 8,
+   "by": "rubric-dominance",
+   "rubrics": 2233,
+   "margin": "only-candidate"
+  },
+  "Kali brom": {
+   "en": "Kali Bromatum",
+   "bn": "কেলি ব্রোমেটাম",
+   "seen": 8,
+   "by": "rubric-dominance",
+   "rubrics": 573,
+   "margin": "only-candidate"
+  },
+  "Urtica": {
+   "en": "Urtica Urens",
+   "bn": "আর্টিকা ইউরেন্স",
+   "seen": 8,
+   "by": "rubric-dominance",
+   "rubrics": 178,
+   "margin": "only-candidate"
+  },
+  "Pod": {
+   "en": "Podophyllum Peltatum",
+   "bn": "পোডোফাইলাম পেলটেটাম",
+   "seen": 8,
+   "by": "rubric-dominance",
+   "rubrics": 902,
+   "margin": "only-candidate"
+  },
+  "Digit": {
+   "en": "Digitalis Purpurea",
+   "bn": "ডিজিটালিস পারপিউরিয়া",
+   "seen": 7,
+   "by": "rubric-dominance",
+   "rubrics": 2233,
+   "margin": "only-candidate"
+  },
+  "Coccul": {
+   "en": "Cocculus Indicus",
+   "bn": "কক্কুলাস ইন্ডিকাস",
+   "seen": 7,
+   "by": "rubric-dominance",
+   "rubrics": 2668,
+   "margin": "only-candidate"
+  },
+  "Helon": {
+   "en": "Helonias Dioica",
+   "bn": "হেলোনিয়াস ডায়োইকা",
+   "seen": 7,
+   "by": "rubric-dominance",
+   "rubrics": 302,
+   "margin": "only-candidate"
+  },
+  "Merc cor": {
+   "en": "Mercurius Corrosivus",
+   "bn": "মার্কিউরিয়াস করোসিভাস",
+   "seen": 7,
+   "by": "rubric-dominance",
+   "rubrics": 1274,
+   "margin": "only-candidate"
+  },
+  "Ferr phos": {
+   "en": "Ferrum Phosphoricum",
+   "bn": "ফেরাম ফসফরিকাম",
+   "seen": 7,
+   "by": "rubric-dominance",
+   "rubrics": 904,
+   "margin": "only-candidate"
+  },
+  "Plumb": {
+   "en": "Plumbum Metallicum",
+   "bn": "প্লাম্বাম মেটালিকাম",
+   "seen": 7,
+   "by": "rubric-dominance",
+   "rubrics": 2951,
+   "margin": "only-candidate"
+  },
+  "Spigel": {
+   "en": "Spigelia Anthelmia",
+   "bn": "স্পাইজেলিয়া অ্যান্থেলমিয়া",
+   "seen": 7,
+   "by": "rubric-dominance",
+   "rubrics": 2256,
+   "margin": "only-candidate"
+  },
+  "Thuj": {
+   "en": "Thuja Occidentalis",
+   "bn": "থুজা অক্সিডেন্টালিস",
+   "seen": 7,
+   "by": "rubric-dominance",
+   "rubrics": 5101,
+   "margin": "only-candidate"
+  },
+  "Calad": {
+   "en": "Caladium Seguinum",
+   "bn": "ক্যালেডিয়াম সেগুইনাম",
+   "seen": 7,
+   "by": "rubric-dominance",
+   "rubrics": 963,
+   "margin": "only-candidate"
+  },
+  "Ceanoth": {
+   "en": "Ceanothus Americanus",
+   "bn": "সিনোথাস আমেরিকেনাস",
+   "seen": 7,
+   "by": "rubric-dominance",
+   "rubrics": 11,
+   "margin": "only-candidate"
+  },
+  "Chelid": {
+   "en": "Chelidonium Majus",
+   "bn": "চেলিডোনিয়াম মেজাস",
+   "seen": 7,
+   "by": "rubric-dominance",
+   "rubrics": 3182,
+   "margin": "only-candidate"
+  },
+  "Mezer": {
+   "en": "Mezereum",
+   "bn": "মেজেরিয়াম",
+   "seen": 7,
+   "by": "rubric-dominance",
+   "rubrics": 3220,
+   "margin": "only-candidate"
+  },
+  "Op": {
+   "en": "Opium",
+   "bn": "ওপিয়াম",
+   "seen": 7,
+   "by": "rubric-dominance",
+   "rubrics": 2171,
+   "margin": "only-candidate"
+  },
+  "Anac": {
+   "en": "Anacardium Orientale",
+   "bn": "অ্যানাকার্ডিয়াম ওরিয়েন্টেল",
+   "seen": 7,
+   "by": "rubric-dominance",
+   "rubrics": 2237,
+   "margin": "only-candidate"
+  },
+  "Millefol": {
+   "en": "Millefolium",
+   "bn": "মিলিফোলিয়াম",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 340,
+   "margin": "only-candidate"
+  },
+  "Sanguin": {
+   "en": "Sanguinaria Canadensis",
+   "bn": "স্যাঙ্গুইনেরিয়া ক্যানাডেনসিস",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 1368,
+   "margin": 456.0
+  },
+  "Mur ac": {
+   "en": "Muriaticum Acidum",
+   "bn": "মিউরিয়াটিকাম অ্যাসিডাম",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 2203,
+   "margin": "only-candidate"
+  },
+  "Senecio": {
+   "en": "Senecio Aureus",
+   "bn": "সেনেসিও অরিয়াস",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 332,
+   "margin": "only-candidate"
+  },
+  "Psor": {
+   "en": "Psorinum",
+   "bn": "সোরিনাম",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 2139,
+   "margin": "only-candidate"
+  },
+  "Carb an": {
+   "en": "Carbo Animalis",
+   "bn": "কার্বো অ্যানিমেলিস",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 2609,
+   "margin": "only-candidate"
+  },
+  "Lathyr": {
+   "en": "Lathyrus Sativus",
+   "bn": "ল্যাথাইরাস স্যাটিভাস",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 20,
+   "margin": "only-candidate"
+  },
+  "Chelidon": {
+   "en": "Chelidonium Majus",
+   "bn": "চেলিডোনিয়াম মেজাস",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 3182,
+   "margin": "only-candidate"
+  },
+  "Acet ac": {
+   "en": "Acetic Acid",
+   "bn": "অ্যাসিটিক অ্যাসিড",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 340,
+   "margin": "only-candidate"
+  },
+  "Capsic": {
+   "en": "Capsicum Annuum",
+   "bn": "ক্যাপসিকাম অ্যানুয়াম",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 1560,
+   "margin": "only-candidate"
+  },
+  "Brom": {
+   "en": "Bromium",
+   "bn": "ব্রোমিয়াম",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 1353,
+   "margin": "only-candidate"
+  },
+  "Carbol ac": {
+   "en": "Carbolicum Acidum",
+   "bn": "কার্বলিকাম অ্যাসিডাম",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 867,
+   "margin": "only-candidate"
+  },
+  "Mez": {
+   "en": "Mezereum",
+   "bn": "মেজেরিয়াম",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 3220,
+   "margin": "only-candidate"
+  },
+  "Chimaph": {
+   "en": "Chimaphila Umbellata",
+   "bn": "কিমাফিলা আম্বেলাটা",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 147,
+   "margin": "only-candidate"
+  },
+  "Nux mosch": {
+   "en": "Nux Moschata",
+   "bn": "নাক্স মসকেটা",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 1917,
+   "margin": "only-candidate"
+  },
+  "Croc": {
+   "en": "Crocus Sativus",
+   "bn": "ক্রোকাস স্যাটিভাস",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 1065,
+   "margin": "only-candidate"
+  },
+  "Nitr ac": {
+   "en": "Nitricum Acidum",
+   "bn": "নাইট্রিকাম অ্যাসিডাম",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 4406,
+   "margin": "only-candidate"
+  },
+  "Colch": {
+   "en": "Colchicum Autumnale",
+   "bn": "কলচিকাম অটামনেল",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 2183,
+   "margin": "only-candidate"
+  },
+  "Ratanh": {
+   "en": "Ratanhia",
+   "bn": "র‍্যাটানহিয়া",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 695,
+   "margin": "only-candidate"
+  },
+  "Tuberc": {
+   "en": "Tuberculinum Bovinum",
+   "bn": "টিউবারকুলিনাম বোভিনাম",
+   "seen": 6,
+   "by": "rubric-dominance",
+   "rubrics": 534,
+   "margin": "only-candidate"
+  },
+  "Gelsem": {
+   "en": "Gelsemium Sempervirens",
+   "bn": "জেলসেমিয়াম সেম্পারভাইরেন্স",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 1878,
+   "margin": "only-candidate"
+  },
+  "Terebinth": {
+   "en": "Terebinthina",
+   "bn": "টেরিবিন্থিনা",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 714,
+   "margin": "only-candidate"
+  },
+  "Bor": {
+   "en": "Borax",
+   "bn": "বোরাক্স",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 1814,
+   "margin": 604.7
+  },
+  "Caustic": {
+   "en": "Causticum",
+   "bn": "কষ্টিকাম",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 4965,
+   "margin": "only-candidate"
+  },
+  "Wyethia": {
+   "en": "Wyethia Helenoides",
+   "bn": "ওয়াইথিয়া",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 33,
+   "margin": "only-candidate"
+  },
+  "Cactus": {
+   "en": "Cactus Grandiflorus",
+   "bn": "ক্যাক্টাস গ্র্যান্ডিফ্লোরাস",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 1052,
+   "margin": "only-candidate"
+  },
+  "Kali sulph": {
+   "en": "Kali Sulphuricum",
+   "bn": "কেলি সালফিউরিকাম",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 1146,
+   "margin": "only-candidate"
+  },
+  "Baryta": {
+   "en": "Baryta Carbonica",
+   "bn": "ব্যারাইটা কার্বনিকা",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 2938,
+   "margin": 4.1
+  },
+  "Ledum": {
+   "en": "Ledum Palustre",
+   "bn": "লেডাম প্যালাস্ট্রে",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 2042,
+   "margin": "only-candidate"
+  },
+  "Aurum": {
+   "en": "Aurum Metallicum",
+   "bn": "অরাম মেটালিকাম",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 2568,
+   "margin": 3.0
+  },
+  "Phytol": {
+   "en": "Phytolacca Decandra",
+   "bn": "ফাইটোল্যাকা ডেকান্ড্রা",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 1418,
+   "margin": "only-candidate"
+  },
+  "Ignatia": {
+   "en": "Ignatia Amara",
+   "bn": "ইগ্নেশিয়া আমারা",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 2761,
+   "margin": "only-candidate"
+  },
+  "Copaiva": {
+   "en": "Copaiva Officinalis",
+   "bn": "কোপাইভা অফিসিনালিস",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 747,
+   "margin": "only-candidate"
+  },
+  "Kreosot": {
+   "en": "Kreosotum",
+   "bn": "ক্রিয়োসোটাম",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 1993,
+   "margin": "only-candidate"
+  },
+  "Arg n": {
+   "en": "Argentum Nitricum",
+   "bn": "আর্জেন্টাম নাইট্রিকাম",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 2530,
+   "margin": "only-candidate"
+  },
+  "Bovista": {
+   "en": "Bovista Lycoperdon",
+   "bn": "বোভিস্টা লাইকোপার্ডন",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 1880,
+   "margin": "only-candidate"
+  },
+  "Spong": {
+   "en": "Spongia Tosta",
+   "bn": "স্পঞ্জিয়া টোস্টা",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 1962,
+   "margin": "only-candidate"
+  },
+  "Tereb": {
+   "en": "Terebinthina",
+   "bn": "টেরিবিন্থিনা",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 714,
+   "margin": "only-candidate"
+  },
+  "Calc fluor": {
+   "en": "Calcarea Fluorica",
+   "bn": "ক্যালকেরিয়া ফ্লুরিকা",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 227,
+   "margin": "only-candidate"
+  },
+  "Tuberculin": {
+   "en": "Tuberculinum Bovinum",
+   "bn": "টিউবারকুলিনাম বোভিনাম",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 534,
+   "margin": "only-candidate"
+  },
+  "Ferr pic": {
+   "en": "Ferrum Picricum",
+   "bn": "ফেরাম পিক্রিকাম",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 12,
+   "margin": "only-candidate"
+  },
+  "Agaric": {
+   "en": "Agaricus Muscarius",
+   "bn": "অ্যাগারিকাস মাসকেরিয়াস",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 4013,
+   "margin": "only-candidate"
+  },
+  "Pareira": {
+   "en": "Pareira Brava",
+   "bn": "পেরেইরা ব্রাভা",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 88,
+   "margin": "only-candidate"
+  },
+  "Dros": {
+   "en": "Drosera Rotundifolia",
+   "bn": "ড্রসেরা রোটান্ডিফোলিয়া",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 1349,
+   "margin": "only-candidate"
+  },
+  "Berberis": {
+   "en": "Berberis Vulgaris",
+   "bn": "বার্বেরিস ভালগারিস",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 2375,
+   "margin": "only-candidate"
+  },
+  "Uva": {
+   "en": "Uva Ursi",
+   "bn": "উভা উরসি",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 29,
+   "margin": "only-candidate"
+  },
+  "Spig": {
+   "en": "Spigelia Anthelmia",
+   "bn": "স্পাইজেলিয়া অ্যান্থেলমিয়া",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 2256,
+   "margin": "only-candidate"
+  },
+  "Oleand": {
+   "en": "Oleander",
+   "bn": "ওলিয়েন্ডার",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 1095,
+   "margin": "only-candidate"
+  },
+  "Calend": {
+   "en": "Calendula Officinalis",
+   "bn": "ক্যালেন্ডুলা অফিসিনালিস",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 24,
+   "margin": "only-candidate"
+  },
+  "Bothrops": {
+   "en": "Bothrops Lanceolatus",
+   "bn": "বোথ্রপস ল্যান্সিওলেটাস",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 40,
+   "margin": "only-candidate"
+  },
+  "Iris": {
+   "en": "Iris Versicolor",
+   "bn": "আইরিস ভার্সিকলর",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 733,
+   "margin": 22.9
+  },
+  "Millef": {
+   "en": "Millefolium",
+   "bn": "মিলিফোলিয়াম",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 340,
+   "margin": "only-candidate"
+  },
+  "Bov": {
+   "en": "Bovista Lycoperdon",
+   "bn": "বোভিস্টা লাইকোপার্ডন",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 1880,
+   "margin": "only-candidate"
+  },
+  "Calc c": {
+   "en": "Calcarea Carbonica",
+   "bn": "ক্যালকেরিয়া কার্বনিকা",
+   "seen": 5,
+   "by": "rubric-dominance",
+   "rubrics": 6473,
+   "margin": 174.9
+  },
+  "Natr mur": {
+   "en": "Natrum Muriaticum",
+   "bn": "নেট্রাম মিউরিয়েটিকাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 6175,
+   "margin": "only-candidate"
+  },
+  "Phosphor": {
+   "en": "Phosphorus",
+   "bn": "ফসফরাস",
+   "seen": 4,
+   "by": "override",
+   "reason": "Same reasoning as 'Phos'."
+  },
+  "Kali nit": {
+   "en": "Kali Nitricum",
+   "bn": "কেলি নাইট্রিকাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 1756,
+   "margin": "only-candidate"
+  },
+  "Kali mur": {
+   "en": "Kali Muriaticum",
+   "bn": "কেলি মিউরিয়েটিকাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 8,
+   "margin": "only-candidate"
+  },
+  "Crocus": {
+   "en": "Crocus Sativus",
+   "bn": "ক্রোকাস স্যাটিভাস",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 1065,
+   "margin": "only-candidate"
+  },
+  "Aral": {
+   "en": "Aralia Racemosa",
+   "bn": "অ্যারালিয়া রেসিমোসা",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 47,
+   "margin": "only-candidate"
+  },
+  "Amyl nit": {
+   "en": "Amyl Nitrite",
+   "bn": "অ্যামাইল নাইট্রাইট",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 125,
+   "margin": "only-candidate"
+  },
+  "Agnus": {
+   "en": "Agnus Castus",
+   "bn": "অ্যাগনাস ক্যাস্টাস",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 627,
+   "margin": "only-candidate"
+  },
+  "Podoph": {
+   "en": "Podophyllum Peltatum",
+   "bn": "পোডোফাইলাম পেলটেটাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 902,
+   "margin": "only-candidate"
+  },
+  "Cup": {
+   "en": "Cuprum Metallicum",
+   "bn": "কুপ্রাম মেটালিকাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 2146,
+   "margin": 7.2
+  },
+  "Rheum": {
+   "en": "Rheum Officinale",
+   "bn": "রিউম অফিসিনেল",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 560,
+   "margin": "only-candidate"
+  },
+  "Podophyl": {
+   "en": "Podophyllum Peltatum",
+   "bn": "পোডোফাইলাম পেলটেটাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 902,
+   "margin": "only-candidate"
+  },
+  "Teuc": {
+   "en": "Teucrium Marum Verum",
+   "bn": "টিউক্রিয়াম মেরাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 683,
+   "margin": "only-candidate"
+  },
+  "Trill": {
+   "en": "Trillium Pendulum",
+   "bn": "ট্রিলিয়াম পেন্ডুলাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 95,
+   "margin": "only-candidate"
+  },
+  "Ant cr": {
+   "en": "Antimonium Crudum",
+   "bn": "অ্যান্টিমোনিয়াম ক্রুডাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 2005,
+   "margin": "only-candidate"
+  },
+  "Cistus": {
+   "en": "Cistus Canadensis",
+   "bn": "সিস্টাস ক্যানাডেনসিস",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 473,
+   "margin": "only-candidate"
+  },
+  "Euphorb": {
+   "en": "Euphorbium",
+   "bn": "ইউফোরবিয়াম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 824,
+   "margin": "only-candidate"
+  },
+  "Syph": {
+   "en": "Syphilinum",
+   "bn": "সিফিলিনাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 397,
+   "margin": "only-candidate"
+  },
+  "Grindelia": {
+   "en": "Grindelia Robusta",
+   "bn": "গ্রিন্ডেলিয়া রোবাস্টা",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 28,
+   "margin": "only-candidate"
+  },
+  "Ocim": {
+   "en": "Ocimum Canum",
+   "bn": "ওসিমাম ক্যানাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 26,
+   "margin": "only-candidate"
+  },
+  "Hydrocy ac": {
+   "en": "Hydrocyanicum Acidum",
+   "bn": "হাইড্রোসায়ানিকাম অ্যাসিডাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 395,
+   "margin": "only-candidate"
+  },
+  "Rumex": {
+   "en": "Rumex Crispus",
+   "bn": "রুমেক্স ক্রিসপাস",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 845,
+   "margin": "only-candidate"
+  },
+  "Sabin": {
+   "en": "Sabina",
+   "bn": "সাবিনা",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 1301,
+   "margin": "only-candidate"
+  },
+  "Abrot": {
+   "en": "Abrotanum",
+   "bn": "অ্যাব্রোটেনাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 312,
+   "margin": "only-candidate"
+  },
+  "Sanic": {
+   "en": "Sanicula Aqua",
+   "bn": "স্যানিকুলা অ্যাকোয়া",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 385,
+   "margin": "only-candidate"
+  },
+  "Eupion": {
+   "en": "Eupionum",
+   "bn": "ইউপায়োনাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 434,
+   "margin": "only-candidate"
+  },
+  "Murex": {
+   "en": "Murex Purpurea",
+   "bn": "মিউরেক্স পারপিউরিয়া",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 263,
+   "margin": "only-candidate"
+  },
+  "Glon": {
+   "en": "Glonoinum",
+   "bn": "গ্লোনোইনাম",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 1387,
+   "margin": "only-candidate"
+  },
+  "Valer": {
+   "en": "Valeriana Officinalis",
+   "bn": "ভ্যালেরিয়ানা অফিসিনালিস",
+   "seen": 4,
+   "by": "rubric-dominance",
+   "rubrics": 1141,
+   "margin": "only-candidate"
+  },
+  "Cauloph": {
+   "en": "Caulophyllum Thalictroides",
+   "bn": "কলোফাইলাম থ্যালিকট্রয়ডিস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 248,
+   "margin": "only-candidate"
+  },
+  "Ceanothus": {
+   "en": "Ceanothus Americanus",
+   "bn": "সিনোথাস আমেরিকেনাস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 11,
+   "margin": "only-candidate"
+  },
+  "Cann ind": {
+   "en": "Cannabis Indica",
+   "bn": "ক্যানাবিস ইন্ডিকা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1011,
+   "margin": "only-candidate"
+  },
+  "Selenium": {
+   "en": "Selenium Metallicum",
+   "bn": "সেলেনিয়াম মেটালিকাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1060,
+   "margin": "only-candidate"
+  },
+  "Ammon carb": {
+   "en": "Ammonium Carbonicum",
+   "bn": "অ্যামোনিয়াম কার্বনিকাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2970,
+   "margin": "only-candidate"
+  },
+  "Lycopod": {
+   "en": "Lycopodium Clavatum",
+   "bn": "লাইকোপোডিয়াম ক্লাভেটাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 6979,
+   "margin": "only-candidate"
+  },
+  "Calcarea": {
+   "en": "Calcarea Carbonica",
+   "bn": "ক্যালকেরিয়া কার্বনিকা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 6473,
+   "margin": 3.4
+  },
+  "Sumbul": {
+   "en": "Sumbulus Moschatus",
+   "bn": "সুম্বুলাস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 691,
+   "margin": "only-candidate"
+  },
+  "Castor": {
+   "en": "Castoreum",
+   "bn": "ক্যাস্টোরিয়াম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 459,
+   "margin": 5.0
+  },
+  "Arundo": {
+   "en": "Arundo Mauritanica",
+   "bn": "অ্যারুন্ডো মরিটানিকা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 326,
+   "margin": "only-candidate"
+  },
+  "Grindel": {
+   "en": "Grindelia Robusta",
+   "bn": "গ্রিন্ডেলিয়া রোবাস্টা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 28,
+   "margin": "only-candidate"
+  },
+  "Cyclamen": {
+   "en": "Cyclamen Europaeum",
+   "bn": "সাইক্লামেন ইউরোপিয়াম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1548,
+   "margin": "only-candidate"
+  },
+  "Echinac": {
+   "en": "Echinacea Angustifolia",
+   "bn": "ইকিনেসিয়া অ্যাঙ্গুস্টিফোলিয়া",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 155,
+   "margin": "only-candidate"
+  },
+  "Anthrac": {
+   "en": "Anthracinum",
+   "bn": "অ্যানথ্রাসিনাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 184,
+   "margin": "only-candidate"
+  },
+  "Baryta carb": {
+   "en": "Baryta Carbonica",
+   "bn": "ব্যারাইটা কার্বনিকা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2938,
+   "margin": "only-candidate"
+  },
+  "Helleb": {
+   "en": "Helleborus Niger",
+   "bn": "হেলেবোরাস নাইজার",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1680,
+   "margin": "only-candidate"
+  },
+  "Oxytropis": {
+   "en": "Oxytropis Lamberti",
+   "bn": "অক্সিট্রপিস ল্যাম্বার্টি",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 11,
+   "margin": "only-candidate"
+  },
+  "Sinapis": {
+   "en": "Sinapis Nigra",
+   "bn": "সিনাপিস নাইগ্রা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 188,
+   "margin": 4.8
+  },
+  "Stannum": {
+   "en": "Stannum Metallicum",
+   "bn": "স্ট্যানাম মেটালিকাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2238,
+   "margin": "only-candidate"
+  },
+  "Bellis": {
+   "en": "Bellis Perennis",
+   "bn": "বেলিস পেরেনিস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 7,
+   "margin": "only-candidate"
+  },
+  "Carbo an": {
+   "en": "Carbo Animalis",
+   "bn": "কার্বো অ্যানিমেলিস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2609,
+   "margin": "only-candidate"
+  },
+  "Spongia": {
+   "en": "Spongia Tosta",
+   "bn": "স্পঞ্জিয়া টোস্টা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1962,
+   "margin": "only-candidate"
+  },
+  "Abies nig": {
+   "en": "Abies Nigra",
+   "bn": "অ্যাবিস নাইগ্রা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 40,
+   "margin": "only-candidate"
+  },
+  "Digitalis": {
+   "en": "Digitalis Purpurea",
+   "bn": "ডিজিটালিস পারপিউরিয়া",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2233,
+   "margin": "only-candidate"
+  },
+  "Lapis": {
+   "en": "Lapis Albus",
+   "bn": "ল্যাপিস অ্যালবাস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 21,
+   "margin": "only-candidate"
+  },
+  "Nat carb": {
+   "en": "Natrum Carbonicum",
+   "bn": "নেট্রাম কার্বনিকাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 3461,
+   "margin": "only-candidate"
+  },
+  "Sarsap": {
+   "en": "Sarsaparilla",
+   "bn": "সার্সাপারিলা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2084,
+   "margin": "only-candidate"
+  },
+  "Sanicula": {
+   "en": "Sanicula Aqua",
+   "bn": "স্যানিকুলা অ্যাকোয়া",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 385,
+   "margin": "only-candidate"
+  },
+  "Plumbum": {
+   "en": "Plumbum Metallicum",
+   "bn": "প্লাম্বাম মেটালিকাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2951,
+   "margin": "only-candidate"
+  },
+  "Mag c": {
+   "en": "Magnesia Carbonica",
+   "bn": "ম্যাগ্নেশিয়া কার্বনিকা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2858,
+   "margin": "only-candidate"
+  },
+  "Ambr": {
+   "en": "Ambra Grisea",
+   "bn": "অ্যাম্ব্রা গ্রিসিয়া",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1719,
+   "margin": "only-candidate"
+  },
+  "Arum triph": {
+   "en": "Arum Triphyllum",
+   "bn": "অ্যারাম ট্রাইফাইলাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 467,
+   "margin": "only-candidate"
+  },
+  "Tubercul": {
+   "en": "Tuberculinum Bovinum",
+   "bn": "টিউবারকুলিনাম বোভিনাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 534,
+   "margin": "only-candidate"
+  },
+  "Hyoscy": {
+   "en": "Hyoscyamus Niger",
+   "bn": "হায়োসায়ামাস নাইজার",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2217,
+   "margin": "only-candidate"
+  },
+  "Cycl": {
+   "en": "Cyclamen Europaeum",
+   "bn": "সাইক্লামেন ইউরোপিয়াম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1548,
+   "margin": "only-candidate"
+  },
+  "Agaricus": {
+   "en": "Agaricus Muscarius",
+   "bn": "অ্যাগারিকাস মাসকেরিয়াস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 4013,
+   "margin": "only-candidate"
+  },
+  "Lactic ac": {
+   "en": "Lactic Acid",
+   "bn": "ল্যাকটিক অ্যাসিড",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 478,
+   "margin": "only-candidate"
+  },
+  "Carduus": {
+   "en": "Carduus Marianus",
+   "bn": "কার্ডুয়াস ম্যারিয়েনাস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 368,
+   "margin": "only-candidate"
+  },
+  "Mosch": {
+   "en": "Moschus",
+   "bn": "মস্কাস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1061,
+   "margin": "only-candidate"
+  },
+  "Sars": {
+   "en": "Sarsaparilla",
+   "bn": "সার্সাপারিলা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2084,
+   "margin": "only-candidate"
+  },
+  "Lycopus": {
+   "en": "Lycopus Virginicus",
+   "bn": "লাইকোপাস ভার্জিনিকাস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 272,
+   "margin": "only-candidate"
+  },
+  "Clematis": {
+   "en": "Clematis Erecta",
+   "bn": "ক্লেমাটিস ইরেক্টা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1645,
+   "margin": "only-candidate"
+  },
+  "Lac can": {
+   "en": "Lac Caninum",
+   "bn": "ল্যাক ক্যানাইনাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1138,
+   "margin": "only-candidate"
+  },
+  "Kali iod": {
+   "en": "Kali Iodatum",
+   "bn": "কেলি আয়োডেটাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1633,
+   "margin": "only-candidate"
+  },
+  "Elaps": {
+   "en": "Elaps Corallinus",
+   "bn": "ইল্যাপস কোরালিনাস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 879,
+   "margin": "only-candidate"
+  },
+  "Melilot": {
+   "en": "Melilotus Officinalis",
+   "bn": "মেলিলোটাস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 160,
+   "margin": "only-candidate"
+  },
+  "Dulcam": {
+   "en": "Dulcamara",
+   "bn": "ডালকামারা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2237,
+   "margin": "only-candidate"
+  },
+  "Corall": {
+   "en": "Corallium Rubrum",
+   "bn": "কোরালিয়াম রুব্রাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 349,
+   "margin": "only-candidate"
+  },
+  "Merc dulc": {
+   "en": "Mercurius Dulcis",
+   "bn": "মার্কিউরিয়াস ডালসিস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 41,
+   "margin": "only-candidate"
+  },
+  "Erig": {
+   "en": "Erigeron Canadensis",
+   "bn": "ইরিজেরন ক্যানাডেনসিস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 128,
+   "margin": "only-candidate"
+  },
+  "Grind": {
+   "en": "Grindelia Robusta",
+   "bn": "গ্রিন্ডেলিয়া রোবাস্টা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 28,
+   "margin": "only-candidate"
+  },
+  "Clemat": {
+   "en": "Clematis Erecta",
+   "bn": "ক্লেমাটিস ইরেক্টা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1645,
+   "margin": "only-candidate"
+  },
+  "Acalypha": {
+   "en": "Acalypha Indica",
+   "bn": "অ্যাকালিফা ইন্ডিকা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 10,
+   "margin": "only-candidate"
+  },
+  "Granat": {
+   "en": "Granatum",
+   "bn": "গ্রানেটাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 272,
+   "margin": "only-candidate"
+  },
+  "Nux m": {
+   "en": "Nux Moschata",
+   "bn": "নাক্স মসকেটা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1917,
+   "margin": "only-candidate"
+  },
+  "Merc sulph": {
+   "en": "Mercurius Sulphuricus",
+   "bn": "মার্কিউরিয়াস সালফিউরিকাস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 122,
+   "margin": "only-candidate"
+  },
+  "Abies c": {
+   "en": "Abies Canadensis",
+   "bn": "অ্যাবিস ক্যানাডেনসিস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 36,
+   "margin": "only-candidate"
+  },
+  "Lauroc": {
+   "en": "Laurocerasus",
+   "bn": "লরোসেরাসাস",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1817,
+   "margin": "only-candidate"
+  },
+  "Sabal": {
+   "en": "Sabal Serrulata",
+   "bn": "সাবাল সেরুলাটা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 4,
+   "margin": "only-candidate"
+  },
+  "Cuprum": {
+   "en": "Cuprum Metallicum",
+   "bn": "কুপ্রাম মেটালিকাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2146,
+   "margin": 7.2
+  },
+  "Kali b": {
+   "en": "Kali Bichromicum",
+   "bn": "কেলি বাইক্রোমিকাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2912,
+   "margin": 5.1
+  },
+  "Ham": {
+   "en": "Hamamelis Virginiana",
+   "bn": "হ্যামামেলিস ভার্জিনিয়ানা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 774,
+   "margin": "only-candidate"
+  },
+  "Ant c": {
+   "en": "Antimonium Crudum",
+   "bn": "অ্যান্টিমোনিয়াম ক্রুডাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2005,
+   "margin": "only-candidate"
+  },
+  "Sticta": {
+   "en": "Sticta Pulmonaria",
+   "bn": "স্টিক্টা পালমোনারিয়া",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 215,
+   "margin": "only-candidate"
+  },
+  "Teucr": {
+   "en": "Teucrium Marum Verum",
+   "bn": "টিউক্রিয়াম মেরাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 683,
+   "margin": "only-candidate"
+  },
+  "Syphil": {
+   "en": "Syphilinum",
+   "bn": "সিফিলিনাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 397,
+   "margin": "only-candidate"
+  },
+  "Phyt": {
+   "en": "Phytolacca Decandra",
+   "bn": "ফাইটোল্যাকা ডেকান্ড্রা",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1418,
+   "margin": "only-candidate"
+  },
+  "Lil": {
+   "en": "Lilium Tigrinum",
+   "bn": "লিলিয়াম টাইগ্রিনাম",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 1050,
+   "margin": "only-candidate"
+  },
+  "digitalis": {
+   "en": "Digitalis Purpurea",
+   "bn": "ডিজিটালিস পারপিউরিয়া",
+   "seen": 3,
+   "by": "rubric-dominance",
+   "rubrics": 2233,
+   "margin": "only-candidate"
+  },
+  "Ammon mur": {
+   "en": "Ammonium Muriaticum",
+   "bn": "অ্যামোনিয়াম মিউরিয়েটিকাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 2072,
+   "margin": "only-candidate"
+  },
+  "Nux vom": {
+   "en": "Nux Vomica",
+   "bn": "নাক্স ভমিকা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 5845,
+   "margin": "only-candidate"
+  },
+  "Picric ac": {
+   "en": "Picricum Acidum",
+   "bn": "পিক্রিকাম অ্যাসিডাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 670,
+   "margin": "only-candidate"
+  },
+  "Hydrocy acid": {
+   "en": "Hydrocyanicum Acidum",
+   "bn": "হাইড্রোসায়ানিকাম অ্যাসিডাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 395,
+   "margin": "only-candidate"
+  },
+  "Aescul": {
+   "en": "Aesculus Hippocastanum",
+   "bn": "ইস্কুলাস হিপোক্যাস্টেনাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1138,
+   "margin": "only-candidate"
+  },
+  "Led": {
+   "en": "Ledum Palustre",
+   "bn": "লেডাম প্যালাস্ট্রে",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 2042,
+   "margin": "only-candidate"
+  },
+  "Strophanthus": {
+   "en": "Strophanthus Hispidus",
+   "bn": "স্ট্রোফ্যান্থাস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1,
+   "margin": "only-candidate"
+  },
+  "Phytolacca": {
+   "en": "Phytolacca Decandra",
+   "bn": "ফাইটোল্যাকা ডেকান্ড্রা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1418,
+   "margin": "only-candidate"
+  },
+  "Codein": {
+   "en": "Codeinum",
+   "bn": "কোডেইনাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 43,
+   "margin": "only-candidate"
+  },
+  "Absinth": {
+   "en": "Absinthium",
+   "bn": "অ্যাবসিন্থিয়াম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 112,
+   "margin": "only-candidate"
+  },
+  "Lyssin": {
+   "en": "Lyssinum",
+   "bn": "লিসিনাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 969,
+   "margin": "only-candidate"
+  },
+  "Phosph ac": {
+   "en": "Phosphoricum Acidum",
+   "bn": "ফসফরিকাম অ্যাসিডাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 3548,
+   "margin": "only-candidate"
+  },
+  "Helonias": {
+   "en": "Helonias Dioica",
+   "bn": "হেলোনিয়াস ডায়োইকা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 302,
+   "margin": "only-candidate"
+  },
+  "Hydrastis": {
+   "en": "Hydrastis Canadensis",
+   "bn": "হাইড্রাস্টিস ক্যানাডেনসিস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 906,
+   "margin": "only-candidate"
+  },
+  "Sul": {
+   "en": "Sulphur",
+   "bn": "সালফার",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 9033,
+   "margin": 4.5
+  },
+  "Allium sat": {
+   "en": "Allium Sativum",
+   "bn": "অ্যালিয়াম সাটিভাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 235,
+   "margin": "only-candidate"
+  },
+  "Caul": {
+   "en": "Caulophyllum Thalictroides",
+   "bn": "কলোফাইলাম থ্যালিকট্রয়ডিস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 248,
+   "margin": "only-candidate"
+  },
+  "Benz ac": {
+   "en": "Benzoicum Acidum",
+   "bn": "বেঞ্জোয়িকাম অ্যাসিডাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 586,
+   "margin": "only-candidate"
+  },
+  "Calc p": {
+   "en": "Calcarea Phosphorica",
+   "bn": "ক্যালকেরিয়া ফসফরিকা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1930,
+   "margin": "only-candidate"
+  },
+  "Eucalypt": {
+   "en": "Eucalyptus Globulus",
+   "bn": "ইউক্যালিপটাস গ্লোবুলাস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 26,
+   "margin": "only-candidate"
+  },
+  "Eucalyptus": {
+   "en": "Eucalyptus Globulus",
+   "bn": "ইউক্যালিপটাস গ্লোবুলাস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 26,
+   "margin": "only-candidate"
+  },
+  "Piper meth": {
+   "en": "Piper Methysticum",
+   "bn": "পাইপার মেথিস্টিকাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 189,
+   "margin": "only-candidate"
+  },
+  "Oenanthe": {
+   "en": "Oenanthe Crocata",
+   "bn": "ইনান্থি ক্রোকাটা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 216,
+   "margin": "only-candidate"
+  },
+  "Plantago": {
+   "en": "Plantago Major",
+   "bn": "প্ল্যান্টেগো মেজর",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 663,
+   "margin": "only-candidate"
+  },
+  "Digital": {
+   "en": "Digitalis Purpurea",
+   "bn": "ডিজিটালিস পারপিউরিয়া",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 2233,
+   "margin": "only-candidate"
+  },
+  "Ars iod": {
+   "en": "Arsenicum Iodatum",
+   "bn": "আর্সেনিকাম আয়োডেটাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 909,
+   "margin": "only-candidate"
+  },
+  "Oxal acid": {
+   "en": "Oxalicum Acidum",
+   "bn": "অক্সালিকাম অ্যাসিডাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1066,
+   "margin": "only-candidate"
+  },
+  "Hyperic": {
+   "en": "Hypericum Perforatum",
+   "bn": "হাইপেরিকাম পারফোরেটাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 817,
+   "margin": "only-candidate"
+  },
+  "Pyrog": {
+   "en": "Pyrogenium",
+   "bn": "পাইরোজেনিয়াম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 219,
+   "margin": "only-candidate"
+  },
+  "Tuberculinum": {
+   "en": "Tuberculinum Bovinum",
+   "bn": "টিউবারকুলিনাম বোভিনাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 534,
+   "margin": "only-candidate"
+  },
+  "Sang nit": {
+   "en": "Sanguinarinum Nitricum",
+   "bn": "স্যাঙ্গুইনেরিনাম নাইট্রিকাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 3,
+   "margin": "only-candidate"
+  },
+  "Ailanthus": {
+   "en": "Ailanthus Glandulosa",
+   "bn": "আইলান্থাস গ্ল্যান্ডুলোসা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 508,
+   "margin": "only-candidate"
+  },
+  "Graphit": {
+   "en": "Graphites",
+   "bn": "গ্রাফাইটিস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 3970,
+   "margin": "only-candidate"
+  },
+  "Oxytrop": {
+   "en": "Oxytropis Lamberti",
+   "bn": "অক্সিট্রপিস ল্যাম্বার্টি",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 11,
+   "margin": "only-candidate"
+  },
+  "Carbol acid": {
+   "en": "Carbolicum Acidum",
+   "bn": "কার্বলিকাম অ্যাসিডাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 867,
+   "margin": "only-candidate"
+  },
+  "Baryt carb": {
+   "en": "Baryta Carbonica",
+   "bn": "ব্যারাইটা কার্বনিকা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 2938,
+   "margin": "only-candidate"
+  },
+  "Seneg": {
+   "en": "Senega",
+   "bn": "সেনেগা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1233,
+   "margin": "only-candidate"
+  },
+  "Apocyn": {
+   "en": "Apocynum Cannabinum",
+   "bn": "অ্যাপোসাইনাম ক্যানাবিনাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 383,
+   "margin": "only-candidate"
+  },
+  "Carbon sulph": {
+   "en": "Carboneum Sulphuratum",
+   "bn": "কার্বোনিয়াম সালফিউরেটাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 2035,
+   "margin": "only-candidate"
+  },
+  "Calcar": {
+   "en": "Calcarea Carbonica",
+   "bn": "ক্যালকেরিয়া কার্বনিকা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 6473,
+   "margin": 3.4
+  },
+  "Hamamel": {
+   "en": "Hamamelis Virginiana",
+   "bn": "হ্যামামেলিস ভার্জিনিয়ানা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 774,
+   "margin": "only-candidate"
+  },
+  "Kal iod": {
+   "en": "Kali Iodatum",
+   "bn": "কেলি আয়োডেটাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1633,
+   "margin": "only-candidate"
+  },
+  "Anagallis": {
+   "en": "Anagallis Arvensis",
+   "bn": "অ্যানাগ্যালিস আরভেনসিস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 152,
+   "margin": "only-candidate"
+  },
+  "Squilla": {
+   "en": "Squilla Maritima",
+   "bn": "স্কুইলা ম্যারিটিমা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 990,
+   "margin": "only-candidate"
+  },
+  "Bufo": {
+   "en": "Bufo Rana",
+   "bn": "বুফো রানা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1125,
+   "margin": 34.1
+  },
+  "Ammon brom": {
+   "en": "Ammonium Bromatum",
+   "bn": "অ্যামোনিয়াম ব্রোমেটাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 81,
+   "margin": "only-candidate"
+  },
+  "Myrica": {
+   "en": "Myrica Cerifera",
+   "bn": "মাইরিকা সেরিফেরা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 271,
+   "margin": "only-candidate"
+  },
+  "Onos": {
+   "en": "Onosmodium Virginianum",
+   "bn": "ওনোসমোডিয়াম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 253,
+   "margin": "only-candidate"
+  },
+  "Chel": {
+   "en": "Chelidonium Majus",
+   "bn": "চেলিডোনিয়াম মেজাস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 3182,
+   "margin": "only-candidate"
+  },
+  "Robinia": {
+   "en": "Robinia Pseudacacia",
+   "bn": "রবিনিয়া",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 146,
+   "margin": "only-candidate"
+  },
+  "Lept": {
+   "en": "Leptandra Virginica",
+   "bn": "লেপ্টান্ড্রা ভার্জিনিকা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 140,
+   "margin": "only-candidate"
+  },
+  "Atrop": {
+   "en": "Atropinium",
+   "bn": "অ্যাট্রোপিনাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 265,
+   "margin": "only-candidate"
+  },
+  "Mephit": {
+   "en": "Mephitis Putorius",
+   "bn": "মেফাইটিস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 347,
+   "margin": "only-candidate"
+  },
+  "Nat phos": {
+   "en": "Natrum Phosphoricum",
+   "bn": "নেট্রাম ফসফরিকাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1254,
+   "margin": "only-candidate"
+  },
+  "Teucrium": {
+   "en": "Teucrium Marum Verum",
+   "bn": "টিউক্রিয়াম মেরাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 683,
+   "margin": "only-candidate"
+  },
+  "Cyp": {
+   "en": "Cypripedium Pubescens",
+   "bn": "সিপ্রিপিডিয়াম পিউবেসেন্স",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 10,
+   "margin": "only-candidate"
+  },
+  "Dioscor": {
+   "en": "Dioscorea Villosa",
+   "bn": "ডায়োস্কোরিয়া ভিলোসা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1113,
+   "margin": "only-candidate"
+  },
+  "Baryt": {
+   "en": "Baryta Carbonica",
+   "bn": "ব্যারাইটা কার্বনিকা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 2938,
+   "margin": 4.1
+  },
+  "Asafoet": {
+   "en": "Asafoetida",
+   "bn": "অ্যাসাফিটিডা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1588,
+   "margin": "only-candidate"
+  },
+  "Trillium": {
+   "en": "Trillium Pendulum",
+   "bn": "ট্রিলিয়াম পেন্ডুলাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 95,
+   "margin": "only-candidate"
+  },
+  "Cup acet": {
+   "en": "Cuprum Aceticum",
+   "bn": "কুপ্রাম অ্যাসিটিকাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 46,
+   "margin": "only-candidate"
+  },
+  "Aethusa": {
+   "en": "Aethusa Cynapium",
+   "bn": "ইথুসা সাইনাপিয়াম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 867,
+   "margin": "only-candidate"
+  },
+  "Cupr sulph": {
+   "en": "Cuprum Sulphuricum",
+   "bn": "কুপ্রাম সালফিউরিকাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 75,
+   "margin": "only-candidate"
+  },
+  "Strychnin": {
+   "en": "Strychninum",
+   "bn": "স্ট্রিকনিনাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 671,
+   "margin": "only-candidate"
+  },
+  "Menyanth": {
+   "en": "Menyanthes Trifoliata",
+   "bn": "মেনিয়ানথিস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 732,
+   "margin": "only-candidate"
+  },
+  "Cannab sat": {
+   "en": "Cannabis Sativa",
+   "bn": "ক্যানাবিস স্যাটিভা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1211,
+   "margin": "only-candidate"
+  },
+  "Jatropha": {
+   "en": "Jatropha Curcas",
+   "bn": "জ্যাট্রোফা কার্কাস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 341,
+   "margin": "only-candidate"
+  },
+  "Mangan": {
+   "en": "Manganum Aceticum",
+   "bn": "ম্যাঙ্গানাম অ্যাসেটিকাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 2002,
+   "margin": 95.3
+  },
+  "Cantharis": {
+   "en": "Cantharis Vesicatoria",
+   "bn": "ক্যান্থারিস ভেসিকেটোরিয়া",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 2370,
+   "margin": "only-candidate"
+  },
+  "Nux v": {
+   "en": "Nux Vomica",
+   "bn": "নাক্স ভমিকা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 5845,
+   "margin": "only-candidate"
+  },
+  "Ustilago": {
+   "en": "Ustilago Maydis",
+   "bn": "উস্টিলেগো মেইডিস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 371,
+   "margin": "only-candidate"
+  },
+  "Kalm": {
+   "en": "Kalmia Latifolia",
+   "bn": "কালমিয়া ল্যাটিফোলিয়া",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 912,
+   "margin": "only-candidate"
+  },
+  "Magnes phos": {
+   "en": "Magnesia Phosphorica",
+   "bn": "ম্যাগ্নেশিয়া ফসফরিকা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 380,
+   "margin": "only-candidate"
+  },
+  "Pothos": {
+   "en": "Pothos Fœtidus",
+   "bn": "পোথোস ফিটিডাস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 44,
+   "margin": "only-candidate"
+  },
+  "Verat vir": {
+   "en": "Veratrum Viride",
+   "bn": "ভেরাট্রাম ভিরিডি",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 480,
+   "margin": "only-candidate"
+  },
+  "Gelsemium": {
+   "en": "Gelsemium Sempervirens",
+   "bn": "জেলসেমিয়াম সেম্পারভাইরেন্স",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1878,
+   "margin": "only-candidate"
+  },
+  "Iodoform": {
+   "en": "Iodoformum",
+   "bn": "আয়োডোফর্মাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 19,
+   "margin": "only-candidate"
+  },
+  "Kali c": {
+   "en": "Kali Carbonicum",
+   "bn": "কেলি কার্বনিকাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 4726,
+   "margin": 8.1
+  },
+  "Aletris": {
+   "en": "Aletris Farinosa",
+   "bn": "অ্যালেট্রিস ফ্যারিনোসা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 57,
+   "margin": "only-candidate"
+  },
+  "Amyl": {
+   "en": "Amyl Nitrite",
+   "bn": "অ্যামাইল নাইট্রাইট",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 125,
+   "margin": "only-candidate"
+  },
+  "Osmium": {
+   "en": "Osmium Metallicum",
+   "bn": "অসমিয়াম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 390,
+   "margin": "only-candidate"
+  },
+  "Gambog": {
+   "en": "Gambogia",
+   "bn": "গ্যাম্বোজিয়া",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 530,
+   "margin": "only-candidate"
+  },
+  "Euphrasia": {
+   "en": "Euphrasia Officinalis",
+   "bn": "ইউফ্রেশিয়া অফিসিনালিস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 962,
+   "margin": "only-candidate"
+  },
+  "Oxalic ac": {
+   "en": "Oxalicum Acidum",
+   "bn": "অক্সালিকাম অ্যাসিডাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1066,
+   "margin": "only-candidate"
+  },
+  "Platin": {
+   "en": "Platinum Metallicum",
+   "bn": "প্ল্যাটিনাম মেটালিকাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 2383,
+   "margin": 476.6
+  },
+  "Carb ac": {
+   "en": "Carbolicum Acidum",
+   "bn": "কার্বলিকাম অ্যাসিডাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 867,
+   "margin": "only-candidate"
+  },
+  "Cyprip": {
+   "en": "Cypripedium Pubescens",
+   "bn": "সিপ্রিপিডিয়াম পিউবেসেন্স",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 10,
+   "margin": "only-candidate"
+  },
+  "Ptel": {
+   "en": "Ptelea Trifoliata",
+   "bn": "টেলিয়া ট্রাইফোলিয়াটা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 657,
+   "margin": "only-candidate"
+  },
+  "Lac c": {
+   "en": "Lac Caninum",
+   "bn": "ল্যাক ক্যানাইনাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1138,
+   "margin": "only-candidate"
+  },
+  "Eup perf": {
+   "en": "Eupatorium Perfoliatum",
+   "bn": "ইউপেটোরিয়াম পারফোলিয়েটাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 622,
+   "margin": "only-candidate"
+  },
+  "Amm m": {
+   "en": "Ammonium Muriaticum",
+   "bn": "অ্যামোনিয়াম মিউরিয়েটিকাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 2072,
+   "margin": "only-candidate"
+  },
+  "Diosc": {
+   "en": "Dioscorea Villosa",
+   "bn": "ডায়োস্কোরিয়া ভিলোসা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 1113,
+   "margin": "only-candidate"
+  },
+  "Lact ac": {
+   "en": "Lactic Acid",
+   "bn": "ল্যাকটিক অ্যাসিড",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 478,
+   "margin": "only-candidate"
+  },
+  "Pareir": {
+   "en": "Pareira Brava",
+   "bn": "পেরেইরা ব্রাভা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 88,
+   "margin": "only-candidate"
+  },
+  "Samb": {
+   "en": "Sambucus Nigra",
+   "bn": "স্যাম্বুকাস নাইগ্রা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 773,
+   "margin": "only-candidate"
+  },
+  "Cocculus": {
+   "en": "Cocculus Indicus",
+   "bn": "কক্কুলাস ইন্ডিকাস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 2668,
+   "margin": "only-candidate"
+  },
+  "Senec aur": {
+   "en": "Senecio Aureus",
+   "bn": "সেনেসিও অরিয়াস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 332,
+   "margin": "only-candidate"
+  },
+  "Eup purp": {
+   "en": "Eupatorium Purpureum",
+   "bn": "ইউপেটোরিয়াম পারপিউরিয়াম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 242,
+   "margin": "only-candidate"
+  },
+  "Therid": {
+   "en": "Theridion",
+   "bn": "থেরিডিয়ন",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 493,
+   "margin": "only-candidate"
+  },
+  "Guaiacum": {
+   "en": "Guaiacum Officinale",
+   "bn": "গুয়াইকাম অফিসিনেল",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 862,
+   "margin": "only-candidate"
+  },
+  "Robin": {
+   "en": "Robinia Pseudacacia",
+   "bn": "রবিনিয়া",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 146,
+   "margin": "only-candidate"
+  },
+  "Mag mur": {
+   "en": "Magnesia Muriatica",
+   "bn": "ম্যাগ্নেশিয়া মিউরিয়েটিকা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 2339,
+   "margin": "only-candidate"
+  },
+  "Nat c": {
+   "en": "Natrum Carbonicum",
+   "bn": "নেট্রাম কার্বনিকাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 3461,
+   "margin": "only-candidate"
+  },
+  "Atropin": {
+   "en": "Atropinium",
+   "bn": "অ্যাট্রোপিনাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 265,
+   "margin": "only-candidate"
+  },
+  "Ant crud": {
+   "en": "Antimonium Crudum",
+   "bn": "অ্যান্টিমোনিয়াম ক্রুডাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 2005,
+   "margin": "only-candidate"
+  },
+  "Tellur": {
+   "en": "Tellurium Metallicum",
+   "bn": "টেলুরিয়াম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 467,
+   "margin": "only-candidate"
+  },
+  "Mag phos": {
+   "en": "Magnesia Phosphorica",
+   "bn": "ম্যাগ্নেশিয়া ফসফরিকা",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 380,
+   "margin": "only-candidate"
+  },
+  "Meph": {
+   "en": "Mephitis Putorius",
+   "bn": "মেফাইটিস",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 347,
+   "margin": "only-candidate"
+  },
+  "Chenopodium": {
+   "en": "Chenopodium Anthelminticum",
+   "bn": "কিনোপোডিয়াম অ্যান্থেলমিন্টিকাম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 39,
+   "margin": 3.5
+  },
+  "Xanthox": {
+   "en": "Xanthoxylum Fraxineum",
+   "bn": "জ্যানথক্সিলাম ফ্র্যাক্সিনিয়াম",
+   "seen": 2,
+   "by": "rubric-dominance",
+   "rubrics": 235,
+   "margin": "only-candidate"
+  }
+ },
+ "left_in_english": {
+  "Carbo": {
+   "seen": 19,
+   "closest": "Carbo Vegetabilis",
+   "rubrics": 4238,
+   "runner_up": "Carbo Animalis",
+   "margin": 1.6
+  },
+  "Radium": {
+   "seen": 7,
+   "closest": "Radium Bromatum",
+   "rubrics": 0,
+   "runner_up": null,
+   "margin": "only-candidate"
+  },
+  "Hydr": {
+   "seen": 7,
+   "closest": "Hydrastis Canadensis",
+   "rubrics": 906,
+   "runner_up": "Hydrocyanicum Acidum",
+   "margin": 2.3
+  },
+  "Crotal": {
+   "seen": 5,
+   "closest": "Crotalus Horridus",
+   "rubrics": 1347,
+   "runner_up": "Crotalus Cascavella",
+   "margin": 2.6
+  },
+  "Cocc": {
+   "seen": 5,
+   "closest": "Cocculus Indicus",
+   "rubrics": 2668,
+   "runner_up": "Coccus Cacti",
+   "margin": 1.9
+  },
+  "Euph": {
+   "seen": 4,
+   "closest": "Euphrasia Officinalis",
+   "rubrics": 962,
+   "runner_up": "Euphorbium",
+   "margin": 1.2
+  },
+  "Argent": {
+   "seen": 4,
+   "closest": "Argentum Nitricum",
+   "rubrics": 2530,
+   "runner_up": "Argentum Metallicum",
+   "margin": 1.4
+  },
+  "Thyroid": {
+   "seen": 4,
+   "closest": "Thyroidinum",
+   "rubrics": 0,
+   "runner_up": null,
+   "margin": "only-candidate"
+  },
+  "Ferr": {
+   "seen": 3,
+   "closest": "Ferrum Metallicum",
+   "rubrics": 2614,
+   "runner_up": "Ferrum Phosphoricum",
+   "margin": 2.9
+  },
+  "Pilocarpin": {
+   "seen": 3,
+   "closest": "Pilocarpinum",
+   "rubrics": 0,
+   "runner_up": null,
+   "margin": "only-candidate"
+  },
+  "Crotalus": {
+   "seen": 3,
+   "closest": "Crotalus Horridus",
+   "rubrics": 1347,
+   "runner_up": "Crotalus Cascavella",
+   "margin": 2.6
+  },
+  "Arg": {
+   "seen": 3,
+   "closest": "Argentum Nitricum",
+   "rubrics": 2530,
+   "runner_up": "Argentum Metallicum",
+   "margin": 1.4
+  },
+  "Hyd": {
+   "seen": 3,
+   "closest": "Hydrastis Canadensis",
+   "rubrics": 906,
+   "runner_up": "Hydrocyanicum Acidum",
+   "margin": 2.3
+  },
+  "Sab": {
+   "seen": 3,
+   "closest": "Sabadilla",
+   "rubrics": 1668,
+   "runner_up": "Sabina",
+   "margin": 1.3
+  },
+  "Ammon": {
+   "seen": 3,
+   "closest": "Ammonium Carbonicum",
+   "rubrics": 2970,
+   "runner_up": "Ammonium Muriaticum",
+   "margin": 1.4
+  },
+  "Cannab": {
+   "seen": 3,
+   "closest": "Cannabis Sativa",
+   "rubrics": 1211,
+   "runner_up": "Cannabis Indica",
+   "margin": 1.2
+  },
+  "Chloral": {
+   "seen": 3,
+   "closest": "Chloralum",
+   "rubrics": 305,
+   "runner_up": "Chloralum",
+   "margin": 1.4
+  },
+  "Saponin": {
+   "seen": 3,
+   "closest": "Saponinum",
+   "rubrics": 0,
+   "runner_up": null,
+   "margin": "only-candidate"
+  },
+  "Antimon": {
+   "seen": 2,
+   "closest": "Antimonium Crudum",
+   "rubrics": 2005,
+   "runner_up": "Antimonium Tartaricum",
+   "margin": 1.1
+  },
+  "Juglans": {
+   "seen": 2,
+   "closest": "Juglans Cinerea",
+   "rubrics": 198,
+   "runner_up": "Juglans Regia",
+   "margin": 1.1
+  },
+  "Ranunc": {
+   "seen": 2,
+   "closest": "Ranunculus Bulbosus",
+   "rubrics": 1344,
+   "runner_up": "Ranunculus Sceleratus",
+   "margin": 2.1
+  },
+  "Aurum mur": {
+   "seen": 2,
+   "closest": "Aurum Muriaticum",
+   "rubrics": 842,
+   "runner_up": "Aurum Muriaticum Natronatum",
+   "margin": 2.6
+  },
+  "Benzin": {
+   "seen": 2,
+   "closest": "Benzinum",
+   "rubrics": 24,
+   "runner_up": "Benzinum Nitricum",
+   "margin": 1.2
+  },
+  "Carb": {
+   "seen": 2,
+   "closest": "Carbo Vegetabilis",
+   "rubrics": 4238,
+   "runner_up": "Carbo Animalis",
+   "margin": 1.6
+  },
+  "Ferrum": {
+   "seen": 2,
+   "closest": "Ferrum Metallicum",
+   "rubrics": 2614,
+   "runner_up": "Ferrum Phosphoricum",
+   "margin": 2.9
+  },
+  "Antim": {
+   "seen": 2,
+   "closest": "Antimonium Crudum",
+   "rubrics": 2005,
+   "runner_up": "Antimonium Tartaricum",
+   "margin": 1.1
+  },
+  "Yohimbin": {
+   "seen": 2,
+   "closest": "Yohimbinum",
+   "rubrics": 0,
+   "runner_up": null,
+   "margin": "only-candidate"
+  },
+  "Salvia": {
+   "seen": 2,
+   "closest": "Salvia Officinalis",
+   "rubrics": 0,
+   "runner_up": null,
+   "margin": "only-candidate"
+  },
+  "Bacil": {
+   "seen": 2,
+   "closest": "Bacillinum",
+   "rubrics": 0,
+   "runner_up": null,
+   "margin": "only-candidate"
+  },
+  "Zinc phos": {
+   "seen": 2,
+   "closest": "Zincum Phosphoricum",
+   "rubrics": 0,
+   "runner_up": null,
+   "margin": "only-candidate"
+  }
+ }
+}

@@ -89,13 +89,13 @@
 
   /* a patient's state, from their latest prescription's follow-up date */
   function status(p) {
-    if (!p.followUpDate) return { cls: 'done', label: 'সম্পন্ন' };
+    if (!p.followUpDate) return { cls: 'done', label: 'ফলোআপ নেই' };
     if (p.followUpDate === TODAY) return { cls: 'today', label: 'আজ ফলোআপ' };
     if (p.followUpDate < TODAY) {
       const d = dayDiff(p.followUpDate, TODAY);
       return { cls: 'late', label: `${bn(d)} দিন পার` };
     }
-    return { cls: 'ok', label: 'চলমান' };
+    return { cls: 'ok', label: 'নির্ধারিত' };
   }
 
   /* ================= render ================= */
@@ -118,14 +118,14 @@
 
   function stats(D) {
     const cards = [
-      { n: D.patients.length, l: 'মোট রোগী', i: 'bx-group', c: 'var(--primary)',
+      { n: D.patients.length, l: 'রোগী', i: 'bx-group', c: 'var(--primary)',
         bg: 'var(--primary-bg)', href: '#recent' },
-      { n: D.upcoming.length + D.dueToday.length, l: 'সক্রিয় কেস', i: 'bx-folder-open',
+      { n: D.upcoming.length + D.dueToday.length, l: 'ফলোআপ নির্ধারিত', i: 'bx-folder-open',
         c: '#0284c7', bg: 'rgba(2,132,199,.14)', href: '#recent' },
       { n: D.dueToday.length, l: 'আজ ফলোআপ', i: 'bx-calendar-check',
         c: 'var(--warning)', bg: 'rgba(245,158,11,.16)', href: '#followup',
         cls: D.dueToday.length ? 'is-due' : '' },
-      { n: D.overdue.length, l: 'সময় পেরিয়েছে', i: 'bx-time-five',
+      { n: D.overdue.length, l: 'ফলোআপ বাকি', i: 'bx-time-five',
         c: 'var(--danger)', bg: 'var(--danger-bg)', href: '#followup',
         cls: D.overdue.length ? 'is-alert' : '' },
     ];
@@ -150,7 +150,7 @@
            data-patient="${esc(p.name)}">
           <span class="dh-fu-txt">
             <b>${esc(p.name)}</b>
-            <span>${esc(p.remedy || p.diagnosis || 'ওষুধ লেখা নেই')}</span>
+            <span>${esc(p.remedy || p.diagnosis || 'ওষুধ উল্লেখ নেই')}</span>
           </span>
           <span class="dh-fu-when">${late ? bn(d) + ' দিন পার' : 'আজ'}</span>
         </a>`;
@@ -158,7 +158,7 @@
       <div class="dh-empty">
         <i class='bx bx-calendar-check'></i>
         <p>আজ কোনো ফলোআপ নেই। প্রেসক্রিপশনে <b>পরবর্তী সাক্ষাতের তারিখ</b> দিলে
-           সেই রোগী এখানে দেখাবে।</p>
+           রোগী এখানে দেখা যাবে।</p>
       </div>`;
   }
 
@@ -170,8 +170,8 @@
       $('dhRecent').innerHTML = `
         <div class="dh-empty">
           <i class='bx bx-folder-open'></i>
-          <p>এখনো কোনো সংরক্ষিত কেস নেই। <a href="case.html">নতুন কেস</a> নিয়ে
-             প্রেসক্রিপশন সংরক্ষণ করলে রোগী এখানে জমা হবে।</p>
+          <p>এখনো কোনো কেস সংরক্ষিত নেই। <a href="case.html">নতুন কেস</a> নিয়ে
+             প্রেসক্রিপশন সংরক্ষণ করলে রোগী এখানে দেখা যাবে।</p>
         </div>`;
       return;
     }
@@ -179,7 +179,7 @@
       <div class="dh-tbl-wrap">
         <table class="dh-tbl">
           <thead><tr>
-            <th>রোগী</th><th>কেস নং</th><th>শেষ সাক্ষাৎ</th><th>ওষুধ</th><th>অবস্থা</th>
+            <th>রোগী</th><th>কেস নম্বর</th><th>শেষ সাক্ষাৎ</th><th>ওষুধ</th><th>ফলোআপ</th>
           </tr></thead>
           <tbody>${rows.map(p => {
             const st = status(p);
@@ -194,8 +194,8 @@
           }).join('')}</tbody>
         </table>
       </div>
-      <p class="dh-note">রোগী-তালিকা সংরক্ষিত প্রেসক্রিপশন থেকে তৈরি — সর্বশেষ ৪০টি
-         প্রেসক্রিপশন এই ব্রাউজারে রাখা হয়।</p>`;
+      <p class="dh-note">এই তালিকা সংরক্ষিত প্রেসক্রিপশন থেকে তৈরি। সর্বশেষ ৪০টি
+         প্রেসক্রিপশন এই ব্রাউজারে থাকে।</p>`;
   }
 
   /* work left half-finished, which is what a doctor returns to */
@@ -204,23 +204,23 @@
     if (D.draft && typeof D.draft === 'object') {
       const filled = Object.values(D.draft).filter(v => v && String(v).trim()).length;
       if (filled) rows.push({
-        icon: 'bx-clipboard', href: 'case.html', title: 'কেস ফর্মে খসড়া',
-        sub: `${bn(filled)}টি ঘর পূরণ${D.draft.patientName ? ' · ' + D.draft.patientName : ''}`
+        icon: 'bx-clipboard', href: 'case.html', title: 'কেস খসড়া',
+        sub: `${bn(filled)}টি ঘর পূরণ হয়েছে${D.draft.patientName ? ' · ' + D.draft.patientName : ''}`
       });
     }
     if (D.rep && D.rep.book && (D.rep.picked || []).length) rows.push({
-      icon: 'bx-book-bookmark', href: 'repertory.html', title: 'রিপার্টরি কেস চলছে',
+      icon: 'bx-book-bookmark', href: 'repertory.html', title: 'রেপার্টরি বিশ্লেষণ',
       sub: `${bn(D.rep.picked.length)}টি রুব্রিক নির্বাচিত`
     });
     if (Array.isArray(D.miasm) && D.miasm.length) rows.push({
-      icon: 'bx-analyse', href: 'miasm.html', title: 'মায়াজম বিশ্লেষণ চলছে',
+      icon: 'bx-analyse', href: 'miasm.html', title: 'মায়াজম বিশ্লেষণ',
       sub: `${bn(D.miasm.length)}টি রুব্রিক নির্বাচিত`
     });
     if (!rows.length) { $('dhProgress').hidden = true; return; }
     $('dhProgressBody').innerHTML = `<div class="dh-fu">${rows.map(r => `
       <a class="dh-fu-row" href="${r.href}">
         <span class="dh-fu-txt"><b>${esc(r.title)}</b><span>${esc(r.sub)}</span></span>
-        <span class="dh-fu-when">চালিয়ে যান</span>
+        <span class="dh-fu-when">চালু করুন</span>
       </a>`).join('')}</div>`;
   }
 
@@ -263,14 +263,14 @@
           const f = v.fields || {};
           return `<div class="dh-visit${i === 0 ? ' latest' : ''}">
             <span class="dh-visit-d">${esc(bnDate(v.date) || '—')}</span>
-            <span class="dh-visit-r">${esc(v.summary || 'ওষুধ লেখা নেই')}</span>
+            <span class="dh-visit-r">${esc(v.summary || 'ওষুধ উল্লেখ নেই')}</span>
             ${f.followUpDate ? `<span class="dh-visit-f">ফলোআপ ${esc(bnDate(f.followUpDate))}</span>` : ''}
           </div>`;
         }).join('')}
       </div>
       <div class="dh-pt-act">
         <a class="primary" href="prescription.html#new"><i class='bx bx-receipt'></i> নতুন প্রেসক্রিপশন</a>
-        <a href="prescription.html#saved"><i class='bx bx-folder-open'></i> সংরক্ষিত Rx</a>
+        <a href="prescription.html#saved"><i class='bx bx-folder-open'></i> সংরক্ষিত প্রেসক্রিপশন</a>
         <a href="case.html"><i class='bx bx-clipboard'></i> নতুন কেস</a>
       </div>`;
     $('dhPatient').hidden = false;
@@ -305,7 +305,7 @@
         res.hidden = false;
         box.setAttribute('aria-expanded', 'true');
         res.innerHTML = `<div class="dh-none">এখনো কোনো রোগী সংরক্ষিত নেই।<br>
-          <a href="case.html">নতুন কেস</a> নিয়ে প্রেসক্রিপশন সংরক্ষণ করলে এখানে খোঁজা যাবে।</div>`;
+          <a href="case.html">নতুন কেস</a> নিয়ে প্রেসক্রিপশন সংরক্ষণ করলে এখানে খুঁজে পাবেন।</div>`;
         return;
       }
       const hit = D.patients
@@ -318,7 +318,7 @@
         ? hit.map(p => `<a href="#" role="option" data-open="${esc(p.name)}">
              <b>${esc(p.name)}</b>
              <small>${esc(p.caseNo || bnDate(p.date))}</small></a>`).join('')
-        : `<div class="dh-none">“${esc(box.value.trim())}” নামে কোনো রোগী নেই।<br>
+        : `<div class="dh-none">“${esc(box.value.trim())}” নামে কোনো রোগী পাওয়া যায়নি।<br>
              <a href="case.html">নতুন কেস শুরু করুন</a></div>`;
     }
 

@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>Tempraz বিশেষজ্ঞ পদ্ধতি — হোমিও কেস স্টুডিও</title>
-<meta content="ডাঃ পরিনাজ হুমরানওয়ালা-র Tempraz পদ্ধতিতে স্বভাব বিশ্লেষণ করে হোমিওপ্যাথিক সিমিলিমাম নির্বাচন।" name="description"/>
+<title>টেম্পারামেন্ট পদ্ধতি — হোমিও কেস স্টুডিও</title>
+<meta content="ডাঃ পরিনাজ হুমরানওয়ালার টেম্পারামেন্ট পদ্ধতিতে স্বভাব বিশ্লেষণ করে হোমিওপ্যাথিক সিমিলিমাম নির্বাচন।" name="description"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='45' font-size='38' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23fff'%3E%E0%A6%B9%3C/text%3E%3C/svg%3E"/>
 <link href="assets/css/base.css" rel="stylesheet"/>
 <link href="assets/css/shell.css" rel="stylesheet"/>
 <link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
 <link href="assets/css/tempraz.css" rel="stylesheet"/>
 </head>
-<body data-page="tempraz" data-title="Tempraz বিশেষজ্ঞ পদ্ধতি" data-crumb="বিশ্লেষণ টুল">
+<body data-page="tempraz" data-title="টেম্পারামেন্ট পদ্ধতি" data-crumb="বিশ্লেষণ টুল">
 
 <div class="app-root">
   <aside class="app-sidebar" id="appSidebar"></aside>
@@ -25,8 +25,8 @@
         <div class="page-head">
           <div class="page-icon"><i class='bx bx-brain'></i></div>
           <div class="page-head-txt">
-            <h2>Tempraz বিশেষজ্ঞ পদ্ধতি</h2>
-            <p>ডাঃ পরিনাজ হুমরানওয়ালা · স্বভাব-ভিত্তিক সিমিলিমাম নির্বাচন</p>
+            <h2>টেম্পারামেন্ট পদ্ধতি</h2>
+            <p>ডাঃ পরিনাজ হুমরানওয়ালা · স্বভাবভিত্তিক সিমিলিমাম নির্বাচন</p>
           </div>
           <div class="page-head-actions">
             <span class="tb-chip muted"><b id="tzTotalTraits">—</b>&nbsp;বৈশিষ্ট্য</span>
@@ -40,7 +40,7 @@
           <!-- ════════════ COL 1: Temperaments ════════════ -->
           <div class="tz-col-temps">
             <div class="tz-left-header">
-              <span class="tz-left-title">স্বভাব নির্বাচন</span>
+              <span class="tz-left-title">প্রধান স্বভাব</span>
               <span class="tz-sel-badge" id="tzSelBadge">০</span>
             </div>
 
@@ -58,7 +58,7 @@
           <!-- ════════════ COL 2: Categories ════════════ -->
           <div class="tz-col-cats">
             <div class="tz-left-header">
-              <span class="tz-left-title">বৈশিষ্ট্য শ্রেণি</span>
+              <span class="tz-left-title">লক্ষণের ধরন</span>
             </div>
             
             <div class="tz-cat-list" id="tzCatList"></div>
@@ -69,9 +69,9 @@
             <div class="tz-mid-header" id="tzMidHeader">
               <div class="tz-mid-top">
                 <div class="tz-mid-ic" id="tzMidIc"></div>
-                <span class="tz-mid-name" id="tzMidName">স্বভাব নির্বাচন করুন</span>
+                <span class="tz-mid-name" id="tzMidName">একটি স্বভাব নির্বাচন করুন</span>
               </div>
-              <div class="tz-mid-sub" id="tzMidSub">বামদিক থেকে যেকোনো স্বভাব নির্বাচন করলে এখানে বৈশিষ্ট্য দেখাবে।</div>
+              <div class="tz-mid-sub" id="tzMidSub">বাম পাশ থেকে স্বভাব বেছে নিলে এখানে সংশ্লিষ্ট বৈশিষ্ট্য দেখা যাবে।</div>
             </div>
 
             <div class="tz-mid-scroll" id="tzMidScroll">
@@ -88,7 +88,7 @@
           <!-- ════════════ COL 4: Rubrics ════════════ -->
           <div class="tz-right">
             <div class="tz-right-header">
-              <span class="tz-right-title">বিশ্লেষণ ফলাফল</span>
+              <span class="tz-right-title">নির্বাচনের ফলাফল</span>
               <span class="tz-right-count" id="tzRightCount">০ বৈশিষ্ট্য</span>
             </div>
 
@@ -96,7 +96,7 @@
               <!-- Empty state -->
               <div class="tz-empty" id="tzEmptyState">
                 <i class='bx bx-brain'></i>
-                <p>বৈশিষ্ট্য চিহ্নিত করুন — রুব্রিক ও ওষুধ এখানে দেখাবে।</p>
+                <p>বৈশিষ্ট্য নির্বাচন করলে রুব্রিক ও সম্ভাব্য ওষুধ এখানে দেখা যাবে।</p>
               </div>
 
               <div id="tzResultArea" style="display:none;">
@@ -118,7 +118,7 @@
           <div class="tz-bottom">
             <div class="tz-bottom-chart">
               <div class="tz-bottom-header">
-                <span>স্বভাব চিত্র</span>
+                <span>স্বভাবের স্কোর</span>
               </div>
               <!-- filled with an inline SVG radar by tempraz.js — no chart library,
                    so it renders with the app fully offline like every other panel -->
@@ -127,13 +127,13 @@
 
             <div class="tz-bottom-remedies">
               <div class="tz-bottom-header">
-                <span>প্রস্তাবিত ওষুধ</span>
-                <span style="font-size:0.6875rem;font-weight:400;text-transform:none;">⚕️ স্বভাব-স্কোর সহায়ক — চূড়ান্ত নয়।</span>
+                <span>সম্ভাব্য ওষুধ</span>
+                <span style="font-size:0.6875rem;font-weight:400;text-transform:none;">স্বভাব-স্কোর সহায়ক মাত্র, চূড়ান্ত সিদ্ধান্ত নয়।</span>
               </div>
               <div class="tz-rx-scroll">
                 <div class="tz-rx-list-horiz" id="tzRxList">
                   <div class="tz-empty" style="min-height:80px;padding:1rem;">
-                    <p>বৈশিষ্ট্য নির্বাচিত হলে ওষুধ দেখাবে।</p>
+                    <p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p>
                   </div>
                 </div>
               </div>
@@ -147,15 +147,15 @@
         <div class="tz-theory" id="tzTheory"></div>
 
         <p class="disclaimer">
-          Tempraz বিশেষজ্ঞ পদ্ধতি — ডাঃ পরিনাজ হুমরানওয়ালা রচিত <em>Temperament Types – A Study</em> অবলম্বনে নির্মিত।
-          শিক্ষামূলক ও গবেষণার উদ্দেশ্যে তৈরি। চূড়ান্ত চিকিৎসার সিদ্ধান্ত সর্বদা যোগ্য হোমিওপ্যাথিক চিকিৎসকের।
+          টেম্পারামেন্ট পদ্ধতি — ডাঃ পরিনাজ হুমরানওয়ালা রচিত <em>Temperament Types – A Study</em> অবলম্বনে নির্মিত।
+          এটি শিক্ষা ও গবেষণার সহায়ক। চূড়ান্ত চিকিৎসার সিদ্ধান্ত সর্বদা যোগ্য হোমিওপ্যাথিক চিকিৎসকের।
         </p>
 
       </div>
     </main>
     <footer class="app-footer">
-      <span>© হোমিও কেস স্টুডিও — শিক্ষামূলক ও গবেষণার উদ্দেশ্যে তৈরি। চিকিৎসার সিদ্ধান্ত চিকিৎসকের।</span>
-      <span>সব ডেটা এই ব্রাউজারেই সংরক্ষিত — কোথাও পাঠানো হয় না।</span>
+      <span>© হোমিও কেস স্টুডিও — শিক্ষা ও গবেষণার সহায়ক। চিকিৎসার সিদ্ধান্ত চিকিৎসকের।</span>
+      <span>সব ডেটা এই ব্রাউজারেই থাকে — কোথাও পাঠানো হয় না।</span>
     </footer>
   </div>
 </div>

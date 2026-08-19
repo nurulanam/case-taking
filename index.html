@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>সারসংক্ষেপ — হোমিও কেস স্টুডিও</title>
-<meta content="হোমিওপ্যাথিক চিকিৎসকের দৈনন্দিন সারসংক্ষেপ — রোগী, ফলোআপ, সাম্প্রতিক কেস ও বিশ্লেষণের সহায়ক।" name="description"/>
+<title>ড্যাশবোর্ড — হোমিও কেস স্টুডিও</title>
+<meta content="হোমিওপ্যাথিক চিকিৎসকের দৈনন্দিন ড্যাশবোর্ড — রোগী, ফলোআপ, সাম্প্রতিক কেস ও বিশ্লেষণ টুল এক জায়গায়।" name="description"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='45' font-size='38' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23fff'%3E%E0%A6%B9%3C/text%3E%3C/svg%3E"/>
 <link href="assets/css/base.css" rel="stylesheet"/>
 <link href="assets/css/shell.css" rel="stylesheet"/>
 <link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
 <link href="assets/css/dashboard.css" rel="stylesheet"/>
 </head>
-<body data-page="dashboard" data-title="সারসংক্ষেপ" data-crumb="সারসংক্ষেপ">
+<body data-page="dashboard" data-title="ড্যাশবোর্ড" data-crumb="আজকের কাজ">
 
 <a class="dh-skip" href="#dhStats">মূল অংশে যান</a>
 <div class="app-root">
@@ -28,14 +28,14 @@
             <h2 id="dhHello">স্বাগতম</h2>
             <div class="dh-date" id="dhDate"></div>
             <p class="dh-note" id="dhNameHint" hidden>
-              <a href="settings.html#general">সেটিংসে</a> নিজের নাম দিলে এখানে দেখাবে।
+              <a href="settings.html#general">সেটিংসে</a> চিকিৎসকের নাম দিলে এখানে দেখাবে।
             </p>
           </div>
 
           <!-- what this application is, kept to facts the app can back up -->
           <div class="dh-about">
-            <p>ক্লাসিক্যাল হোমিওপ্যাথির সম্পূর্ণ বাংলা ওয়ার্কস্পেস — কেস টেকিং থেকে
-               রেপার্টরাইজেশন, মেটেরিয়া মেডিকা ও প্রেসক্রিপশন পর্যন্ত এক জায়গায়।</p>
+            <p>ক্লাসিক্যাল হোমিওপ্যাথির বাংলা ওয়ার্কস্পেস — কেস নেওয়া, রেপার্টরাইজেশন,
+               মেটেরিয়া মেডিকা ও প্রেসক্রিপশন এক জায়গায়।</p>
             <div class="dh-caps">
               <span><b>৯৯,৪৭৫</b> রুব্রিক</span>
               <span><b>৭২৫</b> ওষুধ</span>
@@ -49,14 +49,14 @@
         <div class="dh-findbar">
           <div class="dh-search">
             <i class='bx bx-search'></i>
-            <input type="text" id="dhSearch" placeholder="নাম বা কেস নম্বর দিয়ে রোগী খুঁজুন…"
+            <input type="text" id="dhSearch" placeholder="রোগীর নাম বা কেস নম্বর লিখুন..."
                    autocomplete="off" aria-label="রোগী খুঁজুন" role="combobox"
                    aria-expanded="false" aria-controls="dhRes" aria-autocomplete="list"/>
             <kbd class="dh-kbd" id="dhKbd">/</kbd>
             <button class="dh-sx" id="dhSearchX" hidden aria-label="মুছুন"><i class='bx bx-x'></i></button>
             <div class="dh-res" id="dhRes" role="listbox" aria-label="রোগীর তালিকা" hidden></div>
           </div>
-          <button class="dh-btn" id="dhGo"><i class='bx bx-search-alt'></i> খুঁজুন</button>
+          <button class="dh-btn" id="dhGo"><i class='bx bx-search-alt'></i> খোঁজ করুন</button>
           <a class="dh-btn primary" href="case.html"><i class='bx bx-user-plus'></i> নতুন রোগী</a>
         </div>
 
@@ -70,13 +70,13 @@
         <section class="dh-card" style="margin-bottom:1rem;">
           <div class="dh-card-h">
             <i class='bx bx-grid-alt'></i>
-            <h3>বিশ্লেষণের সহায়ক</h3>
+            <h3>বিশ্লেষণ টুল</h3>
           </div>
           <div class="dh-card-b">
             <div class="dh-tools">
               <a class="dh-tool" href="repertory.html">
                 <span class="dh-tool-ic" style="background:rgba(124,58,237,.15);color:#a78bfa;"><i class='bx bx-book-bookmark'></i></span>
-                <span class="dh-tool-tx"><b>রিপার্টরি</b><span>৩ বই · ৯৯,৪৭৫ রুব্রিক</span></span>
+                <span class="dh-tool-tx"><b>রেপার্টরি</b><span>৩ বই · ৯৯,৪৭৫ রুব্রিক</span></span>
               </a>
               <a class="dh-tool" href="materia.html">
                 <span class="dh-tool-ic" style="background:rgba(14,116,144,.15);color:#22d3ee;"><i class='bx bx-capsule'></i></span>
@@ -84,15 +84,15 @@
               </a>
               <a class="dh-tool" href="miasm.html">
                 <span class="dh-tool-ic" style="background:rgba(79,70,229,.15);color:#818cf8;"><i class='bx bx-analyse'></i></span>
-                <span class="dh-tool-tx"><b>মায়াজম বিশ্লেষক</b><span>৫ মায়াজম · PQRS</span></span>
+                <span class="dh-tool-tx"><b>মায়াজম বিশ্লেষণ</b><span>৫ মায়াজম · PQRS</span></span>
               </a>
               <a class="dh-tool" href="tempraz.html">
                 <span class="dh-tool-ic" style="background:rgba(124,58,237,.15);color:#a78bfa;"><i class='bx bx-brain'></i></span>
-                <span class="dh-tool-tx"><b>টেম্পরাজ</b><span>৫ স্বভাব · TQ</span></span>
+                <span class="dh-tool-tx"><b>টেম্পারামেন্ট</b><span>৫ স্বভাব · TQ</span></span>
               </a>
               <a class="dh-tool" href="acutes.html">
                 <span class="dh-tool-ic" style="background:var(--danger-bg);color:var(--danger);"><i class='bx bx-sitemap'></i></span>
-                <span class="dh-tool-tx"><b>তীব্র রোগ</b><span>৬২ ওষুধ · ফ্লো চার্ট</span></span>
+                <span class="dh-tool-tx"><b>তীব্র কেস</b><span>৬২ ওষুধ · ফ্লো চার্ট</span></span>
               </a>
               <a class="dh-tool" href="organon.html">
                 <span class="dh-tool-ic" style="background:rgba(124,58,237,.15);color:#a78bfa;"><i class='bx bx-book-content'></i></span>
@@ -100,7 +100,7 @@
               </a>
               <a class="dh-tool" href="anatomy.html">
                 <span class="dh-tool-ic" style="background:rgba(14,116,144,.15);color:#22d3ee;"><i class='bx bx-body'></i></span>
-                <span class="dh-tool-tx"><b>শরীর-চিত্র</b><span>৩ডি · ৩৮ অধ্যায়</span></span>
+                <span class="dh-tool-tx"><b>অ্যানাটমি রুব্রিক</b><span>৩ডি · ৩৮ অধ্যায়</span></span>
               </a>
             </div>
           </div>
@@ -126,10 +126,10 @@
               <div class="dh-qa">
                 <a href="case.html"><i class='bx bx-clipboard'></i>নতুন কেস</a>
                 <a href="prescription.html#new"><i class='bx bx-receipt'></i>প্রেসক্রিপশন</a>
-                <a href="repertory.html"><i class='bx bx-book-bookmark'></i>রেপার্টরাইজেশন</a>
+                <a href="repertory.html"><i class='bx bx-book-bookmark'></i>রেপার্টরি</a>
                 <a href="materia.html"><i class='bx bx-capsule'></i>মেটেরিয়া মেডিকা</a>
-                <a href="anatomy.html"><i class='bx bx-body'></i>শরীর-চিত্র</a>
-                <a href="prescription.html#saved"><i class='bx bx-folder-open'></i>সংরক্ষিত Rx</a>
+                <a href="anatomy.html"><i class='bx bx-body'></i>অ্যানাটমি</a>
+                <a href="prescription.html#saved"><i class='bx bx-folder-open'></i>সংরক্ষিত প্রেসক্রিপশন</a>
               </div>
             </div>
           </section>
@@ -158,8 +158,8 @@
       </div>
     </main>
     <footer class="app-footer">
-      <span>© হোমিও কেস স্টুডিও — শিক্ষামূলক ও গবেষণার উদ্দেশ্যে তৈরি। চিকিৎসার সিদ্ধান্ত চিকিৎসকের।</span>
-      <span>সব ডেটা এই ব্রাউজারেই সংরক্ষিত — কোথাও পাঠানো হয় না।</span>
+      <span>© হোমিও কেস স্টুডিও — শিক্ষা ও গবেষণার সহায়ক। চিকিৎসার সিদ্ধান্ত চিকিৎসকের।</span>
+      <span>সব ডেটা এই ব্রাউজারেই থাকে — কোথাও পাঠানো হয় না।</span>
     </footer>
   </div>
 </div>

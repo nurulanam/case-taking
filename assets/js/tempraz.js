@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Tempraz Expert System — ডাঃ পরিনাজ হুমরানওয়ালা
+   টেম্পারামেন্ট পদ্ধতি — ডাঃ পরিনাজ হুমরানওয়ালা
    সম্পূর্ণ বাংলা · ৩-কলাম ইন্টারেক্টিভ লেআউট
    ========================================================================== */
 
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const firstId = Object.keys(json.temperaments)[0];
       selectTemp(firstId);
     })
-    .catch(e => console.error('Tempraz data লোড ব্যর্থ:', e));
+    .catch(e => console.error('টেম্পারামেন্ট ডেটা লোড ব্যর্থ:', e));
 });
 
 /* ══════════════════════════════════════════════════════════════
@@ -75,7 +75,7 @@ function buildCatList() {
   container.innerHTML = '';
 
   // "All" button
-  const allBtn = makeCatBtn('all', 'সব বৈশিষ্ট্য', 'bx-grid-alt');
+  const allBtn = makeCatBtn('all', 'সব লক্ষণ', 'bx-grid-alt');
   container.appendChild(allBtn);
 
   categories.forEach(cat => {
@@ -253,7 +253,7 @@ function updateRight() {
     resultArea.style.display  = 'none';
     const rxList = document.getElementById('tzRxList');
     if (rxList) {
-      rxList.innerHTML = '<div class="tz-empty" style="min-height:80px;padding:1rem;"><p>বৈশিষ্ট্য নির্বাচিত হলে ওষুধ দেখাবে।</p></div>';
+      rxList.innerHTML = '<div class="tz-empty" style="min-height:80px;padding:1rem;"><p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p></div>';
     }
     updateChart({ tempScores: {} });
     return;
@@ -312,10 +312,10 @@ function renderTqBox(topTemp, count) {
   box.style.background = `linear-gradient(135deg, ${adjustColor(t.color, -40)}, ${t.color})`;
   box.innerHTML = `
     <div>
-      <div class="tz-tq-label">প্রধান স্বভাব</div>
+      <div class="tz-tq-label">প্রাধান্য পাওয়া স্বভাব</div>
       <div class="tz-tq-name">${t.name} — ${t.subtitle}</div>
     </div>
-    <div class="tz-tq-score" style="margin-left:auto;">${toBanglaDigit(score)}<small>pts</small></div>
+    <div class="tz-tq-score" style="margin-left:auto;">${toBanglaDigit(score)}<small>পয়েন্ট</small></div>
   `;
 
   renderPersonality(t);
@@ -345,7 +345,7 @@ function renderRubrics(sels) {
   list.innerHTML = '';
 
   if (sels.length === 0) {
-    list.innerHTML = '<div class="tz-empty" style="min-height:60px;"><p>কোনো বৈশিষ্ট্য নির্বাচিত হয়নি।</p></div>';
+    list.innerHTML = '<div class="tz-empty" style="min-height:60px;"><p>এখনো কোনো বৈশিষ্ট্য নির্বাচন করা হয়নি।</p></div>';
     return;
   }
 
@@ -360,7 +360,7 @@ function renderRubrics(sels) {
       <span class="tz-rubric-dot" style="background:${sel.color}"></span>
       <span class="tz-rubric-text"><strong>${sel.text}</strong> → ${sel.rubric}</span>
       <span class="tz-rubric-intens" style="background:${t.colorBg};color:${t.color};">
-        তীব্র ${sel.intensity}
+        মাত্রা ${toBanglaDigit(sel.intensity)}
       </span>
     `;
     list.appendChild(item);
@@ -375,7 +375,7 @@ function renderRemedies(scores) {
   const sorted = Object.entries(rxScores).sort((a, b) => b[1] - a[1]).slice(0, 8);
 
   if (sorted.length === 0) {
-    list.innerHTML = '<div class="tz-empty" style="min-height:60px;"><p>বৈশিষ্ট্য নির্বাচিত হলে ওষুধ দেখাবে।</p></div>';
+    list.innerHTML = '<div class="tz-empty" style="min-height:60px;"><p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p></div>';
     return;
   }
 
@@ -482,7 +482,7 @@ function buildTheory() {
 
   container.innerHTML = `
     <div class="tz-theory-card">
-      <h4><i class='bx bx-info-circle' style="color:#7c3aed;margin-right:6px;"></i>Tempraz কী?</h4>
+      <h4><i class='bx bx-info-circle' style="color:#7c3aed;margin-right:6px;"></i>টেম্পারামেন্ট পদ্ধতি কী?</h4>
       <p style="margin-bottom:0.75rem;">${theory.intro}</p>
       <p>${theory.core}</p>
     </div>
