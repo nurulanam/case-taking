@@ -209,6 +209,29 @@ SOURCE_NAMES = {
     "hansen", "marsupium", "erinaceus", "australiense", "lippe",
     "richter", "nichol", "dudgeon", "nicholls", "tyrrell", "grauvogl",
     "cash", "donner", "landsmann", "solanin", "adonidin", "sanguinarin",
+    # provers, authorities, journals, book titles, folk and trade names met in
+    # the recreated entries — all do_not_translate under the style guide
+    "halbert", "chagon", "wound", "wort", "bruise", "falsa", "schussler",
+    "biochemic", "therapy", "duc", "sorentino", "higgins", "bliss", "clotar",
+    "muller", "whitfield", "cascara", "sagrada", "euphorbia", "resinifera",
+    "steel", "drops", "treasury", "botany", "watzke", "ghosh", "jouve",
+    "toothaker", "tafel", "laboucher", "wahle", "jahr", "hartmann",
+    "conglomeratus", "iodium", "gastein", "achen", "homoeopathic", "semple",
+    "virginia", "monthly", "grease", "jenner", "straube", "cessoles", "fox",
+    "phares", "lindsay", "sorbilis", "morrow", "alliacea", "raiz", "guine",
+    "bethmann", "schelling", "patzack", "gatchell", "bojanus", "brett",
+    "williamson", "fever", "powder", "rowell", "disinfectant", "fluid",
+    "sch", "ssler", "talmadge", "kippax", "chancerel", "olive", "gros",
+    "balfour", "hart", "heath", "fahnestock", "dowla", "ennis", "greene",
+    "copper", "rhademacher", "tincture", "bhaduri", "majumdar", "salzer",
+    "helfrich", "bundy", "squarrosa", "helenin", "inulin", "reisig",
+    "scheele", "alexander", "beck", "dominic", "villers", "von", "dewar",
+    "eau", "maiche", "mckendrick", "oxydol", "swan", "field", "houat",
+    "diseases", "spleen", "the", "gordon", "royal", "berlin", "kelsall",
+    "cattell", "austrian", "society", "blake", "leconte", "materia",
+    "medica", "rosenburg", "constantin", "james", "eleanor", "mcneil",
+    "selfridge", "underwood", "buchner", "michaelis", "wernek", "marcy",
+    "rafinesque",
     "dworzack", "cathcart", "pasteur", "neidhard", "burt", "ozanam", "fischer",
     "sir", "humphrey", "davy", "roussel", "dubs", "kopp", "convers", "reyes",
     "mclaughlin", "meredith", "lux", "guernsey", "dietz", "mccoy", "wright",
@@ -218,6 +241,8 @@ SOURCE_NAMES = {
     "ameke", "julio", "noack", "trinks", "jeanes", "demeures", "nenning",
     "kalieniczensko", "berridge", "croker", "lembke", "franz", "hartlaub",
     "jose", "jos", "reyes", "bojota", "columbia",
+    "stokes", "galston", "mcclanahan", "gray", "bell", "scudder", "marshall",
+    "brunton", "houghton", "john", "clanahan",
 }
 # A dosage schedule reads as a frequency instruction; a historical note does
 # not. "৩x থেকে ৩০" is a potency range, "দিনে ৩ বার" is a prescription.
