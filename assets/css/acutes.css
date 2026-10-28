@@ -1231,3 +1231,14 @@
     .ac-snapshot-toggle { font-size: 0; gap: 0 !important; }
     .ac-snapshot-toggle i { font-size: 1.15rem; }
   }
+
+  /* The actual path can have more than four decisions; don't imply otherwise. */
+  .ac-touch-progress { display: none; }
+  @media (max-width: 900px) {
+    .ac-toolbar .ac-pipe { display: none; }
+    .ac-touch-progress {
+      display: flex; align-items: center; flex: 1; min-width: 0;
+      padding: 0 0.65rem; color: var(--text); font-size: 0.875rem;
+      font-weight: 700; line-height: 1.3;
+    }
+  }

@@ -554,6 +554,13 @@ function renderPipe() {
   const host = document.getElementById('acPipe');
   if (!host) return;
   const cur = currentAxisId();
+  const touchProgress = document.getElementById('acTouchProgress');
+  if (touchProgress) {
+    const axis = AC_AXES.find(a => a.id === cur);
+    touchProgress.textContent = currentFlowNode().remedies
+      ? 'ওষুধের ফলাফল'
+      : `ধাপ ${bnNum(flowPath.length + 1)}${axis ? ` · ${axis.bn}` : ''}`;
+  }
   host.innerHTML = AC_AXES.map((ax, i) => {
     const val = axisValue(ax.id);
     const state = val ? 'done' : (cur === ax.id ? 'current' : 'todo');
