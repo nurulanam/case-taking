@@ -537,6 +537,7 @@
   function pickRemedy(info) {
     if (!info || !info.name) return null;
     const remedy = {
+      id: info.id || '',
       name: info.name,
       bangla: info.bangla || '',
       abbr: info.abbr || ''
