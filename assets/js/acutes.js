@@ -489,11 +489,12 @@ function renderFlow() {
 function renderPath() {
   const host = document.getElementById('acPath');
   const chips = [];
-  chips.push(`<button type="button" class="ac-chip ${flowPath.length ? '' : 'current'}" data-jump="-1">ধাপ ১ · কার্যকলাপ</button>`);
+  const atStart = flowPath.length === 0;
+  chips.push(`<button type="button" class="ac-chip ${atStart ? 'current' : 'done'}" data-jump="-1"><span class="ac-chip-num">${bnNum(1)}</span> কার্যকলাপ</button>`);
   flowPath.forEach((n, i) => {
     const last = i === flowPath.length - 1;
     chips.push(`<i class="bx bx-chevron-right ac-chip-sep" aria-hidden="true"></i>`);
-    chips.push(`<button type="button" class="ac-chip ${last ? 'current' : ''}" data-jump="${i}">${n.icon ? n.icon + ' ' : ''}${n.bn}</button>`);
+    chips.push(`<button type="button" class="ac-chip ${last ? 'current' : 'done'}" data-jump="${i}"><span class="ac-chip-num">${bnNum(i + 2)}</span> ${n.bn}</button>`);
   });
   host.innerHTML = chips.join('');
   host.querySelectorAll('[data-jump]').forEach(el => {
@@ -508,18 +509,25 @@ function renderPath() {
 function renderAsk() {
   const node = currentFlowNode();
   const opts = node.children || [];
+  const badge = document.getElementById('acStepBadge');
+  if (badge) badge.textContent = `ধাপ ${bnNum(flowPath.length + 1)}`;
   document.getElementById('acAskQ').textContent = node.q || '';
   document.getElementById('acAskHint').textContent = node.hint || '';
   const host = document.getElementById('acOpts');
+  host.classList.toggle('hero', opts.length > 0 && opts.length <= 4);
   host.innerHTML = opts.map((opt, oi) => {
     const count = countRemedies(opt);
     return `<button type="button" class="ac-opt" data-opt="${oi}" style="animation-delay:${oi * 0.04}s">
-      <span class="rc-emoji">${opt.icon || '•'}</span>
+      <span class="ac-opt-top">
+        <span class="ac-opt-ico">${opt.icon || '•'}</span>
+        <span class="ac-opt-count">${bnNum(count)}টি ওষুধ</span>
+      </span>
       <span class="ac-opt-label">
         <strong>${opt.bn}</strong>
-        <span>${opt.en}${opt.desc ? ' — ' + opt.desc : ''}</span>
+        <em>${opt.en || ''}</em>
+        <span>${opt.desc || ''}</span>
       </span>
-      <span class="ac-opt-count">${bnNum(count)}</span>
+      <span class="ac-opt-go">নির্বাচন করুন <i class="bx bx-right-arrow-alt"></i></span>
     </button>`;
   }).join('');
   host.querySelectorAll('.ac-opt').forEach(el => {
@@ -611,7 +619,9 @@ function renderBottomFor(r) {
   const detailHost = document.getElementById('acDetailHost');
   document.getElementById('acDetailName').textContent = r.bn;
   const sub = document.getElementById('acDetailSub');
-  if (sub) sub.textContent = `${r.ab}${r.en ? ' · ' + r.en : ''}${r.n != null ? ' · চার্ট ' + bnNum(r.n) : ''}`;
+  if (sub) sub.textContent = `${r.en || ''}${r.n != null ? ' · চার্ট ' + bnNum(r.n) : ''}`;
+  const abbr = document.getElementById('acDetailAbbr');
+  if (abbr) abbr.textContent = r.ab || '—';
 
   const hasTriangle = !!(info && info.triangle && info.triangle.length === 3);
   triHost.innerHTML = hasTriangle
@@ -641,6 +651,8 @@ function renderBottomEmpty() {
   document.getElementById('acDetailName').textContent = 'বিস্তারিত';
   const sub = document.getElementById('acDetailSub');
   if (sub) sub.textContent = '';
+  const abbr = document.getElementById('acDetailAbbr');
+  if (abbr) abbr.textContent = '—';
 }
 
 function countRemedies(node) {
