@@ -30,6 +30,7 @@
     return {
       caseNo: pick('caseNo'),
       patient: pick('patientName'),
+      patientId: pick('patientId'),
       gender: pick('gender'),
       ageYears: pick('ageYears'),
       ageMonths: pick('ageMonths'),

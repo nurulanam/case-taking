@@ -18,7 +18,12 @@
       group: 'কেস ও প্রেসক্রিপশন',
       items: [
         { id: 'dashboard', href: 'index.html', icon: 'bx-grid-alt', label: 'ড্যাশবোর্ড' },
-        { id: 'case', href: 'case.html', icon: 'bx-clipboard', label: 'নতুন কেস', meta: '৯ ধাপ',
+        { id: 'patients', href: 'patients.html', icon: 'bx-group', label: 'রোগী',
+          children: [
+            { id: 'patients-list', href: 'patients.html', page: 'patients', icon: 'bx-list-ul', label: 'রোগীর তালিকা' },
+            { id: 'patients-new', href: 'patients.html?new=1', page: 'patients', icon: 'bx-user-plus', label: 'নতুন নিবন্ধন' }
+          ] },
+        { id: 'case', href: 'cases.html', icon: 'bx-clipboard', label: 'কেস টেকিং', meta: '৭ ধাপ',
           children: [
             // These two are separate pages, not sections of one, so they carry
             // `page` instead of a hash — see subActive() below.
@@ -373,7 +378,7 @@
     if (draft && typeof draft === 'object' && Object.keys(draft).length) {
       updateSbMeta('case', 'খসড়া');
     } else {
-      updateSbMeta('case', '৯ ধাপ', true);
+      updateSbMeta('case', '৭ ধাপ', true);
     }
     const rep = store.get('repertory_case_v1', null);
     if (rep && rep.picked && rep.picked.length) {
@@ -414,7 +419,7 @@
     const navHtml = `
       <nav class="app-bottom-nav" id="appBottomNav">
         <a href="index.html" class="bn-item ${active==='dashboard'?'active':''}"><i class='bx bx-grid-alt'></i><span>ড্যাশবোর্ড</span></a>
-        <a href="case.html" class="bn-item ${active==='case'?'active':''}"><i class='bx bx-clipboard'></i><span>কেস</span></a>
+        <a href="patients.html" class="bn-item ${active==='patients'?'active':''}"><i class='bx bx-group'></i><span>রোগী</span></a>
         <a href="cases.html" class="bn-item ${active==='cases'?'active':''}"><i class='bx bx-folder-open'></i><span>কেস তালিকা</span></a>
         <a href="repertory.html" class="bn-item ${active==='repertory'?'active':''}"><i class='bx bx-book-bookmark'></i><span>রেপার্টরি</span></a>
         <a href="materia.html" class="bn-item ${active==='materia'?'active':''}"><i class='bx bx-capsule'></i><span>মেটেরিয়া</span></a>

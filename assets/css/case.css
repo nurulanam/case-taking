@@ -243,7 +243,7 @@
   .rub-txt { flex: 1 1 100%; order: 2; }
   .rub-add { flex-direction: column; }
 
-  /* the step buttons are the primary way through a 9-step form on a phone,
+  /* the step buttons are the primary way through a multi-step form on a phone,
      so they stay reachable instead of scrolling away with the content */
   .form-nav {
     position: sticky; bottom: 0; z-index: 20;
@@ -310,3 +310,70 @@
   flex:0 0 auto; font-size:.75rem; color:var(--text-muted);
   padding:.05rem .35rem; border:1px solid var(--border); border-radius:.75rem;
 }
+
+/* ── case-taking gate (patient / type / mode) ── */
+body.is-gating #caseForm > :not(#caseGate) { display: none !important; }
+.case-gate { margin-bottom: 1rem; }
+.case-gate h2 { margin: 0 0 .25rem; font-size: 1.35rem; }
+.case-gate .cg-lead { margin: 0 0 1rem; color: var(--text-muted); font-size: .9rem; }
+.cg-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: .75rem;
+}
+.cg-card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: .4rem;
+  text-align: start; padding: 1.05rem 1.1rem; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--surface);
+  color: inherit; cursor: pointer; font: inherit;
+  transition: border-color .15s, box-shadow .15s, transform .15s;
+}
+.cg-card:hover { border-color: var(--primary); box-shadow: var(--shadow); transform: translateY(-1px); }
+.cg-card i {
+  font-size: 1.55rem; color: var(--primary);
+  width: 2.4rem; height: 2.4rem; display: grid; place-items: center;
+  border-radius: .7rem; background: var(--primary-bg);
+}
+.cg-card b { font-size: 1.02rem; }
+.cg-card span { color: var(--text-muted); font-size: .8125rem; line-height: 1.55; }
+.cg-back {
+  display: inline-flex; align-items: center; gap: .3rem;
+  margin-bottom: .75rem; background: none; border: 0;
+  color: var(--primary); cursor: pointer; font: inherit; font-size: .875rem;
+}
+.cg-plist { display: flex; flex-direction: column; gap: .45rem; margin-top: .5rem; }
+.cg-plist a, .cg-plist button {
+  display: flex; align-items: center; gap: .7rem; text-align: start;
+  padding: .7rem .85rem; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--surface);
+  color: inherit; text-decoration: none; font: inherit; cursor: pointer;
+}
+.cg-plist a:hover, .cg-plist button:hover { border-color: var(--primary); }
+.cg-plist .pt-av {
+  display: grid; place-items: center; width: 2.2rem; height: 2.2rem;
+  border-radius: 50%; background: var(--primary-bg); color: var(--primary);
+  font-weight: 700; flex: 0 0 auto;
+}
+
+/* patient banner on the form */
+.pt-banner {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .75rem;
+  padding: .75rem 1rem; margin-bottom: .85rem;
+  border-radius: var(--radius); background: var(--primary-bg);
+  border: 1px solid var(--primary);
+}
+.pt-banner .pt-av {
+  display: grid; place-items: center; width: 2.4rem; height: 2.4rem;
+  border-radius: 50%; background: var(--primary); color: #fff; font-weight: 700;
+}
+.pt-banner-id { flex: 1 1 10rem; min-width: 0; }
+.pt-banner-id b { display: block; font-size: .975rem; }
+.pt-banner-id span { color: var(--text-muted); font-size: .78rem; }
+.pt-banner .pt-pill {
+  padding: .15rem .55rem; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: .72rem; font-weight: 700;
+}
+.case-meta { margin-bottom: .85rem; }
+
+.form-nav { flex-wrap: wrap; gap: .5rem; }
+.form-nav #skipBtn { margin-inline-end: auto; }

@@ -6,16 +6,37 @@
   const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-  // State
-  const TOTAL_STEPS = 9;
+  // State — step count follows the chosen flow (guided 7 / follow-up 4)
   let currentStep = 1;
   let complaintCount = 0;
+
+  const TYPE_VALUE = {
+    acute: 'তীব্র (Acute)',
+    chronic: 'দীর্ঘস্থায়ী (Chronic)',
+    followup: 'ফলোআপ'
+  };
+  const MODE_VALUE = {
+    guided: 'গাইডেড কেস টেকিং',
+    direct: 'সরাসরি রেপার্টরাইজেশন'
+  };
+  const STEP_ICON = {
+    followup: 'bx-revision',
+    chief: 'bx-list-ul',
+    particulars: 'bx-detail',
+    generals: 'bx-body',
+    mental: 'bx-brain',
+    history: 'bx-history',
+    assessment: 'bx-analyse',
+    review: 'bx-check-circle'
+  };
 
   // DOM Elements
   const form = document.getElementById('caseForm');
   const formSteps = document.querySelectorAll('.form-step');
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
+  const skipBtn = document.getElementById('skipBtn');
+  const saveStepBtn = document.getElementById('saveStepBtn');
   const resetBtn = document.getElementById('resetBtn');
   const generateBtn = document.getElementById('generateBtn');
   const copyBtn = document.getElementById('copyBtn');
@@ -25,12 +46,28 @@
   const currentStepTitle = document.getElementById('currentStepTitle');
   const progressFill = document.getElementById('progressFill');
   const stepperContainer = document.getElementById('stepper');
+  const stepNav = document.getElementById('stepNav');
   
   const genderSelect = document.getElementById('gender');
   const genderPanels = document.querySelectorAll('.gender-panel');
   const addComplaintBtn = document.getElementById('addComplaintBtn');
   const complaintsContainer = document.getElementById('complaintsContainer');
   const aiOutput = document.getElementById('aiOutput');
+
+  function flowOf() {
+    const t = (form.querySelector('[name="caseType"]') || {}).value || '';
+    return t === TYPE_VALUE.followup ? 'followup' : 'guided';
+  }
+
+  function visibleStepEls() {
+    const flow = flowOf();
+    return [...formSteps].filter(s =>
+      (s.dataset.flow || '').split(',').map(x => x.trim()).includes(flow));
+  }
+
+  function totalSteps() { return visibleStepEls().length; }
+
+  function currentStepEl() { return visibleStepEls()[currentStep - 1] || null; }
 
   // Initialization
   /* case.html?new=1 — start a genuinely blank case.
@@ -40,7 +77,7 @@
      switching to a new patient can never be what loses the previous one. */
   function startFreshIfAsked() {
     const params = new URLSearchParams(location.search);
-    if (!params.has('new')) return;
+    if (!params.has('new')) return false;
 
     const prev = Shell.store.get(DRAFT_KEY, null);
     if (prev && prev.patientName && window.CaseStore) {
@@ -52,35 +89,274 @@
     params.delete('new');
     const qs = params.toString();
     history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+    return true;
   }
 
-  function init() {
-    startFreshIfAsked();
-    initStepNav();
-    initPills();
-    initChips();
-    bindEvents();
-    bindRubricUI();
-    bindComplaintRemoval();
-    bindShortcuts();
-    bindSuggest();
-    
-    // Default 1 complaint
-    if(complaintsContainer.children.length === 0) {
-      addComplaint();
-    }
-    
+  function setHidden(name, value) {
+    const el = form.querySelector(`[name="${name}"]`);
+    if (el) el.value = value == null ? '' : String(value);
+  }
 
-    // Auto case number: yyyy-nnn, counting saved prescriptions this year.
-    // Only ever fills a blank box, so a practitioner's own numbering wins.
+  function applyPatient(p) {
+    if (!p) return;
+    setHidden('patientId', p.id || '');
+    setHidden('patientName', p.name || '');
+    setHidden('gender', p.gender || '');
+    setHidden('ageYears', p.ageYears || '');
+    setHidden('ageMonths', p.ageMonths || '');
+    setHidden('phone', p.phone || '');
+    setHidden('occupation', p.occupation || '');
+    setHidden('maritalStatus', p.maritalStatus || '');
+    setHidden('address', p.address || '');
+    setHidden('weight', p.weight || '');
+    setHidden('height', p.height || '');
+    setHidden('bloodGroup', p.bloodGroup || '');
+    renderPatientBanner(p);
+    updateGenderPanels();
+  }
+
+  function renderPatientBanner(p) {
+    const el = document.getElementById('ptBanner');
+    if (!el) return;
+    if (!p || !p.name) { el.hidden = true; return; }
+    const type = (form.querySelector('[name="caseType"]') || {}).value || '';
+    const mode = (form.querySelector('[name="caseMode"]') || {}).value || '';
+    const age = window.PatientStore ? PatientStore.ageText(p) : '';
+    const href = p.id ? `patient.html?id=${encodeURIComponent(p.id)}` : 'patients.html';
+    el.hidden = false;
+    el.innerHTML =
+      `<span class="pt-av">${esc((p.name || '?').trim().charAt(0))}</span>` +
+      `<span class="pt-banner-id"><b>${esc(p.name)}</b>` +
+      `<span>${esc([age, p.gender, p.phone].filter(Boolean).join(' · '))}</span></span>` +
+      (type ? `<span class="pt-pill">${esc(type)}</span>` : '') +
+      (mode ? `<span class="pt-pill">${esc(mode)}</span>` : '') +
+      `<a class="btn ghost" href="${href}" style="margin-inline-start:auto;font-size:.8125rem;">রোগীর বিবরণ</a>`;
+  }
+
+  function fillFollowupRecap(p) {
+    const box = document.getElementById('fuPrev');
+    if (!box || !p || !window.CaseStore) return;
+    const nameKey = String(p.name || '').trim().toLowerCase();
+    const prev = CaseStore.sorted().find(c =>
+      (c.data && c.data.patientId === p.id) ||
+      String(c.patient || '').trim().toLowerCase() === nameKey);
+    if (!prev) {
+      box.innerHTML = '<p>এই রোগীর আগের কেস পাওয়া যায়নি — যা জানা আছে লিখুন।</p>';
+      return;
+    }
+    const d = prev.data || {};
+    const bits = [
+      prev.visitDate && `তারিখ: ${prev.visitDate}`,
+      prev.caseType && `ধরন: ${prev.caseType}`,
+      prev.complaint && `অভিযোগ: ${prev.complaint}`,
+      (d.constitutionalRemedy || prev.remedy) && `ঔষধ: ${d.constitutionalRemedy || prev.remedy}`,
+      d.illnessStory && d.illnessStory.slice(0, 220)
+    ].filter(Boolean);
+    box.innerHTML = bits.map(b => `<p>${esc(b)}</p>`).join('') || '<p>আগের কেসে বিস্তারিত কম।</p>';
+  }
+
+  function launchDirect() {
+    saveDraft();
+    const name = (form.querySelector('[name="patientName"]') || {}).value || '';
+    const no = (form.querySelector('[name="caseNo"]') || {}).value || '';
+    if (Shell.bridge && Shell.bridge.patch) {
+      Shell.bridge.patch({ from: 'case', patient: name, caseNo: no });
+    }
+    location.href = 'repertory.html?from=case';
+  }
+
+  function typeKeyFromValue(v) {
+    v = String(v || '');
+    if (v.indexOf('তীব্র') >= 0 || v === 'acute') return 'acute';
+    if (v.indexOf('দীর্ঘ') >= 0 || v === 'chronic') return 'chronic';
+    if (v.indexOf('ফলো') >= 0 || v === 'followup') return 'followup';
+    return '';
+  }
+
+  function modeKeyFromValue(v) {
+    v = String(v || '');
+    if (v.indexOf('সরাসরি') >= 0 || v === 'direct') return 'direct';
+    if (v.indexOf('গাইড') >= 0 || v === 'guided') return 'guided';
+    return '';
+  }
+
+  /* Gate: a case no longer starts by typing a name. Pick (or keep) a
+     registered patient, then the kind of consultation, then guided vs
+     repertory — identity lives on the patient page. */
+  function runGate() {
+    const params = new URLSearchParams(location.search);
+    const gate = document.getElementById('caseGate');
+    const patients = window.PatientStore ? PatientStore.sorted() : [];
+
+    let patient = null;
+    const pid = params.get('patient');
+    if (pid && window.PatientStore) patient = PatientStore.get(pid);
+    if (!patient) {
+      const draft = Shell.store.get(DRAFT_KEY, null);
+      if (draft && window.PatientStore) {
+        if (draft.patientId) patient = PatientStore.get(draft.patientId);
+        if (!patient && draft.patientName) patient = PatientStore.findByName(draft.patientName);
+      }
+    }
+
+    let typeKey = params.get('type') || '';
+    let modeKey = params.get('mode') || '';
+    const draftNow = Shell.store.get(DRAFT_KEY, null);
+    if (!typeKey && draftNow) {
+      typeKey = typeKeyFromValue(draftNow.caseType);
+      modeKey = modeKey || modeKeyFromValue(draftNow.caseMode);
+    }
+    // A reopened case that predates type/mode still opens the form, not the chooser.
+    if (draftNow && draftNow.__caseId) {
+      if (!typeKey) typeKey = 'chronic';
+      if (!modeKey && typeKey !== 'followup') modeKey = 'guided';
+    }
+
+    function showGate(html) {
+      document.body.classList.add('is-gating');
+      gate.hidden = false;
+      gate.innerHTML = html;
+    }
+    function hideGate() {
+      document.body.classList.remove('is-gating');
+      gate.hidden = true;
+      gate.innerHTML = '';
+    }
+
+    function pickPatientScreen() {
+      const list = patients.length
+        ? `<div class="cg-plist">${patients.slice(0, 12).map(p =>
+            `<button type="button" data-pid="${esc(p.id)}">
+               <span class="pt-av">${esc((p.name || '?').trim().charAt(0))}</span>
+               <span><b>${esc(p.name)}</b><br><small>${esc([PatientStore.ageText(p), p.gender, p.phone].filter(Boolean).join(' · '))}</small></span>
+             </button>`).join('')}</div>`
+        : `<p class="cg-lead">এখনো কোনো রোগী নিবন্ধিত নেই।</p>`;
+      showGate(`
+        <h2>কেস নেওয়ার আগে রোগী বাছুন</h2>
+        <p class="cg-lead">পরিচয় কেস ফর্মের ধাপ নয় — নিবন্ধিত রোগীর বিবরণ থেকে কেস শুরু হয়।</p>
+        ${list}
+        <p style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+          <a class="btn primary" href="patients.html?new=1"><i class='bx bx-user-plus'></i> নতুন রোগী নিবন্ধন</a>
+          <a class="btn ghost" href="patients.html">সব রোগী</a>
+        </p>`);
+      gate.querySelectorAll('[data-pid]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const p = PatientStore.get(btn.dataset.pid);
+          if (!p) return;
+          applyPatient(p);
+          const qs = new URLSearchParams(location.search);
+          qs.set('patient', p.id);
+          history.replaceState(null, '', location.pathname + '?' + qs.toString());
+          runGate();
+        });
+      });
+    }
+
+    function pickTypeScreen(p) {
+      showGate(`
+        <button class="cg-back" type="button" id="cgBackP"><i class='bx bx-arrow-back'></i> অন্য রোগী</button>
+        <h2>${esc(p.name)} — কেসের ধরন</h2>
+        <p class="cg-lead">আকস্মিক, দীর্ঘস্থায়ী, না আগের কেসের ফলোআপ?</p>
+        <div class="cg-grid">
+          <button class="cg-card" type="button" data-type="acute">
+            <i class='bx bx-bolt-circle'></i><b>আকস্মিক কেস</b>
+            <span>হঠাৎ শুরু, স্বল্পমেয়াদি অসুখ — জ্বর, সর্দি, আঘাত, তীব্র ব্যথা।</span>
+          </button>
+          <button class="cg-card" type="button" data-type="chronic">
+            <i class='bx bx-time-five'></i><b>দীর্ঘস্থায়ী কেস</b>
+            <span>চলমান বা পুনরাবৃত্ত রোগ — গভীর ইতিহাস ও সাধারণ লক্ষণ দরকার।</span>
+          </button>
+          <button class="cg-card" type="button" data-type="followup">
+            <i class='bx bx-revision'></i><b>ফলোআপ</b>
+            <span>আগের কেস পর্যালোচনা — শেষ সাক্ষাতের পর কী বদলেছে তা নথিভুক্ত।</span>
+          </button>
+        </div>`);
+      document.getElementById('cgBackP').addEventListener('click', () => {
+        setHidden('patientId', ''); setHidden('patientName', '');
+        const qs = new URLSearchParams(location.search);
+        qs.delete('patient'); qs.delete('type'); qs.delete('mode');
+        history.replaceState(null, '', location.pathname + (qs.toString() ? '?' + qs : ''));
+        pickPatientScreen();
+      });
+      gate.querySelectorAll('[data-type]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const qs = new URLSearchParams(location.search);
+          qs.set('patient', p.id);
+          qs.set('type', btn.dataset.type);
+          qs.delete('mode');
+          history.replaceState(null, '', location.pathname + '?' + qs.toString());
+          runGate();
+        });
+      });
+    }
+
+    function pickModeScreen(p, tKey) {
+      const label = tKey === 'acute' ? 'আকস্মিক' : 'দীর্ঘস্থায়ী';
+      showGate(`
+        <button class="cg-back" type="button" id="cgBackT"><i class='bx bx-arrow-back'></i> ধরন বদলান</button>
+        <h2>${esc(p.name)} — ${label} কেসের পদ্ধতি</h2>
+        <p class="cg-lead">ধাপে ধাপে কেস নিতে চান, না সরাসরি রেপার্টরিতে যেতে?</p>
+        <div class="cg-grid">
+          <button class="cg-card" type="button" data-mode="guided">
+            <i class='bx bx-list-check'></i><b>গাইডেড কেস টেকিং</b>
+            <span>অভিযোগ থেকে ইতিহাস পর্যন্ত ধাপে ধাপে — প্রতি ধাপ আলাদা সংরক্ষিত, ঐচ্ছিক ধাপ বাদ দেওয়া যায়।</span>
+          </button>
+          <button class="cg-card" type="button" data-mode="direct">
+            <i class='bx bx-book-bookmark'></i><b>সরাসরি রেপার্টরাইজেশন</b>
+            <span>ফর্ম এড়িয়ে রেপার্টরিতে রুব্রিক বাছুন — লক্ষণ ইতিমধ্যে স্পষ্ট হলে।</span>
+          </button>
+        </div>`);
+      document.getElementById('cgBackT').addEventListener('click', () => {
+        const qs = new URLSearchParams(location.search);
+        qs.delete('type'); qs.delete('mode');
+        history.replaceState(null, '', location.pathname + '?' + qs.toString());
+        runGate();
+      });
+      gate.querySelectorAll('[data-mode]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const qs = new URLSearchParams(location.search);
+          qs.set('mode', btn.dataset.mode);
+          history.replaceState(null, '', location.pathname + '?' + qs.toString());
+          runGate();
+        });
+      });
+    }
+
+    if (!patient) { pickPatientScreen(); return false; }
+    applyPatient(patient);
+
+    if (!typeKey) { pickTypeScreen(patient); return false; }
+    setHidden('caseType', TYPE_VALUE[typeKey] || typeKey);
+
+    if (typeKey === 'followup') {
+      setHidden('caseMode', '');
+      hideGate();
+      const vt = form.querySelector('.pills[data-pills="visitType"]');
+      if (vt && vt._apply && !vt.querySelector('input[name="visitType"]').value) vt._apply('ফলোআপ');
+      fillFollowupRecap(patient);
+      renderPatientBanner(patient);
+      return true;
+    }
+
+    if (!modeKey) { pickModeScreen(patient, typeKey); return false; }
+    setHidden('caseMode', MODE_VALUE[modeKey] || modeKey);
+    hideGate();
+    renderPatientBanner(patient);
+
+    if (modeKey === 'direct' && params.get('mode') === 'direct') {
+      ensureCaseNumberAndDate();
+      const qs = new URLSearchParams(location.search);
+      qs.delete('mode');
+      history.replaceState(null, '', location.pathname + (qs.toString() ? '?' + qs : ''));
+      launchDirect();
+      return false;
+    }
+    return true;
+  }
+
+  function ensureCaseNumberAndDate() {
     const caseBox = form.querySelector('[name="caseNo"]');
     if (caseBox && !caseBox.value) {
-      /* Counting saved prescriptions was the only source of used numbers, so
-         before there was a case store every new case came out as YYYY-001 —
-         three cases in a row all claimed the same number. Take the highest
-         number already issued this year across both stores and go one past it,
-         rather than counting rows: counting repeats itself the moment anything
-         is deleted. */
       const yr = new Date().getFullYear();
       const prefix = String(yr) + '-';
       const seen = []
@@ -95,8 +371,6 @@
       });
       caseBox.value = prefix + String(top + 1).padStart(3, '0');
     }
-
-    // Set default date to today's local date if not already filled
     const visitDate = document.querySelector('input[name="visitDate"]');
     if (visitDate && !visitDate.value) {
       const today = new Date();
@@ -105,33 +379,79 @@
       const dd = String(today.getDate()).padStart(2, '0');
       visitDate.value = `${yyyy}-${mm}-${dd}`;
     }
+  }
 
-    restoreDraft();
-    renderRubrics();            // draft may have carried a rubric list back
+  function init() {
+    const fresh = startFreshIfAsked();
+    initPills();
+    initChips();
+    bindEvents();
+    bindRubricUI();
+    bindComplaintRemoval();
+    bindShortcuts();
+    bindSuggest();
+
+    if (complaintsContainer && complaintsContainer.children.length === 0) {
+      addComplaint();
+    }
+
+    ensureCaseNumberAndDate();
+
+    if (!fresh) restoreDraft();
+    const ready = runGate();
+    if (!ready) return;
+
+    renderPatientBanner({
+      id: (form.querySelector('[name="patientId"]') || {}).value,
+      name: (form.querySelector('[name="patientName"]') || {}).value,
+      gender: (form.querySelector('[name="gender"]') || {}).value,
+      ageYears: (form.querySelector('[name="ageYears"]') || {}).value,
+      ageMonths: (form.querySelector('[name="ageMonths"]') || {}).value,
+      phone: (form.querySelector('[name="phone"]') || {}).value
+    });
+
+    buildStepNav();
+    renderRubrics();
     updateUI();
     updateGenderPanels();
     updateRedFlagBanner();
-    applyIncomingRepertory();   // after the draft, so the hand-off is not overwritten
+    applyIncomingRepertory();
   }
 
   // --- UI & Navigation ---
-  function initStepNav() {
-    document.querySelectorAll('.step-tab').forEach((tab) => {
-      // completion pip, prepended once so the markup stays a plain button
+  function buildStepNav() {
+    if (!stepNav) return;
+    const steps = visibleStepEls();
+    const short = {
+      followup: 'পরিবর্তন', chief: 'অভিযোগ', particulars: 'বিশেষ লক্ষণ',
+      generals: 'জেনারেলস', mental: 'মানসিক', history: 'ইতিহাস',
+      assessment: 'মূল্যায়ন', review: 'পর্যালোচনা'
+    };
+    stepNav.innerHTML = steps.map((sec, i) => {
+      const id = sec.dataset.stepId || '';
+      const icon = STEP_ICON[id] || 'bx-circle';
+      const label = short[id] || sec.getAttribute('data-step-title') || '';
+      const opt = sec.dataset.optional ? ' · ঐচ্ছিক' : '';
+      return `<button class="step-tab" data-step="${i + 1}" role="tab" type="button">` +
+        `<i class="bx ${icon}"></i><span>${esc(label + opt)}</span></button>`;
+    }).join('');
+    stepNav.querySelectorAll('.step-tab').forEach(tab => {
       if (!tab.querySelector('.step-mark')) {
         const m = document.createElement('span');
         m.className = 'step-mark';
         tab.insertBefore(m, tab.firstChild);
       }
       tab.addEventListener('click', () => {
-        const step = parseInt(tab.dataset.step);
-        if (validateCurrentStep()) goToStep(step);
+        const step = parseInt(tab.dataset.step, 10);
+        saveCurrentStep();
+        goToStep(step);
       });
     });
   }
 
   function goToStep(step) {
-    if (step < 1 || step > TOTAL_STEPS) return;
+    const n = totalSteps();
+    if (step < 1 || step > n) return;
     currentStep = step;
     updateUI();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -142,7 +462,7 @@
      "completed = index < current" rule claimed steps were done that were still
      entirely blank. */
   function stepHasData(idx) {
-    const sec = formSteps[idx];
+    const sec = visibleStepEls()[idx];
     if (!sec) return false;
     return [...sec.querySelectorAll('input, select, textarea')].some(el => {
       if (!el.name && el.id !== 'rubricsJson') return false;
@@ -157,6 +477,7 @@
 
   function updateStepMarks() {
     let filled = 0;
+    const n = totalSteps();
     document.querySelectorAll('.step-tab').forEach((tab, idx) => {
       const has = stepHasData(idx);
       if (has) filled++;
@@ -165,64 +486,63 @@
     const note = document.getElementById('stepProgressNote');
     if (note) {
       note.innerHTML = filled
-        ? `<i class='bx bx-check-circle'></i> <b>${Shell.bnNum(filled)}</b>/${Shell.bnNum(TOTAL_STEPS)} ধাপে তথ্য দেওয়া হয়েছে`
-        : `<i class='bx bx-info-circle'></i> শুরু করুন — শুধু নাম, বয়স ও লিঙ্গ আবশ্যক`;
+        ? `<i class='bx bx-check-circle'></i> <b>${Shell.bnNum(filled)}</b>/${Shell.bnNum(n)} ধাপে তথ্য দেওয়া হয়েছে`
+        : `<i class='bx bx-info-circle'></i> প্রতি ধাপ আলাদা সংরক্ষিত — ঐচ্ছিক ধাপ বাদ দেওয়া যায়`;
     }
     return filled;
   }
 
   function updateUI() {
-    // Show/Hide steps
-    formSteps.forEach((s, idx) => {
+    const steps = visibleStepEls();
+    const n = steps.length || 1;
+    formSteps.forEach(s => s.classList.remove('active'));
+    steps.forEach((s, idx) => {
       s.classList.toggle('active', (idx + 1) === currentStep);
     });
 
-    // Update Header
-    const activeStep = formSteps[currentStep - 1];
-    stepCounter.textContent = `ধাপ ${Shell.bnNum(currentStep)} / ${Shell.bnNum(TOTAL_STEPS)}`;
+    const activeStep = steps[currentStep - 1];
+    stepCounter.textContent = `ধাপ ${Shell.bnNum(currentStep)} / ${Shell.bnNum(n)}`;
     if (activeStep) {
       currentStepTitle.textContent = activeStep.getAttribute('data-step-title');
     }
 
-    // Progress & Stepper
-    progressFill.style.width = `${((currentStep - 1) / (TOTAL_STEPS - 1)) * 100}%`;
-    
+    progressFill.style.width = n <= 1 ? '100%' : `${((currentStep - 1) / (n - 1)) * 100}%`;
+
     document.querySelectorAll('.step-tab').forEach((tab, idx) => {
       tab.classList.toggle('active', (idx + 1) === currentStep);
     });
     updateStepMarks();
 
-    // Scroll active tab into view (smoothly)
     const activeTab = document.querySelector(`.step-tab[data-step="${currentStep}"]`);
     if (activeTab) {
       activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
 
-    if (currentStep === TOTAL_STEPS) renderCaseSummary();
+    if (currentStep === totalSteps()) renderCaseSummary();
 
     // Buttons
+    const last = currentStep === totalSteps();
+    const el = currentStepEl();
+    const optional = !!(el && el.dataset.optional) ||
+      (flowOf() === 'followup' && el && el.dataset.stepId === 'particulars');
     prevBtn.style.display = currentStep > 1 ? 'block' : 'none';
-    nextBtn.style.display = currentStep < TOTAL_STEPS ? 'block' : 'none';
-    generateBtn.style.display = currentStep === TOTAL_STEPS ? 'inline-block' : 'none';
-    copyBtn.style.display = currentStep === TOTAL_STEPS ? 'inline-block' : 'none';
-    downloadBtn.style.display = currentStep === TOTAL_STEPS ? 'inline-block' : 'none';
+    nextBtn.style.display = last ? 'none' : 'block';
+    if (skipBtn) skipBtn.style.display = optional && !last ? 'inline-flex' : 'none';
+    if (generateBtn) generateBtn.style.display = last ? 'inline-block' : 'none';
+    if (copyBtn) copyBtn.style.display = last ? 'inline-block' : 'none';
+    if (downloadBtn) downloadBtn.style.display = last ? 'inline-block' : 'none';
   }
 
   function validateCurrentStep() {
-    if (currentStep === 1) {
-      const requiredInputs = formSteps[0].querySelectorAll('[required]');
-      for (const input of requiredInputs) {
-        if (!input.value.trim()) {
-          input.reportValidity();
-          return false;
-        }
-      }
-    }
     return true;
   }
 
+  function saveCurrentStep() {
+    saveDraft();
+  }
+
   function updateGenderPanels() {
-    const val = genderSelect.value;
+    const val = genderSelect ? genderSelect.value : '';
     genderPanels.forEach(panel => {
       if (panel.dataset.showFor === val) {
         panel.style.display = 'block';
@@ -418,16 +738,23 @@
   // --- Event Bindings ---
   function bindEvents() {
     nextBtn.addEventListener('click', () => {
-      if (!validateCurrentStep()) return;
-      /* Leaving step 1 means the patient is identified, so the case is
-         committed right there instead of waiting for the debounce — a browser
-         closed mid-case should never lose the identity that was just typed. */
-      if (currentStep === 1) commitCase();
+      saveCurrentStep();
       goToStep(currentStep + 1);
     });
-    prevBtn.addEventListener('click', () => goToStep(currentStep - 1));
-    genderSelect.addEventListener('change', updateGenderPanels);
-    addComplaintBtn.addEventListener('click', addComplaint);
+    prevBtn.addEventListener('click', () => {
+      saveCurrentStep();
+      goToStep(currentStep - 1);
+    });
+    if (skipBtn) skipBtn.addEventListener('click', () => {
+      saveCurrentStep();
+      goToStep(currentStep + 1);
+    });
+    if (saveStepBtn) saveStepBtn.addEventListener('click', () => {
+      saveCurrentStep();
+      Shell.toast('এই ধাপ সংরক্ষিত হয়েছে।', 'ok');
+    });
+    if (genderSelect) genderSelect.addEventListener('change', updateGenderPanels);
+    if (addComplaintBtn) addComplaintBtn.addEventListener('click', addComplaint);
     
     // Generate Report — the readable one
     form.addEventListener('submit', (e) => {
@@ -701,7 +1028,7 @@
     // consumed — otherwise every later visit would re-stamp the same rubrics
     Shell.bridge.patch({ from: 'case-applied', rubrics: b.rubrics });
     Shell.toast(msg + '।', 'ok');
-    goToStep(TOTAL_STEPS);
+    goToStep(totalSteps());
   }
 
   /* ==================== red flags ====================
@@ -1149,6 +1476,8 @@
   function restoreDraft() {
     const data = Shell.store.get(DRAFT_KEY, null);
     if (!data) { Shell.setChip('খসড়া খালি', 'bx-save', true); return; }
+    const pidWant = new URLSearchParams(location.search).get('patient');
+    if (pidWant && data.patientId && data.patientId !== pidWant) return;
 
     /* Carry the record id back in, so a case reopened from cases.html saves
        over itself instead of being filed again as a new one. */
@@ -1178,7 +1507,7 @@
       try { rubrics = JSON.parse(data.rubricsJson) || []; } catch (e) { rubrics = []; }
     }
 
-    if (data.__step) currentStep = Math.min(TOTAL_STEPS, Math.max(1, parseInt(data.__step) || 1));
+    if (data.__step) currentStep = Math.min(totalSteps() || 9, Math.max(1, parseInt(data.__step) || 1));
     markSaved(data);
     Shell.toast('আগের খসড়া ফিরিয়ে আনা হয়েছে।', 'ok');
   }
@@ -1665,7 +1994,7 @@
     // Output
     const finalString = out.join('\n');
     aiOutput.value = finalString;
-    goToStep(TOTAL_STEPS); // scroll to report output
+    goToStep(totalSteps()); // scroll to report output
     Shell.toast('কেস রিপোর্ট তৈরি হয়েছে — নিচে কপি বা ডাউনলোড করুন।', 'ok');
   }
 
