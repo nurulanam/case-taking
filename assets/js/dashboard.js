@@ -50,6 +50,25 @@
     // one record per patient, newest first — a patient with four visits is
     // one patient, not four
     const byPatient = new Map();
+    if (window.PatientStore) {
+      PatientStore.all().forEach(p => {
+        const key = String(p.name || '').trim().toLowerCase();
+        if (!key) return;
+        byPatient.set(key, {
+          name: p.name,
+          patientId: p.id,
+          caseNo: '',
+          date: '',
+          remedy: '',
+          followUpDate: '',
+          followUp: '',
+          diagnosis: '',
+          visits: 0,
+          gender: p.gender,
+          phone: p.phone
+        });
+      });
+    }
     rx.forEach(r => {
       const key = String(r.patient).trim().toLowerCase();
       if (!key) return;
@@ -57,6 +76,7 @@
       const prev = byPatient.get(key);
       const rec = {
         name: String(r.patient).trim(),
+        patientId: (prev && prev.patientId) || '',
         caseNo: r.caseNo || (f.caseNo || ''),
         date: r.date || '',
         remedy: r.summary || '',
@@ -170,7 +190,7 @@
       $('dhRecent').innerHTML = `
         <div class="dh-empty">
           <i class='bx bx-folder-open'></i>
-          <p>এখনো কোনো কেস সংরক্ষিত নেই। <a href="case.html">নতুন কেস</a> নিয়ে
+          <p>এখনো কোনো কেস সংরক্ষিত নেই। <a href="patients.html">রোগী নিবন্ধন</a> করে কেস নিয়ে
              প্রেসক্রিপশন সংরক্ষণ করলে রোগী এখানে দেখা যাবে।</p>
         </div>`;
       return;
@@ -238,6 +258,10 @@
       .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     const st = status(p);
     const f0 = (visits[0] && visits[0].fields) || {};
+    const rec = p.patientId
+      ? (window.PatientStore && PatientStore.get(p.patientId))
+      : (window.PatientStore && PatientStore.findByName(p.name));
+    const pHref = rec ? `patient.html?id=${encodeURIComponent(rec.id)}` : 'patients.html';
     // one readable line of facts beats a row of chips
     const facts = [
       p.caseNo && `কেস ${p.caseNo}`,
@@ -271,7 +295,7 @@
       <div class="dh-pt-act">
         <a class="primary" href="prescription.html#new"><i class='bx bx-receipt'></i> নতুন প্রেসক্রিপশন</a>
         <a href="prescription.html#saved"><i class='bx bx-folder-open'></i> সংরক্ষিত প্রেসক্রিপশন</a>
-        <a href="case.html"><i class='bx bx-clipboard'></i> নতুন কেস</a>
+        <a href="${pHref}"><i class='bx bx-clipboard'></i> নতুন কেস</a>
       </div>`;
     $('dhPatient').hidden = false;
     $('dhPtClose').addEventListener('click', () => {
@@ -305,7 +329,7 @@
         res.hidden = false;
         box.setAttribute('aria-expanded', 'true');
         res.innerHTML = `<div class="dh-none">এখনো কোনো রোগী সংরক্ষিত নেই।<br>
-          <a href="case.html">নতুন কেস</a> নিয়ে প্রেসক্রিপশন সংরক্ষণ করলে এখানে খুঁজে পাবেন।</div>`;
+          <a href="patients.html?new=1">নতুন রোগী নিবন্ধন</a> করলে এখানে খুঁজে পাবেন।</div>`;
         return;
       }
       const hit = D.patients
@@ -319,7 +343,7 @@
              <b>${esc(p.name)}</b>
              <small>${esc(p.caseNo || bnDate(p.date))}</small></a>`).join('')
         : `<div class="dh-none">“${esc(box.value.trim())}” নামে কোনো রোগী পাওয়া যায়নি।<br>
-             <a href="case.html">নতুন কেস শুরু করুন</a></div>`;
+             <a href="patients.html?new=1">নতুন রোগী নিবন্ধন করুন</a></div>`;
     }
 
     /* Keyboard: `/` from anywhere focuses the field, arrows walk the list and
