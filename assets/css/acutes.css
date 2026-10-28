@@ -1177,3 +1177,25 @@
     .ac-snapshot-toggle { font-size: 0; gap: 0 !important; }
     .ac-snapshot-toggle i { font-size: 1.15rem; }
   }
+
+  /* On touch-sized screens, let the document scroll instead of nested panes. */
+  @media (max-width: 900px), (max-width: 1100px) and (pointer: coarse) {
+    body.ac-fit .app-root { height: auto; overflow: visible; }
+    body.ac-fit .app-main,
+    body.ac-fit .app-content,
+    body.ac-fit .content-inner,
+    body.ac-fit #panel-wizard.active { overflow: visible; }
+    .ac-workspace, .ac-main, .ac-ask, .ac-result,
+    .ac-inspect, .ac-inspect-body, .ac-tri, .ac-detail {
+      height: auto;
+      overflow: visible;
+    }
+    .ac-result { grid-template-rows: auto; }
+  }
+  @media (max-width: 900px) {
+    /* Expand the snapshot in the page instead of adding another scroll area. */
+    .ac-mobile-snapshot { flex: 1 1 auto; }
+    .ac-snapshot-panel { position: static; max-height: none; overflow: visible; margin-bottom: 0.5rem; }
+    .ac-rail { align-items: flex-start; }
+    .ac-rail-pool { align-self: flex-start; margin-top: 0.35rem; }
+  }
