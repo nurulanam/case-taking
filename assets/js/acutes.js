@@ -505,17 +505,6 @@ function currentAxisId() {
   return 'type';
 }
 
-function axisValue(id) {
-  return flowPath.find(n => axisOf(n) === id) || null;
-}
-
-function jumpToAxis(id) {
-  const idx = flowPath.findIndex(n => axisOf(n) === id);
-  if (idx < 0) return;
-  flowPath = flowPath.slice(0, idx);
-  renderFlow();
-}
-
 function optIcon(node) {
   return AC_ICONS[node && node.key] || 'bx-right-arrow-alt';
 }
@@ -538,7 +527,7 @@ function renderFlow() {
   document.getElementById('acWorkspace').classList.toggle('is-leaf', leaf);
   document.getElementById('acAsk').hidden = leaf;
   document.getElementById('acResult').hidden = !leaf;
-  renderPipe();
+  renderProgress();
   renderRail();
   if (leaf) {
     openRemedyIdx = 0;
@@ -550,32 +539,13 @@ function renderFlow() {
   }
 }
 
-function renderPipe() {
-  const host = document.getElementById('acPipe');
-  if (!host) return;
-  const cur = currentAxisId();
-  const touchProgress = document.getElementById('acTouchProgress');
-  if (touchProgress) {
-    const axis = AC_AXES.find(a => a.id === cur);
-    touchProgress.textContent = currentFlowNode().remedies
-      ? 'ওষুধের ফলাফল'
-      : `ধাপ ${bnNum(flowPath.length + 1)}${axis ? ` · ${axis.bn}` : ''}`;
-  }
-  host.innerHTML = AC_AXES.map((ax, i) => {
-    const val = axisValue(ax.id);
-    const state = val ? 'done' : (cur === ax.id ? 'current' : 'todo');
-    const canJump = !!val;
-    return `<li class="ac-pipe-step ${state}">
-      ${i ? '<span class="ac-pipe-line" aria-hidden="true"></span>' : ''}
-      <button type="button" ${canJump ? `data-axis="${ax.id}"` : 'disabled'}>
-        <span class="ac-pipe-num">${bnNum(i + 1)}</span>
-        <span class="ac-pipe-txt"><b>${ax.bn}</b><em>${val ? val.bn : ax.en}</em></span>
-      </button>
-    </li>`;
-  }).join('');
-  host.querySelectorAll('[data-axis]').forEach(el => {
-    el.addEventListener('click', () => jumpToAxis(el.dataset.axis));
-  });
+function renderProgress() {
+  const progress = document.getElementById('acProgress');
+  if (!progress) return;
+  const axis = AC_AXES.find(a => a.id === currentAxisId());
+  progress.textContent = currentFlowNode().remedies
+    ? 'ওষুধের ফলাফল'
+    : `ধাপ ${bnNum(flowPath.length + 1)}${axis ? ` · ${axis.bn}` : ''}`;
 }
 
 function renderRail() {

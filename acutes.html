@@ -39,14 +39,13 @@
        frees this vertical space for the wizard itself. -->
 
   <!-- PANEL 1: Flow-chart wizard.
-       Console layout: pipeline of the 4 axes, a living case snapshot, and
+       Console layout: current progress, a living case snapshot, and
        one numbered question. Leaf view keeps the snapshot and splits the
        main pane into remedy list | triangle | confirmation. -->
   <div id="panel-wizard" class="page-panel active">
     <div class="ac-workspace" id="acWorkspace">
       <header class="ac-toolbar">
-        <ol class="ac-pipe" id="acPipe"></ol>
-        <div class="ac-touch-progress" id="acTouchProgress" aria-live="polite"></div>
+        <div class="ac-progress" id="acProgress" aria-live="polite"></div>
         <div class="ac-toolbar-actions">
           <button class="btn ghost btn-sm" id="flowBack" type="button" disabled aria-label="আগের ধাপ"><i class='bx bx-chevron-left'></i> <span class="ac-btn-lbl">আগের</span></button>
           <button class="btn ghost btn-sm" id="flowRestart" type="button" aria-label="আবার শুরু"><i class='bx bx-refresh'></i> <span class="ac-btn-lbl">আবার</span></button>
@@ -75,7 +74,10 @@
           </div>
           <div class="ac-mobile-remedy">
             <label for="acRemedySelect">ওষুধ বেছে বিস্তারিত দেখুন</label>
-            <select id="acRemedySelect"></select>
+            <div class="ac-select-wrap">
+              <select id="acRemedySelect"></select>
+              <i class='bx bx-chevron-down' aria-hidden="true"></i>
+            </div>
           </div>
           <div class="ac-rxpane-list" id="acRightScroll"></div>
         </aside>
