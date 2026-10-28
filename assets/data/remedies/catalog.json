@@ -90,7 +90,7 @@
     {
       "id": "acon",
       "name": "Aconitum Napellus",
-      "bangla": "অ্যাকোনাইট ন্যাপেলাস",
+      "bangla": "অ্যাকোনাইটাম ন্যাপেলাস",
       "abbr": "acon",
       "abbr_display": "Acon.",
       "family": "Ranunculaceae",
@@ -140,7 +140,7 @@
     {
       "id": "agar-em",
       "name": "Agaricus Emeticus",
-      "bangla": "আগারিকাস এমেটিকাস",
+      "bangla": "অ্যাগারিকাস এমেটিকাস",
       "abbr": "agar-em",
       "abbr_display": "Agar-em.",
       "family": "",
@@ -158,7 +158,7 @@
     {
       "id": "agar-ph",
       "name": "Agaricus Phalloides",
-      "bangla": "আগারিকাস ফ্যালোইডিস",
+      "bangla": "অ্যাগারিকাস ফ্যালোইডিস",
       "abbr": "agar-ph",
       "abbr_display": "Agar-ph.",
       "family": "",
@@ -302,7 +302,7 @@
     {
       "id": "am-be",
       "name": "Ammonium Benzoicum",
-      "bangla": "অ্যামোনিয়াম বেঞ্জোইকাম",
+      "bangla": "অ্যামোনিয়াম বেঞ্জোয়িকাম",
       "abbr": "am-be",
       "abbr_display": "Am-be.",
       "family": "",
@@ -613,7 +613,7 @@
     {
       "id": "aran-s",
       "name": "Aranea Scinencia",
-      "bangla": "আরানিয়া স্কিনেনসিয়া",
+      "bangla": "অ্যারেনিয়া স্কিনেনসিয়া",
       "abbr": "aran-s",
       "abbr_display": "Aran-s.",
       "family": "",
@@ -1388,7 +1388,7 @@
     {
       "id": "calc-si",
       "name": "Calcarea Silicata",
-      "bangla": "ক্যালকেরিয়া সিলিকেটা",
+      "bangla": "ক্যালকেরিয়া সিলিকাটা",
       "abbr": "calc-si",
       "abbr_display": "Calc-si.",
       "family": "Mineral",
@@ -1868,7 +1868,7 @@
     {
       "id": "chin-s",
       "name": "Chininum Sulphuricum",
-      "bangla": "কুইনিনাম সালফিউরিকাম",
+      "bangla": "চিনিনাম সালফিউরিকাম",
       "abbr": "chin-s",
       "abbr_display": "Chin-s.",
       "family": "Alkaloid",
@@ -2005,7 +2005,7 @@
     {
       "id": "cinnb",
       "name": "Cinnabaris",
-      "bangla": "সিনাবেরিস",
+      "bangla": "সিনাবারিস",
       "abbr": "cinnb",
       "abbr_display": "Cinnb.",
       "family": "",
@@ -2245,7 +2245,7 @@
     {
       "id": "convo",
       "name": "Convolvulus Duartinus",
-      "bangla": "কনভলভুলাস",
+      "bangla": "কনভলভুলাস ডুয়ার্টিনাস",
       "abbr": "convo",
       "abbr_display": "Convo.",
       "family": "Convolvulaceae",
@@ -2723,7 +2723,7 @@
     {
       "id": "euph",
       "name": "Euphorbium Officinarum",
-      "bangla": "ইউফরবিয়াম",
+      "bangla": "ইউফোরবিয়াম অফিসিনারাম",
       "abbr": "euph",
       "abbr_display": "Euph.",
       "family": "Euphorbiaceae",
@@ -2750,7 +2750,7 @@
     {
       "id": "fago",
       "name": "Fagopyrum Esculentum",
-      "bangla": "ফ্যাগোপাইরাম",
+      "bangla": "ফ্যাগোপাইরাম এসকুলেন্টাম",
       "abbr": "fago",
       "abbr_display": "Fago.",
       "family": "Polygonaceae",
@@ -2959,7 +2959,7 @@
     {
       "id": "ger",
       "name": "Geranium Maculatum",
-      "bangla": "জেরানিয়াম ম্যাকুলাটাম",
+      "bangla": "জেরানিয়াম ম্যাকুলেটাম",
       "abbr": "ger",
       "abbr_display": "Ger.",
       "family": "",
@@ -3013,7 +3013,7 @@
     {
       "id": "gnaph",
       "name": "Gnaphalium Polycephalum",
-      "bangla": "ন্যাফালিয়াম",
+      "bangla": "ন্যাফালিয়াম পলিসেফালাম",
       "abbr": "gnaph",
       "abbr_display": "Gnaph.",
       "family": "Compositae",
@@ -3124,7 +3124,7 @@
     {
       "id": "haem",
       "name": "Haematoxylum Campechianum",
-      "bangla": "হিমাটক্সাইলাম",
+      "bangla": "হিমাটক্সাইলাম ক্যাম্পেচিয়ানাম",
       "abbr": "haem",
       "abbr_display": "Haem.",
       "family": "Leguminosae",
@@ -3187,7 +3187,7 @@
     {
       "id": "hep",
       "name": "Hepar Sulphuris Calcareum",
-      "bangla": "হিপার সালফার",
+      "bangla": "হিপার সালফিউরিস ক্যালকেরিয়াম",
       "abbr": "hep",
       "abbr_display": "Hep.",
       "family": "Mineral",
@@ -3221,7 +3221,7 @@
     {
       "id": "hist",
       "name": "Histaminum Muriaticum",
-      "bangla": "হিস্টামিনাম",
+      "bangla": "হিস্টামিনাম মিউরিয়েটিকাম",
       "abbr": "hist",
       "abbr_display": "Hist.",
       "family": "Chemical",
@@ -3323,7 +3323,7 @@
     {
       "id": "ign",
       "name": "Ignatia Amara",
-      "bangla": "ইগ্নেশিয়া আমারা",
+      "bangla": "ইগনেশিয়া আমারা",
       "abbr": "ign",
       "abbr_display": "Ign.",
       "family": "Loganiaceae",
@@ -3399,7 +3399,7 @@
     {
       "id": "ip",
       "name": "Ipecacuanha",
-      "bangla": "ইপিকাক",
+      "bangla": "ইপিকাকুয়ানহা",
       "abbr": "ip",
       "abbr_display": "Ip.",
       "family": "Rubiaceae",
@@ -3412,7 +3412,7 @@
     {
       "id": "ipom",
       "name": "Ipomoea Purpurea",
-      "bangla": "ইপোমিয়া",
+      "bangla": "ইপোমিয়া পারপিউরিয়া",
       "abbr": "ipom",
       "abbr_display": "Ipom.",
       "family": "Convolvulaceae",
@@ -3520,7 +3520,7 @@
     {
       "id": "jugl-c",
       "name": "Juglans Cinerea",
-      "bangla": "জুগ্ল্যান্স সিনেরিয়া",
+      "bangla": "জাগল্যান্স সিনেরিয়া",
       "abbr": "jugl-c",
       "abbr_display": "Jugl-c.",
       "family": "Juglandaceae",
@@ -4028,7 +4028,7 @@
     {
       "id": "lup",
       "name": "Lupulus Humulus",
-      "bangla": "লুপুলাস",
+      "bangla": "লুপুলাস হিউমুলাস",
       "abbr": "lup",
       "abbr_display": "Lup.",
       "family": "Cannabaceae",
@@ -4166,7 +4166,7 @@
     {
       "id": "mang",
       "name": "Manganum Aceticum",
-      "bangla": "ম্যাঙ্গানাম অ্যাসেটিকাম",
+      "bangla": "ম্যাঙ্গানাম অ্যাসিটিকাম",
       "abbr": "mang",
       "abbr_display": "Mang.",
       "family": "Mineral",
@@ -4196,7 +4196,7 @@
     {
       "id": "meli",
       "name": "Melilotus Officinalis",
-      "bangla": "মেলিলোটাস",
+      "bangla": "মেলিলোটাস অফিসিনালিস",
       "abbr": "meli",
       "abbr_display": "Meli.",
       "family": "Leguminosae",
@@ -4223,7 +4223,7 @@
     {
       "id": "meny",
       "name": "Menyanthes Trifoliata",
-      "bangla": "মেনিয়ানথিস",
+      "bangla": "মেনিয়ানথিস ট্রাইফোলিয়াটা",
       "abbr": "meny",
       "abbr_display": "Meny.",
       "family": "Menyanthaceae",
@@ -4232,7 +4232,7 @@
     {
       "id": "meph",
       "name": "Mephitis Putorius",
-      "bangla": "মেফাইটিস",
+      "bangla": "মেফাইটিস পিউটরিয়াস",
       "abbr": "meph",
       "abbr_display": "Meph.",
       "family": "Animal",
@@ -4277,7 +4277,7 @@
     {
       "id": "merc-d",
       "name": "Mercurius Dulcis",
-      "bangla": "মার্কিউরিয়াস ডালসিস",
+      "bangla": "মার্কিউরিয়াস ডুলসিস",
       "abbr": "merc-d",
       "abbr_display": "Merc-d.",
       "family": "Mineral",
@@ -4407,7 +4407,7 @@
     {
       "id": "mur-ac",
       "name": "Muriaticum Acidum",
-      "bangla": "মিউরিয়াটিকাম অ্যাসিডাম",
+      "bangla": "মিউরিয়েটিকাম অ্যাসিডাম",
       "abbr": "mur-ac",
       "abbr_display": "Mur-ac.",
       "family": "Acid",
@@ -4765,7 +4765,7 @@
     {
       "id": "onos",
       "name": "Onosmodium Virginianum",
-      "bangla": "ওনোসমোডিয়াম",
+      "bangla": "ওনোসমোডিয়াম ভার্জিনিয়ানাম",
       "abbr": "onos",
       "abbr_display": "Onos.",
       "family": "Boraginaceae",
@@ -4795,7 +4795,7 @@
     {
       "id": "osm",
       "name": "Osmium Metallicum",
-      "bangla": "অসমিয়াম",
+      "bangla": "অসমিয়াম মেটালিকাম",
       "abbr": "osm",
       "abbr_display": "Osm.",
       "family": "Mineral",
@@ -4804,7 +4804,7 @@
     {
       "id": "ova",
       "name": "Ovi Gallinae Pellicula",
-      "bangla": "ওভা টেস্টা",
+      "bangla": "ওভি গ্যালিনি পেলিকুলা",
       "abbr": "ova",
       "abbr_display": "Ova.",
       "family": "Animal",
@@ -4867,7 +4867,7 @@
     {
       "id": "pall",
       "name": "Palladium",
-      "bangla": "প্যালেডিয়াম",
+      "bangla": "প্যালাডিয়াম",
       "abbr": "pall",
       "abbr_display": "Pall.",
       "family": "Mineral",
@@ -4876,7 +4876,7 @@
     {
       "id": "palla",
       "name": "Palladium Metallicum",
-      "bangla": "প্যালাডিয়াম",
+      "bangla": "প্যালাডিয়াম মেটালিকাম",
       "abbr": "palla",
       "abbr_display": "Palla.",
       "family": "Mineral",
@@ -5002,7 +5002,7 @@
     {
       "id": "phel",
       "name": "Phellandrium Aquaticum",
-      "bangla": "ফেলান্ড্রিয়াম",
+      "bangla": "ফেলান্ড্রিয়াম অ্যাকোয়াটিকাম",
       "abbr": "phel",
       "abbr_display": "Phel.",
       "family": "Umbelliferae",
@@ -5036,7 +5036,7 @@
     {
       "id": "physal",
       "name": "Physalis Alkekengi",
-      "bangla": "ফাইসেলিস",
+      "bangla": "ফাইসেলিস অ্যালকেকেঞ্জি",
       "abbr": "physal",
       "abbr_display": "Physal.",
       "family": "Solanaceae",
@@ -5054,7 +5054,7 @@
     {
       "id": "physos",
       "name": "Physostigma Venenosum",
-      "bangla": "ফাইসোস্টিগমা",
+      "bangla": "ফাইসোস্টিগমা ভেনেনোসাম",
       "abbr": "physos",
       "abbr_display": "Physos.",
       "family": "Leguminosae",
@@ -5222,7 +5222,7 @@
     {
       "id": "polyg",
       "name": "Polygonum Punctatum",
-      "bangla": "পলিগোনাম",
+      "bangla": "পলিগোনাম পাংকটেটাম",
       "abbr": "polyg",
       "abbr_display": "Polyg.",
       "family": "Polygonaceae",
@@ -5367,7 +5367,7 @@
     {
       "id": "quer",
       "name": "Quercus Robur",
-      "bangla": "কোয়ার্কাস",
+      "bangla": "কোয়ার্কাস রোবার",
       "abbr": "quer",
       "abbr_display": "Quer.",
       "family": "Fagaceae",
@@ -5507,7 +5507,7 @@
     {
       "id": "rob",
       "name": "Robinia Pseudacacia",
-      "bangla": "রবিনিয়া",
+      "bangla": "রবিনিয়া সিউডাকাসিয়া",
       "abbr": "rob",
       "abbr_display": "Rob.",
       "family": "Leguminosae",
@@ -5516,7 +5516,7 @@
     {
       "id": "rosm",
       "name": "Rosmarinus Officinalis",
-      "bangla": "রোজমেরিনাস",
+      "bangla": "রোজমেরিনাস অফিসিনালিস",
       "abbr": "rosm",
       "abbr_display": "Rosm.",
       "family": "Lamiaceae",
@@ -5543,7 +5543,7 @@
     {
       "id": "ruta",
       "name": "Ruta Graveolens",
-      "bangla": "রুটা গ্রেভিওলেন্স",
+      "bangla": "রুটা গ্র্যাভিওলেন্স",
       "abbr": "ruta",
       "abbr_display": "Ruta.",
       "family": "Rutaceae",
@@ -5744,7 +5744,7 @@
     {
       "id": "scut",
       "name": "Scutellaria Lateriflora",
-      "bangla": "স্কুটেলারিয়া",
+      "bangla": "স্কুটেলারিয়া ল্যাটেরিফ্লোরা",
       "abbr": "scut",
       "abbr_display": "Scut.",
       "family": "Lamiaceae",
@@ -5868,7 +5868,7 @@
     {
       "id": "sin-n",
       "name": "Sinapis Nigra",
-      "bangla": "সিনাপিস নাইগ্রা",
+      "bangla": "সাইনাপিস নাইগ্রা",
       "abbr": "sin-n",
       "abbr_display": "Sin-n.",
       "family": "Cruciferae",
@@ -5931,7 +5931,7 @@
     {
       "id": "spig-m",
       "name": "Spigelia Marilandica",
-      "bangla": "স্পিজেলিয়া মেরিল্যান্ডিকা",
+      "bangla": "স্পাইজেলিয়া মেরিল্যান্ডিকা",
       "abbr": "spig-m",
       "abbr_display": "Spig-m.",
       "family": "",
@@ -5940,7 +5940,7 @@
     {
       "id": "spirae",
       "name": "Spiraea Ulmaria",
-      "bangla": "স্পাইরিয়া",
+      "bangla": "স্পাইরিয়া উলমেরিয়া",
       "abbr": "spirae",
       "abbr_display": "Spirae.",
       "family": "Rosaceae",
@@ -5979,7 +5979,7 @@
     {
       "id": "stach",
       "name": "Stachys Betonica",
-      "bangla": "স্ট্যাকিস",
+      "bangla": "স্ট্যাকিস বেটোনিকা",
       "abbr": "stach",
       "abbr_display": "Stach.",
       "family": "Lamiaceae",
@@ -6048,7 +6048,7 @@
     {
       "id": "stront",
       "name": "Strontium",
-      "bangla": "স্ট্রনসিয়াম",
+      "bangla": "স্ট্রনশিয়াম",
       "abbr": "stront",
       "abbr_display": "Stront.",
       "family": "",
@@ -6066,7 +6066,7 @@
     {
       "id": "stroph",
       "name": "Strophanthus Hispidus",
-      "bangla": "স্ট্রোফ্যান্থাস",
+      "bangla": "স্ট্রোফ্যান্থাস হিসপিডাস",
       "abbr": "stroph",
       "abbr_display": "Stroph.",
       "family": "Apocynaceae",
@@ -6116,7 +6116,7 @@
     {
       "id": "sumb",
       "name": "Sumbulus Moschatus",
-      "bangla": "সুম্বুলাস",
+      "bangla": "সুম্বুলাস মস্কাটাস",
       "abbr": "sumb",
       "abbr_display": "Sumb.",
       "family": "Umbelliferae",
@@ -6173,7 +6173,7 @@
     {
       "id": "tanac",
       "name": "Tanacetum Vulgare",
-      "bangla": "ট্যানাসেটাম",
+      "bangla": "ট্যানাসেটাম ভালগারে",
       "abbr": "tanac",
       "abbr_display": "Tanac.",
       "family": "Compositae",
@@ -6191,7 +6191,7 @@
     {
       "id": "tarax",
       "name": "Taraxacum Officinale",
-      "bangla": "ট্যারাক্সেকাম",
+      "bangla": "ট্যারাক্সেকাম অফিসিনেল",
       "abbr": "tarax",
       "abbr_display": "Tarax.",
       "family": "Compositae",
@@ -6222,7 +6222,7 @@
     {
       "id": "tart-ac",
       "name": "Tartaricum Acid",
-      "bangla": "টারটারিকাম অ্যাসিড",
+      "bangla": "টার্টারিকাম অ্যাসিড",
       "abbr": "tart-ac",
       "abbr_display": "Tart-ac.",
       "family": "",
@@ -6240,7 +6240,7 @@
     {
       "id": "tell",
       "name": "Tellurium Metallicum",
-      "bangla": "টেলুরিয়াম",
+      "bangla": "টেলুরিয়াম মেটালিকাম",
       "abbr": "tell",
       "abbr_display": "Tell.",
       "family": "Mineral",
@@ -6267,7 +6267,7 @@
     {
       "id": "teucr",
       "name": "Teucrium Marum Verum",
-      "bangla": "টিউক্রিয়াম মেরাম",
+      "bangla": "টিউক্রিয়াম মেরাম ভেরাম",
       "abbr": "teucr",
       "abbr_display": "Teucr.",
       "family": "Labiatae",
@@ -6276,7 +6276,7 @@
     {
       "id": "thal",
       "name": "Thallium Metallicum",
-      "bangla": "থ্যালিয়াম",
+      "bangla": "থ্যালিয়াম মেটালিকাম",
       "abbr": "thal",
       "abbr_display": "Thal.",
       "family": "Mineral",
@@ -6303,7 +6303,7 @@
     {
       "id": "theri",
       "name": "Theridion Curassavicum",
-      "bangla": "থেরিডিয়ন",
+      "bangla": "থেরিডিয়ন কিউরাসাভিকাম",
       "abbr": "theri",
       "abbr_display": "Theri.",
       "family": "Arachnida",
@@ -6312,7 +6312,7 @@
     {
       "id": "thlaspi",
       "name": "Thlaspi Bursa Pastoris",
-      "bangla": "থ্ল্যাসপি",
+      "bangla": "থ্ল্যাসপি বুরসা পাস্টোরিস",
       "abbr": "thlaspi",
       "abbr_display": "Thlaspi.",
       "family": "Brassicaceae",
@@ -6343,7 +6343,7 @@
     {
       "id": "til",
       "name": "Tilia Europaea",
-      "bangla": "টিলিয়া",
+      "bangla": "টিলিয়া ইউরোপিয়া",
       "abbr": "til",
       "abbr_display": "Til.",
       "family": "Malvaceae",
@@ -6418,7 +6418,7 @@
     {
       "id": "tussil",
       "name": "Tussilago Farfara",
-      "bangla": "টুসিলেগো",
+      "bangla": "টুসিলাগো ফারফারা",
       "abbr": "tussil",
       "abbr_display": "Tussil.",
       "family": "Compositae",
@@ -6517,7 +6517,7 @@
     {
       "id": "vanad",
       "name": "Vanadium Metallicum",
-      "bangla": "ভ্যানাডিয়াম",
+      "bangla": "ভ্যানাডিয়াম মেটালিকাম",
       "abbr": "vanad",
       "abbr_display": "Vanad.",
       "family": "Mineral",
@@ -6655,7 +6655,7 @@
     {
       "id": "wye",
       "name": "Wyethia Helenoides",
-      "bangla": "ওয়াইথিয়া",
+      "bangla": "ওয়াইথিয়া হেলেনয়ডিস",
       "abbr": "wye",
       "abbr_display": "Wye.",
       "family": "Compositae",
@@ -6673,7 +6673,7 @@
     {
       "id": "xanth",
       "name": "Xanthoxylum Fraxineum",
-      "bangla": "জ্যান্থক্সাইলাম",
+      "bangla": "জ্যানথক্সিলাম ফ্র্যাক্সিনিয়াম",
       "abbr": "xanth",
       "abbr_display": "Xanth.",
       "family": "Rutaceae",
@@ -6781,7 +6781,7 @@
     {
       "id": "zizia",
       "name": "Zizia Aurea",
-      "bangla": "জিজিয়া",
+      "bangla": "জিজিয়া অরিয়া",
       "abbr": "zizia",
       "abbr_display": "Zizia.",
       "family": "Umbelliferae",
