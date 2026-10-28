@@ -22,46 +22,42 @@
     <main class="app-content">
       <div class="content-inner">
 
-        <div class="page-head">
-          <div class="page-icon"><i class='bx bx-clipboard'></i></div>
-          <div class="page-head-txt">
-            <h2>কেস টেকিং ফর্ম</h2>
-            <p>৯টি ধাপে সম্পূর্ণ হোমিওপ্যাথিক কেস — শেষে এআই-র জন্য বাংলা রিপোর্ট কপি করুন।</p>
-          </div>
-          <div class="page-head-actions" id="pageActions"></div>
-        </div>
-
 <form id="caseForm" novalidate="">
 
 <div id="caseGate" class="case-gate" hidden></div>
-<div class="pt-banner" id="ptBanner" hidden></div>
-<input type="hidden" name="patientId" id="patientId"/>
-<input type="hidden" name="patientName" id="patientName"/>
-<input type="hidden" name="gender" id="gender"/>
-<input type="hidden" name="ageYears" id="ageYears"/>
-<input type="hidden" name="ageMonths" id="ageMonths"/>
-<input type="hidden" name="phone" id="phone"/>
-<input type="hidden" name="occupation" id="occupation"/>
-<input type="hidden" name="maritalStatus" id="maritalStatus"/>
-<input type="hidden" name="address" id="address"/>
-<input type="hidden" name="weight" id="weight"/>
-<input type="hidden" name="height" id="height"/>
-<input type="hidden" name="bloodGroup" id="bloodGroup"/>
-<input type="hidden" name="caseType" id="caseType"/>
-<input type="hidden" name="caseMode" id="caseMode"/>
-<div class="case-meta" id="caseMeta">
-  <div class="grid two tight">
-    <label class="field"><span>কেস নম্বর</span><input name="caseNo" placeholder="স্বয়ংক্রিয়"/></label>
-    <label class="field"><span>তারিখ</span><input id="visitDate" name="visitDate" type="date"/></label>
+
+<div class="case-work" id="caseWork">
+  <div class="case-workbar">
+    <div class="pt-banner" id="ptBanner" hidden></div>
+    <div class="case-meta" id="caseMeta">
+      <label class="field"><span>কেস নম্বর</span><input name="caseNo" placeholder="স্বয়ংক্রিয়"/></label>
+      <label class="field"><span>তারিখ</span><input id="visitDate" name="visitDate" type="date"/></label>
+    </div>
+  </div>
+  <input type="hidden" name="patientId" id="patientId"/>
+  <input type="hidden" name="patientName" id="patientName"/>
+  <input type="hidden" name="gender" id="gender"/>
+  <input type="hidden" name="ageYears" id="ageYears"/>
+  <input type="hidden" name="ageMonths" id="ageMonths"/>
+  <input type="hidden" name="phone" id="phone"/>
+  <input type="hidden" name="occupation" id="occupation"/>
+  <input type="hidden" name="maritalStatus" id="maritalStatus"/>
+  <input type="hidden" name="address" id="address"/>
+  <input type="hidden" name="weight" id="weight"/>
+  <input type="hidden" name="height" id="height"/>
+  <input type="hidden" name="bloodGroup" id="bloodGroup"/>
+  <input type="hidden" name="caseType" id="caseType"/>
+  <input type="hidden" name="caseMode" id="caseMode"/>
+
+  <div class="case-stepper">
+    <div class="top-panel">
+      <div><span id="stepCounter">ধাপ ১</span><h2 id="currentStepTitle">কেস টেকিং</h2></div>
+      <p class="step-progress-note" id="stepProgressNote"></p>
+    </div>
+    <div class="progress"><span id="progressFill"></span></div>
+    <nav class="step-nav" id="stepNav" role="tablist"></nav>
   </div>
 </div>
-
-<div class="top-panel">
-<div><span id="stepCounter">ধাপ ১ / ৭</span><h2 id="currentStepTitle">কেস টেকিং</h2></div>
-</div>
-<div class="progress"><span id="progressFill"></span></div>
-<div class="step-progress-note" id="stepProgressNote"></div>
-<nav class="step-nav" id="stepNav" role="tablist"></nav>
 
 <section class="form-step" data-step-title="পূর্ববর্তী কেস ও পরিবর্তন" data-flow="followup" data-step-id="followup">
 <div class="card">
@@ -313,7 +309,13 @@
 </div>
 </div>
 </section>
-<div aria-label="ফর্ম নেভিগেশন" class="form-nav"><button class="btn ghost" id="prevBtn" type="button">← আগের ধাপ</button><button class="btn ghost" id="skipBtn" type="button">এই ধাপ বাদ দিন</button><button class="btn ghost danger" id="resetBtn" type="button">খসড়া মুছুন</button><button class="btn ghost" id="saveStepBtn" type="button">এই ধাপ সংরক্ষণ</button><button class="btn primary" id="nextBtn" type="button">পরের ধাপ →</button></div>
+<div aria-label="ফর্ম নেভিগেশন" class="form-nav">
+  <button class="btn ghost" id="prevBtn" type="button">← আগে</button>
+  <button class="btn ghost" id="skipBtn" type="button">বাদ দিন</button>
+  <button class="btn ghost danger" id="resetBtn" type="button">খসড়া মুছুন</button>
+  <button class="btn ghost" id="saveStepBtn" type="button">সংরক্ষণ</button>
+  <button class="btn primary" id="nextBtn" type="button">পরের ধাপ →</button>
+</div>
 <div class="autosave-indicator" id="autosaveIndicator"></div>
 </form>
 

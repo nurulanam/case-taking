@@ -1,5 +1,5 @@
 /* ==========================================================================
-   রোগীর তালিকা ও নিবন্ধন
+   রোগীর তালিকা ও নিবন্ধন — reception desk: list left, sheet right
    ========================================================================== */
 (() => {
   'use strict';
@@ -65,7 +65,7 @@
     editingId = p ? p.id : null;
     titleEl.textContent = p ? 'রোগীর তথ্য সম্পাদনা' : 'নতুন রোগী নিবন্ধন';
     fillForm(p);
-    formWrap.hidden = false;
+    document.body.classList.add('is-registering');
     formWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
     const name = form.querySelector('[name="name"]');
     if (name) name.focus();
@@ -73,11 +73,13 @@
 
   function closeForm() {
     editingId = null;
-    formWrap.hidden = true;
+    titleEl.textContent = 'নতুন রোগী নিবন্ধন';
     form.reset();
+    document.querySelectorAll('.pills').forEach(h => h._apply && h._apply(''));
+    document.body.classList.remove('is-registering');
     const params = new URLSearchParams(location.search);
-    if (params.has('new')) {
-      params.delete('new');
+    if (params.has('new') || params.has('edit')) {
+      params.delete('new'); params.delete('edit');
       const qs = params.toString();
       history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
     }
@@ -87,13 +89,16 @@
     const all = PatientStore.sorted();
     const needle = q.value.trim().toLowerCase();
     const rows = needle
-      ? all.filter(p => [p.name, p.phone, p.occupation, p.address]
+      ? all.filter(p => [p.name, p.phone, p.occupation, p.address, p.bloodGroup]
           .filter(Boolean).join(' ').toLowerCase().includes(needle))
       : all;
 
-    document.getElementById('ptSub').textContent = all.length
-      ? `নিবন্ধিত ${Shell.bnNum(all.length)} জন রোগী। কেস নেওয়া হয় রোগীর বিবরণ থেকে।`
-      : 'এখনো কোনো রোগী নিবন্ধিত নেই।';
+    const sub = document.getElementById('ptSub');
+    if (sub) {
+      sub.textContent = all.length
+        ? `নিবন্ধিত ${Shell.bnNum(all.length)} জন — তালিকা থেকে বিবরণ খুলুন, ডান পাশে নতুন নিবন্ধন।`
+        : 'এখনো কোনো রোগী নেই। ডান পাশের ফর্ম থেকে নিবন্ধন শুরু করুন।';
+    }
 
     Shell.setChip(all.length
       ? `${Shell.bnNum(all.length)} জন রোগী`
@@ -103,13 +108,13 @@
       listEl.innerHTML = needle
         ? `<div class="pt-empty"><i class='bx bx-search-alt'></i><p>“${esc(q.value.trim())}” নামে কেউ নেই।</p></div>`
         : `<div class="pt-empty"><i class='bx bx-user-plus'></i>
-            <p>প্রথমে রোগী নিবন্ধন করুন। নিবন্ধনের পর বিবরণ পাতা থেকে কেস শুরু হবে।</p></div>`;
+            <p>প্রথম রোগী নিবন্ধন করুন — নাম, বয়স, লিঙ্গ ও রক্তের গ্রুপ ডান পাশে।</p></div>`;
       return;
     }
 
     listEl.innerHTML = '<div class="pt-grid">' + rows.map(p => {
       const cases = window.CaseStore
-        ? CaseStore.all().filter(c => c.data && c.data.patientId === p.id ||
+        ? CaseStore.all().filter(c => (c.data && c.data.patientId === p.id) ||
             String(c.patient || '').trim().toLowerCase() === String(p.name || '').trim().toLowerCase())
         : [];
       const age = PatientStore.ageText(p);
@@ -123,6 +128,7 @@
           </span>
         </div>
         <div class="pt-card-meta">
+          ${p.bloodGroup ? `<span class="pt-pill">${esc(p.bloodGroup)}</span>` : ''}
           ${p.occupation ? `<span class="pt-pill">${esc(p.occupation)}</span>` : ''}
           <span class="pt-pill">${cases.length ? Shell.bnNum(cases.length) + 'টি কেস' : 'কেস নেই'}</span>
         </div>

@@ -590,7 +590,7 @@
      register → type → temperament / miasm / repertory. Sibling links are
      the rest of that type's tree, not a new navigation system. */
   const TOOL_PAGES = { acutes: 'toa', tempraz: 'temp', miasm: 'miasm',
-                       repertory: 'rep', prescription: 'rx', case: 'case' };
+                       repertory: 'rep', prescription: 'rx' };
 
   function renderConsultBar(active) {
     const pathId = TOOL_PAGES[active];

@@ -144,7 +144,7 @@
       `<span>${esc([age, p.gender, p.phone].filter(Boolean).join(' · '))}</span></span>` +
       (type ? `<span class="pt-pill">${esc(type)}</span>` : '') +
       (mode ? `<span class="pt-pill">${esc(mode)}</span>` : '') +
-      `<a class="btn ghost" href="${href}" style="margin-inline-start:auto;font-size:.8125rem;">রোগীর বিবরণ</a>`;
+      `<a class="btn ghost" href="${href}">বিবরণ</a>`;
   }
 
   function fillFollowupRecap(p) {
@@ -250,11 +250,11 @@
              </button>`).join('')}</div>`
         : `<p class="cg-lead">এখনো কোনো রোগী নিবন্ধিত নেই।</p>`;
       showGate(`
-        <h2>কেস নেওয়ার আগে রোগী বাছুন</h2>
-        <p class="cg-lead">পরিচয় কেস ফর্মের ধাপ নয় — নিবন্ধিত রোগীর বিবরণ থেকে কেস শুরু হয়।</p>
+        <h2>রোগী বাছুন</h2>
+        <p class="cg-lead">কেস ফর্মে নাম লেখা হয় না — নিবন্ধিত রোগী থেকে শুরু হয়।</p>
         ${list}
-        <p style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap;">
-          <a class="btn primary" href="patients.html?new=1"><i class='bx bx-user-plus'></i> নতুন রোগী নিবন্ধন</a>
+        <p style="margin-top:1.1rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+          <a class="btn primary" href="patients.html?new=1"><i class='bx bx-user-plus'></i> নতুন নিবন্ধন</a>
           <a class="btn ghost" href="patients.html">সব রোগী</a>
         </p>`);
       gate.querySelectorAll('[data-pid]').forEach(btn => {
@@ -273,8 +273,8 @@
     function pickTypeScreen(p) {
       showGate(`
         <button class="cg-back" type="button" id="cgBackP"><i class='bx bx-arrow-back'></i> অন্য রোগী</button>
-        <h2>${esc(p.name)} — কেসের ধরন</h2>
-        <p class="cg-lead">আকস্মিক, দীর্ঘস্থায়ী, না আগের কেসের ফলোআপ?</p>
+        <h2>${esc(p.name)}</h2>
+        <p class="cg-lead">কেসের ধরন — আকস্মিক হলে তীব্র তত্ত্ব, দীর্ঘস্থায়ী হলে কেস টেকিং।</p>
         <div class="cg-grid">
           <button class="cg-card" type="button" data-type="acute">
             <i class='bx bx-bolt-circle'></i><b>আকস্মিক কেস</b>
@@ -313,8 +313,8 @@
       const paths = Shell.CONSULT.pathList(tKey);
       showGate(`
         <button class="cg-back" type="button" id="cgBackT"><i class='bx bx-arrow-back'></i> ধরন বদলান</button>
-        <h2>${esc(p.name)} — ${esc(t ? t.title : '')}</h2>
-        <p class="cg-lead">যে টুল দিয়ে এগোবেন — আকস্মিকে তীব্র তত্ত্ব, দীর্ঘস্থায়ীতে কেস টেকিং মূল পথ।</p>
+        <h2>${esc(t ? t.title : '')}</h2>
+        <p class="cg-lead">${esc(p.name)} — যে টুল দিয়ে এগোবেন। মূল পথ হাইলাইট করা।</p>
         <div class="cg-grid">${paths.map(m => `
           <button class="cg-card${m.primary ? ' primary' : ''}" type="button" data-mode="${m.id}">
             <i class='bx ${m.icon}'></i>
