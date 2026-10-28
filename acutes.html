@@ -39,27 +39,31 @@
        frees this vertical space for the wizard itself. -->
 
   <!-- PANEL 1: Flow-chart wizard.
-       One current question at a time (path chips to jump back) instead of
-       4–5 nested columns. When a leaf is reached the workspace splits into
-       remedy list + triangle + confirmation — all inside the viewport. -->
+       Console layout: pipeline of the 4 axes, a living case snapshot, and
+       one numbered question. Leaf view keeps the snapshot and splits the
+       main pane into remedy list | triangle | confirmation. -->
   <div id="panel-wizard" class="page-panel active">
     <div class="ac-workspace" id="acWorkspace">
-      <header class="ac-pathbar">
-        <div class="ac-path" id="acPath"></div>
-        <div class="ac-path-actions">
+      <header class="ac-toolbar">
+        <ol class="ac-pipe" id="acPipe"></ol>
+        <div class="ac-toolbar-actions">
           <button class="btn ghost btn-sm" id="flowBack" type="button" disabled><i class='bx bx-chevron-left'></i> আগের</button>
           <button class="btn ghost btn-sm" id="flowRestart" type="button"><i class='bx bx-refresh'></i> আবার</button>
           <button class="btn primary btn-sm" id="flowToRx" type="button" disabled><i class='bx bx-receipt'></i> প্রেসক্রিপশন</button>
         </div>
       </header>
 
+      <div class="ac-body">
+        <aside class="ac-rail" id="acRail"></aside>
+        <div class="ac-main">
       <section class="ac-ask" id="acAsk">
         <div class="ac-ask-head">
-          <span class="ac-step-badge" id="acStepBadge">ধাপ ১</span>
+          <span class="ac-step-badge" id="acStepBadge">Activity</span>
           <h3 id="acAskQ"></h3>
           <p id="acAskHint"></p>
         </div>
-        <div class="ac-opts" id="acOpts"></div>
+        <div class="ac-opts" id="acOpts" role="listbox"></div>
+        <p class="ac-ask-keys" id="acAskKeys"></p>
       </section>
 
       <section class="ac-result" id="acResult" hidden>
@@ -87,6 +91,8 @@
           </div>
         </div>
       </section>
+        </div>
+      </div>
     </div>
   </div>
 

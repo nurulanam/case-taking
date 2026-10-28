@@ -464,8 +464,71 @@ function rxInfo(en) {
 let flowPath = [];     // array of chosen child nodes
 let openRemedyIdx = 0;  // which remedy in the current leaf's list is open below
 
+const AC_AXES = [
+  { id: 'activity', bn: 'কার্যকলাপ', en: 'Activity' },
+  { id: 'type',     bn: 'ধরন',       en: 'Type' },
+  { id: 'thermal',  bn: 'তাপমাত্রা', en: 'Thermal' },
+  { id: 'thirst',   bn: 'তৃষ্ণা',    en: 'Thirst' }
+];
+
+const AC_ICONS = {
+  decreased: 'bx-trending-down', increased: 'bx-trending-up', no_change: 'bx-minus',
+  sleep: 'bx-moon', dullness: 'bx-user',
+  physical: 'bx-run', mental: 'bx-brain', verbal: 'bx-conversation',
+  sing: 'bx-music', verses: 'bx-book', loquacity: 'bx-message-dots',
+  fast: 'bx-timer', irrational: 'bx-shuffle', business: 'bx-briefcase',
+  nonsense: 'bx-ghost', one_subject: 'bx-repeat', curses: 'bx-angry',
+  hot: 'bx-sun', chilly: 'bx-wind',
+  thirsty: 'bx-droplet', thirstless: 'bx-block'
+};
+
 function currentFlowNode() {
   return flowPath.length ? flowPath[flowPath.length - 1] : FLOW;
+}
+
+function axisOf(node) {
+  const k = node && node.key;
+  if (k === 'decreased' || k === 'increased' || k === 'no_change') return 'activity';
+  if (k === 'hot' || k === 'chilly') return 'thermal';
+  if (k === 'thirsty' || k === 'thirstless') return 'thirst';
+  if (k) return 'type';
+  return 'activity';
+}
+
+function currentAxisId() {
+  const node = currentFlowNode();
+  if (node.remedies) return null;
+  const kids = node.children || [];
+  if (kids.some(c => c.key === 'hot' || c.key === 'chilly')) return 'thermal';
+  if (kids.some(c => c.key === 'thirsty' || c.key === 'thirstless')) return 'thirst';
+  if (!flowPath.length) return 'activity';
+  return 'type';
+}
+
+function axisValue(id) {
+  return flowPath.find(n => axisOf(n) === id) || null;
+}
+
+function jumpToAxis(id) {
+  const idx = flowPath.findIndex(n => axisOf(n) === id);
+  if (idx < 0) return;
+  flowPath = flowPath.slice(0, idx);
+  renderFlow();
+}
+
+function optIcon(node) {
+  return AC_ICONS[node && node.key] || 'bx-right-arrow-alt';
+}
+
+function displayQ(q) {
+  return String(q || '').replace(/^ধাপ(?:\s*[০-৯0-9]+)?\s*·\s*/, '');
+}
+
+function pickOpt(i) {
+  const opts = currentFlowNode().children || [];
+  if (!opts[i]) return;
+  flowPath = flowPath.concat([opts[i]]);
+  renderFlow();
 }
 
 function renderFlow() {
@@ -475,7 +538,8 @@ function renderFlow() {
   document.getElementById('acWorkspace').classList.toggle('is-leaf', leaf);
   document.getElementById('acAsk').hidden = leaf;
   document.getElementById('acResult').hidden = !leaf;
-  renderPath();
+  renderPipe();
+  renderRail();
   if (leaf) {
     openRemedyIdx = 0;
     renderRightAndBottom();
@@ -486,56 +550,108 @@ function renderFlow() {
   }
 }
 
-function renderPath() {
-  const host = document.getElementById('acPath');
-  const chips = [];
-  const atStart = flowPath.length === 0;
-  chips.push(`<button type="button" class="ac-chip ${atStart ? 'current' : 'done'}" data-jump="-1"><span class="ac-chip-num">${bnNum(1)}</span> কার্যকলাপ</button>`);
-  flowPath.forEach((n, i) => {
-    const last = i === flowPath.length - 1;
-    chips.push(`<i class="bx bx-chevron-right ac-chip-sep" aria-hidden="true"></i>`);
-    chips.push(`<button type="button" class="ac-chip ${last ? 'current' : 'done'}" data-jump="${i}"><span class="ac-chip-num">${bnNum(i + 2)}</span> ${n.bn}</button>`);
+function renderPipe() {
+  const host = document.getElementById('acPipe');
+  if (!host) return;
+  const cur = currentAxisId();
+  host.innerHTML = AC_AXES.map((ax, i) => {
+    const val = axisValue(ax.id);
+    const state = val ? 'done' : (cur === ax.id ? 'current' : 'todo');
+    const canJump = !!val;
+    return `<li class="ac-pipe-step ${state}">
+      ${i ? '<span class="ac-pipe-line" aria-hidden="true"></span>' : ''}
+      <button type="button" ${canJump ? `data-axis="${ax.id}"` : 'disabled'}>
+        <span class="ac-pipe-num">${bnNum(i + 1)}</span>
+        <span class="ac-pipe-txt"><b>${ax.bn}</b><em>${val ? val.bn : ax.en}</em></span>
+      </button>
+    </li>`;
+  }).join('');
+  host.querySelectorAll('[data-axis]').forEach(el => {
+    el.addEventListener('click', () => jumpToAxis(el.dataset.axis));
   });
-  host.innerHTML = chips.join('');
-  host.querySelectorAll('[data-jump]').forEach(el => {
-    el.addEventListener('click', () => {
-      const j = +el.dataset.jump;
-      flowPath = j < 0 ? [] : flowPath.slice(0, j + 1);
-      renderFlow();
-    });
+}
+
+function renderRail() {
+  const host = document.getElementById('acRail');
+  if (!host) return;
+  const cur = currentAxisId();
+  const pool = countRemedies(currentFlowNode());
+  const rows = AC_AXES.map(ax => {
+    const val = axisValue(ax.id);
+    const state = val ? 'filled' : (cur === ax.id ? 'current' : 'empty');
+    const ico = val ? optIcon(val) : (state === 'current' ? 'bx-radio-circle-marked' : 'bx-radio-circle');
+    return `<button type="button" class="ac-axis ${state}" ${val ? `data-axis="${ax.id}"` : 'disabled'}>
+      <i class="bx ${ico}"></i>
+      <span><small>${ax.bn}</small><strong>${val ? val.bn : (state === 'current' ? 'বাছাই করুন' : '—')}</strong></span>
+    </button>`;
+  }).join('');
+  host.innerHTML = `<div class="ac-rail-head">কেস স্ন্যাপশট</div>
+    <div class="ac-axes">${rows}</div>
+    <div class="ac-rail-pool"><strong>${bnNum(pool)}</strong><span>${currentFlowNode().remedies ? 'সম্ভাব্য ওষুধ' : 'ওষুধ বাকি'}</span></div>`;
+  host.querySelectorAll('[data-axis]').forEach(el => {
+    el.addEventListener('click', () => jumpToAxis(el.dataset.axis));
   });
 }
 
 function renderAsk() {
   const node = currentFlowNode();
   const opts = node.children || [];
+  const axis = AC_AXES.find(a => a.id === currentAxisId());
   const badge = document.getElementById('acStepBadge');
-  if (badge) badge.textContent = `ধাপ ${bnNum(flowPath.length + 1)}`;
-  document.getElementById('acAskQ').textContent = node.q || '';
+  if (badge) badge.textContent = axis ? axis.en : `ধাপ ${bnNum(flowPath.length + 1)}`;
+  document.getElementById('acAskQ').textContent = displayQ(node.q);
   document.getElementById('acAskHint').textContent = node.hint || '';
   const host = document.getElementById('acOpts');
-  host.classList.toggle('hero', opts.length > 0 && opts.length <= 4);
+  host.classList.remove('hero');
   host.innerHTML = opts.map((opt, oi) => {
     const count = countRemedies(opt);
-    return `<button type="button" class="ac-opt" data-opt="${oi}" style="animation-delay:${oi * 0.04}s">
-      <span class="ac-opt-top">
-        <span class="ac-opt-ico">${opt.icon || '•'}</span>
-        <span class="ac-opt-count">${bnNum(count)}টি ওষুধ</span>
-      </span>
+    return `<button type="button" class="ac-opt" data-opt="${oi}" role="option">
+      <kbd class="ac-opt-k">${bnNum(oi + 1)}</kbd>
+      <span class="ac-opt-ico"><i class="bx ${optIcon(opt)}"></i></span>
       <span class="ac-opt-label">
         <strong>${opt.bn}</strong>
         <em>${opt.en || ''}</em>
         <span>${opt.desc || ''}</span>
       </span>
-      <span class="ac-opt-go">নির্বাচন করুন <i class="bx bx-right-arrow-alt"></i></span>
+      <span class="ac-opt-meta">
+        <span class="ac-opt-count">${bnNum(count)}</span>
+        <i class="bx bx-chevron-right" aria-hidden="true"></i>
+      </span>
     </button>`;
   }).join('');
   host.querySelectorAll('.ac-opt').forEach(el => {
-    el.addEventListener('click', () => {
-      flowPath = flowPath.concat([opts[+el.dataset.opt]]);
-      renderFlow();
-    });
+    el.addEventListener('click', () => pickOpt(+el.dataset.opt));
   });
+  const keys = document.getElementById('acAskKeys');
+  if (keys) {
+    keys.hidden = opts.length === 0;
+    keys.innerHTML = opts.length
+      ? `<kbd>১</kbd>–<kbd>${bnNum(opts.length)}</kbd> নির্বাচন · <kbd>Esc</kbd> পেছনে`
+      : '';
+  }
+}
+
+function onWizardKey(e) {
+  if (!document.body.classList.contains('ac-fit')) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  const leaf = !!(currentFlowNode().remedies);
+  if (!leaf) {
+    let idx = -1;
+    if (e.key >= '1' && e.key <= '9') idx = +e.key - 1;
+    else idx = '১২৩৪৫৬৭৮৯'.indexOf(e.key);
+    if (idx >= 0) {
+      e.preventDefault();
+      pickOpt(idx);
+      return;
+    }
+  }
+  if ((e.key === 'Escape' || e.key === 'Backspace') && flowPath.length) {
+    e.preventDefault();
+    flowPath.pop();
+    renderFlow();
+  }
 }
 
 // Right column: the current leaf's remedies (replaces a generic "analysis
@@ -720,6 +836,7 @@ function initFlowWizard() {
   document.getElementById('flowRestart').addEventListener('click', () => { flowPath = []; renderFlow(); });
   const toRx = document.getElementById('flowToRx');
   if (toRx) toRx.addEventListener('click', sendAcuteToRx);
+  document.addEventListener('keydown', onWizardKey);
   renderFlow();
   initTopbar();
 }
