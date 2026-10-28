@@ -464,79 +464,182 @@ function rxInfo(en) {
 let flowPath = [];     // array of chosen child nodes
 let openRemedyIdx = 0;  // which remedy in the current leaf's list is open below
 
+const AC_AXES = [
+  { id: 'activity', bn: 'কার্যকলাপ', en: 'Activity' },
+  { id: 'type',     bn: 'ধরন',       en: 'Type' },
+  { id: 'thermal',  bn: 'তাপমাত্রা', en: 'Thermal' },
+  { id: 'thirst',   bn: 'তৃষ্ণা',    en: 'Thirst' }
+];
+
+const AC_ICONS = {
+  decreased: 'bx-trending-down', increased: 'bx-trending-up', no_change: 'bx-minus',
+  sleep: 'bx-moon', dullness: 'bx-user',
+  physical: 'bx-run', mental: 'bx-brain', verbal: 'bx-conversation',
+  sing: 'bx-music', verses: 'bx-book', loquacity: 'bx-message-dots',
+  fast: 'bx-timer', irrational: 'bx-shuffle', business: 'bx-briefcase',
+  nonsense: 'bx-ghost', one_subject: 'bx-repeat', curses: 'bx-angry',
+  hot: 'bx-sun', chilly: 'bx-wind',
+  thirsty: 'bx-droplet', thirstless: 'bx-block'
+};
+
 function currentFlowNode() {
   return flowPath.length ? flowPath[flowPath.length - 1] : FLOW;
+}
+
+function axisOf(node) {
+  const k = node && node.key;
+  if (k === 'decreased' || k === 'increased' || k === 'no_change') return 'activity';
+  if (k === 'hot' || k === 'chilly') return 'thermal';
+  if (k === 'thirsty' || k === 'thirstless') return 'thirst';
+  if (k) return 'type';
+  return 'activity';
+}
+
+function currentAxisId() {
+  const node = currentFlowNode();
+  if (node.remedies) return null;
+  const kids = node.children || [];
+  if (kids.some(c => c.key === 'hot' || c.key === 'chilly')) return 'thermal';
+  if (kids.some(c => c.key === 'thirsty' || c.key === 'thirstless')) return 'thirst';
+  if (!flowPath.length) return 'activity';
+  return 'type';
+}
+
+function optIcon(node) {
+  return AC_ICONS[node && node.key] || 'bx-right-arrow-alt';
+}
+
+function displayQ(q) {
+  return String(q || '').replace(/^ধাপ(?:\s*[০-৯0-9]+)?\s*·\s*/, '');
+}
+
+function pickOpt(i) {
+  const opts = currentFlowNode().children || [];
+  if (!opts[i]) return;
+  flowPath = flowPath.concat([opts[i]]);
+  renderFlow();
 }
 
 function renderFlow() {
   document.getElementById('flowBack').disabled = flowPath.length === 0;
   updateTopbarChip();
-  renderSteps();
-  openRemedyIdx = 0;      // a path change always lands on a fresh leaf (or none)
-  renderRightAndBottom();
+  const leaf = !!(currentFlowNode().remedies);
+  document.getElementById('acWorkspace').classList.toggle('is-leaf', leaf);
+  document.getElementById('acAsk').hidden = leaf;
+  document.getElementById('acResult').hidden = !leaf;
+  renderProgress();
+  renderRail();
+  if (leaf) {
+    openRemedyIdx = 0;
+    renderRightAndBottom();
+  } else {
+    renderAsk();
+    const toRx = document.getElementById('flowToRx');
+    if (toRx) toRx.disabled = true;
+  }
 }
 
-// One column per level of the path so far — every column stays visible and
-// clickable (Tempraz-style "everything on one screen"), instead of the old
-// single current-question view with a Back button. Depth is 1–4 levels
-// depending on the branch, so this is a horizontal cascade rather than a
-// fixed column count.
-function renderSteps() {
-  const host = document.getElementById('acSteps');
-  const cols = [{ q: FLOW.q, hint: FLOW.hint, options: FLOW.children }];
-  for (let i = 0; i < flowPath.length; i++) {
-    const cur = flowPath[i];
-    if (cur.remedies) break;               // reached a leaf — no further question
-    cols.push({ q: cur.q, hint: cur.hint, options: cur.children });
-  }
+function renderProgress() {
+  const progress = document.getElementById('acProgress');
+  if (!progress) return;
+  const axis = AC_AXES.find(a => a.id === currentAxisId());
+  progress.textContent = currentFlowNode().remedies
+    ? 'ওষুধের ফলাফল'
+    : `ধাপ ${bnNum(flowPath.length + 1)}${axis ? ` · ${axis.bn}` : ''}`;
+}
 
-  host.innerHTML = cols.map((col, ci) => {
-    const chosen = flowPath[ci] || null;   // option picked at this level, if any
-    const summary = chosen ? `
-      <div class="ac-step-summary" data-jump="${ci}">
-        <span class="ac-step-summary-ic">${chosen.icon || '•'}</span>
-        <span class="ac-step-summary-txt"><b>${chosen.bn}</b></span>
-        <i class='bx bx-chevron-right ac-step-summary-caret'></i>
-      </div>` : '';
-    const options = col.options.map((opt, oi) => {
-      const count = countRemedies(opt);
-      return `<div class="ac-opt ${chosen === opt ? 'chosen' : ''}" data-col="${ci}" data-opt="${oi}"
-                   style="animation-delay:${oi * 0.04}s">
-        <span class="rc-emoji">${opt.icon || '•'}</span>
-        <div class="ac-opt-label">
-          <strong>${opt.bn}</strong>
-          <span>${opt.en}${opt.desc ? ' — ' + opt.desc : ''}</span>
-        </div>
-        <span class="ac-opt-count">${bnNum(count)}</span>
-      </div>`;
-    }).join('');
-    return `<div class="ac-step-col${chosen ? ' answered' : ''}">
-      <div class="ac-step-head">
-        ${summary}
-        <div class="ac-step-q"><i class='bx bx-help-circle'></i> ${col.q || ''}</div>
-        ${col.hint ? `<div class="ac-step-hint">${col.hint}</div>` : ''}
-      </div>
-      <div class="ac-step-options-scroll"><div class="ac-step-options">${options}</div></div>
-    </div>`;
+function renderRail() {
+  const host = document.getElementById('acRail');
+  if (!host) return;
+  const pool = countRemedies(currentFlowNode());
+  const rows = flowPath.map((n, i) => {
+    const ax = AC_AXES.find(a => a.id === axisOf(n));
+    return `<button type="button" class="ac-axis filled" data-jump="${i}">
+      <i class="bx ${optIcon(n)}"></i>
+      <span><small>${ax ? ax.bn : ''}</small><strong>${n.bn}</strong></span>
+    </button>`;
   }).join('');
-
-  host.querySelectorAll('.ac-opt').forEach(el => {
-    el.addEventListener('click', () => {
-      const ci = +el.dataset.col;
-      const opt = cols[ci].options[+el.dataset.opt];
-      flowPath = flowPath.slice(0, ci).concat([opt]);
-      renderFlow();
-    });
-  });
-  host.querySelectorAll('.ac-step-summary').forEach(el => {
+  const empty = flowPath.length
+    ? ''
+    : `<p class="ac-rail-empty">এখনো খালি — ধাপ বেছে নিলে এখানে জমা হবে</p>`;
+  host.innerHTML = `<div class="ac-rail-head">কেস স্ন্যাপশট</div>
+    <div class="ac-axes">${rows}</div>
+    ${empty}
+    <div class="ac-rail-pool"><strong>${bnNum(pool)}</strong><span>${currentFlowNode().remedies ? 'সম্ভাব্য ওষুধ' : 'ওষুধ বাকি'}</span></div>
+    <details class="ac-mobile-snapshot">
+      <summary><span><i class="bx bx-list-check" aria-hidden="true"></i> কেস স্ন্যাপশট <b>${bnNum(flowPath.length)}</b></span><span class="ac-snapshot-toggle">দেখুন <i class="bx bx-chevron-down" aria-hidden="true"></i></span></summary>
+      <div class="ac-snapshot-panel">
+        <p>আগের কোনো নির্বাচন বদলাতে সেটিতে চাপুন</p>
+        <div class="ac-snapshot-choices">${rows || '<span class="ac-snapshot-empty">এখনো কোনো ধাপ বেছে নেওয়া হয়নি।</span>'}</div>
+      </div>
+    </details>`;
+  host.querySelectorAll('[data-jump]').forEach(el => {
     el.addEventListener('click', () => {
       flowPath = flowPath.slice(0, +el.dataset.jump);
       renderFlow();
     });
   });
+}
 
-  // newest column should be the one in view
-  requestAnimationFrame(() => { host.scrollLeft = host.scrollWidth; });
+function renderAsk() {
+  const node = currentFlowNode();
+  const opts = node.children || [];
+  const axis = AC_AXES.find(a => a.id === currentAxisId());
+  const badge = document.getElementById('acStepBadge');
+  if (badge) badge.textContent = axis ? axis.en : `ধাপ ${bnNum(flowPath.length + 1)}`;
+  document.getElementById('acAskQ').textContent = displayQ(node.q);
+  document.getElementById('acAskHint').textContent = node.hint || '';
+  const host = document.getElementById('acOpts');
+  host.classList.remove('hero');
+  host.innerHTML = opts.map((opt, oi) => {
+    const count = countRemedies(opt);
+    return `<button type="button" class="ac-opt" data-opt="${oi}" role="option">
+      <kbd class="ac-opt-k">${bnNum(oi + 1)}</kbd>
+      <span class="ac-opt-ico"><i class="bx ${optIcon(opt)}"></i></span>
+      <span class="ac-opt-label">
+        <strong>${opt.bn}</strong>
+        <em>${opt.en || ''}</em>
+        <span>${opt.desc || ''}</span>
+      </span>
+      <span class="ac-opt-meta">
+        <span class="ac-opt-count">${bnNum(count)}</span>
+        <i class="bx bx-chevron-right" aria-hidden="true"></i>
+      </span>
+    </button>`;
+  }).join('');
+  host.querySelectorAll('.ac-opt').forEach(el => {
+    el.addEventListener('click', () => pickOpt(+el.dataset.opt));
+  });
+  const keys = document.getElementById('acAskKeys');
+  if (keys) {
+    keys.hidden = opts.length === 0;
+    keys.innerHTML = opts.length
+      ? `<kbd>১</kbd>–<kbd>${bnNum(opts.length)}</kbd> নির্বাচন · <kbd>Esc</kbd> পেছনে`
+      : '';
+  }
+}
+
+function onWizardKey(e) {
+  if (!document.body.classList.contains('ac-fit')) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  const leaf = !!(currentFlowNode().remedies);
+  if (!leaf) {
+    let idx = -1;
+    if (e.key >= '1' && e.key <= '9') idx = +e.key - 1;
+    else idx = '১২৩৪৫৬৭৮৯'.indexOf(e.key);
+    if (idx >= 0) {
+      e.preventDefault();
+      pickOpt(idx);
+      return;
+    }
+  }
+  if ((e.key === 'Escape' || e.key === 'Backspace') && flowPath.length) {
+    e.preventDefault();
+    flowPath.pop();
+    renderFlow();
+  }
 }
 
 // Right column: the current leaf's remedies (replaces a generic "analysis
@@ -545,10 +648,12 @@ function renderRightAndBottom() {
   const node = currentFlowNode();
   const scroll = document.getElementById('acRightScroll');
   const countEl = document.getElementById('acRightCount');
+  const select = document.getElementById('acRemedySelect');
 
   if (!node.remedies) {
+    select.replaceChildren();
     countEl.textContent = '';
-    scroll.innerHTML = `<div class="tz-empty"><i class='bx bx-capsule'></i><p>ধাপগুলো শেষ করলে এখানে ওষুধের তালিকা দেখাবে।</p></div>`;
+    scroll.innerHTML = `<div class="ac-empty"><i class='bx bx-capsule'></i><p>ধাপগুলো শেষ করলে এখানে ওষুধের তালিকা দেখাবে।</p></div>`;
     renderBottomEmpty();
     const toRx = document.getElementById('flowToRx');
     if (toRx) toRx.disabled = true;
@@ -556,6 +661,18 @@ function renderRightAndBottom() {
   }
 
   countEl.textContent = `${bnNum(node.remedies.length)}টি ওষুধ`;
+  select.replaceChildren(...node.remedies.map((r, idx) => {
+    const option = document.createElement('option');
+    option.value = idx;
+    option.textContent = `${r.bn} (${r.ab})`;
+    option.selected = idx === openRemedyIdx;
+    return option;
+  }));
+  select.onchange = () => {
+    openRemedyIdx = Number(select.value);
+    renderRightAndBottom();
+    persistAcutePick(true);
+  };
   scroll.innerHTML = node.remedies.map((r, idx) => {
     const info = rxInfo(r.en);
     return `<div class="ac-rx-row ${idx === openRemedyIdx ? 'open' : ''}" data-idx="${idx}" style="animation-delay:${Math.min(idx, 8) * 0.03}s">
@@ -618,14 +735,18 @@ function renderBottomFor(r) {
   const info = rxInfo(r.en);
   const triHost = document.getElementById('acTriHost');
   const detailHost = document.getElementById('acDetailHost');
-  document.getElementById('acDetailName').textContent = `${r.bn} — বিস্তারিত`;
+  document.getElementById('acDetailName').textContent = r.bn;
+  const sub = document.getElementById('acDetailSub');
+  if (sub) sub.textContent = `${r.en || ''}${r.n != null ? ' · চার্ট ' + bnNum(r.n) : ''}`;
+  const abbr = document.getElementById('acDetailAbbr');
+  if (abbr) abbr.textContent = r.ab || '—';
 
   const hasTriangle = !!(info && info.triangle && info.triangle.length === 3);
   triHost.innerHTML = hasTriangle
     ? triangleOnly(info.triangle)
     : (info && info.triangle && info.triangle.length
         ? `<ul class="tri-list">${info.triangle.map(t => `<li>${t}</li>`).join('')}</ul>`
-        : `<div class="tz-empty" style="min-height:120px;"><p>এই ওষুধের ত্রিভুজ তথ্য নেই।</p></div>`);
+        : `<div class="ac-empty"><p>এই ওষুধের ত্রিভুজ তথ্য নেই।</p></div>`);
 
   detailHost.innerHTML = info ? `
     ${info.key_feature ? `<div class="rx-key">${info.key_feature}</div>` : ''}
@@ -643,9 +764,13 @@ function renderBottomFor(r) {
 }
 
 function renderBottomEmpty() {
-  document.getElementById('acTriHost').innerHTML = `<div class="tz-empty" style="min-height:150px;"><i class='bx bx-shape-triangle'></i><p>ওষুধ বেছে নিলে ত্রিভুজ দেখাবে।</p></div>`;
-  document.getElementById('acDetailHost').innerHTML = `<div class="tz-empty" style="min-height:150px;"><p>ওষুধ বেছে নিলে বিস্তারিত দেখাবে।</p></div>`;
+  document.getElementById('acTriHost').innerHTML = `<div class="ac-empty"><i class='bx bx-shape-triangle'></i><p>ওষুধ বেছে নিলে ত্রিভুজ দেখাবে।</p></div>`;
+  document.getElementById('acDetailHost').innerHTML = `<div class="ac-empty"><p>ওষুধ বেছে নিলে বিস্তারিত দেখাবে।</p></div>`;
   document.getElementById('acDetailName').textContent = 'বিস্তারিত';
+  const sub = document.getElementById('acDetailSub');
+  if (sub) sub.textContent = '';
+  const abbr = document.getElementById('acDetailAbbr');
+  if (abbr) abbr.textContent = '—';
 }
 
 function countRemedies(node) {
@@ -713,6 +838,7 @@ function initFlowWizard() {
   document.getElementById('flowRestart').addEventListener('click', () => { flowPath = []; renderFlow(); });
   const toRx = document.getElementById('flowToRx');
   if (toRx) toRx.addEventListener('click', sendAcuteToRx);
+  document.addEventListener('keydown', onWizardKey);
   renderFlow();
   initTopbar();
 }
@@ -763,6 +889,7 @@ function activatePanel(name) {
   document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
   const panel = document.getElementById(`panel-${name}`);
   if (panel) panel.classList.add('active');
+  document.body.classList.toggle('ac-fit', name === 'wizard');
 }
 
 function openPanelFromHash() {
