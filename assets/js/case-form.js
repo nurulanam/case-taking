@@ -6,7 +6,7 @@
   const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-  // State — step count follows the chosen flow (guided 7 / follow-up 4)
+  // State — step count follows the chosen flow (chronic 5 / acute 3 / follow-up 3)
   let currentStep = 1;
   let complaintCount = 0;
 
@@ -16,8 +16,14 @@
     followup: 'ফলোআপ'
   };
   const MODE_VALUE = {
-    guided: 'গাইডেড কেস টেকিং',
-    direct: 'সরাসরি রেপার্টরাইজেশন'
+    case: 'কেস টেকিং',
+    guided: 'কেস টেকিং',
+    toa: 'তীব্র রোগের তত্ত্ব',
+    temp: 'টেম্পারামেন্ট',
+    miasm: 'মায়াজম',
+    rep: 'রেপার্টরি',
+    rx: 'প্রেসক্রিপশন',
+    direct: 'রেপার্টরি'
   };
   const STEP_ICON = {
     followup: 'bx-revision',
@@ -26,7 +32,6 @@
     generals: 'bx-body',
     mental: 'bx-brain',
     history: 'bx-history',
-    assessment: 'bx-analyse',
     review: 'bx-check-circle'
   };
 
@@ -56,7 +61,9 @@
 
   function flowOf() {
     const t = (form.querySelector('[name="caseType"]') || {}).value || '';
-    return t === TYPE_VALUE.followup ? 'followup' : 'guided';
+    if (t === TYPE_VALUE.followup) return 'followup';
+    if (t === TYPE_VALUE.acute) return 'acute';
+    return 'guided';
   }
 
   function visibleStepEls() {
@@ -113,6 +120,13 @@
     setHidden('bloodGroup', p.bloodGroup || '');
     renderPatientBanner(p);
     updateGenderPanels();
+    if (Shell.bridge) {
+      Shell.bridge.patch({
+        patient: p.name || '',
+        patientId: p.id || '',
+        from: 'case'
+      });
+    }
   }
 
   function renderPatientBanner(p) {
@@ -130,7 +144,7 @@
       `<span>${esc([age, p.gender, p.phone].filter(Boolean).join(' · '))}</span></span>` +
       (type ? `<span class="pt-pill">${esc(type)}</span>` : '') +
       (mode ? `<span class="pt-pill">${esc(mode)}</span>` : '') +
-      `<a class="btn ghost" href="${href}" style="margin-inline-start:auto;font-size:.8125rem;">রোগীর বিবরণ</a>`;
+      `<a class="btn ghost" href="${href}">বিবরণ</a>`;
   }
 
   function fillFollowupRecap(p) {
@@ -175,8 +189,12 @@
 
   function modeKeyFromValue(v) {
     v = String(v || '');
-    if (v.indexOf('সরাসরি') >= 0 || v === 'direct') return 'direct';
-    if (v.indexOf('গাইড') >= 0 || v === 'guided') return 'guided';
+    if (v.indexOf('তত্ত্ব') >= 0 || v === 'toa') return 'toa';
+    if (v.indexOf('টেম্প') >= 0 || v === 'temp') return 'temp';
+    if (v.indexOf('মায়াজম') >= 0 || v === 'miasm') return 'miasm';
+    if (v.indexOf('প্রেসক্রিপ') >= 0 || v === 'rx') return 'rx';
+    if (v.indexOf('রেপার্ট') >= 0 || v === 'rep' || v === 'direct') return 'rep';
+    if (v.indexOf('কেস') >= 0 || v.indexOf('গাইড') >= 0 || v === 'case' || v === 'guided') return 'case';
     return '';
   }
 
@@ -209,7 +227,7 @@
     // A reopened case that predates type/mode still opens the form, not the chooser.
     if (draftNow && draftNow.__caseId) {
       if (!typeKey) typeKey = 'chronic';
-      if (!modeKey && typeKey !== 'followup') modeKey = 'guided';
+      if (!modeKey) modeKey = 'case';
     }
 
     function showGate(html) {
@@ -232,11 +250,11 @@
              </button>`).join('')}</div>`
         : `<p class="cg-lead">এখনো কোনো রোগী নিবন্ধিত নেই।</p>`;
       showGate(`
-        <h2>কেস নেওয়ার আগে রোগী বাছুন</h2>
-        <p class="cg-lead">পরিচয় কেস ফর্মের ধাপ নয় — নিবন্ধিত রোগীর বিবরণ থেকে কেস শুরু হয়।</p>
+        <h2>রোগী বাছুন</h2>
+        <p class="cg-lead">কেস ফর্মে নাম লেখা হয় না — নিবন্ধিত রোগী থেকে শুরু হয়।</p>
         ${list}
-        <p style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap;">
-          <a class="btn primary" href="patients.html?new=1"><i class='bx bx-user-plus'></i> নতুন রোগী নিবন্ধন</a>
+        <p style="margin-top:1.1rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+          <a class="btn primary" href="patients.html?new=1"><i class='bx bx-user-plus'></i> নতুন নিবন্ধন</a>
           <a class="btn ghost" href="patients.html">সব রোগী</a>
         </p>`);
       gate.querySelectorAll('[data-pid]').forEach(btn => {
@@ -255,8 +273,8 @@
     function pickTypeScreen(p) {
       showGate(`
         <button class="cg-back" type="button" id="cgBackP"><i class='bx bx-arrow-back'></i> অন্য রোগী</button>
-        <h2>${esc(p.name)} — কেসের ধরন</h2>
-        <p class="cg-lead">আকস্মিক, দীর্ঘস্থায়ী, না আগের কেসের ফলোআপ?</p>
+        <h2>${esc(p.name)}</h2>
+        <p class="cg-lead">কেসের ধরন — আকস্মিক হলে তীব্র তত্ত্ব, দীর্ঘস্থায়ী হলে কেস টেকিং।</p>
         <div class="cg-grid">
           <button class="cg-card" type="button" data-type="acute">
             <i class='bx bx-bolt-circle'></i><b>আকস্মিক কেস</b>
@@ -290,22 +308,19 @@
       });
     }
 
-    function pickModeScreen(p, tKey) {
-      const label = tKey === 'acute' ? 'আকস্মিক' : 'দীর্ঘস্থায়ী';
+    function pickPathScreen(p, tKey) {
+      const t = Shell.CONSULT.typeOf(tKey);
+      const paths = Shell.CONSULT.pathList(tKey);
       showGate(`
         <button class="cg-back" type="button" id="cgBackT"><i class='bx bx-arrow-back'></i> ধরন বদলান</button>
-        <h2>${esc(p.name)} — ${label} কেসের পদ্ধতি</h2>
-        <p class="cg-lead">ধাপে ধাপে কেস নিতে চান, না সরাসরি রেপার্টরিতে যেতে?</p>
-        <div class="cg-grid">
-          <button class="cg-card" type="button" data-mode="guided">
-            <i class='bx bx-list-check'></i><b>গাইডেড কেস টেকিং</b>
-            <span>অভিযোগ থেকে ইতিহাস পর্যন্ত ধাপে ধাপে — প্রতি ধাপ আলাদা সংরক্ষিত, ঐচ্ছিক ধাপ বাদ দেওয়া যায়।</span>
-          </button>
-          <button class="cg-card" type="button" data-mode="direct">
-            <i class='bx bx-book-bookmark'></i><b>সরাসরি রেপার্টরাইজেশন</b>
-            <span>ফর্ম এড়িয়ে রেপার্টরিতে রুব্রিক বাছুন — লক্ষণ ইতিমধ্যে স্পষ্ট হলে।</span>
-          </button>
-        </div>`);
+        <h2>${esc(t ? t.title : '')}</h2>
+        <p class="cg-lead">${esc(p.name)} — যে টুল দিয়ে এগোবেন। মূল পথ হাইলাইট করা।</p>
+        <div class="cg-grid">${paths.map(m => `
+          <button class="cg-card${m.primary ? ' primary' : ''}" type="button" data-mode="${m.id}">
+            <i class='bx ${m.icon}'></i>
+            <b>${m.title}${m.primary ? ' · মূল পথ' : ''}</b>
+            <span>${m.sub}</span>
+          </button>`).join('')}</div>`);
       document.getElementById('cgBackT').addEventListener('click', () => {
         const qs = new URLSearchParams(location.search);
         qs.delete('type'); qs.delete('mode');
@@ -328,28 +343,39 @@
     if (!typeKey) { pickTypeScreen(patient); return false; }
     setHidden('caseType', TYPE_VALUE[typeKey] || typeKey);
 
+    if (!modeKey) {
+      pickPathScreen(patient, typeKey);
+      return false;
+    }
+    setHidden('caseMode', MODE_VALUE[modeKey] || modeKey);
+    if (Shell.bridge) {
+      Shell.bridge.patch({
+        from: 'case',
+        patient: patient.name,
+        patientId: patient.id,
+        caseType: TYPE_VALUE[typeKey] || '',
+        path: modeKey
+      });
+    }
+
+    if (modeKey === 'followup' || typeKey === 'followup') {
+      setHidden('caseType', TYPE_VALUE.followup);
+    }
+
+    const formModes = { case: 1, guided: 1 };
+    if (!formModes[modeKey]) {
+      ensureCaseNumberAndDate();
+      saveDraft();
+      location.href = Shell.CONSULT.href(typeKey, modeKey === 'direct' ? 'rep' : modeKey, patient.id);
+      return false;
+    }
+
+    hideGate();
+    renderPatientBanner(patient);
     if (typeKey === 'followup') {
-      setHidden('caseMode', '');
-      hideGate();
       const vt = form.querySelector('.pills[data-pills="visitType"]');
       if (vt && vt._apply && !vt.querySelector('input[name="visitType"]').value) vt._apply('ফলোআপ');
       fillFollowupRecap(patient);
-      renderPatientBanner(patient);
-      return true;
-    }
-
-    if (!modeKey) { pickModeScreen(patient, typeKey); return false; }
-    setHidden('caseMode', MODE_VALUE[modeKey] || modeKey);
-    hideGate();
-    renderPatientBanner(patient);
-
-    if (modeKey === 'direct' && params.get('mode') === 'direct') {
-      ensureCaseNumberAndDate();
-      const qs = new URLSearchParams(location.search);
-      qs.delete('mode');
-      history.replaceState(null, '', location.pathname + (qs.toString() ? '?' + qs : ''));
-      launchDirect();
-      return false;
     }
     return true;
   }
@@ -423,9 +449,9 @@
     if (!stepNav) return;
     const steps = visibleStepEls();
     const short = {
-      followup: 'পরিবর্তন', chief: 'অভিযোগ', particulars: 'বিশেষ লক্ষণ',
+      followup: 'পরিবর্তন', chief: 'অভিযোগ', particulars: 'লক্ষণ',
       generals: 'জেনারেলস', mental: 'মানসিক', history: 'ইতিহাস',
-      assessment: 'মূল্যায়ন', review: 'পর্যালোচনা'
+      review: 'পর্যালোচনা'
     };
     stepNav.innerHTML = steps.map((sec, i) => {
       const id = sec.dataset.stepId || '';
@@ -487,7 +513,7 @@
     if (note) {
       note.innerHTML = filled
         ? `<i class='bx bx-check-circle'></i> <b>${Shell.bnNum(filled)}</b>/${Shell.bnNum(n)} ধাপে তথ্য দেওয়া হয়েছে`
-        : `<i class='bx bx-info-circle'></i> প্রতি ধাপ আলাদা সংরক্ষিত — ঐচ্ছিক ধাপ বাদ দেওয়া যায়`;
+        : `<i class='bx bx-info-circle'></i> প্রতি ধাপ সংরক্ষিত — আকস্মিকে বিশেষ লক্ষণ বাদ দেওয়া যায়`;
     }
     return filled;
   }
@@ -524,7 +550,7 @@
     const last = currentStep === totalSteps();
     const el = currentStepEl();
     const optional = !!(el && el.dataset.optional) ||
-      (flowOf() === 'followup' && el && el.dataset.stepId === 'particulars');
+      (flowOf() === 'acute' && el && el.dataset.stepId === 'particulars');
     prevBtn.style.display = currentStep > 1 ? 'block' : 'none';
     nextBtn.style.display = last ? 'none' : 'block';
     if (skipBtn) skipBtn.style.display = optional && !last ? 'inline-flex' : 'none';

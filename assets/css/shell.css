@@ -607,3 +607,35 @@ body[data-page="case"] .app-content { padding-bottom: 6.5rem; }
   .hero-stat { flex: 1 1 calc(50% - 0.25rem); }
   .mod-grid { grid-template-columns: 1fr; }
 }
+
+/* consult tree — patient stays visible on every analysis tool */
+.consult-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .65rem 1rem;
+  margin-bottom: 1rem; padding: .65rem .85rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.consult-who {
+  display: inline-flex; align-items: center; gap: .5rem;
+  color: inherit; text-decoration: none; min-width: 0;
+}
+.consult-who i {
+  width: 1.85rem; height: 1.85rem; display: grid; place-items: center;
+  border-radius: 50%; background: var(--primary-bg); color: var(--primary);
+  font-size: 1rem; flex: 0 0 auto;
+}
+.consult-who b { display: block; font-size: .9rem; }
+.consult-who small { display: block; color: var(--text-muted); font-size: .72rem; }
+.consult-tree { display: flex; flex-wrap: wrap; gap: .35rem; margin-inline-start: auto; }
+.consult-link {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .3rem .65rem; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface2, var(--surface));
+  color: var(--text); text-decoration: none; font-size: .75rem; font-weight: 600;
+}
+.consult-link i { font-size: .95rem; color: var(--primary); }
+.consult-link:hover { border-color: var(--primary); }
+.consult-link.on {
+  background: var(--primary); border-color: var(--primary); color: #fff;
+}
+.consult-link.on i { color: #fff; }

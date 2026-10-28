@@ -22,50 +22,42 @@
     <main class="app-content">
       <div class="content-inner">
 
-        <div class="page-head">
-          <div class="page-icon"><i class='bx bx-clipboard'></i></div>
-          <div class="page-head-txt">
-            <h2>কেস টেকিং ফর্ম</h2>
-            <p>৯টি ধাপে সম্পূর্ণ হোমিওপ্যাথিক কেস — শেষে এআই-র জন্য বাংলা রিপোর্ট কপি করুন।</p>
-          </div>
-          <div class="page-head-actions" id="pageActions"></div>
-        </div>
-
 <form id="caseForm" novalidate="">
 
 <div id="caseGate" class="case-gate" hidden></div>
-<div class="pt-banner" id="ptBanner" hidden></div>
-<input type="hidden" name="patientId" id="patientId"/>
-<input type="hidden" name="patientName" id="patientName"/>
-<input type="hidden" name="gender" id="gender"/>
-<input type="hidden" name="ageYears" id="ageYears"/>
-<input type="hidden" name="ageMonths" id="ageMonths"/>
-<input type="hidden" name="phone" id="phone"/>
-<input type="hidden" name="occupation" id="occupation"/>
-<input type="hidden" name="maritalStatus" id="maritalStatus"/>
-<input type="hidden" name="address" id="address"/>
-<input type="hidden" name="weight" id="weight"/>
-<input type="hidden" name="height" id="height"/>
-<input type="hidden" name="bloodGroup" id="bloodGroup"/>
-<input type="hidden" name="caseType" id="caseType"/>
-<input type="hidden" name="caseMode" id="caseMode"/>
-<div class="case-meta sub-card" id="caseMeta">
-  <div class="grid two tight">
-    <label class="field"><span>কেস নম্বর</span><input name="caseNo" placeholder="স্বয়ংক্রিয়"/></label>
-    <label class="field"><span>তারিখ</span><input id="visitDate" name="visitDate" type="date"/></label>
-    <div class="field"><span>পরামর্শের ধরন</span><div class="pills" data-pills="visitType" data-options="প্রথমবার|ফলোআপ|অনলাইন|চেম্বার|জরুরি পরামর্শ"></div></div>
-    <div class="field"><span>প্রধান রোগের বিভাগ</span><div class="pills" data-pills="mainCategory" data-options="দীর্ঘস্থায়ী রোগ|আকস্মিক রোগ|চর্মরোগ|শ্বাসতন্ত্র|পেট ও হজম|মাথা/স্নায়ু|নারী রোগ|শিশু রোগ|মানসিক/আবেগজনিত|অন্যান্য" data-other="1"></div></div>
-    <label class="field full"><span>আগের রোগ নির্ণয়/ডায়াগনসিস</span><textarea name="previousDiagnosis" placeholder="ডাক্তারের দেওয়া নাম, রিপোর্ট অনুযায়ী রোগ, সন্দেহজনক রোগ ইত্যাদি" rows="2"></textarea></label>
-  </div>
-  <label class="check-card consent-card"><input name="consent" type="checkbox" value="রোগীর তথ্য কেস বিশ্লেষণের জন্য ব্যবহারের সম্মতি আছে"/><span>রোগীর তথ্য কেস বিশ্লেষণের জন্য ব্যবহারের সম্মতি আছে</span></label>
-</div>
 
-<div class="top-panel">
-<div><span id="stepCounter">ধাপ ১ / ৭</span><h2 id="currentStepTitle">কেস টেকিং</h2></div>
+<div class="case-work" id="caseWork">
+  <div class="case-workbar">
+    <div class="pt-banner" id="ptBanner" hidden></div>
+    <div class="case-meta" id="caseMeta">
+      <label class="field"><span>কেস নম্বর</span><input name="caseNo" placeholder="স্বয়ংক্রিয়"/></label>
+      <label class="field"><span>তারিখ</span><input id="visitDate" name="visitDate" type="date"/></label>
+    </div>
+  </div>
+  <input type="hidden" name="patientId" id="patientId"/>
+  <input type="hidden" name="patientName" id="patientName"/>
+  <input type="hidden" name="gender" id="gender"/>
+  <input type="hidden" name="ageYears" id="ageYears"/>
+  <input type="hidden" name="ageMonths" id="ageMonths"/>
+  <input type="hidden" name="phone" id="phone"/>
+  <input type="hidden" name="occupation" id="occupation"/>
+  <input type="hidden" name="maritalStatus" id="maritalStatus"/>
+  <input type="hidden" name="address" id="address"/>
+  <input type="hidden" name="weight" id="weight"/>
+  <input type="hidden" name="height" id="height"/>
+  <input type="hidden" name="bloodGroup" id="bloodGroup"/>
+  <input type="hidden" name="caseType" id="caseType"/>
+  <input type="hidden" name="caseMode" id="caseMode"/>
+
+  <div class="case-stepper">
+    <div class="top-panel">
+      <div><span id="stepCounter">ধাপ ১</span><h2 id="currentStepTitle">কেস টেকিং</h2></div>
+      <p class="step-progress-note" id="stepProgressNote"></p>
+    </div>
+    <div class="progress"><span id="progressFill"></span></div>
+    <nav class="step-nav" id="stepNav" role="tablist"></nav>
+  </div>
 </div>
-<div class="progress"><span id="progressFill"></span></div>
-<div class="step-progress-note" id="stepProgressNote"></div>
-<nav class="step-nav" id="stepNav" role="tablist"></nav>
 
 <section class="form-step" data-step-title="পূর্ববর্তী কেস ও পরিবর্তন" data-flow="followup" data-step-id="followup">
 <div class="card">
@@ -108,7 +100,7 @@
 
 </div>
 </section>
-<section class="form-step" data-step-title="প্রধান অভিযোগ" data-flow="guided,followup" data-step-id="chief">
+<section class="form-step" data-step-title="প্রধান অভিযোগ" data-flow="guided,followup,acute" data-step-id="chief">
 <div class="card">
 <div class="section-heading"><span class="section-number">১</span><div><h3>প্রধান অভিযোগ</h3><p>প্রতিটি সমস্যার সময়কাল, দিক, তীব্রতা ও বিশেষ বৈশিষ্ট্য লিখুন।</p></div></div>
 <div class="quick-add-section" id="quickAddSymptoms">
@@ -134,7 +126,7 @@
 </div>
 </div>
 </section>
-<section class="form-step" data-step-title="বিশেষ লক্ষণ" data-flow="guided,followup" data-step-id="particulars">
+<section class="form-step" data-step-title="বিশেষ লক্ষণ" data-flow="guided,acute" data-step-id="particulars">
 <div class="card">
 <div class="section-heading"><span class="section-number">২</span><div><h3>বিশেষ লক্ষণ</h3><p>রোগের ইতিহাস, গতি ও বৃদ্ধি/উপশম — যে লক্ষণ রোগীকে ব্যক্তিগত করে।</p></div></div>
 <div class="grid two">
@@ -213,7 +205,7 @@
 <label class="field mt"><span>বিশেষ, বিরল ও অদ্ভুত লক্ষণ</span><textarea name="peculiarSymptoms" placeholder="যে লক্ষণ সাধারণ নয়, অদ্ভুত, খুব ব্যক্তিগত বা রোগীর ক্ষেত্রে বিশেষ—বিস্তারিত লিখুন" rows="5"></textarea></label>
 </div>
 </section>
-<section class="form-step" data-step-title="হোমিওপ্যাথিক মূল্যায়ন" data-flow="guided" data-step-id="assessment" data-optional="1">
+<section class="form-step" data-step-title="হোমিওপ্যাথিক মূল্যায়ন" data-flow="" data-step-id="assessment" data-optional="1">
 <div class="card">
 <div class="section-heading"><span class="section-number">৬</span><div><h3>হোমিওপ্যাথিক মূল্যায়ন</h3><p>টেম্পারামেন্ট, কনস্টিটিউশন ও মায়াজম — ঐচ্ছিক, বাদ দেওয়া যায়।</p></div></div>
 
@@ -250,7 +242,7 @@
 
 </div>
 </section>
-<section class="form-step" data-step-title="পর্যালোচনা ও চূড়ান্তকরণ" data-flow="guided,followup" data-step-id="review">
+<section class="form-step" data-step-title="পর্যালোচনা ও চূড়ান্তকরণ" data-flow="guided,followup,acute" data-step-id="review">
 <div class="card">
 <div class="section-heading"><span class="section-number">৭</span><div><h3>পর্যালোচনা ও চূড়ান্তকরণ</h3><p>সারাংশ দেখুন, রুব্রিক বাছুন, বিশ্লেষণ টুলে যান — তারপর প্রেসক্রিপশন।</p></div></div>
 <!-- ① auto-built summary: what this case actually says, pulled from the
@@ -281,11 +273,13 @@
 
 <!-- ③ analysis tools -->
 <div class="sub-card mt">
-  <h4><i class='bx bx-analyse'></i> ক্লিনিক্যাল বিশ্লেষণ</h4>
+  <h4><i class='bx bx-analyse'></i> পরবর্তী বিশ্লেষণ</h4>
+  <p class="bridge-hint">কেস নেওয়ার পর — টেম্পারামেন্ট, মায়াজম বা রেপার্টরি। আকস্মিক কেসে তীব্র তত্ত্ব।</p>
   <div class="launch-grid">
-    <a class="launch" href="miasm.html"><i class='bx bx-analyse'></i><span><b>মায়াজম বিশ্লেষক</b><small>৫ মায়াজম · PQRS</small></span></a>
-    <a class="launch" href="tempraz.html"><i class='bx bx-brain'></i><span><b>টেম্পরাজ</b><small>স্বভাব বিশ্লেষণ</small></span></a>
-    <a class="launch" href="acutes.html"><i class='bx bx-sitemap'></i><span><b>তীব্র রোগের তত্ত্ব</b><small>ফ্লো চার্ট</small></span></a>
+    <a class="launch" href="tempraz.html"><i class='bx bx-brain'></i><span><b>টেম্পারামেন্ট</b><small>স্বভাব ও গঠন</small></span></a>
+    <a class="launch" href="miasm.html"><i class='bx bx-analyse'></i><span><b>মায়াজম</b><small>৫ মায়াজম · PQRS</small></span></a>
+    <a class="launch" href="repertory.html?from=case"><i class='bx bx-book-bookmark'></i><span><b>রেপার্টরি</b><small>রুব্রিক বাছাই</small></span></a>
+    <a class="launch" href="acutes.html"><i class='bx bx-sitemap'></i><span><b>তীব্র রোগের তত্ত্ব</b><small>আকস্মিক কেস</small></span></a>
   </div>
   
 </div>
@@ -315,7 +309,13 @@
 </div>
 </div>
 </section>
-<div aria-label="ফর্ম নেভিগেশন" class="form-nav"><button class="btn ghost" id="prevBtn" type="button">← আগের ধাপ</button><button class="btn ghost" id="skipBtn" type="button">এই ধাপ বাদ দিন</button><button class="btn ghost danger" id="resetBtn" type="button">খসড়া মুছুন</button><button class="btn ghost" id="saveStepBtn" type="button">এই ধাপ সংরক্ষণ</button><button class="btn primary" id="nextBtn" type="button">পরের ধাপ →</button></div>
+<div aria-label="ফর্ম নেভিগেশন" class="form-nav">
+  <button class="btn ghost" id="prevBtn" type="button">← আগে</button>
+  <button class="btn ghost" id="skipBtn" type="button">বাদ দিন</button>
+  <button class="btn ghost danger" id="resetBtn" type="button">খসড়া মুছুন</button>
+  <button class="btn ghost" id="saveStepBtn" type="button">সংরক্ষণ</button>
+  <button class="btn primary" id="nextBtn" type="button">পরের ধাপ →</button>
+</div>
 <div class="autosave-indicator" id="autosaveIndicator"></div>
 </form>
 

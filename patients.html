@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>রোগী নিবন্ধন — হোমিও কেস স্টুডিও</title>
-<meta content="রোগী নিবন্ধন ও তালিকা — কেস নেওয়ার আগে রোগী আলাদাভাবে নথিভুক্ত হয়।" name="description"/>
+<meta content="রোগী নিবন্ধন ও তালিকা — পরিচয়, যোগাযোগ ও মৌলিক শারীরিক তথ্য।" name="description"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='45' font-size='38' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23fff'%3E%E0%A6%B9%3C/text%3E%3C/svg%3E"/>
 <link href="assets/css/base.css" rel="stylesheet"/>
 <link href="assets/css/shell.css" rel="stylesheet"/>
@@ -22,62 +22,86 @@
     <main class="app-content">
       <div class="content-inner">
 
-        <section class="pt-head">
-          <div>
-            <h2>রোগীর তালিকা</h2>
-            <p id="ptSub">নিবন্ধিত রোগী — কেস নেওয়া হয় রোগীর বিবরণ পাতা থেকে।</p>
+        <div class="page-head">
+          <div class="page-icon"><i class='bx bx-group'></i></div>
+          <div class="page-head-txt">
+            <h2>রোগী নিবন্ধন</h2>
+            <p id="ptSub">পরিচয়, যোগাযোগ ও মৌলিক শারীরিক তথ্য — কেস নেওয়া হয় বিবরণ পাতা থেকে।</p>
           </div>
-          <div class="pt-head-act">
+          <div class="page-head-actions">
             <button class="pt-btn primary" id="ptNewBtn" type="button"><i class="bx bx-user-plus"></i> নতুন নিবন্ধন</button>
           </div>
-        </section>
+        </div>
 
-        <section class="pt-form" id="ptFormWrap" hidden>
-          <h3 id="ptFormTitle">নতুন রোগী নিবন্ধন</h3>
-          <p>কেস নেওয়ার আগে রোগীর পরিচয় এখানে নথিভুক্ত হয়। নাম, বয়স ও লিঙ্গ আবশ্যক।</p>
-          <form id="ptForm" novalidate>
-            <div class="grid two tight">
-              <label class="field full"><span>রোগীর নাম <b>*</b></span><input name="name" placeholder="পূর্ণ নাম" required autocomplete="name"/></label>
-              <div class="field"><span>বয়স <b>*</b></span>
-                <div class="age-group">
-                  <span class="age-part"><input name="ageYears" type="number" min="0" max="120" placeholder="৩৫" inputmode="numeric"/></span>
-                  <span class="age-unit">বছর</span>
-                  <span class="age-part"><input name="ageMonths" type="number" min="0" max="11" placeholder="০" inputmode="numeric"/></span>
-                  <span class="age-unit">মাস</span>
+        <div class="pt-desk">
+          <section class="pt-desk-list">
+            <div class="pt-bar">
+              <div class="pt-search">
+                <i class="bx bx-search"></i>
+                <input type="text" id="ptQ" placeholder="নাম, মোবাইল, পেশা বা ঠিকানা…" autocomplete="off" aria-label="রোগী খুঁজুন"/>
+                <button class="pt-x" id="ptQx" hidden aria-label="মুছুন" type="button"><i class="bx bx-x"></i></button>
+              </div>
+            </div>
+            <section id="ptList"></section>
+          </section>
+
+          <aside class="pt-desk-form" id="ptFormWrap">
+            <div class="pt-form">
+              <div class="pt-form-h">
+                <span class="pt-form-ic"><i class='bx bx-id-card'></i></span>
+                <div>
+                  <h3 id="ptFormTitle">নতুন রোগী নিবন্ধন</h3>
+                  <p>নাম, বয়স ও লিঙ্গ আবশ্যক। বাকি ঘরগুলো চেম্বারে কাজে লাগে।</p>
                 </div>
               </div>
-              <div class="field"><span>লিঙ্গ <b>*</b></span>
-                <div class="pills" data-pills="gender" data-options="পুরুষ|মহিলা|অন্যান্য"></div>
-              </div>
-              <div class="field"><span>বৈবাহিক অবস্থা</span>
-                <div class="pills" data-pills="maritalStatus" data-options="অবিবাহিত|বিবাহিত|বিধবা/বিপত্নীক|তালাকপ্রাপ্ত"></div>
-              </div>
-              <label class="field"><span>পেশা</span><input name="occupation" placeholder="যেমন: শিক্ষক, গৃহিণী"/></label>
-              <label class="field"><span>মোবাইল</span><input name="phone" type="tel" placeholder="০১৭xxxxxxxx" inputmode="tel"/></label>
-              <label class="field"><span>ওজন (কেজি)</span><input name="weight" placeholder="যেমন: ৬২"/></label>
-              <label class="field"><span>উচ্চতা</span><input name="height" placeholder="যেমন: ৫′৪″"/></label>
-              <div class="field"><span>রক্তের গ্রুপ</span>
-                <div class="pills" data-pills="bloodGroup" data-options="A+|A-|B+|B-|O+|O-|AB+|AB-|জানা নেই"></div>
-              </div>
-              <label class="field full"><span>ঠিকানা</span><input name="address" placeholder="গ্রাম/মহল্লা, উপজেলা, জেলা"/></label>
-              <label class="field full"><span>নোট</span><textarea name="notes" rows="2" placeholder="অ্যালার্জি, বিশেষ সতর্কতা, পরিচিতির নোট"></textarea></label>
+              <form id="ptForm" novalidate>
+                <div class="pt-block">
+                  <h4>পরিচয়</h4>
+                  <div class="grid two tight">
+                    <label class="field full"><span>রোগীর নাম <b>*</b></span><input name="name" placeholder="পূর্ণ নাম" required autocomplete="name"/></label>
+                    <div class="field"><span>বয়স <b>*</b></span>
+                      <div class="age-group">
+                        <span class="age-part"><input name="ageYears" type="number" min="0" max="120" placeholder="৩৫" inputmode="numeric"/></span>
+                        <span class="age-unit">বছর</span>
+                        <span class="age-part"><input name="ageMonths" type="number" min="0" max="11" placeholder="০" inputmode="numeric"/></span>
+                        <span class="age-unit">মাস</span>
+                      </div>
+                    </div>
+                    <div class="field"><span>লিঙ্গ <b>*</b></span>
+                      <div class="pills" data-pills="gender" data-options="পুরুষ|মহিলা|অন্যান্য"></div>
+                    </div>
+                    <div class="field"><span>বৈবাহিক অবস্থা</span>
+                      <div class="pills" data-pills="maritalStatus" data-options="অবিবাহিত|বিবাহিত|বিধবা/বিপত্নীক|তালাকপ্রাপ্ত"></div>
+                    </div>
+                    <label class="field full"><span>পেশা</span><input name="occupation" placeholder="যেমন: শিক্ষক, গৃহিণী, ব্যবসা"/></label>
+                  </div>
+                </div>
+                <div class="pt-block">
+                  <h4>যোগাযোগ</h4>
+                  <div class="grid two tight">
+                    <label class="field"><span>মোবাইল</span><input name="phone" type="tel" placeholder="০১৭xxxxxxxx" inputmode="tel" autocomplete="tel"/></label>
+                    <label class="field full"><span>ঠিকানা</span><input name="address" placeholder="গ্রাম/মহল্লা, উপজেলা, জেলা"/></label>
+                  </div>
+                </div>
+                <div class="pt-block">
+                  <h4>শারীরিক তথ্য</h4>
+                  <div class="grid two tight">
+                    <label class="field"><span>ওজন (কেজি)</span><input name="weight" placeholder="যেমন: ৬২" inputmode="decimal"/></label>
+                    <label class="field"><span>উচ্চতা</span><input name="height" placeholder="যেমন: ৫′৪″"/></label>
+                    <div class="field full"><span>রক্তের গ্রুপ</span>
+                      <div class="pills" data-pills="bloodGroup" data-options="A+|A-|B+|B-|O+|O-|AB+|AB-|জানা নেই"></div>
+                    </div>
+                    <label class="field full"><span>নোট</span><textarea name="notes" rows="2" placeholder="অ্যালার্জি, বিশেষ সতর্কতা, পরিচিতির নোট"></textarea></label>
+                  </div>
+                </div>
+                <div class="pt-form-act">
+                  <button class="pt-btn primary" type="submit" id="ptSave"><i class="bx bx-save"></i> সংরক্ষণ করুন</button>
+                  <button class="pt-btn" type="button" id="ptCancel">মুছুন</button>
+                </div>
+              </form>
             </div>
-            <div class="pt-form-act">
-              <button class="pt-btn primary" type="submit" id="ptSave"><i class="bx bx-save"></i> নিবন্ধন সংরক্ষণ</button>
-              <button class="pt-btn" type="button" id="ptCancel">বাতিল</button>
-            </div>
-          </form>
-        </section>
-
-        <section class="pt-bar">
-          <div class="pt-search">
-            <i class="bx bx-search"></i>
-            <input type="text" id="ptQ" placeholder="নাম, মোবাইল বা পেশা দিয়ে খুঁজুন…" autocomplete="off" aria-label="রোগী খুঁজুন"/>
-            <button class="pt-x" id="ptQx" hidden aria-label="মুছুন" type="button"><i class="bx bx-x"></i></button>
-          </div>
-        </section>
-
-        <section id="ptList"></section>
+          </aside>
+        </div>
 
       </div>
     </main>

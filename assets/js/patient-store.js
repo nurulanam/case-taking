@@ -50,18 +50,17 @@
   function upsert(data, id) {
     const now = new Date().toISOString();
     const list = all();
-    const rec = { id: id || newId(), updatedAt: now };
-    FIELDS.forEach(k => { rec[k] = pick(data, k); });
-    rec.name = rec.name || pick(data, 'patientName');
-    rec.phone = rec.phone || pick(data, 'phone') || pick(data, 'mobile');
-    const i = list.findIndex(r => r.id === rec.id);
-    if (i >= 0) {
-      rec.createdAt = list[i].createdAt || now;
-      list[i] = rec;
-    } else {
-      rec.createdAt = now;
-      list.unshift(rec);
-    }
+    const i = id ? list.findIndex(r => r.id === id) : -1;
+    const prev = i >= 0 ? list[i] : {};
+    const rec = { id: id || newId(), updatedAt: now, createdAt: prev.createdAt || now };
+    FIELDS.forEach(k => {
+      const next = pick(data, k);
+      rec[k] = next || (k in data ? next : (prev[k] || ''));
+    });
+    rec.name = rec.name || pick(data, 'patientName') || prev.name || '';
+    rec.phone = rec.phone || pick(data, 'phone') || pick(data, 'mobile') || prev.phone || '';
+    if (i >= 0) list[i] = rec;
+    else list.unshift(rec);
     Shell.store.set(KEY, list);
     return rec;
   }
