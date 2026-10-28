@@ -103,7 +103,7 @@
       listEl.innerHTML = needle
         ? `<div class="pt-empty"><i class='bx bx-search-alt'></i><p>“${esc(q.value.trim())}” নামে কেউ নেই।</p></div>`
         : `<div class="pt-empty"><i class='bx bx-user-plus'></i>
-            <p>প্রথমে রোগী নিবন্ধন করুন। নিবন্ধনের পর বিবরণ পাতা থেকে <b>নতুন কেস</b> শুরু হবে।</p></div>`;
+            <p>প্রথমে রোগী নিবন্ধন করুন। নিবন্ধনের পর বিবরণ পাতা থেকে কেস শুরু হবে।</p></div>`;
       return;
     }
 
