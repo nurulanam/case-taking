@@ -632,7 +632,8 @@
   .fc-imgwrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius-sm, 8px); }
   .fc-img { width: 100%; display: block; border: 1px solid var(--border); border-radius: var(--radius-sm, 8px); }
 
-  .flow-nav { margin-top: 1.5rem; display: flex; justify-content: space-between; gap: 0.75rem; }
+  .flow-nav { margin-top: 1.5rem; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 0.75rem; }
+  .flow-nav #flowBack { margin-right: auto; }
 
   /* ================= Mobile ================= */
   @media (max-width: 560px) {

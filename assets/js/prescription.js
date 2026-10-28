@@ -160,23 +160,56 @@
     showPanel((location.hash || '').replace('#', ''));
   }
 
+  function rxLabel(r) {
+    if (!r) return '';
+    if (r.bangla && r.name && r.bangla !== r.name) return `${r.name} (${r.bangla})`;
+    return r.name || r.bangla || '';
+  }
+
+  function rxSource(b) {
+    if (!b) return '';
+    if (b.from === 'tempraz') return 'টেম্পারামেন্ট';
+    if (b.from === 'acutes') return 'তীব্র রোগের তত্ত্ব';
+    if (b.book) return b.book;
+    return 'রিপার্টরি';
+  }
+
+  function offerBridgeRemedy(b, force) {
+    if (!b || !b.remedy || !b.remedy.name) return;
+    const label = rxLabel(b.remedy);
+    const already = items.some(i => {
+      const t = (i.remedy || '').trim();
+      return t === label || t.indexOf(b.remedy.name) >= 0 ||
+        (b.remedy.bangla && t.indexOf(b.remedy.bangla) >= 0);
+    });
+    if (already) return;
+    if (!force && items.some(i => i.remedy.trim())) return;
+    const empty = items.findIndex(i => !i.remedy.trim());
+    const row = Object.assign(blankItem(), { remedy: label, source: rxSource(b) });
+    if (empty >= 0) items[empty] = row; else items.push(row);
+  }
+
   /* ==================== prefill from case + repertory ==================== */
   function prefill() {
     const draft = Shell.store.get(DRAFT_KEY, null);
+    const b = Shell.bridge.get() || {};
+    const fromQ = (new URLSearchParams(location.search).get('from') || '').toLowerCase();
+    const fromTool = fromQ === 'tempraz' || fromQ === 'acutes' || b.from === 'tempraz' || b.from === 'acutes';
+
     if (draft) {                       // resume an unfinished prescription first
       Object.entries(draft.fields || {}).forEach(([k, v]) => setVal(k, v));
       items = (draft.items || []).map(x => Object.assign(blankItem(), x));
       if (!val('rxDate')) setVal('rxDate', todayISO());
+      offerBridgeRemedy(b, fromTool);
       return;
     }
 
     const c = Shell.store.get(CASE_KEY, null) || {};
-    const b = Shell.bridge.get() || {};
     const set = Shell.rxSettings.get();
 
     setVal('patientName', c.patientName || b.patient || '');
     setVal('caseNo', c.caseNo || b.caseNo || '');
-    setVal('age', c.age || '');
+    setVal('age', c.age || c.ageYears || '');
     setVal('gender', c.gender || '');
     setVal('rxDate', todayISO());
     setVal('diagnosis', c.previousDiagnosis || c.mainCategory || '');
@@ -198,14 +231,9 @@
         }));
       });
 
-    // Nothing written yet? Offer the repertory's top pick, clearly labelled as
-    // a suggestion rather than a decision.
-    if (!items.length && b.remedy && b.remedy.name) {
-      items.push(Object.assign(blankItem(), {
-        remedy: b.remedy.bangla ? `${b.remedy.name} (${b.remedy.bangla})` : b.remedy.name,
-        source: b.book ? `${b.book} — শীর্ষ ফল` : 'রিপার্টরির শীর্ষ ফল',
-      }));
-    }
+    // Nothing written yet, or arriving from temperament / theory of acutes —
+    // offer the chosen medicine, labelled as a suggestion.
+    offerBridgeRemedy(b, fromTool || !items.length);
   }
 
   function renderBridge() {
@@ -216,26 +244,32 @@
     if (c && c.patientName) bits.push(`কেস: <b>${esc(c.patientName)}</b>`);
     if (b && Array.isArray(b.rubrics) && b.rubrics.length)
       bits.push(`${bn(b.rubrics.length)}টি রুব্রিক`);
-    if (b && b.remedy && b.remedy.name) bits.push(`শীর্ষ ওষুধ: <b>${esc(b.remedy.name)}</b>`);
+    if (b && b.remedy && b.remedy.name) bits.push(`নির্বাচিত ওষুধ: <b>${esc(rxLabel(b.remedy))}</b>`);
     if (!bits.length) { host.hidden = true; return; }
     host.hidden = false;
     const short = (b && b.shortlist) || [];
+    const src = rxSource(b);
+    const srcHref = b && b.from === 'tempraz' ? 'tempraz.html'
+      : b && b.from === 'acutes' ? 'acutes.html' : 'repertory.html';
+    const srcIcon = b && b.from === 'tempraz' ? 'bx-brain'
+      : b && b.from === 'acutes' ? 'bx-sitemap' : 'bx-book-bookmark';
     host.innerHTML = `
       <div class="cb-head">
         <i class='bx bx-transfer-alt'></i>
-        <div><b>কেস ও রিপার্টরি থেকে নেওয়া হয়েছে</b>
+        <div><b>${esc(src)} থেকে নেওয়া হয়েছে</b>
           <span>${bits.join(' · ')}</span></div>
-        <a class="btn ghost btn-sm" href="repertory.html"><i class='bx bx-book-bookmark'></i> রিপার্টরি</a>
+        <a class="btn ghost btn-sm" href="${srcHref}"><i class='bx ${srcIcon}'></i> ${esc(src)}</a>
       </div>
-      ${short.length > 1 ? `<div class="cb-chips">
+      ${short.length ? `<div class="cb-chips">
         ${short.slice(0, 8).map(r => `<button class="cb-chip" data-rx="${esc(r.name)}"
             data-bn="${esc(r.bangla || '')}" title="ঔষধের ঘরে বসান">
-            <span class="cb-chip-lbl">${bn(r.total)}</span>${esc(r.bangla || r.name)}</button>`).join('')}
+            ${r.total ? `<span class="cb-chip-lbl">${bn(r.total)}</span>` : ''}${esc(r.bangla || r.name)}</button>`).join('')}
       </div>` : ''}`;
     host.querySelectorAll('[data-rx]').forEach(btn => btn.addEventListener('click', () => {
-      const label = btn.dataset.bn ? `${btn.dataset.rx} (${btn.dataset.bn})` : btn.dataset.rx;
+      const same = btn.dataset.bn && btn.dataset.bn !== btn.dataset.rx;
+      const label = same ? `${btn.dataset.rx} (${btn.dataset.bn})` : (btn.dataset.bn || btn.dataset.rx);
       const empty = items.findIndex(i => !i.remedy.trim());
-      const row = Object.assign(blankItem(), { remedy: label, source: 'রিপার্টরির তালিকা' });
+      const row = Object.assign(blankItem(), { remedy: label, source: src });
       if (empty >= 0) items[empty] = row; else items.push(row);
       renderItems(); paint();
       Shell.toast(`${btn.dataset.bn || btn.dataset.rx} ঔষধের ঘরে বসানো হয়েছে।`, 'ok');

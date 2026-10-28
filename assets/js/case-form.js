@@ -576,6 +576,9 @@
         panel.style.display = 'none';
       }
     });
+    const years = parseInt((form.querySelector('[name="ageYears"]') || {}).value, 10);
+    const child = document.getElementById('childPanel');
+    if (child) child.style.display = (!isNaN(years) && years < 16) ? 'block' : 'none';
   }
 
   /* ==================== single-select pills ====================
@@ -722,21 +725,13 @@
         <summary><i class='bx bx-chevron-right'></i> বিস্তারিত — স্থান, অনুভূতি, বৃদ্ধি/উপশম</summary>
         <div class="c-more-body grid two tight">
           <label class="field"><span>কোথায়</span><input name="comp_location_${id}" placeholder="যেমন: কপালের ডান পাশে"></label>
-          <label class="field"><span>কোন দিকে</span>
-            <select name="comp_side_${id}">
-              <option value="">নির্বাচন করুন</option><option>ডান</option><option>বাম</option>
-              <option>দুই দিকে</option><option>মাঝখানে</option><option>দিক বদলায়</option>
-            </select>
-          </label>
+          <div class="field"><span>কোন দিকে</span>
+            <div class="pills" data-pills="comp_side_${id}" data-options="ডান|বাম|দুই দিকে|মাঝখানে|দিক বদলায়"></div>
+          </div>
           <label class="field"><span>কেমন অনুভূতি</span><input name="comp_sensation_${id}" placeholder="জ্বালা, ছুরিকাঘাত, ভারী…"></label>
-          <label class="field"><span>কীভাবে শুরু</span>
-            <select name="comp_onset_${id}">
-              <option value="">নির্বাচন করুন</option><option>হঠাৎ</option><option>ধীরে ধীরে</option>
-              <option>কোনো ঘটনার পর</option><option>সংক্রমণের পর</option><option>আঘাতের পর</option>
-              <option>মানসিক ঘটনার পর</option><option>প্রসব/অপারেশনের পর</option>
-              <option>ওষুধ শুরুর পর</option><option>অজানা</option>
-            </select>
-          </label>
+          <div class="field"><span>কীভাবে শুরু</span>
+            <div class="pills" data-pills="comp_onset_${id}" data-options="হঠাৎ|ধীরে ধীরে|ঘটনার পর|সংক্রমণের পর|আঘাতের পর|মানসিক ঘটনার পর"></div>
+          </div>
           <label class="field"><span>কিসে বাড়ে</span><input name="comp_worse_${id}" placeholder="যেমন: রোদে, নড়াচড়ায়"></label>
           <label class="field"><span>কিসে কমে</span><input name="comp_better_${id}" placeholder="যেমন: চাপ দিলে, বিশ্রামে"></label>
           <label class="field"><span>কখন বেশি</span><input name="comp_time_${id}" placeholder="যেমন: সকালে, মধ্যরাতে"></label>
@@ -745,6 +740,7 @@
       </details>
     `;
     complaintsContainer.appendChild(div);
+    initPills();
     if (prefill) {
       const d = div.querySelector(`[name="comp_desc_${id}"]`);
       if (d) d.value = prefill;
@@ -1849,12 +1845,7 @@
       fieldItem('রং', getVal('urineColor')),
       fieldItem('গন্ধ', getVal('urineSmell')),
       fieldItem('রাতে কয়বার', getVal('urineNight')),
-      fieldItem('ফোঁটা ফোঁটা', getVal('urineDripping')),
-      fieldItem('ধরে রাখতে পারে', getVal('urineRetention')),
-      fieldItem('হঠাৎ বেগ', getVal('urineUrgency')),
-      fieldItem('ব্যথা', getVal('urinePain')),
-      fieldItem('তলানি/বালু', getVal('urineSediment')),
-      fieldItem('অনিচ্ছায় প্রস্রাব', getVal('urineIncontinence')),
+      listGroup('অন্যান্য', getChecksArray('urineExtras')),
       fieldItem('মন্তব্য', getVal('urineNotes'))
     ]);
 

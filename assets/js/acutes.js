@@ -541,6 +541,8 @@ function renderRightAndBottom() {
     countEl.textContent = '';
     scroll.innerHTML = `<div class="tz-empty"><i class='bx bx-capsule'></i><p>ধাপগুলো শেষ করলে এখানে ওষুধের তালিকা দেখাবে।</p></div>`;
     renderBottomEmpty();
+    const toRx = document.getElementById('flowToRx');
+    if (toRx) toRx.disabled = true;
     return;
   }
 
@@ -560,10 +562,44 @@ function renderRightAndBottom() {
     el.addEventListener('click', () => {
       openRemedyIdx = +el.dataset.idx;
       renderRightAndBottom();
+      persistAcutePick(true);
     });
   });
 
   renderBottomFor(node.remedies[openRemedyIdx]);
+  persistAcutePick();
+}
+
+function persistAcutePick(force) {
+  const node = currentFlowNode();
+  const toRx = document.getElementById('flowToRx');
+  if (!node.remedies || !node.remedies.length) {
+    if (toRx) toRx.disabled = true;
+    return;
+  }
+  const r = node.remedies[openRemedyIdx] || node.remedies[0];
+  if (toRx) toRx.disabled = !r;
+  if (!r || !window.Shell || !Shell.pickRemedy) return;
+  const cur = Shell.bridge.get() || {};
+  if (!force && cur.from && cur.from !== 'acutes' && cur.remedy && cur.remedy.name) return;
+  Shell.pickRemedy({
+    from: 'acutes',
+    name: r.en,
+    bangla: r.bn,
+    abbr: r.ab,
+    book: 'তীব্র রোগের তত্ত্ব',
+    shortlist: node.remedies.slice(0, 8).map(x => ({
+      name: x.en, bangla: x.bn, total: x.n || 0, abbr: x.ab
+    }))
+  });
+}
+
+function sendAcuteToRx() {
+  persistAcutePick(true);
+  const node = currentFlowNode();
+  if (!node.remedies || !node.remedies.length) return;
+  if (window.Shell && Shell.toast) Shell.toast('ঔষধ প্রেসক্রিপশনে পাঠানো হচ্ছে…', 'ok');
+  location.href = 'prescription.html?from=acutes';
 }
 
 // Bottom-left: the open remedy's triangle (where Tempraz would put its
@@ -665,6 +701,8 @@ function updateTopbarChip() {
 function initFlowWizard() {
   document.getElementById('flowBack').addEventListener('click', () => { flowPath.pop(); renderFlow(); });
   document.getElementById('flowRestart').addEventListener('click', () => { flowPath = []; renderFlow(); });
+  const toRx = document.getElementById('flowToRx');
+  if (toRx) toRx.addEventListener('click', sendAcuteToRx);
   renderFlow();
   initTopbar();
 }

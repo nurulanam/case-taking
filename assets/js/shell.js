@@ -192,7 +192,7 @@
     toastHost.appendChild(el);
     setTimeout(() => {
       el.style.transition = 'opacity .2s, transform .2s';
-      el.style.opacity = '0'; el.style.transform = 'translateY(6px)';
+      el.style.opacity = '0'; el.style.transform = 'translateY(-6px)';
       setTimeout(() => el.remove(), 220);
     }, kind === 'err' ? 5200 : 3200);
   }
@@ -530,6 +530,40 @@
     clear() { store.del(BRIDGE_KEY); }
   };
 
+  /* A remedy chosen on temperament / theory of acutes / repertory, ready for
+     the prescription page. Writes the same bridge shape the repertory already
+     uses, and — if a case is open — the matching case-draft field so review
+     and Rx stay in sync. */
+  function pickRemedy(info) {
+    if (!info || !info.name) return null;
+    const remedy = {
+      name: info.name,
+      bangla: info.bangla || '',
+      abbr: info.abbr || ''
+    };
+    const shortlist = (info.shortlist || []).map(r => ({
+      name: r.name || r.en || '',
+      bangla: r.bangla || r.bn || '',
+      total: r.total || r.n || 0
+    })).filter(r => r.name);
+    bridge.patch({
+      from: info.from || '',
+      remedy,
+      shortlist,
+      book: info.book || ''
+    });
+    const c = store.get('homeoCaseDraft', null);
+    if (c) {
+      const label = remedy.bangla && remedy.bangla !== remedy.name
+        ? remedy.name + ' (' + remedy.bangla + ')'
+        : (remedy.bangla || remedy.name);
+      if (info.from === 'acutes') c.acuteRemedy = label;
+      else if (info.from === 'tempraz') c.constitutionalRemedy = label;
+      store.set('homeoCaseDraft', c);
+    }
+    return remedy;
+  }
+
   /* ---------------- clinic profile + per-module settings ----------------
      Who the prescriber is (name, degree, chamber, logo) is *one* fact about
      the practice, not something each page should ask for again. It lives
@@ -634,7 +668,7 @@
   }
 
   global.Shell = { APP, NAV, CONSULT, bnNum, store, toast, addAction, setChip, init, bridge,
-                   getGreeting, profile, rxSettings };
+                   pickRemedy, getGreeting, profile, rxSettings };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
