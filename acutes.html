@@ -11,7 +11,7 @@
 <link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
 <link rel="stylesheet" href="assets/css/acutes.css"/>
 </head>
-<body data-page="acutes" data-title="তীব্র রোগের তত্ত্ব" data-crumb="বিশ্লেষণ টুল">
+<body class="ac-fit" data-page="acutes" data-title="তীব্র রোগের তত্ত্ব" data-crumb="বিশ্লেষণ টুল">
 
 
 
@@ -38,68 +38,51 @@
        sidebar submenu now (see NAV.acutes.children in shell.js), which
        frees this vertical space for the wizard itself. -->
 
-  <!-- PANEL 1: Flow-chart Wizard — Tempraz-style: every step visible side by
-       side on desktop instead of one question at a time; the triangle sits
-       where a radar chart would, and the right column is a plain remedy
-       list instead of a scored "result" panel (this flow has no score to
-       show, just a path to a remedy set). -->
+  <!-- PANEL 1: Flow-chart wizard.
+       One current question at a time (path chips to jump back) instead of
+       4–5 nested columns. When a leaf is reached the workspace splits into
+       remedy list + triangle + confirmation — all inside the viewport. -->
   <div id="panel-wizard" class="page-panel active">
-    <div class="card">
-      <div class="section-heading">
-        <span class="section-number"><i class='bx bx-sitemap' style="font-size:1rem"></i></span>
-        <div>
-          <h3>ধাপে ধাপে ওষুধ নির্বাচন</h3>
-          <p>Flow Chart of Acutes — কার্যকলাপ → উপপ্রকার → তাপমাত্রা → তৃষ্ণা</p>
+    <div class="ac-workspace" id="acWorkspace">
+      <header class="ac-pathbar">
+        <div class="ac-path" id="acPath"></div>
+        <div class="ac-path-actions">
+          <button class="btn ghost btn-sm" id="flowBack" type="button" disabled><i class='bx bx-chevron-left'></i> আগের</button>
+          <button class="btn ghost btn-sm" id="flowRestart" type="button"><i class='bx bx-refresh'></i> আবার</button>
+          <button class="btn primary btn-sm" id="flowToRx" type="button" disabled><i class='bx bx-receipt'></i> প্রেসক্রিপশন</button>
         </div>
-      </div>
+      </header>
 
-      <div class="ac-app">
-        <!-- Steps: one column per level of the path so far — all visible at
-             once on desktop; already-answered ones collapse to a compact,
-             tap-to-reopen summary on narrow screens. -->
-        <div class="ac-steps" id="acSteps"></div>
-
-        <!-- Remedy list for whichever leaf the path has reached -->
-        <div class="ac-right">
-          <div class="ac-right-header">
-            <span class="ac-right-title"><i class='bx bx-capsule'></i> সম্ভাব্য ওষুধ</span>
-            <span class="ac-right-count" id="acRightCount"></span>
-          </div>
-          <div class="ac-right-scroll" id="acRightScroll">
-            <div class="tz-empty"><i class='bx bx-capsule'></i><p>সব ধাপ শেষ হলে এখানে ওষুধের তালিকা দেখাবে।</p></div>
-          </div>
+      <section class="ac-ask" id="acAsk">
+        <div class="ac-ask-head">
+          <h3 id="acAskQ"></h3>
+          <p id="acAskHint"></p>
         </div>
+        <div class="ac-opts" id="acOpts"></div>
+      </section>
 
-        <!-- Bottom row: the open remedy's triangle (left) + its confirmation
-             detail (right) -->
-        <div class="ac-bottom">
-          <div class="ac-bottom-tri">
-            <div class="ac-bottom-header"><span><i class='bx bx-shape-triangle'></i> ত্রিভুজ</span></div>
-            <div class="ac-tri-scroll" id="acTriHost">
-              <div class="tz-empty" style="min-height:150px;"><i class='bx bx-shape-triangle'></i><p>ওষুধ বেছে নিলে ত্রিভুজ দেখাবে।</p></div>
+      <section class="ac-result" id="acResult" hidden>
+        <aside class="ac-rxpane">
+          <div class="ac-rxpane-head">
+            <span class="ac-rxpane-title"><i class='bx bx-capsule'></i> সম্ভাব্য ওষুধ</span>
+            <span class="ac-rxpane-count" id="acRightCount"></span>
+          </div>
+          <div class="ac-rxpane-list" id="acRightScroll"></div>
+        </aside>
+        <div class="ac-inspect">
+          <div class="ac-inspect-head">
+            <div>
+              <strong id="acDetailName">বিস্তারিত</strong>
+              <span class="ac-inspect-sub" id="acDetailSub"></span>
             </div>
+            <p class="ac-dose-hint">ত্রিভুজ ও নিশ্চিতকরণ মিললে <b>এক ডোজ</b> — না মিললে ওষুধ বদলান, পুনরাবৃত্তি নয়।</p>
           </div>
-          <div class="ac-bottom-detail">
-            <div class="ac-bottom-header"><span id="acDetailName">বিস্তারিত</span></div>
-            <div class="ac-detail-scroll" id="acDetailHost">
-              <div class="tz-empty" style="min-height:150px;"><p>ওষুধ বেছে নিলে বিস্তারিত দেখাবে।</p></div>
-            </div>
+          <div class="ac-inspect-body">
+            <div class="ac-tri" id="acTriHost"></div>
+            <div class="ac-detail" id="acDetailHost"></div>
           </div>
         </div>
-      </div>
-
-      <div class="sub-card" style="margin-top:1.25rem;background:var(--toa-amber-bg);border-left:4px solid var(--toa-amber);">
-        <p style="font-size:0.875rem;line-height:1.65;margin:0;">
-          <strong>এক-ডোজের নিয়ম:</strong> ত্রিভুজ ও নিশ্চিতকরণ বিন্দু মিলিয়ে একটিমাত্র ওষুধ চূড়ান্ত করুন এবং এক ডোজ দিন।
-          এক ডোজে নিরাময় প্রক্রিয়া শুরু না হলে ওষুধটি ভুল — পুনরাবৃত্তি না করে নতুন করে অক্ষগুলো যাচাই করুন।
-        </p>
-      </div>
-
-      <div class="flow-nav">
-        <button class="btn ghost" id="flowBack" disabled><i class='bx bx-chevron-left'></i> আগের ধাপ</button>
-        <button class="btn ghost" id="flowRestart"><i class='bx bx-refresh'></i> নতুন করে শুরু</button>
-        <button class="btn primary" id="flowToRx" type="button" disabled><i class='bx bx-receipt'></i> প্রেসক্রিপশনে নিন</button>
-      </div>
+      </section>
     </div>
   </div>
 

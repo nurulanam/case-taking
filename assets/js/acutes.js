@@ -471,72 +471,63 @@ function currentFlowNode() {
 function renderFlow() {
   document.getElementById('flowBack').disabled = flowPath.length === 0;
   updateTopbarChip();
-  renderSteps();
-  openRemedyIdx = 0;      // a path change always lands on a fresh leaf (or none)
-  renderRightAndBottom();
+  const leaf = !!(currentFlowNode().remedies);
+  document.getElementById('acWorkspace').classList.toggle('is-leaf', leaf);
+  document.getElementById('acAsk').hidden = leaf;
+  document.getElementById('acResult').hidden = !leaf;
+  renderPath();
+  if (leaf) {
+    openRemedyIdx = 0;
+    renderRightAndBottom();
+  } else {
+    renderAsk();
+    const toRx = document.getElementById('flowToRx');
+    if (toRx) toRx.disabled = true;
+  }
 }
 
-// One column per level of the path so far — every column stays visible and
-// clickable (Tempraz-style "everything on one screen"), instead of the old
-// single current-question view with a Back button. Depth is 1–4 levels
-// depending on the branch, so this is a horizontal cascade rather than a
-// fixed column count.
-function renderSteps() {
-  const host = document.getElementById('acSteps');
-  const cols = [{ q: FLOW.q, hint: FLOW.hint, options: FLOW.children }];
-  for (let i = 0; i < flowPath.length; i++) {
-    const cur = flowPath[i];
-    if (cur.remedies) break;               // reached a leaf — no further question
-    cols.push({ q: cur.q, hint: cur.hint, options: cur.children });
-  }
+function renderPath() {
+  const host = document.getElementById('acPath');
+  const chips = [];
+  chips.push(`<button type="button" class="ac-chip ${flowPath.length ? '' : 'current'}" data-jump="-1">ধাপ ১ · কার্যকলাপ</button>`);
+  flowPath.forEach((n, i) => {
+    const last = i === flowPath.length - 1;
+    chips.push(`<i class="bx bx-chevron-right ac-chip-sep" aria-hidden="true"></i>`);
+    chips.push(`<button type="button" class="ac-chip ${last ? 'current' : ''}" data-jump="${i}">${n.icon ? n.icon + ' ' : ''}${n.bn}</button>`);
+  });
+  host.innerHTML = chips.join('');
+  host.querySelectorAll('[data-jump]').forEach(el => {
+    el.addEventListener('click', () => {
+      const j = +el.dataset.jump;
+      flowPath = j < 0 ? [] : flowPath.slice(0, j + 1);
+      renderFlow();
+    });
+  });
+}
 
-  host.innerHTML = cols.map((col, ci) => {
-    const chosen = flowPath[ci] || null;   // option picked at this level, if any
-    const summary = chosen ? `
-      <div class="ac-step-summary" data-jump="${ci}">
-        <span class="ac-step-summary-ic">${chosen.icon || '•'}</span>
-        <span class="ac-step-summary-txt"><b>${chosen.bn}</b></span>
-        <i class='bx bx-chevron-right ac-step-summary-caret'></i>
-      </div>` : '';
-    const options = col.options.map((opt, oi) => {
-      const count = countRemedies(opt);
-      return `<div class="ac-opt ${chosen === opt ? 'chosen' : ''}" data-col="${ci}" data-opt="${oi}"
-                   style="animation-delay:${oi * 0.04}s">
-        <span class="rc-emoji">${opt.icon || '•'}</span>
-        <div class="ac-opt-label">
-          <strong>${opt.bn}</strong>
-          <span>${opt.en}${opt.desc ? ' — ' + opt.desc : ''}</span>
-        </div>
-        <span class="ac-opt-count">${bnNum(count)}</span>
-      </div>`;
-    }).join('');
-    return `<div class="ac-step-col${chosen ? ' answered' : ''}">
-      <div class="ac-step-head">
-        ${summary}
-        <div class="ac-step-q"><i class='bx bx-help-circle'></i> ${col.q || ''}</div>
-        ${col.hint ? `<div class="ac-step-hint">${col.hint}</div>` : ''}
-      </div>
-      <div class="ac-step-options-scroll"><div class="ac-step-options">${options}</div></div>
-    </div>`;
+function renderAsk() {
+  const node = currentFlowNode();
+  const opts = node.children || [];
+  document.getElementById('acAskQ').textContent = node.q || '';
+  document.getElementById('acAskHint').textContent = node.hint || '';
+  const host = document.getElementById('acOpts');
+  host.innerHTML = opts.map((opt, oi) => {
+    const count = countRemedies(opt);
+    return `<button type="button" class="ac-opt" data-opt="${oi}" style="animation-delay:${oi * 0.04}s">
+      <span class="rc-emoji">${opt.icon || '•'}</span>
+      <span class="ac-opt-label">
+        <strong>${opt.bn}</strong>
+        <span>${opt.en}${opt.desc ? ' — ' + opt.desc : ''}</span>
+      </span>
+      <span class="ac-opt-count">${bnNum(count)}</span>
+    </button>`;
   }).join('');
-
   host.querySelectorAll('.ac-opt').forEach(el => {
     el.addEventListener('click', () => {
-      const ci = +el.dataset.col;
-      const opt = cols[ci].options[+el.dataset.opt];
-      flowPath = flowPath.slice(0, ci).concat([opt]);
+      flowPath = flowPath.concat([opts[+el.dataset.opt]]);
       renderFlow();
     });
   });
-  host.querySelectorAll('.ac-step-summary').forEach(el => {
-    el.addEventListener('click', () => {
-      flowPath = flowPath.slice(0, +el.dataset.jump);
-      renderFlow();
-    });
-  });
-
-  // newest column should be the one in view
-  requestAnimationFrame(() => { host.scrollLeft = host.scrollWidth; });
 }
 
 // Right column: the current leaf's remedies (replaces a generic "analysis
@@ -548,7 +539,7 @@ function renderRightAndBottom() {
 
   if (!node.remedies) {
     countEl.textContent = '';
-    scroll.innerHTML = `<div class="tz-empty"><i class='bx bx-capsule'></i><p>ধাপগুলো শেষ করলে এখানে ওষুধের তালিকা দেখাবে।</p></div>`;
+    scroll.innerHTML = `<div class="ac-empty"><i class='bx bx-capsule'></i><p>ধাপগুলো শেষ করলে এখানে ওষুধের তালিকা দেখাবে।</p></div>`;
     renderBottomEmpty();
     const toRx = document.getElementById('flowToRx');
     if (toRx) toRx.disabled = true;
@@ -618,14 +609,16 @@ function renderBottomFor(r) {
   const info = rxInfo(r.en);
   const triHost = document.getElementById('acTriHost');
   const detailHost = document.getElementById('acDetailHost');
-  document.getElementById('acDetailName').textContent = `${r.bn} — বিস্তারিত`;
+  document.getElementById('acDetailName').textContent = r.bn;
+  const sub = document.getElementById('acDetailSub');
+  if (sub) sub.textContent = `${r.ab}${r.en ? ' · ' + r.en : ''}${r.n != null ? ' · চার্ট ' + bnNum(r.n) : ''}`;
 
   const hasTriangle = !!(info && info.triangle && info.triangle.length === 3);
   triHost.innerHTML = hasTriangle
     ? triangleOnly(info.triangle)
     : (info && info.triangle && info.triangle.length
         ? `<ul class="tri-list">${info.triangle.map(t => `<li>${t}</li>`).join('')}</ul>`
-        : `<div class="tz-empty" style="min-height:120px;"><p>এই ওষুধের ত্রিভুজ তথ্য নেই।</p></div>`);
+        : `<div class="ac-empty"><p>এই ওষুধের ত্রিভুজ তথ্য নেই।</p></div>`);
 
   detailHost.innerHTML = info ? `
     ${info.key_feature ? `<div class="rx-key">${info.key_feature}</div>` : ''}
@@ -643,9 +636,11 @@ function renderBottomFor(r) {
 }
 
 function renderBottomEmpty() {
-  document.getElementById('acTriHost').innerHTML = `<div class="tz-empty" style="min-height:150px;"><i class='bx bx-shape-triangle'></i><p>ওষুধ বেছে নিলে ত্রিভুজ দেখাবে।</p></div>`;
-  document.getElementById('acDetailHost').innerHTML = `<div class="tz-empty" style="min-height:150px;"><p>ওষুধ বেছে নিলে বিস্তারিত দেখাবে।</p></div>`;
+  document.getElementById('acTriHost').innerHTML = `<div class="ac-empty"><i class='bx bx-shape-triangle'></i><p>ওষুধ বেছে নিলে ত্রিভুজ দেখাবে।</p></div>`;
+  document.getElementById('acDetailHost').innerHTML = `<div class="ac-empty"><p>ওষুধ বেছে নিলে বিস্তারিত দেখাবে।</p></div>`;
   document.getElementById('acDetailName').textContent = 'বিস্তারিত';
+  const sub = document.getElementById('acDetailSub');
+  if (sub) sub.textContent = '';
 }
 
 function countRemedies(node) {
@@ -763,6 +758,7 @@ function activatePanel(name) {
   document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
   const panel = document.getElementById(`panel-${name}`);
   if (panel) panel.classList.add('active');
+  document.body.classList.toggle('ac-fit', name === 'wizard');
 }
 
 function openPanelFromHash() {
