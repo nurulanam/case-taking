@@ -588,7 +588,14 @@ function renderRail() {
   host.innerHTML = `<div class="ac-rail-head">কেস স্ন্যাপশট</div>
     <div class="ac-axes">${rows}</div>
     ${empty}
-    <div class="ac-rail-pool"><strong>${bnNum(pool)}</strong><span>${currentFlowNode().remedies ? 'সম্ভাব্য ওষুধ' : 'ওষুধ বাকি'}</span></div>`;
+    <div class="ac-rail-pool"><strong>${bnNum(pool)}</strong><span>${currentFlowNode().remedies ? 'সম্ভাব্য ওষুধ' : 'ওষুধ বাকি'}</span></div>
+    <details class="ac-mobile-snapshot">
+      <summary><span><i class="bx bx-list-check" aria-hidden="true"></i> কেস স্ন্যাপশট <b>${bnNum(flowPath.length)}</b></span><span class="ac-snapshot-toggle">দেখুন <i class="bx bx-chevron-down" aria-hidden="true"></i></span></summary>
+      <div class="ac-snapshot-panel">
+        <p>আগের কোনো নির্বাচন বদলাতে সেটিতে চাপুন</p>
+        <div class="ac-snapshot-choices">${rows || '<span class="ac-snapshot-empty">এখনো কোনো ধাপ বেছে নেওয়া হয়নি।</span>'}</div>
+      </div>
+    </details>`;
   host.querySelectorAll('[data-jump]').forEach(el => {
     el.addEventListener('click', () => {
       flowPath = flowPath.slice(0, +el.dataset.jump);
@@ -664,8 +671,10 @@ function renderRightAndBottom() {
   const node = currentFlowNode();
   const scroll = document.getElementById('acRightScroll');
   const countEl = document.getElementById('acRightCount');
+  const select = document.getElementById('acRemedySelect');
 
   if (!node.remedies) {
+    select.replaceChildren();
     countEl.textContent = '';
     scroll.innerHTML = `<div class="ac-empty"><i class='bx bx-capsule'></i><p>ধাপগুলো শেষ করলে এখানে ওষুধের তালিকা দেখাবে।</p></div>`;
     renderBottomEmpty();
@@ -675,6 +684,18 @@ function renderRightAndBottom() {
   }
 
   countEl.textContent = `${bnNum(node.remedies.length)}টি ওষুধ`;
+  select.replaceChildren(...node.remedies.map((r, idx) => {
+    const option = document.createElement('option');
+    option.value = idx;
+    option.textContent = `${r.bn} (${r.ab})`;
+    option.selected = idx === openRemedyIdx;
+    return option;
+  }));
+  select.onchange = () => {
+    openRemedyIdx = Number(select.value);
+    renderRightAndBottom();
+    persistAcutePick(true);
+  };
   scroll.innerHTML = node.remedies.map((r, idx) => {
     const info = rxInfo(r.en);
     return `<div class="ac-rx-row ${idx === openRemedyIdx ? 'open' : ''}" data-idx="${idx}" style="animation-delay:${Math.min(idx, 8) * 0.03}s">

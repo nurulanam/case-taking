@@ -1172,3 +1172,62 @@
     .ac-rail { padding: 0.3rem 0.5rem; }
     .ac-step-badge { margin-bottom: 0.15rem; }
   }
+
+  /* Touch layouts: visible controls instead of hidden horizontal carousels. */
+  .ac-mobile-snapshot, .ac-mobile-remedy { display: none; }
+  @media (max-width: 900px) {
+    .ac-rail {
+      position: relative; z-index: 2;
+      overflow: visible;
+      padding: 0.35rem 0.65rem;
+    }
+    .ac-rail > .ac-axes { display: none; }
+    .ac-rail-pool { margin-left: auto; }
+    .ac-mobile-snapshot { display: block; order: -1; min-width: 0; }
+    .ac-mobile-snapshot summary {
+      list-style: none; cursor: pointer; min-height: 44px;
+      display: flex; align-items: center; gap: 0.75rem;
+      font-size: 0.8125rem; font-weight: 700; color: var(--text);
+    }
+    .ac-mobile-snapshot summary::-webkit-details-marker { display: none; }
+    .ac-mobile-snapshot summary > span { display: inline-flex; align-items: center; gap: 0.3rem; }
+    .ac-mobile-snapshot summary > span > i { color: var(--primary); font-size: 1.15rem; }
+    .ac-mobile-snapshot summary b {
+      min-width: 1.4rem; height: 1.4rem; display: inline-flex;
+      align-items: center; justify-content: center; border-radius: 50%;
+      background: var(--primary-bg); color: var(--primary); font-size: 0.75rem;
+    }
+    .ac-snapshot-toggle { color: var(--primary); font-size: 0.75rem; }
+    .ac-mobile-snapshot[open] .ac-snapshot-toggle i { transform: rotate(180deg); }
+    .ac-snapshot-panel {
+      position: absolute; top: 100%; left: 0; right: 0;
+      padding: 0.75rem; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 0 0 12px 12px;
+      box-shadow: var(--shadow-md, 0 8px 24px rgba(0,0,0,.16));
+      max-height: min(55dvh, 24rem); overflow-y: auto;
+    }
+    .ac-snapshot-panel p { margin: 0 0 0.5rem; color: var(--text-muted); font-size: 0.75rem; }
+    .ac-snapshot-choices { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .ac-snapshot-choices .ac-axis { min-height: 44px; max-width: 100%; }
+    .ac-snapshot-choices .ac-axis small, .ac-snapshot-choices .ac-axis strong { white-space: normal; }
+    .ac-snapshot-empty { color: var(--text-muted); font-size: 0.8125rem; }
+    .ac-mobile-remedy { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.5rem 0.75rem 0.7rem; }
+    .ac-mobile-remedy label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
+    .ac-mobile-remedy select {
+      width: 100%; min-height: 44px; padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: var(--surface); color: var(--text); font: inherit; font-weight: 700;
+    }
+    .ac-mobile-remedy select:focus-visible, .ac-mobile-snapshot summary:focus-visible {
+      outline: 2px solid var(--primary); outline-offset: 2px;
+    }
+    .ac-rxpane-list { display: none; }
+    .ac-pipe { overflow: hidden; }
+    .ac-pipe-step { min-width: 0; }
+    .ac-pipe-step button { min-height: 44px; }
+  }
+  @media (max-width: 640px) {
+    .ac-toolbar-actions .btn { min-width: 44px; min-height: 44px; }
+    .ac-snapshot-toggle { font-size: 0; gap: 0 !important; }
+    .ac-snapshot-toggle i { font-size: 1.15rem; }
+  }
