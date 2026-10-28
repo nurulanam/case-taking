@@ -13,6 +13,9 @@ async function loadDB() {
     DB = window.MIASMS_DB_INLINE || null;
     if (!DB) { console.error('মায়াজম ডাটাবেস লোড করা যায়নি', e); return; }
   }
+  if (window.RemedyStore) {
+    try { await RemedyStore.load(); } catch (e) { /* chips fall back to raw ids */ }
+  }
   MIASM_IDS = Object.keys(DB.miasms);
   RUBRICS = [];
   DB.rubic_categories.categories.forEach(cat => {
@@ -29,6 +32,7 @@ async function loadDB() {
 const bnNum = v => String(v).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
 const bnDec = v => bnNum(Number(v).toFixed(1));
 const M = id => DB.miasms[id];
+const rxLabel = id => (window.RemedyStore && RemedyStore.label(id)) || id;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 // ===================== State =====================
@@ -679,10 +683,10 @@ function renderResults(a) {
         <div><h3>সংশ্লিষ্ট ওষুধ</h3><p>শুধুমাত্র শিক্ষামূলক — সম্পূর্ণ কেস বিশ্লেষণের বিকল্প নয়</p></div>
       </div>
       <h5 style="font-size:0.8125rem;color:var(--text-muted);margin-bottom:0.5rem;">${dm.name_bn} (প্রধান)</h5>
-      <div class="rx-chips">${dm.associated_remedies.map(r => `<span class="rx-chip"><b>●</b> ${esc(r)}</span>`).join('')}</div>
+      <div class="rx-chips">${dm.associated_remedies.map(r => `<span class="rx-chip"><b>●</b> ${esc(rxLabel(r))}</span>`).join('')}</div>
       ${sec.score > 0 ? `
         <h5 style="font-size:0.8125rem;color:var(--text-muted);margin:1rem 0 0.5rem;">${sm.name_bn} (সহায়ক)</h5>
-        <div class="rx-chips">${sm.associated_remedies.map(r => `<span class="rx-chip">${esc(r)}</span>`).join('')}</div>` : ''}
+        <div class="rx-chips">${sm.associated_remedies.map(r => `<span class="rx-chip">${esc(rxLabel(r))}</span>`).join('')}</div>` : ''}
       <div class="sub-card warning-card" style="margin-top:1rem;">
         <p style="font-size:0.875rem;line-height:1.65;margin:0;">
           এই তালিকা মায়াজম-সম্পর্কিত সাধারণ ওষুধ মাত্র। প্রেসক্রিপশনের আগে সম্পূর্ণ কেস, লক্ষণের সামগ্রিকতা ও রেপার্টরাইজেশন যাচাই করুন।
@@ -932,7 +936,7 @@ function renderMiasmCards() {
         <div class="mi-sec"><h5><i class='bx bx-plus-medical'></i> সাধারণ রোগ</h5>
           <div class="rx-chips">${m.common_diseases.map(x => `<span class="rx-chip">${esc(x)}</span>`).join('')}</div></div>
         <div class="mi-sec"><h5><i class='bx bx-capsule'></i> সংশ্লিষ্ট ওষুধ</h5>
-          <div class="rx-chips">${m.associated_remedies.map(x => `<span class="rx-chip"><b>●</b> ${esc(x)}</span>`).join('')}</div></div>
+          <div class="rx-chips">${m.associated_remedies.map(x => `<span class="rx-chip"><b>●</b> ${esc(rxLabel(x))}</span>`).join('')}</div></div>
       </div>
     </details>`;
   }).join('');
@@ -955,7 +959,7 @@ function renderComparison() {
     ['কারণ', m => m.causation.slice(0, 4).map(esc).join('<br/>')],
     ['সাধারণ রোগ', m => m.common_diseases.slice(0, 6).map(esc).join(', ')],
     ['ক্লিনিক্যাল নোট', m => esc(m.clinical_notes || '—')],
-    ['প্রধান ওষুধ', m => m.associated_remedies.slice(0, 6).map(esc).join(', ')]
+    ['প্রধান ওষুধ', m => m.associated_remedies.slice(0, 6).map(id => esc(rxLabel(id))).join(', ')]
   ];
   document.getElementById('cmpTable').innerHTML = `
     <thead><tr><th></th>${MIASM_IDS.map(id => {

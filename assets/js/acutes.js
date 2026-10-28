@@ -6,7 +6,8 @@ async function loadData() {
   try {
     const [dataResp, bnResp] = await Promise.all([
       fetch('assets/data/acutes.json'),
-      fetch('assets/data/acutes.bn.json')
+      fetch('assets/data/acutes.bn.json'),
+      window.RemedyStore ? RemedyStore.load() : Promise.resolve()
     ]);
     DATA = await dataResp.json();
     BN = bnResp.ok ? await bnResp.json() : null;
@@ -185,8 +186,16 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 });
 
 // ===== Flow Chart of Acutes (transcribed from Dr. Prafull Vijayakar's original chart) =====
-// R(chart number, english name, bangla name, abbreviation)
-function R(n, en, bn, ab) { return { n: n, en: en, bn: bn, ab: ab }; }
+// R(chart number, catalog id) — names resolve lazily so FLOW can be declared
+// before the catalog fetch finishes.
+function R(n, id) {
+  return {
+    n: n, id: id,
+    get en() { const rx = window.RemedyStore && RemedyStore.get(id); return rx ? rx.name : id; },
+    get bn() { const rx = window.RemedyStore && RemedyStore.get(id); return rx ? (rx.bangla || rx.name) : id; },
+    get ab() { const rx = window.RemedyStore && RemedyStore.get(id); return rx ? (rx.abbr_display || rx.abbr) : id; }
+  };
+}
 
 // western digits -> bangla digits
 function bnNum(v) { return String(v).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]); }
@@ -226,9 +235,9 @@ const FLOW = {
           key: 'sleep', bn: 'ঘুম প্রবল', en: 'Sleep Overpowering', icon: '🛌',
           desc: 'ঘুমে আচ্ছন্ন, জাগিয়ে রাখা যায় না — তাপমাত্রা/তৃষ্ণা বিভাজন নেই',
           remedies: [
-            R(1, 'Opium', 'ওপিয়াম', 'Op.'),
-            R(2, 'Antimonium Tartaricum', 'এন্টিমোনিয়াম টার্টারিকাম', 'Ant-t.'),
-            R(3, 'Nux Moschata', 'নাক্স মসকেটা', 'Nux-m.')
+            R(1, 'op'),
+            R(2, 'ant-t'),
+            R(3, 'nux-m')
           ]
         },
         {
@@ -237,38 +246,38 @@ const FLOW = {
           q: Q_THERMAL, hint: H_THERMAL,
           children: [
             thermal2(T_CHILLY,
-              [ R(4, 'Sepia', 'সিপিয়া', 'Sep.'),
-                R(5, 'Gelsemium', 'জেলসেমিয়াম', 'Gels.'),
-                R(6, 'Acidum Phosphoricum', 'অ্যাসিডাম ফসফরিকাম', 'Ac-ph.'),
-                R(7, 'Ignatia Amara', 'ইগনেশিয়া আমারা', 'Ign.'),
-                R(8, 'Staphysagria', 'স্ট্যাফিসেগ্রিয়া', 'Staph.'),
-                R(9, 'Ipecacuanha', 'আইপিকাকুয়ানহা', 'Ipec.'),
-                R(10, 'Natrum Carbonicum', 'নেট্রাম কার্বনিকাম', 'Nat-c.'),
-                R(11, 'China (Cinchona)', 'চায়না (সিনকোনা)', 'Chin.') ],
-              [ R(12, 'Nux Vomica', 'নাক্স ভোমিকা', 'Nux-v.'),
-                R(13, 'Eupatorium Perfoliatum', 'ইউপেটোরিয়াম পারফোলিয়াটাম', 'Eup-per.'),
-                R(14, 'Phosphorus', 'ফসফরাস', 'Phos.'),
-                R(15, 'Calcarea Carbonica', 'ক্যালকেরিয়া কার্বোনিকা', 'Calc.'),
-                R(16, 'Belladonna', 'বেলাডোনা', 'Bell.'),
-                R(17, 'China (Cinchona)', 'চায়না (সিনকোনা)', 'Chin.'),
-                R(18, 'Silicea', 'সিলিসিয়া', 'Sil.'),
-                R(19, 'Hyoscyamus Niger', 'হায়োসায়ামাস নাইজার', 'Hyos.') ]),
+              [ R(4, 'sep'),
+                R(5, 'gels'),
+                R(6, 'ph-ac'),
+                R(7, 'ign'),
+                R(8, 'staph'),
+                R(9, 'ip'),
+                R(10, 'nat-c'),
+                R(11, 'chin') ],
+              [ R(12, 'nux-v'),
+                R(13, 'eup-per'),
+                R(14, 'phos'),
+                R(15, 'calc'),
+                R(16, 'bell'),
+                R(17, 'chin'),
+                R(18, 'sil'),
+                R(19, 'hyos') ]),
             thermal2(T_HOT,
-              [ R(20, 'Pulsatilla', 'পালসেটিলা', 'Puls.'),
-                R(21, 'Bryonia Alba', 'ব্রায়োনিয়া অ্যালবা', 'Bry.'),
-                R(22, 'Apis Mellifica', 'এপিস মেলিফিকা', 'Apis.'),
-                R(23, 'Lachesis Muta', 'ল্যাকেসিস মুটা', 'Lach.'),
-                R(24, 'Sulphur', 'সালফার', 'Sulph.'),
-                R(25, 'Lycopodium', 'লাইকোপোডিয়াম', 'Lyc.'),
-                R(26, 'Thuja Occidentalis', 'থুজা অক্সিডেন্টালিস', 'Thuj.'),
-                R(27, 'Opium', 'ওপিয়াম', 'Op.'),
-                R(28, 'Carbo Vegetabilis', 'কার্বো ভেজিটেবিলিস', 'Carb-v.') ],
-              [ R(29, 'Bryonia Alba', 'ব্রায়োনিয়া অ্যালবা', 'Bry.'),
-                R(30, 'Natrum Muriaticum', 'নেট্রাম মিউরিয়াটিকাম', 'Nat-m.'),
-                R(31, 'Sulphur', 'সালফার', 'Sulph.'),
-                R(32, 'Lycopodium', 'লাইকোপোডিয়াম', 'Lyc.'),
-                R(33, 'Apis Mellifica', 'এপিস মেলিফিকা', 'Apis.'),
-                R(34, 'Mercurius Solubilis', 'মার্কিউরিয়াস সলুবিলিস', 'Merc.') ])
+              [ R(20, 'puls'),
+                R(21, 'bry'),
+                R(22, 'apis'),
+                R(23, 'lach'),
+                R(24, 'sulph'),
+                R(25, 'lyc'),
+                R(26, 'thuj'),
+                R(27, 'op'),
+                R(28, 'carb-v') ],
+              [ R(29, 'bry'),
+                R(30, 'nat-m'),
+                R(31, 'sulph'),
+                R(32, 'lyc'),
+                R(33, 'apis'),
+                R(34, 'merc') ])
           ]
         }
       ]
@@ -286,13 +295,13 @@ const FLOW = {
           q: Q_THERMAL, hint: H_THERMAL + ' (এই শাখায় তৃষ্ণার বিভাজন নেই)',
           children: [
             Object.assign({}, T_CHILLY, { remedies: [
-              R(35, 'Rhus Toxicodendron', 'রাস টক্সিকোডেন্ড্রন', 'Rhus-t.'),
-              R(35, 'Tarentula Hispanica', 'ট্যারেন্টুলা হিসপানিকা', 'Tarent.')
+              R(35, 'rhus-t'),
+              R(35, 'tarent')
             ]}),
             Object.assign({}, T_HOT, { remedies: [
-              R(36, 'Kali Sulphuricum', 'কালি সালফিউরিকাম', 'Kali-s.'),
-              R(37, 'Mercurius Solubilis', 'মার্কিউরিয়াস সলুবিলিস', 'Merc.'),
-              R(38, 'Tarentula Hispanica', 'ট্যারেন্টুলা হিসপানিকা', 'Tarent.')
+              R(36, 'kali-s'),
+              R(37, 'merc'),
+              R(38, 'tarent')
             ]})
           ]
         },
@@ -302,22 +311,22 @@ const FLOW = {
           q: Q_THERMAL, hint: H_THERMAL,
           children: [
             thermal2(T_CHILLY,
-              [ R(39, 'Arsenicum Album', 'আর্সেনিকাম অ্যালবাম', 'Ars.'),
-                R(40, 'Cina', 'সিনা', 'Cina.'),
-                R(41, 'China (Cinchona)', 'চায়না (সিনকোনা)', 'Chin.') ],
-              [ R(42, 'Nux Vomica', 'নাক্স ভোমিকা', 'Nux-v.'),
-                R(43, 'Chamomilla', 'ক্যামোমিলা', 'Cham.'),
-                R(44, 'Baryta Carbonica', 'বেরাইটা কার্বোনিকা', 'Bar-c.'),
-                R(45, 'Ferrum Metallicum', 'ফেরাম মেটালিকাম', 'Ferr.'),
-                R(46, 'Ferrum Phosphoricum', 'ফেরাম ফসফরিকাম', 'Ferr-p.'),
-                R(47, 'China (Cinchona)', 'চায়না (সিনকোনা)', 'Chin.') ]),
+              [ R(39, 'ars'),
+                R(40, 'cina'),
+                R(41, 'chin') ],
+              [ R(42, 'nux-v'),
+                R(43, 'cham'),
+                R(44, 'bar-c'),
+                R(45, 'ferr'),
+                R(46, 'ferr-p'),
+                R(47, 'chin') ]),
             thermal2(T_HOT,
-              [ R(48, 'Pulsatilla', 'পালসেটিলা', 'Puls.'),
-                R(49, 'Sulphur', 'সালফার', 'Sulph.'),
-                R(50, 'Apis Mellifica', 'এপিস মেলিফিকা', 'Apis.') ],
-              [ R(51, 'Tuberculinum', 'টিউবারকুলিনাম', 'Tub.'),
-                R(52, 'Mercurius Solubilis', 'মার্কিউরিয়াস সলুবিলিস', 'Merc.'),
-                R(53, 'Opium', 'ওপিয়াম', 'Op.') ])
+              [ R(48, 'puls'),
+                R(49, 'sulph'),
+                R(50, 'apis') ],
+              [ R(51, 'tub'),
+                R(52, 'merc'),
+                R(53, 'op') ])
           ]
         },
         {
@@ -327,35 +336,35 @@ const FLOW = {
           children: [
             { key: 'sing', bn: 'গান গায়', en: 'Sings', icon: '🎵', desc: 'জ্বর/প্রলাপের মধ্যে গান গায়',
               remedies: [
-                R(54, 'Belladonna', 'বেলাডোনা', 'Bell.'),
-                R(55, 'Stramonium', 'স্ট্র্যামোনিয়াম', 'Stram.'),
-                R(56, 'Opium', 'ওপিয়াম', 'Op.'),
-                R(57, 'Veratrum Album', 'ভেরাট্রাম অ্যালবাম', 'Verat.')
+                R(54, 'bell'),
+                R(55, 'stram'),
+                R(56, 'op'),
+                R(57, 'verat')
               ]},
             { key: 'verses', bn: 'ছড়া/কবিতা বানায়', en: 'Makes Verses', icon: '📜', desc: 'ছন্দ মিলিয়ে কথা বলে, কবিতা রচনা করে',
               remedies: [
-                R(58, 'Cannabis Indica', 'ক্যানাবিস ইন্ডিকা', 'Cann-i.'),
-                R(59, 'Lachesis Muta', 'ল্যাকেসিস মুটা', 'Lach.'),
-                R(60, 'Coffea Cruda', 'কফিয়া ক্রুডা', 'Coff.'),
-                R(61, 'Antimonium Crudum', 'এন্টিমোনিয়াম ক্রুডাম', 'Ant-c.'),
-                R(62, 'Natrum Muriaticum', 'নেট্রাম মিউরিয়াটিকাম', 'Nat-m.')
+                R(58, 'cann-i'),
+                R(59, 'lach'),
+                R(60, 'coff'),
+                R(61, 'ant-c'),
+                R(62, 'nat-m')
               ]},
             { key: 'loquacity', bn: 'বাচালতা (Loquacity)', en: 'Loquacity', icon: '💬',
               desc: 'একটানা কথা বলে — কথার ধরন দেখে ওষুধ আলাদা হয়',
               q: 'ধাপ ৪ · বাচালতার ধরন', hint: 'কথা কীভাবে বলছে সেটাই নির্ণায়ক।',
               children: [
                 { key: 'fast', bn: 'দ্রুত কথা বলে', en: 'Fast', icon: '⚡',
-                  remedies: [ R(null, 'Lachesis Muta', 'ল্যাকেসিস মুটা', 'Lach.'), R(null, 'Pyrogenium', 'পাইরোজেনিয়াম', 'Pyrog.') ]},
+                  remedies: [ R(null, 'lach'), R(null, 'pyrog') ]},
                 { key: 'irrational', bn: 'অযৌক্তিক কথা', en: 'Irrational', icon: '🌪️',
-                  remedies: [ R(null, 'Lachesis Muta', 'ল্যাকেসিস মুটা', 'Lach.'), R(null, 'Coffea Cruda', 'কফিয়া ক্রুডা', 'Coff.') ]},
+                  remedies: [ R(null, 'lach'), R(null, 'coff') ]},
                 { key: 'business', bn: 'ব্যবসা/কাজের কথা', en: 'Business', icon: '💼',
-                  remedies: [ R(null, 'Bryonia Alba', 'ব্রায়োনিয়া অ্যালবা', 'Bry.') ]},
+                  remedies: [ R(null, 'bry') ]},
                 { key: 'nonsense', bn: 'অর্থহীন বকবক', en: 'Nonsense', icon: '🎭',
-                  remedies: [ R(null, 'Argentum Metallicum', 'আর্জেন্টাম মেটালিকাম', 'Arg-m.') ]},
+                  remedies: [ R(null, 'arg-m') ]},
                 { key: 'one_subject', bn: 'একই বিষয়ে কথা', en: 'One Subject', icon: '🔁',
-                  remedies: [ R(null, 'Argentum Nitricum', 'আর্জেন্টাম নাইট্রিকাম', 'Arg-n.'), R(null, 'Cannabis Indica', 'ক্যানাবিস ইন্ডিকা', 'Cann-i.'), R(null, 'Stramonium', 'স্ট্র্যামোনিয়াম', 'Stram.') ]},
+                  remedies: [ R(null, 'arg-n'), R(null, 'cann-i'), R(null, 'stram') ]},
                 { key: 'curses', bn: 'গালিগালাজ করে', en: 'Curses', icon: '🤬',
-                  remedies: [ R(null, 'Anacardium Orientale', 'অ্যানাকার্ডিয়াম', 'Anac.'), R(null, 'Sanicula', 'স্যানিকুলা', 'Sanic.'), R(null, 'Hepar Sulphuris', 'হিপার সালফিউরিস', 'Hep.'), R(null, 'Nux Vomica', 'নাক্স ভোমিকা', 'Nux-v.'), R(null, 'Tarentula Hispanica', 'ট্যারেন্টুলা হিসপানিকা', 'Tarent.') ]}
+                  remedies: [ R(null, 'anac'), R(null, 'sanic'), R(null, 'hep'), R(null, 'nux-v'), R(null, 'tarent') ]}
               ]}
           ]
         }
@@ -367,9 +376,9 @@ const FLOW = {
       key: 'no_change', bn: 'কোনো পরিবর্তন নেই', en: 'No Change', icon: '😐',
       desc: 'অসুস্থ হয়েও কার্যকলাপ আগের মতোই — অভিযোগ করে না, কাজ চালিয়ে যায়',
       remedies: [
-        R(null, 'Opium', 'ওপিয়াম', 'Op.'),
-        R(null, 'Natrum Muriaticum', 'নেট্রাম মিউরিয়াটিকাম', 'Nat-m.'),
-        R(null, 'Silicea', 'সিলিসিয়া', 'Sil.')
+        R(null, 'op'),
+        R(null, 'nat-m'),
+        R(null, 'sil')
       ]
     }
   ]
@@ -584,12 +593,13 @@ function persistAcutePick(force) {
   if (!force && cur.from && cur.from !== 'acutes' && cur.remedy && cur.remedy.name) return;
   Shell.pickRemedy({
     from: 'acutes',
+    id: r.id,
     name: r.en,
     bangla: r.bn,
     abbr: r.ab,
     book: 'তীব্র রোগের তত্ত্ব',
     shortlist: node.remedies.slice(0, 8).map(x => ({
-      name: x.en, bangla: x.bn, total: x.n || 0, abbr: x.ab
+      id: x.id, name: x.en, bangla: x.bn, total: x.n || 0, abbr: x.ab
     }))
   });
 }
