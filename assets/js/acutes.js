@@ -574,22 +574,26 @@ function renderPipe() {
 function renderRail() {
   const host = document.getElementById('acRail');
   if (!host) return;
-  const cur = currentAxisId();
   const pool = countRemedies(currentFlowNode());
-  const rows = AC_AXES.map(ax => {
-    const val = axisValue(ax.id);
-    const state = val ? 'filled' : (cur === ax.id ? 'current' : 'empty');
-    const ico = val ? optIcon(val) : (state === 'current' ? 'bx-radio-circle-marked' : 'bx-radio-circle');
-    return `<button type="button" class="ac-axis ${state}" ${val ? `data-axis="${ax.id}"` : 'disabled'}>
-      <i class="bx ${ico}"></i>
-      <span><small>${ax.bn}</small><strong>${val ? val.bn : (state === 'current' ? 'বাছাই করুন' : '—')}</strong></span>
+  const rows = flowPath.map((n, i) => {
+    const ax = AC_AXES.find(a => a.id === axisOf(n));
+    return `<button type="button" class="ac-axis filled" data-jump="${i}">
+      <i class="bx ${optIcon(n)}"></i>
+      <span><small>${ax ? ax.bn : ''}</small><strong>${n.bn}</strong></span>
     </button>`;
   }).join('');
+  const empty = flowPath.length
+    ? ''
+    : `<p class="ac-rail-empty">এখনো খালি — ধাপ বেছে নিলে এখানে জমা হবে</p>`;
   host.innerHTML = `<div class="ac-rail-head">কেস স্ন্যাপশট</div>
     <div class="ac-axes">${rows}</div>
+    ${empty}
     <div class="ac-rail-pool"><strong>${bnNum(pool)}</strong><span>${currentFlowNode().remedies ? 'সম্ভাব্য ওষুধ' : 'ওষুধ বাকি'}</span></div>`;
-  host.querySelectorAll('[data-axis]').forEach(el => {
-    el.addEventListener('click', () => jumpToAxis(el.dataset.axis));
+  host.querySelectorAll('[data-jump]').forEach(el => {
+    el.addEventListener('click', () => {
+      flowPath = flowPath.slice(0, +el.dataset.jump);
+      renderFlow();
+    });
   });
 }
 

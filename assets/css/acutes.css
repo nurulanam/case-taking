@@ -804,13 +804,13 @@
   .ac-axis.filled i { background: var(--primary-bg); color: var(--primary); }
   .ac-axis.filled strong { color: var(--text); }
   .ac-axis.filled:hover { border-color: var(--primary); }
-  .ac-axis.current {
-    background: var(--primary-bg);
-    border-color: color-mix(in srgb, var(--primary) 28%, transparent);
+  .ac-rail-empty {
+    margin: 0;
+    padding: 0.45rem 0.4rem 0.65rem;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--text-muted);
   }
-  .ac-axis.current i { background: var(--primary); color: #fff; }
-  .ac-axis.current strong { color: var(--primary); }
-  [data-theme="dark"] .ac-axis.current i { color: #0d1117; }
   .ac-rail-pool {
     margin-top: auto;
     padding: 0.7rem 0.65rem;
