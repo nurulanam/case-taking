@@ -337,10 +337,12 @@ body.nav-open .app-backdrop { opacity: 1; pointer-events: auto; }
 /* ---------- toasts ---------- */
 .toast-host {
   position: fixed; z-index: 200;
-  right: 1rem; bottom: 1rem;
+  top: calc(var(--tb-h) + 0.75rem); right: 1rem;
   display: flex; flex-direction: column; gap: 0.5rem;
   max-width: min(360px, calc(100vw - 2rem));
+  pointer-events: none;
 }
+.toast-host .toast { pointer-events: auto; }
 .toast {
   display: flex; align-items: flex-start; gap: 0.625rem;
   background: var(--surface);
@@ -360,7 +362,7 @@ body.nav-open .app-backdrop { opacity: 1; pointer-events: auto; }
 .toast.warn i { color: var(--warning); }
 .toast.err i { color: var(--danger); }
 .toast i.bx-info-circle { color: var(--primary); }
-@keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
 
 /* ---------- case form bottom bar inside the shell ---------- */
 .form-nav { left: var(--sb-w); z-index: 40; }
@@ -563,7 +565,8 @@ body[data-page="case"] .app-content { padding-bottom: 6.5rem; }
   .page-head-actions .tb-btn { flex: 1 1 auto; justify-content: center; }
   .hero { padding: 1.25rem; }
   .page-head h2 { font-size: 1.25rem; }
-  .toast-host { right: 0.75rem; left: 0.75rem; bottom: 0.75rem; max-width: none; }
+  .toast-host { top: calc(56px + 0.5rem); right: 0.75rem; left: auto; bottom: auto;
+                max-width: min(360px, calc(100vw - 1.5rem)); }
   
   /* Bottom Nav (Mobile Only) */
   .app-bottom-nav {

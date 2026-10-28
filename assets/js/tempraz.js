@@ -10,7 +10,8 @@ const state = {
   data      : null,           // loaded JSON
   curTemp   : null,           // active temperament id
   curCat    : 'all',          // active category filter
-  selections: {}              // { traitId: { intensity:1|2|3, tempId, rubric, text, scores } }
+  selections: {},             // { traitId: { intensity:1|2|3, tempId, rubric, text, scores } }
+  pickedAbbr: null            // remedy chosen for the prescription
 };
 
 /* ── Category icons ─────────────────────────────────────────── */
@@ -255,6 +256,9 @@ function updateRight() {
     if (rxList) {
       rxList.innerHTML = '<div class="tz-empty" style="min-height:80px;padding:1rem;"><p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p></div>';
     }
+    state.pickedAbbr = null;
+    const toRx = document.getElementById('tzToRx');
+    if (toRx) toRx.disabled = true;
     updateChart({ tempScores: {} });
     return;
   }
@@ -367,17 +371,54 @@ function renderRubrics(sels) {
   });
 }
 
+function persistTemprazPick(force) {
+  if (!window.Shell || !Shell.pickRemedy || !state.pickedAbbr) return;
+  const cur = Shell.bridge.get() || {};
+  if (!force && cur.from && cur.from !== 'tempraz' && cur.remedy && cur.remedy.name) return;
+  const { rxScores } = computeScores();
+  const sorted = Object.entries(rxScores).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const info = state.data.remedyInfo[state.pickedAbbr];
+  const name = info ? info.name : state.pickedAbbr;
+  Shell.pickRemedy({
+    from: 'tempraz',
+    name,
+    bangla: name,
+    abbr: state.pickedAbbr,
+    book: 'টেম্পারামেন্ট',
+    shortlist: sorted.map(([abbr, total]) => {
+      const rx = state.data.remedyInfo[abbr];
+      return { name: rx ? rx.name : abbr, bangla: rx ? rx.name : abbr, total, abbr };
+    })
+  });
+}
+
+function sendTemprazToRx() {
+  if (!state.pickedAbbr) return;
+  persistTemprazPick(true);
+  if (window.Shell && Shell.toast) Shell.toast('ঔষধ প্রেসক্রিপশনে পাঠানো হচ্ছে…', 'ok');
+  location.href = 'prescription.html?from=tempraz';
+}
+
 function renderRemedies(scores) {
   const { rxScores } = scores;
   const list = document.getElementById('tzRxList');
   list.innerHTML = '';
+  const toRx = document.getElementById('tzToRx');
 
   const sorted = Object.entries(rxScores).sort((a, b) => b[1] - a[1]).slice(0, 8);
 
   if (sorted.length === 0) {
     list.innerHTML = '<div class="tz-empty" style="min-height:60px;"><p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p></div>';
+    state.pickedAbbr = null;
+    if (toRx) toRx.disabled = true;
     return;
   }
+
+  if (!state.pickedAbbr || !sorted.some(([a]) => a === state.pickedAbbr)) {
+    state.pickedAbbr = sorted[0][0];
+  }
+  persistTemprazPick();
+  if (toRx) toRx.disabled = false;
 
   const maxScore = sorted[0][1];
 
@@ -401,7 +442,8 @@ function renderRemedies(scores) {
     }
 
     const item = document.createElement('div');
-    item.className = 'tz-rx-item';
+    item.className = 'tz-rx-item' + (abbr === state.pickedAbbr ? ' picked' : '');
+    item.dataset.abbr = abbr;
     item.innerHTML = `
       <div class="tz-rx-top">
         <span class="tz-rx-abbr">${abbr}</span>
@@ -413,6 +455,14 @@ function renderRemedies(scores) {
       </div>
       ${keynote ? `<div class="tz-rx-note">${keynote}</div>` : ''}
     `;
+    item.addEventListener('click', () => {
+      state.pickedAbbr = abbr;
+      list.querySelectorAll('.tz-rx-item').forEach(el => {
+        el.classList.toggle('picked', el.dataset.abbr === abbr);
+      });
+      persistTemprazPick(true);
+      if (toRx) toRx.disabled = false;
+    });
     list.appendChild(item);
   });
 }
@@ -438,12 +488,15 @@ document.addEventListener('DOMContentLoaded', () => {
   if (clearBtn) {
     clearBtn.addEventListener('click', () => {
       state.selections = {};
+      state.pickedAbbr = null;
       updateSelBadge();
       updateClearBtn();
       renderMiddle();
       updateRight();
     });
   }
+  const toRx = document.getElementById('tzToRx');
+  if (toRx) toRx.addEventListener('click', sendTemprazToRx);
 });
 
 /* ══════════════════════════════════════════════════════════════

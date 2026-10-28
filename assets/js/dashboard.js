@@ -295,7 +295,7 @@
       <div class="dh-pt-act">
         <a class="primary" href="prescription.html#new"><i class='bx bx-receipt'></i> নতুন প্রেসক্রিপশন</a>
         <a href="prescription.html#saved"><i class='bx bx-folder-open'></i> সংরক্ষিত প্রেসক্রিপশন</a>
-        <a href="${pHref}"><i class='bx bx-clipboard'></i> নতুন কেস</a>
+        <a href="${rec ? 'case.html?new=1&patient=' + encodeURIComponent(rec.id) : 'case.html?new=1'}"><i class='bx bx-clipboard'></i> নতুন কেস</a>
       </div>`;
     $('dhPatient').hidden = false;
     $('dhPtClose').addEventListener('click', () => {

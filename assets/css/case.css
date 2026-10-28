@@ -415,6 +415,8 @@ body.is-gating .form-nav { display: none !important; }
 .case-stepper .step-tab.active .step-mark { border-color: #fff; background: rgba(255,255,255,.25); }
 .step-progress-note { margin: .15rem 0 0; }
 
+.child-panel { display: none; }
+
 .form-nav {
   flex-wrap: wrap; gap: .45rem; justify-content: flex-start;
 }
