@@ -34,11 +34,11 @@
 
         <section class="pt-form" id="ptFormWrap" hidden>
           <h3 id="ptFormTitle">নতুন রোগী নিবন্ধন</h3>
-          <p>কেস নেওয়ার আগে রোগীর পরিচয় এখানে নথিভুক্ত হয়। নাম, বয়স ও লিঙ্গ আবশ্যক।</p>
+          <p>শুধু পরিচয় — নাম, বয়স, লিঙ্গ। ক্লিনিক্যাল তথ্য কেস নেওয়ার সময়।</p>
           <form id="ptForm" novalidate>
             <div class="grid two tight">
               <label class="field full"><span>রোগীর নাম <b>*</b></span><input name="name" placeholder="পূর্ণ নাম" required autocomplete="name"/></label>
-              <div class="field"><span>বয়স <b>*</b></span>
+              <div class="field"><span>বয়স</span>
                 <div class="age-group">
                   <span class="age-part"><input name="ageYears" type="number" min="0" max="120" placeholder="৩৫" inputmode="numeric"/></span>
                   <span class="age-unit">বছর</span>
@@ -49,18 +49,8 @@
               <div class="field"><span>লিঙ্গ <b>*</b></span>
                 <div class="pills" data-pills="gender" data-options="পুরুষ|মহিলা|অন্যান্য"></div>
               </div>
-              <div class="field"><span>বৈবাহিক অবস্থা</span>
-                <div class="pills" data-pills="maritalStatus" data-options="অবিবাহিত|বিবাহিত|বিধবা/বিপত্নীক|তালাকপ্রাপ্ত"></div>
-              </div>
-              <label class="field"><span>পেশা</span><input name="occupation" placeholder="যেমন: শিক্ষক, গৃহিণী"/></label>
               <label class="field"><span>মোবাইল</span><input name="phone" type="tel" placeholder="০১৭xxxxxxxx" inputmode="tel"/></label>
-              <label class="field"><span>ওজন (কেজি)</span><input name="weight" placeholder="যেমন: ৬২"/></label>
-              <label class="field"><span>উচ্চতা</span><input name="height" placeholder="যেমন: ৫′৪″"/></label>
-              <div class="field"><span>রক্তের গ্রুপ</span>
-                <div class="pills" data-pills="bloodGroup" data-options="A+|A-|B+|B-|O+|O-|AB+|AB-|জানা নেই"></div>
-              </div>
-              <label class="field full"><span>ঠিকানা</span><input name="address" placeholder="গ্রাম/মহল্লা, উপজেলা, জেলা"/></label>
-              <label class="field full"><span>নোট</span><textarea name="notes" rows="2" placeholder="অ্যালার্জি, বিশেষ সতর্কতা, পরিচিতির নোট"></textarea></label>
+              <label class="field full"><span>ঠিকানা</span><input name="address" placeholder="গ্রাম/মহল্লা, উপজেলা — ইচ্ছা করলে"/></label>
             </div>
             <div class="pt-form-act">
               <button class="pt-btn primary" type="submit" id="ptSave"><i class="bx bx-save"></i> নিবন্ধন সংরক্ষণ</button>

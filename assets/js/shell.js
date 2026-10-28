@@ -23,7 +23,7 @@
             { id: 'patients-list', href: 'patients.html', page: 'patients', icon: 'bx-list-ul', label: 'রোগীর তালিকা' },
             { id: 'patients-new', href: 'patients.html?new=1', page: 'patients', icon: 'bx-user-plus', label: 'নতুন নিবন্ধন' }
           ] },
-        { id: 'case', href: 'cases.html', icon: 'bx-clipboard', label: 'কেস টেকিং', meta: '৭ ধাপ',
+        { id: 'case', href: 'cases.html', icon: 'bx-clipboard', label: 'কেস টেকিং',
           children: [
             // These two are separate pages, not sections of one, so they carry
             // `page` instead of a hash — see subActive() below.
@@ -93,6 +93,61 @@
       ]
     }
   ];
+
+  /* Clinical tree — one path from a registered patient to the tool that
+     actually fits the case. Acute starts at Theory of Acutes; chronic at
+     case taking, then temperament / miasm / repertory as analysis, not as
+     extra form steps. Kept here so the patient page, the case gate and the
+     consult bar on every tool cannot drift apart. */
+  const CONSULT = {
+    types: [
+      { id: 'acute', value: 'তীব্র (Acute)', icon: 'bx-bolt-circle',
+        title: 'আকস্মিক কেস', sub: 'হঠাৎ শুরু, স্বল্পমেয়াদি — প্রথমে তীব্র রোগের তত্ত্ব।' },
+      { id: 'chronic', value: 'দীর্ঘস্থায়ী (Chronic)', icon: 'bx-time-five',
+        title: 'দীর্ঘস্থায়ী কেস', sub: 'চলমান বা পুনরাবৃত্ত — প্রথমে কেস টেকিং, তারপর বিশ্লেষণ।' },
+      { id: 'followup', value: 'ফলোআপ', icon: 'bx-revision',
+        title: 'ফলোআপ', sub: 'আগের কেস পর্যালোচনা — শেষ সাক্ষাতের পর কী বদলেছে।' }
+    ],
+    paths: {
+      acute: [
+        { id: 'toa', href: 'acutes.html', icon: 'bx-sitemap', label: 'তীব্র তত্ত্ব',
+          title: 'তীব্র রোগের তত্ত্ব', sub: 'কার্যকলাপ → উপপ্রকার → তাপ → তৃষ্ণা ধরে সিমিলিমাম। আকস্মিক কেসের মূল পথ।', primary: true },
+        { id: 'case', href: 'case.html', icon: 'bx-clipboard', label: 'কেস টেকিং',
+          title: 'সংক্ষিপ্ত কেস টেকিং', sub: 'অভিযোগ ও বিশেষ লক্ষণ নথিভুক্ত — তত্ত্বে না মিললে।' },
+        { id: 'rep', href: 'repertory.html', icon: 'bx-book-bookmark', label: 'রেপার্টরি',
+          title: 'রেপার্টরি', sub: 'রুব্রিক বাছুন — লক্ষণ স্পষ্ট হলে সরাসরি।' }
+      ],
+      chronic: [
+        { id: 'case', href: 'case.html', icon: 'bx-clipboard', label: 'কেস টেকিং',
+          title: 'কেস টেকিং', sub: 'অভিযোগ, জেনারেলস, মানসিক ও ইতিহাস — দীর্ঘস্থায়ী কেসের মূল পথ।', primary: true },
+        { id: 'temp', href: 'tempraz.html', icon: 'bx-brain', label: 'টেম্পারামেন্ট',
+          title: 'টেম্পারামেন্ট', sub: 'স্বভাব ও গঠন — কেস নেওয়ার পর বা সরাসরি।' },
+        { id: 'miasm', href: 'miasm.html', icon: 'bx-analyse', label: 'মায়াজম',
+          title: 'মায়াজম', sub: 'সোরা/সাইকোসিস/সিফিলিস — টোটালিটির মiasmatic পাঠ।' },
+        { id: 'rep', href: 'repertory.html', icon: 'bx-book-bookmark', label: 'রেপার্টরি',
+          title: 'রেপার্টরি', sub: 'টোটালিটি রেপার্টরাইজেশন।' }
+      ],
+      followup: [
+        { id: 'case', href: 'case.html', icon: 'bx-revision', label: 'পরিবর্তন',
+          title: 'পরিবর্তন নথিভুক্ত', sub: 'শেষ সাক্ষাতের পর কী ভালো, কী আছে, কী নতুন।', primary: true },
+        { id: 'rep', href: 'repertory.html', icon: 'bx-book-bookmark', label: 'রেপার্টরি',
+          title: 'রেপার্টরি', sub: 'নতুন বা বাকি লক্ষণ রেপার্টরাইজ করুন।' },
+        { id: 'rx', href: 'prescription.html', icon: 'bx-receipt', label: 'প্রেসক্রিপশন',
+          title: 'প্রেসক্রিপশন', sub: 'আগের ওষুধ ধরে রাখুন বা বদলান।' }
+      ]
+    },
+    typeOf(id) { return this.types.find(t => t.id === id) || null; },
+    pathList(typeId) { return this.paths[typeId] || this.paths.chronic; },
+    href(typeId, pathId, patientId) {
+      const path = this.pathList(typeId).find(p => p.id === pathId) || this.pathList(typeId)[0];
+      const q = new URLSearchParams();
+      if (patientId) q.set('patient', patientId);
+      if (typeId) q.set('type', typeId);
+      if (path.id === 'case') q.set('mode', 'case');
+      if (path.id === 'rep') q.set('from', 'case');
+      return path.href + (q.toString() ? '?' + q.toString() : '');
+    }
+  };
 
   /* ---------------- helpers ---------------- */
   const bnNum = v => String(v).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
@@ -328,6 +383,8 @@
         store.set(COLLAPSE_KEY, collapsed);
       }
     });
+
+    renderConsultBar(active);
   }
 
   function initDarkMode() {
@@ -378,7 +435,7 @@
     if (draft && typeof draft === 'object' && Object.keys(draft).length) {
       updateSbMeta('case', 'খসড়া');
     } else {
-      updateSbMeta('case', '৭ ধাপ', true);
+      updateSbMeta('case', '৫ ধাপ', true);
     }
     const rep = store.get('repertory_case_v1', null);
     if (rep && rep.picked && rep.picked.length) {
@@ -529,7 +586,54 @@
     return { template: old.docTemplate || 'classic' };
   });
 
-  global.Shell = { APP, NAV, bnNum, store, toast, addAction, setChip, init, bridge,
+  /* A slim bar on analysis tools so the patient is not lost between
+     register → type → temperament / miasm / repertory. Sibling links are
+     the rest of that type's tree, not a new navigation system. */
+  const TOOL_PAGES = { acutes: 'toa', tempraz: 'temp', miasm: 'miasm',
+                       repertory: 'rep', prescription: 'rx', case: 'case' };
+
+  function renderConsultBar(active) {
+    const pathId = TOOL_PAGES[active];
+    if (!pathId) return;
+    const inner = document.querySelector('.content-inner');
+    if (!inner || inner.querySelector('.consult-bar')) return;
+
+    const params = new URLSearchParams(location.search);
+    const b = bridge.get() || {};
+    const pid = params.get('patient') || b.patientId || '';
+    let name = b.patient || '';
+    if (!name && pid && global.PatientStore) {
+      const rec = PatientStore.get(pid);
+      if (rec) name = rec.name || '';
+    }
+    let typeId = params.get('type') || '';
+    if (!typeId && b.caseType) {
+      const v = String(b.caseType);
+      if (v.indexOf('তীব্র') >= 0 || v.indexOf('আকস্মিক') >= 0) typeId = 'acute';
+      else if (v.indexOf('ফলো') >= 0) typeId = 'followup';
+      else if (v.indexOf('দীর্ঘ') >= 0) typeId = 'chronic';
+    }
+    if (!name && !pid) return;
+    const paths = typeId ? CONSULT.pathList(typeId) : [];
+    const type = typeId ? CONSULT.typeOf(typeId) : null;
+    const back = pid ? 'patient.html?id=' + encodeURIComponent(pid) : 'patients.html';
+
+    const bar = document.createElement('div');
+    bar.className = 'consult-bar';
+    bar.innerHTML =
+      `<a class="consult-who" href="${back}">` +
+        `<i class='bx bx-user'></i>` +
+        `<span><b>${String(name || 'রোগী').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</b>` +
+        `<small>${type ? type.title : ''}</small></span></a>` +
+      `<nav class="consult-tree">${paths.map(p => {
+        const href = CONSULT.href(typeId, p.id, pid);
+        const on = p.id === pathId ? ' on' : '';
+        return `<a class="consult-link${on}" href="${href}"><i class='bx ${p.icon}'></i>${p.label}</a>`;
+      }).join('')}</nav>`;
+    inner.insertBefore(bar, inner.firstChild);
+  }
+
+  global.Shell = { APP, NAV, CONSULT, bnNum, store, toast, addAction, setChip, init, bridge,
                    getGreeting, profile, rxSettings };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
