@@ -23,7 +23,6 @@
 
   const DIR = 'assets/data/repatories/';
   const STORE = 'repertory_case_v1';
-  const ROW_CAP = 60;               // grid rows drawn before the "show all" note
   const LIST_CAP = 250;             // rubric rows drawn at once (a full Kent is ~69,000)
   const bn = v => Shell.bnNum(v);
   const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9ঀ-৿]/g, '');
@@ -40,7 +39,7 @@
     picked: new Map(), // rubricId -> intensity 1..3
     sort: 'coverage',
     onlyFull: false,
-    showAll: false,
+    rowLimit: 15,
     selectedRemedy: null,
     compare: new Set(),  // remedy keys ticked for the materia-medica comparison
     revChapter: null,    // which chapter is expanded in the reversed rubric view
@@ -508,7 +507,7 @@
       buildCrossLanguage(shared.bn_glossary);
       S.bookMeta = entry;
       S.picked.clear();
-      S.chapter = 'all'; S.search = ''; S.showAll = false; S.page = 0;
+      S.chapter = 'all'; S.search = ''; S.page = 0;
       renderLibrary();
       renderQualityWarning();
       renderChapters();
@@ -1237,47 +1236,40 @@
 
     let shown = rows.filter(r => !S.onlyFull || r.coverage === rubrics.length);
     const totalMatching = shown.length;
-    if (!S.showAll && shown.length > ROW_CAP) shown = shown.slice(0, ROW_CAP);
-
-    document.getElementById('rowLimitNote').innerHTML = totalMatching > shown.length
-      ? `শীর্ষ ${bn(shown.length)}টি দেখানো হচ্ছে (মোট ${bn(totalMatching)}) — <a href="#" id="showAllRows" style="color:var(--primary);font-weight:700;">সব দেখুন</a>`
-      : `${bn(totalMatching)}টি ওষুধ দেখানো হচ্ছে`;
+    shown = shown.slice(0, S.rowLimit);
+    document.getElementById('rowLimitNote').textContent =
+      `${bn(shown.length)} / ${bn(totalMatching)}টি ওষুধ`;
 
     const head = `<thead><tr>
-        <th class="rx-col">ওষুধ</th>
+        <th class="rx-col" scope="col">ওষুধ</th><th scope="col">মোট</th><th scope="col">রুব্রিক</th>
         ${rubrics.map(rb => `<th title="${esc(rb.name)} — ${esc(rb.chapterLabel)}">
             ${esc(rb.name.length > 14 ? rb.name.slice(0, 13) + '…' : rb.name)}
             <div style="font-weight:400;text-transform:none;color:var(--text-light);">×${bn(S.picked.get(rb.id))}</div>
           </th>`).join('')}
-        <th>মোট</th><th>রুব্রিক</th>
       </tr></thead>`;
 
     const body = `<tbody>${shown.map((r, i) => `
       <tr class="${i === 0 ? 'top' : ''}" data-key="${r.key}">
         <th title="${esc(r.name)}">
-          <span class="rx-cmp ${S.compare.has(r.key) ? 'on' : ''}" data-cmp="${r.key}"
-                title="তুলনার জন্য বাছুন"><i class='bx bx-check'></i></span>
-          <span class="rx-nm">
+          <button type="button" class="rx-cmp ${S.compare.has(r.key) ? 'on' : ''}" data-cmp="${r.key}"
+                  aria-label="${esc(r.name)} তুলনার জন্য বাছুন" aria-pressed="${S.compare.has(r.key)}"><i class='bx bx-check'></i></button>
+          <button type="button" class="rx-nm rx-open" aria-label="${esc(r.name)} বিস্তারিত দেখুন">
             <span class="${r.placeholder ? 'ph' : ''}">${esc(r.name)}</span>
             ${r.bangla ? `<span class="rx-bn">${esc(r.bangla)}</span>` : ''}
-          </span>
+          </button>
         </th>
+        <td class="tot">${bn(r.total)}</td>
+        <td class="cov">${bn(r.coverage)}/${bn(rubrics.length)}</td>
         ${rubrics.map(rb => {
           const g = r.cells[rb.id];
           return `<td class="${g ? '' : 'g0'}">${g ? `<span class="gr gr${g}">${bn(g)}</span>` : '·'}</td>`;
         }).join('')}
-        <td class="tot">${bn(r.total)}</td>
-        <td class="cov">${bn(r.coverage)}/${bn(rubrics.length)}</td>
-      </tr>`).join('')}</tbody>`;
+      </tr>`).join('') || `<tr><td class="rp-grid-empty" colspan="${rubrics.length + 3}">এই ফিল্টারে কোনো ওষুধ পাওয়া যায়নি।</td></tr>`}</tbody>`;
 
     document.getElementById('repGrid').innerHTML = head + body;
 
-    const showAll = document.getElementById('showAllRows');
-    if (showAll) showAll.addEventListener('click', e => { e.preventDefault(); S.showAll = true; renderGrid(); });
-
-    document.querySelectorAll('#repGrid tbody tr').forEach(tr => {
-      tr.querySelector('th').addEventListener('click', e => {
-        if (e.target.closest('.rx-cmp')) return;   // the tick has its own handler
+    document.querySelectorAll('#repGrid tbody tr[data-key]').forEach(tr => {
+      tr.querySelector('.rx-open').addEventListener('click', () => {
         S.selectedRemedy = tr.dataset.key;
         setStep(4);
       });
@@ -1304,6 +1296,8 @@
       return;
     } else S.compare.add(key);
     renderGrid();
+    const replacement = [...document.querySelectorAll('#repGrid .rx-cmp')].find(el => el.dataset.cmp === key);
+    if (replacement) replacement.focus({ preventScroll: true });
   }
 
   function compareIds() {
@@ -1769,9 +1763,14 @@
 
     document.querySelectorAll('.rp-sortset .fbtn').forEach(b => b.addEventListener('click', () => {
       S.sort = b.dataset.sort;
-      document.querySelectorAll('.rp-sortset .fbtn').forEach(x => x.classList.toggle('active', x === b));
+      document.querySelectorAll('.rp-sortset .fbtn').forEach(x => {
+        const active = x === b;
+        x.classList.toggle('active', active);
+        x.setAttribute('aria-pressed', String(active));
+      });
       renderGrid();
     }));
+    document.getElementById('rowLimit').addEventListener('change', e => { S.rowLimit = Number(e.target.value); renderGrid(); });
     document.getElementById('onlyFull').addEventListener('change', e => { S.onlyFull = e.target.checked; renderGrid(); });
 
     document.getElementById('copyRep').addEventListener('click', function () {

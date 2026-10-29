@@ -704,3 +704,60 @@
   .rp-pager { flex-wrap: wrap; }
   .pg-btn { min-width: 40px; min-height: 44px; }
 }
+
+/* Recent choices live in the heading and open without displacing the list. */
+#pane-2 .rp-col { overflow: visible; }
+.rp-search-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.rp-search-heading .section-heading { min-width: 0; }
+.rp-recent-panel { position: relative; flex: 0 0 auto; margin: 0; }
+.rp-recent-panel summary { padding: 0.35rem 0.6rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); }
+.rp-recent-panel summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.rp-recent-panel .rp-recent {
+  position: absolute; z-index: 20; top: calc(100% + 0.35rem); right: 0;
+  width: min(22rem, calc(100vw - 3rem)); box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: stretch;
+  padding: 0.5rem; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--surface); box-shadow: var(--shadow-lg);
+}
+.rp-recent-panel .rp-recent-chip { width: 100%; min-width: 0; text-align: left; border-radius: 7px; }
+.rp-recent-panel:not([open]) .rp-recent { display: none; }
+
+/* Repertorisation controls and a readable, horizontally navigable matrix. */
+.rp-toolbar {
+  padding: 0.75rem; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--surface2); align-items: center; gap: 0.65rem 1rem;
+}
+.rp-sortset { gap: 0.25rem; }
+.rp-sortset .fbtn { min-height: 40px; border-radius: 7px; padding: 0.4rem 0.65rem; color: var(--text); }
+.rp-sortset .fbtn.active { color: #fff; }
+.rp-check { color: var(--text); min-height: 40px; gap: 0.45rem; }
+.rp-check input { width: 18px; height: 18px; }
+.rp-row-limit { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--text); font-size: 0.8125rem; font-weight: 700; }
+.rp-row-limit select { min-height: 40px; padding: 0.35rem 0.55rem; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text); font: inherit; }
+.rp-limit { margin-left: auto; }
+.rp-grid-hint { display: none; }
+.rp-gridwrap { -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.rp-gridwrap:focus-visible, .rp-row-limit select:focus-visible, .rp-grid button:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+.rp-grid th .rx-cmp { width: 30px; height: 30px; padding: 0; vertical-align: middle; }
+.rp-grid th .rx-open { appearance: none; border: 0; padding: 0.25rem 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; vertical-align: middle; }
+.rp-grid th .rx-open:hover { color: var(--primary); }
+.rp-grid-empty { padding: 1.5rem !important; text-align: center; color: var(--text-muted); }
+[data-theme="dark"] .rp-sortset .fbtn.active, [data-theme="dark"] .rp-grid th .rx-cmp.on { color: #082320; }
+@media (max-width: 1023px) {
+  #pane-3 > .card { padding: 0.875rem; }
+  .rp-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; }
+  .rp-sortset { grid-column: 1 / -1; }
+  .rp-check { grid-column: 1 / -1; }
+  .rp-limit { text-align: right; }
+  .rp-grid-hint { display: flex; gap: 0.3rem; align-items: center; margin: 0 0 0.5rem; font-size: 0.75rem; color: var(--text-muted); }
+  .rp-gridwrap { max-height: none; overflow-x: auto; overflow-y: visible; }
+  .rp-grid th, .rp-grid td { padding: 0.45rem; }
+  .rp-grid thead th.rx-col, .rp-grid tbody th { min-width: 145px; max-width: 175px; }
+  .rp-grid th .rx-cmp { width: 40px; height: 44px; }
+  .rp-grid th .rx-open { min-height: 44px; max-width: 115px; }
+  .rp-grid td.tot, .rp-grid td.cov { min-width: 48px; }
+}
+@media (max-width: 400px) {
+  .rp-search-heading .section-number { display: none; }
+  .rp-recent-panel summary { font-size: 0.75rem; }
+}

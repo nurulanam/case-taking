@@ -80,19 +80,21 @@
           <div class="rp-split">
             <div class="card rp-col">
               <div class="rp-col-head">
-                <div class="section-heading" style="margin-bottom:0;">
-                  <span class="section-number"><i class='bx bx-list-ul' style="font-size:1rem"></i></span>
-                  <div><h3>রুব্রিক খুঁজুন</h3><p id="rubHint">অধ্যায় থেকে বাছুন বা সরাসরি সার্চ করুন</p></div>
+                <div class="rp-search-heading">
+                  <div class="section-heading" style="margin-bottom:0;">
+                    <span class="section-number"><i class='bx bx-list-ul' style="font-size:1rem"></i></span>
+                    <div><h3>রুব্রিক খুঁজুন</h3><p id="rubHint">অধ্যায় থেকে বাছুন বা সরাসরি সার্চ করুন</p></div>
+                  </div>
+                  <details class="rp-recent-panel" id="recentPanel" hidden>
+                    <summary><i class='bx bx-time-five' aria-hidden="true"></i> সাম্প্রতিক <span id="recentCount"></span></summary>
+                    <div class="rp-recent" id="recentRubrics"></div>
+                  </details>
                 </div>
                 <div class="m-search" style="margin-top:0.875rem;">
                   <i class='bx bx-search'></i>
                   <input type="text" id="rubSearch" placeholder="রুব্রিক খুঁজুন (যেমন: Anxiety, ব্যথা)…" autocomplete="off"/>
                   <button class="clear-x" id="rubSearchClear" style="display:none;"><i class='bx bx-x'></i></button>
                 </div>
-                <details class="rp-recent-panel" id="recentPanel" hidden>
-                  <summary><i class='bx bx-time-five' aria-hidden="true"></i> সাম্প্রতিক রুব্রিক <span id="recentCount"></span></summary>
-                  <div class="rp-recent" id="recentRubrics"></div>
-                </details>
                 <a class="rp-tray-link" id="trayLink" href="#caseRubrics" hidden>নির্বাচিত রুব্রিক দেখুন</a>
               </div>
               <div class="rp-col-scroll" id="rubricList"></div>
@@ -125,14 +127,18 @@
             <div class="rp-toolbar">
               <div class="rp-sortset">
                 <span class="flabel">সাজান:</span>
-                <button class="fbtn active" data-sort="coverage">রুব্রিক সংখ্যা আগে</button>
-                <button class="fbtn" data-sort="total">মোট গ্রেড আগে</button>
+                <button type="button" class="fbtn active" data-sort="coverage" aria-pressed="true">রুব্রিক সংখ্যা আগে</button>
+                <button type="button" class="fbtn" data-sort="total" aria-pressed="false">মোট গ্রেড আগে</button>
               </div>
               <label class="rp-check"><input type="checkbox" id="onlyFull"/> শুধু সব রুব্রিকে থাকা ওষুধ</label>
-              <span class="rp-limit" id="rowLimitNote"></span>
+              <label class="rp-row-limit" for="rowLimit">দেখান
+                <select id="rowLimit"><option value="15">১৫টি</option><option value="30">৩০টি</option><option value="50">৫০টি</option><option value="100">১০০টি</option></select>
+              </label>
+              <span class="rp-limit" id="rowLimitNote" aria-live="polite"></span>
             </div>
             <div class="rp-cmpbar" id="cmpBar"></div>
-            <div class="rp-gridwrap"><table class="rp-grid" id="repGrid"></table></div>
+            <p class="rp-grid-hint"><i class='bx bx-move-horizontal' aria-hidden="true"></i> সব রুব্রিক দেখতে ছকটি পাশে সরান।</p>
+            <div class="rp-gridwrap" tabindex="0" role="region" aria-label="রেপার্টরাইজেশন ছক"><table class="rp-grid" id="repGrid"></table></div>
             <p class="rp-legend">
               <span><b>মোট</b> = Σ (ওষুধের গ্রেড × রুব্রিকের তীব্রতা)</span>
               <span><b>রুব্রিক</b> = কতটি নির্বাচিত রুব্রিকে ওষুধটি আছে</span>
