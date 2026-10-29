@@ -663,20 +663,7 @@
 .tz-summary #tzEmptyState { padding: 0.25rem 0 0.75rem; text-align: left; align-items: flex-start; }
 .tz-summary .tz-tq-box { margin-bottom: 0.5rem; padding: 0.7rem 0.8rem; }
 .tz-summary .tz-tq-score { font-size: 1.5rem; }
-.tz-summary .tz-personality { margin-bottom: 0.5rem; }
-.tz-rubric-details { margin: 0 0 0.75rem; }
-.tz-rubric-details summary {
-  min-height: 44px; display: flex; align-items: center; justify-content: space-between;
-  padding: 0.5rem 0.7rem; border: 1px solid var(--border); border-radius: 8px;
-  background: var(--surface); color: var(--text); font-size: 0.8125rem;
-  font-weight: 700; cursor: pointer; list-style: none;
-}
-.tz-rubric-details summary::-webkit-details-marker { display: none; }
-.tz-rubric-details[open] summary i { transform: rotate(180deg); }
-.tz-rubric-details .tz-rubric-list { margin-top: 0.5rem; }
-.tz-rubric-details summary:focus-visible, .tz-rx-item:focus-visible {
-  outline: 2px solid var(--primary); outline-offset: 2px;
-}
+.tz-rx-item:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .tz-rx-disclaimer { margin: 0; padding: 0.5rem 0.75rem 0; color: var(--text-muted); font-size: 0.75rem; line-height: 1.45; }
 .tz-right-scroll .tz-rx-scroll { padding: 0.5rem; }
 .tz-right-scroll .tz-rx-list-horiz { display: flex; flex-direction: column; gap: 0.25rem; }
@@ -695,4 +682,42 @@
 @media (max-width: 1100px) {
   .tz-mid { align-self: stretch; }
   .tz-mid-scroll { max-height: clamp(280px, 50dvh, 520px); }
+}
+
+/* Secondary result details stay available without expanding the workspace. */
+.tz-result-actions { display: flex; gap: 0.4rem; margin: 0 0 0.7rem; }
+.tz-result-action {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
+  flex: 1 1 0; min-width: 0; min-height: 44px; padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--surface);
+  color: var(--text); font: inherit; font-size: 0.75rem; font-weight: 700; cursor: pointer;
+}
+.tz-result-action i { color: var(--primary); font-size: 1rem; }
+.tz-result-action:hover { border-color: var(--primary); }
+.tz-result-action:focus-visible, .tz-dialog-close:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.tz-dialog {
+  box-sizing: border-box; width: min(34rem, calc(100% - 2rem)); max-width: none;
+  max-height: min(80dvh, 44rem); padding: 0; border: 1px solid var(--border);
+  border-radius: 14px; background: var(--surface); color: var(--text);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25); overflow: auto;
+}
+.tz-dialog::backdrop { background: rgba(0, 0, 0, 0.55); }
+.tz-dialog-head {
+  position: sticky; top: 0; z-index: 1; display: flex; align-items: center;
+  justify-content: space-between; gap: 1rem; padding: 0.75rem 1rem;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.tz-dialog-head h2 { margin: 0; font-size: 1rem; color: var(--text); }
+.tz-dialog-close {
+  display: grid; place-items: center; flex-shrink: 0; min-width: 44px; min-height: 44px;
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface2);
+  color: var(--text); cursor: pointer; font-size: 1.35rem;
+}
+.tz-dialog-body { padding: 1rem; }
+.tz-dialog-body [hidden] { display: none; }
+.tz-dialog .tz-personality { margin: 0; }
+.tz-dialog-empty { color: var(--text-muted); font-size: 0.875rem; }
+@media (max-width: 400px) {
+  .tz-result-actions { flex-wrap: wrap; }
+  .tz-result-action { flex: 1 1 auto; }
 }

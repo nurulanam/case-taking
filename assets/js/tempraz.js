@@ -254,6 +254,9 @@ function updateTraitRowElement(row, intensity) {
 function updateRight() {
   const sels = Object.values(state.selections);
   const count = sels.length;
+  document.getElementById('tzRubricCount').textContent = `(${toBanglaDigit(count)})`;
+  const dialog = document.getElementById('tzDetailDialog');
+  if (!count && dialog.open) dialog.close();
 
   const emptyState = document.getElementById('tzEmptyState');
   const resultArea = document.getElementById('tzResultArea');
@@ -341,7 +344,9 @@ function renderTqBox(topTemp, count) {
 function renderPersonality(t) {
   const box = document.getElementById('tzPersonality');
   if (!box) return;
-  if (!t.description && !t.core_nature) { box.style.display = 'none'; return; }
+  const hasDescription = !!(t.description || t.core_nature);
+  document.getElementById('tzPersonalityEmpty').hidden = hasDescription;
+  if (!hasDescription) { box.style.display = 'none'; return; }
   box.style.display = '';
   box.style.borderLeftColor = t.color;
   box.innerHTML = `
@@ -512,6 +517,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const toRx = document.getElementById('tzToRx');
   if (toRx) toRx.addEventListener('click', sendTemprazToRx);
+
+  const dialog = document.getElementById('tzDetailDialog');
+  document.querySelectorAll('[data-tz-dialog]').forEach(button => {
+    button.addEventListener('click', () => {
+      const personality = button.dataset.tzDialog === 'personality';
+      document.getElementById('tzDialogTitle').textContent = personality ? 'স্বভাবের বিবরণ' : 'নির্বাচিত রুব্রিক';
+      document.getElementById('tzPersonalityPanel').hidden = !personality;
+      document.getElementById('tzRubricsPanel').hidden = personality;
+      dialog.showModal();
+    });
+  });
+  document.getElementById('tzDialogClose').addEventListener('click', () => dialog.close());
 });
 
 /* ══════════════════════════════════════════════════════════════
