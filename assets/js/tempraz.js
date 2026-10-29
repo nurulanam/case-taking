@@ -255,10 +255,6 @@ function updateRight() {
   const sels = Object.values(state.selections);
   const count = sels.length;
 
-  // Update count badge
-  const countBadge = document.getElementById('tzRightCount');
-  if (countBadge) countBadge.textContent = `${toBanglaDigit(count)} বৈশিষ্ট্য`;
-
   const emptyState = document.getElementById('tzEmptyState');
   const resultArea = document.getElementById('tzResultArea');
 
