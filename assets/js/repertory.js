@@ -507,6 +507,7 @@
       buildCrossLanguage(shared.bn_glossary);
       S.bookMeta = entry;
       S.picked.clear();
+      S.compare.clear();
       S.chapter = 'all'; S.search = ''; S.page = 0;
       renderLibrary();
       renderQualityWarning();
@@ -1229,6 +1230,8 @@
     if (!S.book || !S.picked.size) return;
     S.result = repertorise();
     const { rubrics, rows } = S.result;
+    const availableKeys = new Set(rows.map(row => row.key));
+    S.compare.forEach(key => { if (!availableKeys.has(key)) S.compare.delete(key); });
 
     document.getElementById('gridMeta').textContent =
       `${bn(rubrics.length)}টি রুব্রিক · ${bn(rows.length)}টি ওষুধ মিলেছে`;
@@ -1279,7 +1282,7 @@
         e.stopPropagation();
         toggleCompare(el.dataset.cmp);
       }));
-    renderCompareBar();
+    renderCompareActions();
   }
 
   /* ==================== compare hand-off ====================
@@ -1309,36 +1312,17 @@
     return out;
   }
 
-  function renderCompareBar() {
-    const host = document.getElementById('cmpBar');
-    if (!host) return;
-    const n = S.compare.size;
-    host.classList.toggle('is-empty', n === 0);
-    if (!n) {
-      host.innerHTML = `<span class="cmp-hint">ওষুধের নামের পাশের বাক্সে টিক দিয়ে ২–${bn(CMP_MAX)}টি ওষুধ তুলনা করুন।</span>`;
-      return;
-    }
-    const ids = compareIds();
-    const names = [...S.compare].map(k => {
-      const row = S.result && S.result.rows.find(r => r.key === k);
-      return row ? (row.bangla || row.name) : k;
-    });
-    const ready = n >= 2 && ids.length >= 2;
-    host.innerHTML = `
-      <span class="cmp-hint"><b>${bn(n)}</b>টি নির্বাচিত — ${esc(names.join(', '))}</span>
-      <button class="btn ghost btn-sm" id="cmpReset"><i class='bx bx-x'></i> বাদ দিন</button>
-      <a class="btn primary btn-sm ${ready ? '' : 'is-off'}" id="cmpGo"
-         ${ready ? `href="materia.html#compare=${encodeURIComponent(ids.join(','))}"` : ''}>
-        <i class='bx bx-git-compare'></i> নির্বাচিত ওষুধ তুলনা করুন</a>`;
-    const rst = document.getElementById('cmpReset');
-    if (rst) rst.addEventListener('click', () => { S.compare.clear(); renderGrid(); });
+  function renderCompareActions() {
+    const host = document.getElementById('compareActions');
+    const count = S.compare.size;
+    host.hidden = count === 0;
+    document.getElementById('cmpCount').textContent = `${bn(count)}টি`;
     const go = document.getElementById('cmpGo');
-    if (go && !ready) go.addEventListener('click', e => {
-      e.preventDefault();
-      Shell.toast(ids.length < 2 && n >= 2
-        ? 'নির্বাচিত ওষুধগুলোর মেটেরিয়া মেডিকা তালিকায় নেই।'
-        : 'তুলনার জন্য অন্তত ২টি ওষুধ বাছুন।', 'warn');
-    });
+    const ids = compareIds();
+    const ready = count >= 2 && ids.length >= 2;
+    go.setAttribute('aria-disabled', String(!ready));
+    if (ready) go.href = `materia.html#compare=${encodeURIComponent(ids.join(','))}`;
+    else go.removeAttribute('href');
   }
 
   /* ==================== step 4 · materia medica ==================== */
@@ -1773,6 +1757,18 @@
     }));
     document.getElementById('rowLimit').addEventListener('change', e => { S.rowLimit = Number(e.target.value); renderGrid(); });
     document.getElementById('onlyFull').addEventListener('change', e => { S.onlyFull = e.target.checked; renderGrid(); });
+    document.getElementById('cmpReset').addEventListener('click', () => {
+      S.compare.clear();
+      renderGrid();
+      document.getElementById('onlyFull').focus({ preventScroll: true });
+    });
+    document.getElementById('cmpGo').addEventListener('click', e => {
+      if (e.currentTarget.getAttribute('aria-disabled') !== 'true') return;
+      e.preventDefault();
+      Shell.toast(S.compare.size >= 2
+        ? 'নির্বাচিত ওষুধগুলোর মেটেরিয়া মেডিকা তালিকায় নেই।'
+        : 'তুলনার জন্য অন্তত ২টি ওষুধ বাছুন।', 'warn');
+    });
 
     document.getElementById('copyRep').addEventListener('click', function () {
       navigator.clipboard.writeText(JSON.stringify(payload(), null, 2))
