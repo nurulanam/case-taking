@@ -364,14 +364,6 @@
 }
 
 /* ---------- compare hand-off to the materia medica ---------- */
-.rp-cmpbar {
-  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
-  padding: 0.625rem 0.75rem; margin-bottom: 0.75rem;
-  background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm);
-}
-.rp-cmpbar .cmp-hint { flex: 1; min-width: 0; font-size: 0.8125rem; color: var(--text-muted); line-height: 1.5; }
-.rp-cmpbar .cmp-hint b { color: var(--primary); }
-.rp-cmpbar .btn.is-off { opacity: 0.5; cursor: not-allowed; }
 /* the tick that adds a grid row to the comparison */
 .rp-grid th .rx-cmp {
   display: inline-flex; align-items: center; justify-content: center;
@@ -653,3 +645,167 @@
 }
 [data-theme="dark"] .rp-quality-warning { background: #3b2b10; border-color: #d97706; color: #fde68a; }
 .rp-quality-warning[hidden] { display: none; }
+
+/* Clear chapter navigation and touch-friendly rubric selection. */
+.rp-chapter-select-wrap { display: none; }
+.rp-chapterbar .rp-chapters, .rp-chapterbar.open .rp-chapters {
+  max-height: none; overflow: visible; -webkit-mask-image: none; mask-image: none;
+}
+.rp-chapterbar:not(.open):not(.no-toggle) .rp-ch:nth-child(n+9):not(.active) { display: none; }
+.rp-ch:focus-visible, .rub:focus-visible, .rp-recent-chip:focus-visible, .gbtn:focus-visible, .tray-x:focus-visible {
+  outline: 2px solid var(--primary); outline-offset: 2px;
+}
+.rub {
+  appearance: none; width: 100%; min-width: 0; min-height: 48px;
+  background: transparent; color: var(--text); font: inherit; text-align: left;
+}
+.rub:hover::after { display: none; }
+.rub-txt { overflow-wrap: anywhere; }
+.rub-ch { display: block; }
+.rp-recent-panel { margin-top: 0.6rem; }
+.rp-recent-panel[hidden], .rp-tray-link[hidden] { display: none; }
+.rp-recent-panel summary {
+  display: flex; align-items: center; gap: 0.3rem; width: fit-content; min-height: 40px;
+  color: var(--primary); font-size: 0.8125rem; font-weight: 700; cursor: pointer;
+  list-style: none;
+}
+.rp-recent-panel summary::-webkit-details-marker { display: none; }
+.rp-recent-panel summary::after { content: '▾'; margin-left: 0.2rem; }
+.rp-recent-panel[open] summary::after { content: '▴'; }
+.rp-recent { margin-top: 0; padding-top: 0.4rem; border-top: 0; }
+.rp-recent-chip { min-height: 38px; max-width: 100%; }
+.rp-tray-link { display: none; }
+@media (max-width: 1023px) {
+  .rp-chapterbar { padding: 0.75rem; }
+  .rp-chapterbar .rp-chapters, .rp-chapterbar .rp-cb-toggle { display: none; }
+  .rp-cb-head { margin-bottom: 0.4rem; }
+  .rp-chapter-select-wrap { display: block; position: relative; }
+  .rp-chapter-select-wrap label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .rp-chapter-select-wrap select {
+    box-sizing: border-box; width: 100%; min-width: 0; min-height: 48px;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--surface2);
+    color: var(--text); font: inherit; font-weight: 600; padding: 0.5rem 0.75rem;
+  }
+  #pane-2 .rp-col { height: auto; max-height: none; overflow: visible; }
+  #pane-2 .rp-col-scroll { overflow: visible; min-height: 0; }
+  #rubricList, #caseRubrics { scroll-margin-top: 1rem; }
+  .rp-tray-link { display: inline-flex; min-height: 44px; align-items: center; color: var(--primary); font-size: 0.8125rem; font-weight: 700; }
+  .rub { border-color: var(--border); margin-bottom: 0.3rem; }
+  .rub:hover .rp-preview { display: none; }
+  .gbtn, .tray-x { min-width: 44px; min-height: 44px; }
+  .rp-pager { flex-wrap: wrap; }
+  .pg-btn { min-width: 40px; min-height: 44px; }
+}
+
+/* Recent choices live in the heading and open without displacing the list. */
+#pane-2 .rp-col { overflow: visible; }
+.rp-search-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.rp-search-heading .section-heading { min-width: 0; }
+.rp-recent-panel { position: relative; flex: 0 0 auto; margin: 0; }
+.rp-recent-panel summary { padding: 0.35rem 0.6rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); }
+.rp-recent-panel summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.rp-recent-panel .rp-recent {
+  position: absolute; z-index: 20; top: calc(100% + 0.35rem); right: 0;
+  width: min(22rem, calc(100vw - 3rem)); box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: stretch;
+  padding: 0.5rem; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--surface); box-shadow: var(--shadow-lg);
+}
+.rp-recent-panel .rp-recent-chip { width: 100%; min-width: 0; text-align: left; border-radius: 7px; }
+.rp-recent-panel:not([open]) .rp-recent { display: none; }
+
+/* Repertorisation controls and a readable, horizontally navigable matrix. */
+.rp-toolbar {
+  padding: 0.75rem; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--surface2); align-items: center; gap: 0.65rem 1rem;
+}
+.rp-sortset { gap: 0.25rem; }
+.rp-sortset .fbtn { min-height: 40px; border-radius: 7px; padding: 0.4rem 0.65rem; color: var(--text); }
+.rp-sortset .fbtn.active { color: #fff; }
+.rp-check { color: var(--text); min-height: 40px; gap: 0.45rem; }
+.rp-check input { width: 18px; height: 18px; }
+.rp-row-limit { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--text); font-size: 0.8125rem; font-weight: 700; }
+.rp-row-limit select { min-height: 40px; padding: 0.35rem 0.55rem; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text); font: inherit; }
+.rp-limit { margin-left: auto; }
+.rp-grid-hint { display: none; }
+.rp-gridwrap { -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.rp-gridwrap:focus-visible, .rp-row-limit select:focus-visible, .rp-grid button:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+.rp-grid th .rx-cmp { width: 30px; height: 30px; padding: 0; vertical-align: middle; }
+.rp-grid th .rx-open { appearance: none; border: 0; padding: 0.25rem 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; vertical-align: middle; }
+.rp-grid th .rx-open:hover { color: var(--primary); }
+.rp-grid-empty { padding: 1.5rem !important; text-align: center; color: var(--text-muted); }
+[data-theme="dark"] .rp-sortset .fbtn.active, [data-theme="dark"] .rp-grid th .rx-cmp.on { color: #082320; }
+@media (max-width: 1023px) {
+  #pane-3 > .card { padding: 0.875rem; }
+  .rp-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; }
+  .rp-sortset { grid-column: 1 / -1; }
+  .rp-check { grid-column: 1 / -1; }
+  .rp-limit { text-align: right; }
+  .rp-grid-hint { display: flex; gap: 0.3rem; align-items: center; margin: 0 0 0.5rem; font-size: 0.75rem; color: var(--text-muted); }
+  .rp-gridwrap { max-height: none; overflow-x: auto; overflow-y: visible; }
+  .rp-grid th, .rp-grid td { padding: 0.45rem; }
+  .rp-grid thead th.rx-col, .rp-grid tbody th { min-width: 145px; max-width: 175px; }
+  .rp-grid th .rx-cmp { width: 40px; height: 44px; }
+  .rp-grid th .rx-open { min-height: 44px; max-width: 115px; }
+  .rp-grid td.tot, .rp-grid td.cov { min-width: 48px; }
+}
+@media (max-width: 400px) {
+  .rp-search-heading .section-number { display: none; }
+  .rp-recent-panel summary { font-size: 0.75rem; }
+}
+
+/* Keep the desktop arrangement; mobile comparison follows the matrix. */
+@media (min-width: 1024px) {
+  #pane-3 > .card { display: flex; flex-direction: column; }
+  #pane-3 .section-heading { order: 0; }
+  #pane-3 .rp-toolbar { order: 1; }
+  #pane-3 .rp-grid-hint { order: 3; }
+  #pane-3 .rp-gridwrap { order: 4; min-width: 0; }
+  #pane-3 .rp-legend { order: 5; }
+}
+@media (max-width: 1023px) {
+  #pane-3 > .card { padding: 0.7rem; }
+  #pane-3 .section-heading { margin-bottom: 0.65rem; }
+  #pane-3 .rp-toolbar { padding: 0.5rem; gap: 0.3rem 0.5rem; margin-bottom: 0.6rem; }
+  #pane-3 .rp-sortset .fbtn { min-height: 38px; }
+  #pane-3 .rp-check { min-height: 36px; }
+  #pane-3 .rp-grid-hint { margin-bottom: 0.35rem; }
+  #pane-3 .rp-legend { gap: 0.3rem 0.65rem; margin-top: 0.65rem; font-size: 0.75rem; }
+  #pane-3 .rp-grid th, #pane-3 .rp-grid td { padding: 0.3rem 0.35rem; }
+  #pane-3 .rp-grid th .rx-cmp,
+  #pane-3 .rp-grid th .rx-cmp.on {
+    position: relative; width: 44px; height: 44px; margin: -0.2rem 0; padding: 0;
+    border: 0; background: transparent; color: transparent; box-shadow: none;
+  }
+  #pane-3 .rp-grid th .rx-cmp::before {
+    content: ''; position: absolute; width: 20px; height: 20px; box-sizing: border-box;
+    border: 1.5px solid var(--border); border-radius: 5px; background: var(--surface);
+  }
+  #pane-3 .rp-grid th .rx-cmp i { position: relative; z-index: 1; font-size: 0.9rem; }
+  #pane-3 .rp-grid th .rx-cmp.on::before { background: var(--primary); border-color: var(--primary); }
+  #pane-3 .rp-grid th .rx-cmp.on { color: #fff; }
+  [data-theme="dark"] #pane-3 .rp-grid th .rx-cmp.on { color: #082320; }
+  #pane-3 .rp-grid th .rx-open { max-width: 103px; }
+}
+
+/* Comparison actions are part of the filters, not a separate panel. */
+.rp-filter-row { display: flex; align-items: center; flex-wrap: wrap; gap: 0.25rem 0.65rem; min-width: 0; }
+.rp-compare-actions { display: inline-flex; align-items: center; gap: 0.3rem; }
+.rp-compare-actions[hidden] { display: none; }
+.rp-compare-count { color: var(--text-muted); font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+.rp-compare-go, .rp-compare-reset {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 40px; border: 1px solid var(--border); border-radius: 7px;
+  font: inherit; font-size: 0.8125rem; font-weight: 700; cursor: pointer;
+}
+.rp-compare-go { padding: 0.35rem 0.7rem; background: var(--primary); border-color: var(--primary); color: #fff; text-decoration: none; }
+.rp-compare-go[aria-disabled="true"] { background: var(--surface); border-color: var(--border); color: var(--text-muted); }
+.rp-compare-reset { min-width: 40px; padding: 0.3rem; background: var(--surface); color: var(--text); font-size: 1.15rem; }
+.rp-compare-go:focus-visible, .rp-compare-reset:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+[data-theme="dark"] .rp-compare-go:not([aria-disabled="true"]) { color: #082320; }
+@media (max-width: 1023px) {
+  .rp-filter-row { grid-column: 1 / -1; gap: 0.1rem 0.5rem; }
+  .rp-filter-row .rp-check { grid-column: auto; }
+  .rp-compare-go, .rp-compare-reset { min-height: 44px; }
+  .rp-compare-reset { min-width: 44px; }
+}

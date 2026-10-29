@@ -23,7 +23,6 @@
 
   const DIR = 'assets/data/repatories/';
   const STORE = 'repertory_case_v1';
-  const ROW_CAP = 60;               // grid rows drawn before the "show all" note
   const LIST_CAP = 250;             // rubric rows drawn at once (a full Kent is ~69,000)
   const bn = v => Shell.bnNum(v);
   const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9ঀ-৿]/g, '');
@@ -40,13 +39,13 @@
     picked: new Map(), // rubricId -> intensity 1..3
     sort: 'coverage',
     onlyFull: false,
-    showAll: false,
+    rowLimit: 15,
     selectedRemedy: null,
     compare: new Set(),  // remedy keys ticked for the materia-medica comparison
     revChapter: null,    // which chapter is expanded in the reversed rubric view
     source: null,        // which English source the step-4 card is showing
     result: null,
-    recentRubrics: []    // Phase 5: track last 20 used rubrics
+    recentRubrics: []    // most recent selections
   };
 
   /* ==================== Phase 5: Repertory UX ==================== */
@@ -281,20 +280,23 @@
     return total;
   }
 
-  // Recent rubrics: track and retrieve last 20 used
+  // Recent selections are book-specific: rubric IDs can overlap across books.
+  const RECENT_KEY = 'repertory_recent_rubrics_v1';
+  const RECENT_LIMIT = 5;
   function trackRecentRubric(rubricId, rubricName) {
-    const RECENT_KEY = 'repertory_recent_rubrics_v1';
+    const book = S.bookMeta && S.bookMeta.id;
     const stored = Shell.store.get(RECENT_KEY, []);
-    const entry = { id: rubricId, name: rubricName, at: new Date().toISOString() };
-    const deduped = stored.filter(r => r.id !== rubricId);
-    deduped.unshift(entry);
-    Shell.store.set(RECENT_KEY, deduped.slice(0, 20)); // keep last 20
-    S.recentRubrics = deduped.slice(0, 20);
+    const entries = Array.isArray(stored) ? stored : [];
+    const deduped = entries.filter(r => r && r.book && !(r.id === rubricId && r.book === book));
+    deduped.unshift({ id: rubricId, name: rubricName, book, at: new Date().toISOString() });
+    Shell.store.set(RECENT_KEY, deduped.slice(0, RECENT_LIMIT));
   }
 
   function getRecentRubrics() {
-    const RECENT_KEY = 'repertory_recent_rubrics_v1';
-    return Shell.store.get(RECENT_KEY, []).slice(0, 20);
+    const stored = Shell.store.get(RECENT_KEY, []);
+    return (Array.isArray(stored) ? stored : [])
+      .filter(r => r && S.bookMeta && r.book === S.bookMeta.id)
+      .slice(0, RECENT_LIMIT);
   }
 
   // Rubric preview: top N remedies for a rubric
@@ -505,7 +507,8 @@
       buildCrossLanguage(shared.bn_glossary);
       S.bookMeta = entry;
       S.picked.clear();
-      S.chapter = 'all'; S.search = ''; S.showAll = false; S.page = 0;
+      S.compare.clear();
+      S.chapter = 'all'; S.search = ''; S.page = 0;
       renderLibrary();
       renderQualityWarning();
       renderChapters();
@@ -907,43 +910,32 @@
         <span class="ch-nm">${esc(c.bn || c.en)}${c.bn && c.en ? `<span class="ch-en">${esc(c.en)}</span>` : ''}</span>
         <span class="ch-n">${bn(c.rubrics.length)}</span>
       </button>`).join('');
+    const select = document.getElementById('chapterSelect');
+    select.replaceChildren(new Option(`সব অধ্যায় (${bn(S.book.stats.rubrics)})`, 'all'));
+    S.book.chapters.forEach(c => select.add(new Option(`${bn(c.num)}. ${c.bn || c.en} (${bn(c.rubrics.length)})`, c.id)));
+    select.value = S.chapter;
     document.querySelectorAll('#chapterChips .rp-ch').forEach(b => {
-      b.addEventListener('click', () => { S.chapter = b.dataset.ch; S.page = 0; renderChapters(); renderRubrics(); });
+      b.setAttribute('aria-pressed', String(b.dataset.ch === S.chapter));
+      b.addEventListener('click', () => selectChapter(b.dataset.ch));
     });
     sizeChapterBar();
   }
 
-  // only offer the expand toggle when the chips actually overflow two rows
+  function selectChapter(id) {
+    S.chapter = id;
+    S.page = 0;
+    renderChapters();
+    renderRubrics();
+  }
+
   function sizeChapterBar() {
     const bar = document.getElementById('chapterBar');
     const chips = document.getElementById('chapterChips');
-    if (!bar || !chips) return;
-    // a hidden pane measures 0 — decide only once it is actually laid out
-    if (!chips.clientHeight && !bar.classList.contains('open')) return;
-
-    const wasOpen = bar.classList.contains('open');
-    chips.style.transition = 'none'; // disable animation for measurement
-
-    // measure in collapsed state
-    bar.classList.remove('open');
-    const collapsedHeight = chips.clientHeight;
-    const fullHeight = chips.scrollHeight;
-    const fits = fullHeight <= collapsedHeight + 2;
-    bar.classList.toggle('no-toggle', fits);
-
-    if (wasOpen) {
-      bar.classList.add('open');
-    } else {
-      // keep the active chapter visible when the bar is collapsed
-      const active = chips.querySelector('.rp-ch.active');
-      if (active && active.offsetTop > collapsedHeight - 8) {
-        bar.classList.add('open');
-      }
-    }
-
-    // force reflow and restore transition
-    void chips.offsetHeight;
-    chips.style.transition = '';
+    const toggle = document.getElementById('chapterToggle');
+    if (!bar || !chips || !toggle) return;
+    const buttons = [...chips.querySelectorAll('.rp-ch')];
+    bar.classList.toggle('no-toggle', buttons.length <= 8);
+    toggle.setAttribute('aria-expanded', String(bar.classList.contains('open')));
   }
 
   function visibleRubrics() {
@@ -995,20 +987,20 @@
     return scored.map(x => x.rb);
   }
 
-  // Phase 5: recent rubrics live in their own compact strip above the list,
-  // not inside it — so they never eat into the 250-row page the search shares.
+  // Recent rubrics are kept in an optional, compact panel above the results.
   function renderRecentRubrics() {
     const host = document.getElementById('recentRubrics');
     if (!host) return;
-    if (!S.book || S.search.trim()) { host.hidden = true; host.innerHTML = ''; return; }
+    const panel = document.getElementById('recentPanel');
+    if (!S.book || S.search.trim()) { panel.hidden = true; host.innerHTML = ''; return; }
     const recent = getRecentRubrics()
-      .map(r => ({ r, rb: S.book.rubrics.find(x => x.id === r.id) }))
+      .map(r => ({ r, rb: S.book.rubricById.get(r.id) }))
       .filter(x => x.rb)
-      .slice(0, 10);
-    if (!recent.length) { host.hidden = true; host.innerHTML = ''; return; }
-    host.hidden = false;
-    host.innerHTML = `<span class="rp-recent-lbl"><i class='bx bx-time-five'></i> সম্প্রতি</span>` +
-      recent.map(({ rb }) => `
+      .slice(0, RECENT_LIMIT);
+    if (!recent.length) { panel.hidden = true; host.innerHTML = ''; return; }
+    panel.hidden = false;
+    document.getElementById('recentCount').textContent = `(${bn(recent.length)})`;
+    host.innerHTML = recent.map(({ rb }) => `
         <button type="button" class="rp-recent-chip ${S.picked.has(rb.id) ? 'picked' : ''}" data-id="${rb.id}" title="${esc(rb.name)}${rb.bn ? ' — ' + esc(rb.bn) : ''}">
           ${esc(rb.name)}${rb.bn ? `<span class="rp-recent-bn">${esc(rb.bn)}</span>` : ''}
         </button>`).join('');
@@ -1026,11 +1018,12 @@
     // Paginate rather than truncate. Telling someone "250 of 66,000 shown, go
     // search" leaves the rest unreachable by browsing — the pages make every
     // rubric walkable even with no search term.
-    const pages = Math.max(1, Math.ceil(all.length / LIST_CAP));
+    const pageSize = window.matchMedia('(max-width: 1023px)').matches ? 25 : LIST_CAP;
+    const pages = Math.max(1, Math.ceil(all.length / pageSize));
     if (S.page >= pages) S.page = pages - 1;
     if (S.page < 0) S.page = 0;
-    const from = S.page * LIST_CAP;
-    const rows = all.slice(from, from + LIST_CAP);
+    const from = S.page * pageSize;
+    const rows = all.slice(from, from + pageSize);
 
     document.getElementById('rubHint').innerHTML = all.length
       ? `${bn(from + 1)}–${bn(from + rows.length)} / <strong>${bn(all.length)}</strong>টি`
@@ -1053,8 +1046,8 @@
       // a signpost to the rubric that does, not as a pickable row.
       const xref = !rb.n && rb.see.length;
       html += `
-      <div class="rub ${xref ? 'xref' : ''} ${S.picked.has(rb.id) ? 'picked' : ''}" data-id="${rb.id}"
-           ${xref ? '' : `title="রুব্রিক #${idx+1}"`}>
+      <button type="button" class="rub ${xref ? 'xref' : ''} ${S.picked.has(rb.id) ? 'picked' : ''}" data-id="${rb.id}"
+           ${xref ? '' : `aria-pressed="${S.picked.has(rb.id)}" title="রুব্রিক #${idx+1}"`}>
         <span class="rub-plus"><i class='bx ${xref ? 'bx-right-arrow-alt' : (S.picked.has(rb.id) ? 'bx-check' : 'bx-plus')}'></i></span>
         <span class="rub-txt">
           <span class="rub-name">${esc(rb.name)}${rb.bn ? ` <span style="color:var(--text-muted);font-size:0.8125rem;">${esc(rb.bn)}</span>` : ''}${rb.level > 1 ? ` <span class="rub-lvl" title="${bn(rb.level)} স্তরের সাব-রুব্রিক">${'·'.repeat(Math.min(rb.level - 1, 6))}</span>` : ''}</span>
@@ -1062,7 +1055,7 @@
         </span>
         ${xref ? '' : `<span class="rub-n rub-n-${Math.min(rb.n, 50)}" title="${bn(rb.n)} ওষুধ">${bn(rb.n)}</span>`}
         ${xref ? '' : rubricPreview(rb, 5)}
-      </div>`;
+      </button>`;
     });
     if (currentChapter !== null) html += '</div>';
     host.innerHTML = html + pagerHtml(pages);
@@ -1100,7 +1093,10 @@
       S.page = +b.dataset.p;
       renderRubrics();
       const sc = document.getElementById('rubricList');
-      if (sc) sc.scrollTop = 0;         // a new page starts at its own top
+      if (sc) {
+        sc.scrollTop = 0;
+        if (window.matchMedia('(max-width: 1023px)').matches) sc.scrollIntoView({ block: 'start' });
+      }
     }));
   }
 
@@ -1140,13 +1136,20 @@
       const rb = S.book.rubrics.find(r => r.id === id);
       if (rb) trackRecentRubric(id, rb.name);
     }
+    const wasRecent = document.activeElement && document.activeElement.classList.contains('rp-recent-chip');
     save(); renderRubrics(); renderTray();
+    const container = document.getElementById(wasRecent ? 'recentRubrics' : 'rubricList');
+    const replacement = [...container.querySelectorAll('[data-id]')].find(el => el.dataset.id === id);
+    if (replacement) replacement.focus({ preventScroll: true });
   }
 
   function renderTray() {
     const host = document.getElementById('trayList');
     const n = S.picked.size;
     document.getElementById('trayCount').textContent = `${bn(n)}টি রুব্রিক`;
+    const trayLink = document.getElementById('trayLink');
+    trayLink.hidden = !n;
+    trayLink.textContent = `নির্বাচিত রুব্রিক দেখুন (${bn(n)}) ↓`;
     document.getElementById('toStep3').disabled = n === 0;
     document.getElementById('s2Meta').textContent = n ? `${bn(n)}টি নির্বাচিত` : 'অধ্যায় ও লক্ষণ';
     updateChip();
@@ -1164,11 +1167,11 @@
       return `<div class="tray-item" data-id="${id}">
         <div class="tray-top">
           <span class="tray-name">${esc(rb.name)}<small>${esc(rb.chapterLabel)}</small></span>
-          <button class="tray-x" title="সরান"><i class='bx bx-x'></i></button>
+          <button type="button" class="tray-x" title="সরান" aria-label="${esc(rb.name)} সরান"><i class='bx bx-x'></i></button>
         </div>
         <div class="tray-grades">
           <span class="flabel">তীব্রতা:</span>
-          ${[1, 2, 3].map(g => `<button class="gbtn ${inten === g ? 'on' : ''}" data-g="${g}">${bn(g)}</button>`).join('')}
+          ${[1, 2, 3].map(g => `<button type="button" class="gbtn ${inten === g ? 'on' : ''}" data-g="${g}" aria-label="${esc(rb.name)} তীব্রতা ${bn(g)}" aria-pressed="${inten === g}">${bn(g)}</button>`).join('')}
           <span class="rub-n" style="margin-left:auto;">${bn(rb.n)} ওষুধ</span>
         </div>
         <div class="tray-rem">${top}${rb.n > 4 ? ' …' : ''}</div>
@@ -1227,6 +1230,8 @@
     if (!S.book || !S.picked.size) return;
     S.result = repertorise();
     const { rubrics, rows } = S.result;
+    const availableKeys = new Set(rows.map(row => row.key));
+    S.compare.forEach(key => { if (!availableKeys.has(key)) S.compare.delete(key); });
 
     document.getElementById('gridMeta').textContent =
       `${bn(rubrics.length)}টি রুব্রিক · ${bn(rows.length)}টি ওষুধ মিলেছে`;
@@ -1234,47 +1239,40 @@
 
     let shown = rows.filter(r => !S.onlyFull || r.coverage === rubrics.length);
     const totalMatching = shown.length;
-    if (!S.showAll && shown.length > ROW_CAP) shown = shown.slice(0, ROW_CAP);
-
-    document.getElementById('rowLimitNote').innerHTML = totalMatching > shown.length
-      ? `শীর্ষ ${bn(shown.length)}টি দেখানো হচ্ছে (মোট ${bn(totalMatching)}) — <a href="#" id="showAllRows" style="color:var(--primary);font-weight:700;">সব দেখুন</a>`
-      : `${bn(totalMatching)}টি ওষুধ দেখানো হচ্ছে`;
+    shown = shown.slice(0, S.rowLimit);
+    document.getElementById('rowLimitNote').textContent =
+      `${bn(shown.length)} / ${bn(totalMatching)}টি ওষুধ`;
 
     const head = `<thead><tr>
-        <th class="rx-col">ওষুধ</th>
+        <th class="rx-col" scope="col">ওষুধ</th><th scope="col">মোট</th><th scope="col">রুব্রিক</th>
         ${rubrics.map(rb => `<th title="${esc(rb.name)} — ${esc(rb.chapterLabel)}">
             ${esc(rb.name.length > 14 ? rb.name.slice(0, 13) + '…' : rb.name)}
             <div style="font-weight:400;text-transform:none;color:var(--text-light);">×${bn(S.picked.get(rb.id))}</div>
           </th>`).join('')}
-        <th>মোট</th><th>রুব্রিক</th>
       </tr></thead>`;
 
     const body = `<tbody>${shown.map((r, i) => `
       <tr class="${i === 0 ? 'top' : ''}" data-key="${r.key}">
         <th title="${esc(r.name)}">
-          <span class="rx-cmp ${S.compare.has(r.key) ? 'on' : ''}" data-cmp="${r.key}"
-                title="তুলনার জন্য বাছুন"><i class='bx bx-check'></i></span>
-          <span class="rx-nm">
+          <button type="button" class="rx-cmp ${S.compare.has(r.key) ? 'on' : ''}" data-cmp="${r.key}"
+                  aria-label="${esc(r.name)} তুলনার জন্য বাছুন" aria-pressed="${S.compare.has(r.key)}"><i class='bx bx-check'></i></button>
+          <button type="button" class="rx-nm rx-open" aria-label="${esc(r.name)} বিস্তারিত দেখুন">
             <span class="${r.placeholder ? 'ph' : ''}">${esc(r.name)}</span>
             ${r.bangla ? `<span class="rx-bn">${esc(r.bangla)}</span>` : ''}
-          </span>
+          </button>
         </th>
+        <td class="tot">${bn(r.total)}</td>
+        <td class="cov">${bn(r.coverage)}/${bn(rubrics.length)}</td>
         ${rubrics.map(rb => {
           const g = r.cells[rb.id];
           return `<td class="${g ? '' : 'g0'}">${g ? `<span class="gr gr${g}">${bn(g)}</span>` : '·'}</td>`;
         }).join('')}
-        <td class="tot">${bn(r.total)}</td>
-        <td class="cov">${bn(r.coverage)}/${bn(rubrics.length)}</td>
-      </tr>`).join('')}</tbody>`;
+      </tr>`).join('') || `<tr><td class="rp-grid-empty" colspan="${rubrics.length + 3}">এই ফিল্টারে কোনো ওষুধ পাওয়া যায়নি।</td></tr>`}</tbody>`;
 
     document.getElementById('repGrid').innerHTML = head + body;
 
-    const showAll = document.getElementById('showAllRows');
-    if (showAll) showAll.addEventListener('click', e => { e.preventDefault(); S.showAll = true; renderGrid(); });
-
-    document.querySelectorAll('#repGrid tbody tr').forEach(tr => {
-      tr.querySelector('th').addEventListener('click', e => {
-        if (e.target.closest('.rx-cmp')) return;   // the tick has its own handler
+    document.querySelectorAll('#repGrid tbody tr[data-key]').forEach(tr => {
+      tr.querySelector('.rx-open').addEventListener('click', () => {
         S.selectedRemedy = tr.dataset.key;
         setStep(4);
       });
@@ -1284,7 +1282,7 @@
         e.stopPropagation();
         toggleCompare(el.dataset.cmp);
       }));
-    renderCompareBar();
+    renderCompareActions();
   }
 
   /* ==================== compare hand-off ====================
@@ -1301,6 +1299,8 @@
       return;
     } else S.compare.add(key);
     renderGrid();
+    const replacement = [...document.querySelectorAll('#repGrid .rx-cmp')].find(el => el.dataset.cmp === key);
+    if (replacement) replacement.focus({ preventScroll: true });
   }
 
   function compareIds() {
@@ -1312,35 +1312,17 @@
     return out;
   }
 
-  function renderCompareBar() {
-    const host = document.getElementById('cmpBar');
-    if (!host) return;
-    const n = S.compare.size;
-    if (!n) {
-      host.innerHTML = `<span class="cmp-hint">ওষুধের নামের পাশের বাক্সে টিক দিয়ে ২–${bn(CMP_MAX)}টি ওষুধ তুলনা করুন।</span>`;
-      return;
-    }
-    const ids = compareIds();
-    const names = [...S.compare].map(k => {
-      const row = S.result && S.result.rows.find(r => r.key === k);
-      return row ? (row.bangla || row.name) : k;
-    });
-    const ready = n >= 2 && ids.length >= 2;
-    host.innerHTML = `
-      <span class="cmp-hint"><b>${bn(n)}</b>টি নির্বাচিত — ${esc(names.join(', '))}</span>
-      <button class="btn ghost btn-sm" id="cmpReset"><i class='bx bx-x'></i> বাদ দিন</button>
-      <a class="btn primary btn-sm ${ready ? '' : 'is-off'}" id="cmpGo"
-         ${ready ? `href="materia.html#compare=${encodeURIComponent(ids.join(','))}"` : ''}>
-        <i class='bx bx-git-compare'></i> নির্বাচিত ওষুধ তুলনা করুন</a>`;
-    const rst = document.getElementById('cmpReset');
-    if (rst) rst.addEventListener('click', () => { S.compare.clear(); renderGrid(); });
+  function renderCompareActions() {
+    const host = document.getElementById('compareActions');
+    const count = S.compare.size;
+    host.hidden = count === 0;
+    document.getElementById('cmpCount').textContent = `${bn(count)}টি`;
     const go = document.getElementById('cmpGo');
-    if (go && !ready) go.addEventListener('click', e => {
-      e.preventDefault();
-      Shell.toast(ids.length < 2 && n >= 2
-        ? 'নির্বাচিত ওষুধগুলোর মেটেরিয়া মেডিকা তালিকায় নেই।'
-        : 'তুলনার জন্য অন্তত ২টি ওষুধ বাছুন।', 'warn');
-    });
+    const ids = compareIds();
+    const ready = count >= 2 && ids.length >= 2;
+    go.setAttribute('aria-disabled', String(!ready));
+    if (ready) go.href = `materia.html#compare=${encodeURIComponent(ids.join(','))}`;
+    else go.removeAttribute('href');
   }
 
   /* ==================== step 4 · materia medica ==================== */
@@ -1750,7 +1732,13 @@
       document.getElementById('chapterBar').classList.toggle('open');
       sizeChapterBar();
     });
-    window.addEventListener('resize', () => sizeChapterBar());
+    document.getElementById('chapterSelect').addEventListener('change', e => selectChapter(e.target.value));
+    let compact = window.matchMedia('(max-width: 1023px)').matches;
+    window.addEventListener('resize', () => {
+      sizeChapterBar();
+      const nowCompact = window.matchMedia('(max-width: 1023px)').matches;
+      if (nowCompact !== compact && S.book) { compact = nowCompact; S.page = 0; renderRubrics(); }
+    });
 
     document.getElementById('trayClear').addEventListener('click', () => {
       if (!S.picked.size) return;
@@ -1760,10 +1748,27 @@
 
     document.querySelectorAll('.rp-sortset .fbtn').forEach(b => b.addEventListener('click', () => {
       S.sort = b.dataset.sort;
-      document.querySelectorAll('.rp-sortset .fbtn').forEach(x => x.classList.toggle('active', x === b));
+      document.querySelectorAll('.rp-sortset .fbtn').forEach(x => {
+        const active = x === b;
+        x.classList.toggle('active', active);
+        x.setAttribute('aria-pressed', String(active));
+      });
       renderGrid();
     }));
+    document.getElementById('rowLimit').addEventListener('change', e => { S.rowLimit = Number(e.target.value); renderGrid(); });
     document.getElementById('onlyFull').addEventListener('change', e => { S.onlyFull = e.target.checked; renderGrid(); });
+    document.getElementById('cmpReset').addEventListener('click', () => {
+      S.compare.clear();
+      renderGrid();
+      document.getElementById('onlyFull').focus({ preventScroll: true });
+    });
+    document.getElementById('cmpGo').addEventListener('click', e => {
+      if (e.currentTarget.getAttribute('aria-disabled') !== 'true') return;
+      e.preventDefault();
+      Shell.toast(S.compare.size >= 2
+        ? 'নির্বাচিত ওষুধগুলোর মেটেরিয়া মেডিকা তালিকায় নেই।'
+        : 'তুলনার জন্য অন্তত ২টি ওষুধ বাছুন।', 'warn');
+    });
 
     document.getElementById('copyRep').addEventListener('click', function () {
       navigator.clipboard.writeText(JSON.stringify(payload(), null, 2))
