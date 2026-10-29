@@ -21,19 +21,6 @@
     <main class="app-content">
       <div class="content-inner">
 
-        <!-- ── Page header (same pattern as every other page's .page-head) ── -->
-        <div class="page-head">
-          <div class="page-icon"><i class='bx bx-brain'></i></div>
-          <div class="page-head-txt">
-            <h2>টেম্পারামেন্ট পদ্ধতি</h2>
-            <p>ডাঃ পরিনাজ হুমরানওয়ালা · স্বভাবভিত্তিক সিমিলিমাম নির্বাচন</p>
-          </div>
-          <div class="page-head-actions">
-            <span class="tb-chip muted"><b id="tzTotalTraits">—</b>&nbsp;বৈশিষ্ট্য</span>
-            <span class="tb-chip muted"><b id="tzTotalRemedies">—</b>&nbsp;ওষুধ</span>
-          </div>
-        </div>
-
         <!-- ── Temperament workspace ── -->
         <div class="tz-app">
 
@@ -77,7 +64,7 @@
             </div>
 
             <div class="tz-mobile-guide">বৈশিষ্ট্য বেছে নিন, তারপর মাত্রা নির্ধারণ করুন। <a href="#tzResults">ফলাফল দেখুন ↓</a></div>
-            <div class="tz-mid-scroll" id="tzMidScroll">
+            <div class="tz-mid-scroll" id="tzMidScroll" tabindex="0" role="region" aria-label="বৈশিষ্ট্যের তালিকা">
               <!-- Traits injected by JS -->
               <div id="tzTraitList"></div>
             </div>
@@ -95,24 +82,7 @@
               <span class="tz-right-count" id="tzRightCount">০ বৈশিষ্ট্য</span>
             </div>
 
-            <div class="tz-bottom-chart">
-              <div class="tz-bottom-header"><span>স্বভাবের স্কোর</span></div>
-              <div class="tz-chart-container" id="tzRadarChart"></div>
-            </div>
-            <div class="tz-right-scroll" id="tzRightScroll">
-              <div class="tz-bottom-remedies">
-                <div class="tz-bottom-header">
-                  <span>সম্ভাব্য ওষুধ</span>
-                  <span style="font-size:0.6875rem;font-weight:400;text-transform:none;">স্বভাব-স্কোর সহায়ক মাত্র, চূড়ান্ত সিদ্ধান্ত নয়।</span>
-                </div>
-                <div class="tz-rx-scroll">
-                  <div class="tz-rx-list-horiz" id="tzRxList">
-                    <div class="tz-empty" style="min-height:80px;padding:1rem;">
-                      <p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div class="tz-summary">
               <!-- Empty state -->
               <div class="tz-empty" id="tzEmptyState">
                 <p>নির্বাচিত বৈশিষ্ট্যের রুব্রিক এখানে দেখা যাবে।</p>
@@ -127,11 +97,36 @@
                 <div class="tz-personality" id="tzPersonality" style="display:none;"></div>
 
                 <!-- Rubrics -->
-                <div class="tz-rs-label" style="margin-top:0;">নির্বাচিত রুব্রিক</div>
-                <div class="tz-rubric-list" id="tzRubricList"></div>
+                <details class="tz-rubric-details">
+                  <summary>নির্বাচিত রুব্রিক দেখুন <i class="bx bx-chevron-down" aria-hidden="true"></i></summary>
+                  <div class="tz-rubric-list" id="tzRubricList"></div>
+                </details>
               </div>
             </div>
+
+            <div class="tz-bottom-chart">
+              <div class="tz-bottom-header"><span>স্বভাবের স্কোর</span></div>
+              <div class="tz-chart-container" id="tzRadarChart"></div>
+            </div>
+            <div class="tz-right-scroll" id="tzRightScroll">
+              <div class="tz-bottom-remedies">
+                <div class="tz-bottom-header">
+                  <span>সম্ভাব্য ওষুধ</span>
+                  <button class="btn primary btn-sm" id="tzToRx" type="button" disabled><i class="bx bx-receipt"></i> প্রেসক্রিপশনে নিন</button>
+                </div>
+                <p class="tz-rx-disclaimer">স্বভাব-স্কোর সহায়ক মাত্র, চূড়ান্ত সিদ্ধান্ত নয়।</p>
+                <div class="tz-rx-scroll">
+                  <div class="tz-rx-list-horiz" id="tzRxList">
+                    <div class="tz-empty" style="min-height:80px;padding:1rem;">
+                      <p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
+
 
         </div>
         <!-- /tz-app -->
@@ -156,6 +151,7 @@
 </div>
 
 <script src="assets/js/shell.js"></script>
+<script src="assets/js/remedy-store.js"></script>
 <script src="assets/js/tempraz.js"></script>
 </body>
 </html>

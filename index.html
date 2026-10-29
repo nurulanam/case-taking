@@ -57,7 +57,7 @@
             <div class="dh-res" id="dhRes" role="listbox" aria-label="রোগীর তালিকা" hidden></div>
           </div>
           <button class="dh-btn" id="dhGo"><i class='bx bx-search-alt'></i> খোঁজ করুন</button>
-          <a class="dh-btn primary" href="case.html"><i class='bx bx-user-plus'></i> নতুন রোগী</a>
+          <a class="dh-btn primary" href="patients.html?new=1"><i class='bx bx-user-plus'></i> নতুন রোগী</a>
         </div>
 
         <!-- ══════════ 2. a patient picked from search, shown here ══════════ -->
@@ -124,7 +124,7 @@
             </div>
             <div class="dh-card-b">
               <div class="dh-qa">
-                <a href="case.html"><i class='bx bx-clipboard'></i>নতুন কেস</a>
+                <a href="case.html?new=1"><i class='bx bx-clipboard'></i>নতুন কেস</a>
                 <a href="prescription.html#new"><i class='bx bx-receipt'></i>প্রেসক্রিপশন</a>
                 <a href="repertory.html"><i class='bx bx-book-bookmark'></i>রেপার্টরি</a>
                 <a href="materia.html"><i class='bx bx-capsule'></i>মেটেরিয়া মেডিকা</a>
@@ -165,6 +165,8 @@
 </div>
 
 <script src="assets/js/shell.js"></script>
+<script src="assets/js/case-store.js"></script>
+<script src="assets/js/patient-store.js"></script>
 <script src="assets/js/dashboard.js"></script>
 </body>
 </html>

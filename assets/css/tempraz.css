@@ -339,8 +339,10 @@
   padding: 0.75rem;
   transition: all 0.2s;
   display: flex; flex-direction: column;
+  cursor: pointer;
 }
 .tz-rx-item:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); }
+.tz-rx-item.picked { border-color: var(--primary); background: var(--primary-bg); box-shadow: var(--shadow-sm); }
 .tz-rx-top { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.375rem; }
 .tz-rx-abbr {
   font-size: 0.75rem; font-weight: 700; font-family: monospace;
@@ -662,4 +664,50 @@
   .tz-trait-group { display: flex; flex-direction: column; gap: 0.3rem; }
   .tz-trait-row { border-color: var(--border); }
   .tz-right-scroll .tz-bottom-remedies { margin-bottom: 0.875rem; }
+}
+
+/* Compact results and an independently scrollable trait list. */
+.tz-mid { align-self: start; }
+.tz-mid-scroll {
+  flex: 0 1 auto; max-height: clamp(280px, 55dvh, 600px);
+  overflow-y: auto; overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.tz-mid-scroll:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+.tz-summary { padding: 0.75rem 0.875rem 0; }
+.tz-summary #tzEmptyState { padding: 0.25rem 0 0.75rem; text-align: left; align-items: flex-start; }
+.tz-summary .tz-tq-box { margin-bottom: 0.5rem; padding: 0.7rem 0.8rem; }
+.tz-summary .tz-tq-score { font-size: 1.5rem; }
+.tz-summary .tz-personality { margin-bottom: 0.5rem; }
+.tz-rubric-details { margin: 0 0 0.75rem; }
+.tz-rubric-details summary {
+  min-height: 44px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0.5rem 0.7rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text); font-size: 0.8125rem;
+  font-weight: 700; cursor: pointer; list-style: none;
+}
+.tz-rubric-details summary::-webkit-details-marker { display: none; }
+.tz-rubric-details[open] summary i { transform: rotate(180deg); }
+.tz-rubric-details .tz-rubric-list { margin-top: 0.5rem; }
+.tz-rubric-details summary:focus-visible, .tz-rx-item:focus-visible {
+  outline: 2px solid var(--primary); outline-offset: 2px;
+}
+.tz-rx-disclaimer { margin: 0; padding: 0.5rem 0.75rem 0; color: var(--text-muted); font-size: 0.75rem; line-height: 1.45; }
+.tz-right-scroll .tz-rx-scroll { padding: 0.5rem; }
+.tz-right-scroll .tz-rx-list-horiz { display: flex; flex-direction: column; gap: 0.25rem; }
+.tz-rx-item {
+  appearance: none; width: 100%; min-width: 0; min-height: 44px;
+  padding: 0.5rem 0.65rem; font: inherit; text-align: left; color: var(--text);
+  cursor: pointer; box-shadow: none; transition: border-color 0.15s, background-color 0.15s;
+}
+.tz-rx-item:hover { box-shadow: none; }
+.tz-rx-top { width: 100%; min-width: 0; margin: 0; gap: 0.5rem; }
+.tz-rx-name { min-width: 0; font-size: 0.875rem; overflow-wrap: anywhere; }
+.tz-rx-score { white-space: nowrap; }
+.tz-rx-score small { font-size: 0.6875rem; font-weight: 600; }
+.tz-rx-note { display: none; padding: 0.4rem 0 0; font-size: 0.75rem; }
+.tz-rx-item.picked .tz-rx-note { display: block; }
+@media (max-width: 1100px) {
+  .tz-mid { align-self: stretch; }
+  .tz-mid-scroll { max-height: clamp(280px, 50dvh, 520px); }
 }

@@ -10,7 +10,8 @@ const state = {
   data      : null,           // loaded JSON
   curTemp   : null,           // active temperament id
   curCat    : 'all',          // active category filter
-  selections: {}              // { traitId: { intensity:1|2|3, tempId, rubric, text, scores } }
+  selections: {},             // { traitId: { intensity:1|2|3, tempId, rubric, text, scores } }
+  pickedId  : null            // catalog id chosen for the prescription
 };
 
 /* ── Category icons ─────────────────────────────────────────── */
@@ -24,9 +25,11 @@ const CAT_ICONS = {
 
 /* ── Init ────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
-  fetch('assets/data/tempraz.json')
-    .then(r => r.json())
-    .then(json => {
+  Promise.all([
+    fetch('assets/data/tempraz.json').then(r => r.json()),
+    window.RemedyStore ? RemedyStore.load() : Promise.resolve()
+  ])
+    .then(([json]) => {
       state.data = json;
       // Start with one manageable group; the full list remains available.
       if (json.categories.length) {
@@ -34,10 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       buildLeft();
       buildCatList();
-      updateStats();
       buildTheory();
       updateChart({ tempScores: {} });
-      // auto-select first temperament
       const firstId = Object.keys(json.temperaments)[0];
       selectTemp(firstId);
     })
@@ -268,6 +269,9 @@ function updateRight() {
     if (rxList) {
       rxList.innerHTML = '<div class="tz-empty" style="min-height:80px;padding:1rem;"><p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p></div>';
     }
+    state.pickedId = null;
+    const toRx = document.getElementById('tzToRx');
+    if (toRx) toRx.disabled = true;
     updateChart({ tempScores: {} });
     return;
   }
@@ -380,52 +384,104 @@ function renderRubrics(sels) {
   });
 }
 
+function rxMeta(id) {
+  const r = window.RemedyStore && RemedyStore.get(id);
+  return {
+    id: id,
+    name: r ? r.name : id,
+    bangla: r ? (r.bangla || r.name) : id,
+    abbr: r ? (r.abbr_display || r.abbr) : id
+  };
+}
+
+function persistTemprazPick(force) {
+  if (!window.Shell || !Shell.pickRemedy || !state.pickedId) return;
+  const cur = Shell.bridge.get() || {};
+  if (!force && cur.from && cur.from !== 'tempraz' && cur.remedy && cur.remedy.name) return;
+  const { rxScores } = computeScores();
+  const sorted = Object.entries(rxScores).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const info = rxMeta(state.pickedId);
+  Shell.pickRemedy({
+    from: 'tempraz',
+    id: info.id,
+    name: info.name,
+    bangla: info.bangla,
+    abbr: info.abbr,
+    book: 'টেম্পারামেন্ট',
+    shortlist: sorted.map(([id, total]) => {
+      const rx = rxMeta(id);
+      return { id: rx.id, name: rx.name, bangla: rx.bangla, total: total, abbr: rx.abbr };
+    })
+  });
+}
+
+function sendTemprazToRx() {
+  if (!state.pickedId) return;
+  persistTemprazPick(true);
+  if (window.Shell && Shell.toast) Shell.toast('ঔষধ প্রেসক্রিপশনে পাঠানো হচ্ছে…', 'ok');
+  location.href = 'prescription.html?from=tempraz';
+}
+
 function renderRemedies(scores) {
   const { rxScores } = scores;
   const list = document.getElementById('tzRxList');
   list.innerHTML = '';
+  const toRx = document.getElementById('tzToRx');
 
   const sorted = Object.entries(rxScores).sort((a, b) => b[1] - a[1]).slice(0, 8);
 
   if (sorted.length === 0) {
     list.innerHTML = '<div class="tz-empty" style="min-height:60px;"><p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p></div>';
+    state.pickedId = null;
+    if (toRx) toRx.disabled = true;
     return;
   }
 
-  const maxScore = sorted[0][1];
+  if (!state.pickedId || !sorted.some(([a]) => a === state.pickedId)) {
+    state.pickedId = sorted[0][0];
+  }
+  persistTemprazPick();
+  if (toRx) toRx.disabled = false;
 
-  sorted.forEach(([abbr, score]) => {
-    const rxInfo = state.data.remedyInfo[abbr];
-    const name = rxInfo ? rxInfo.name : abbr;
-    const pct  = maxScore > 0 ? (score / maxScore) * 100 : 0;
+  sorted.forEach(([id, score]) => {
+    const info = rxMeta(id);
 
-    // find keynote from current temperament or any
     let keynote = '';
     const curT = state.curTemp && state.data.temperaments[state.curTemp];
     if (curT) {
-      const rx = curT.remedies.find(r => r.abbr === abbr);
+      const rx = curT.remedies.find(r => r.id === id);
       if (rx) keynote = rx.keynote;
     }
     if (!keynote) {
       for (const t of Object.values(state.data.temperaments)) {
-        const rx = t.remedies.find(r => r.abbr === abbr);
+        const rx = t.remedies.find(r => r.id === id);
         if (rx) { keynote = rx.keynote; break; }
       }
     }
 
-    const item = document.createElement('div');
-    item.className = 'tz-rx-item';
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.setAttribute('aria-pressed', String(id === state.pickedId));
+    item.className = 'tz-rx-item' + (id === state.pickedId ? ' picked' : '');
+    item.dataset.id = id;
     item.innerHTML = `
-      <div class="tz-rx-top">
-        <span class="tz-rx-abbr">${abbr}</span>
-        <span class="tz-rx-name">${name}</span>
-        <span class="tz-rx-score">${toBanglaDigit(score)}</span>
-      </div>
-      <div class="tz-rx-bar-track">
-        <div class="tz-rx-bar-fill" style="width:${pct.toFixed(1)}%"></div>
-      </div>
-      ${keynote ? `<div class="tz-rx-note">${keynote}</div>` : ''}
+      <span class="tz-rx-top">
+        <span class="tz-rx-abbr">${esc(info.abbr)}</span>
+        <span class="tz-rx-name">${esc(info.bangla || info.name)}</span>
+        <span class="tz-rx-score">${toBanglaDigit(score)} <small>পয়েন্ট</small></span>
+      </span>
+      ${keynote ? `<span class="tz-rx-note">${esc(keynote)}</span>` : ''}
     `;
+    item.addEventListener('click', () => {
+      state.pickedId = id;
+      list.querySelectorAll('.tz-rx-item').forEach(el => {
+        const picked = el.dataset.id === id;
+        el.classList.toggle('picked', picked);
+        el.setAttribute('aria-pressed', String(picked));
+      });
+      persistTemprazPick(true);
+      if (toRx) toRx.disabled = false;
+    });
     list.appendChild(item);
   });
 }
@@ -451,32 +507,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (clearBtn) {
     clearBtn.addEventListener('click', () => {
       state.selections = {};
+      state.pickedId = null;
       updateSelBadge();
       updateClearBtn();
       renderMiddle();
       updateRight();
     });
   }
+  const toRx = document.getElementById('tzToRx');
+  if (toRx) toRx.addEventListener('click', sendTemprazToRx);
 });
-
-/* ══════════════════════════════════════════════════════════════
-   STATS (page header)
-══════════════════════════════════════════════════════════════ */
-function updateStats() {
-  const { temperaments, remedyInfo } = state.data;
-
-  let totalTraits = 0;
-  Object.values(temperaments).forEach(t => {
-    Object.values(t.traits).forEach(arr => { totalTraits += arr.length; });
-  });
-
-  const totalRx = Object.keys(remedyInfo).length;
-
-  const elT = document.getElementById('tzTotalTraits');
-  const elR = document.getElementById('tzTotalRemedies');
-  if (elT) elT.textContent = toBanglaDigit(totalTraits);
-  if (elR) elR.textContent = toBanglaDigit(totalRx);
-}
 
 /* ══════════════════════════════════════════════════════════════
    THEORY SECTION
