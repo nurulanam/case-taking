@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>বাংলা হোমিওপ্যাথি কেস টেকিং ফর্ম</title>
+<title>কেস টেকিং — হোমিও কেস স্টুডিও</title>
 <meta content="বাংলা মোবাইল-ফার্স্ট হোমিওপ্যাথি কেস টেকিং ফর্ম ও এআই কপি রিপোর্ট জেনারেটর" name="description"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='45' font-size='38' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23fff'%3E%E0%A6%B9%3C/text%3E%3C/svg%3E"/>
 <link href="assets/css/base.css" rel="stylesheet"/>
@@ -12,7 +12,7 @@
 <link href="assets/vendor/boxicons/boxicons.min.css" rel="stylesheet"/>
 <link href="assets/css/case.css" rel="stylesheet"/>
 </head>
-<body data-page="case" data-title="কেস টেকিং ফর্ম" data-crumb="কেস ম্যানেজমেন্ট">
+<body data-page="case" data-title="কেস টেকিং" data-crumb="কেস টেকিং">
 
 <div class="app-root">
   <aside class="app-sidebar" id="appSidebar"></aside>
@@ -22,78 +22,87 @@
     <main class="app-content">
       <div class="content-inner">
 
-        <div class="page-head">
-          <div class="page-icon"><i class='bx bx-clipboard'></i></div>
-          <div class="page-head-txt">
-            <h2>কেস টেকিং ফর্ম</h2>
-            <p>৯টি ধাপে সম্পূর্ণ হোমিওপ্যাথিক কেস — শেষে এআই-র জন্য বাংলা রিপোর্ট কপি করুন।</p>
-          </div>
-          <div class="page-head-actions" id="pageActions"></div>
-        </div>
-
 <form id="caseForm" novalidate="">
-<div class="top-panel">
-<div><span id="stepCounter">ধাপ ১ / ৯</span><h2 id="currentStepTitle">রোগীর পরিচিতি</h2></div>
-</div>
-<div class="progress"><span id="progressFill"></span></div>
-<div class="step-progress-note" id="stepProgressNote"></div>
-<nav class="step-nav" id="stepNav" role="tablist">
-<button class="step-tab active" data-step="1" role="tab" type="button"><i class="bx bx-user"></i><span>পরিচিতি</span></button>
-<button class="step-tab" data-step="2" role="tab" type="button"><i class="bx bx-list-ul"></i><span>প্রধান অভিযোগ</span></button>
-<button class="step-tab" data-step="3" role="tab" type="button"><i class="bx bx-detail"></i><span>রোগের বিবরণ</span></button>
-<button class="step-tab" data-step="4" role="tab" type="button"><i class="bx bx-timer"></i><span>বৃদ্ধি/উপশম</span></button>
-<button class="step-tab" data-step="5" role="tab" type="button"><i class="bx bx-brain"></i><span>মানসিক</span></button>
-<button class="step-tab" data-step="6" role="tab" type="button"><i class="bx bx-body"></i><span>সিস্টেম</span></button>
-<button class="step-tab" data-step="7" role="tab" type="button"><i class="bx bx-female"></i><span>যৌন/নারী/শিশু</span></button>
-<button class="step-tab" data-step="8" role="tab" type="button"><i class="bx bx-history"></i><span>ইতিহাস/রিপোর্ট</span></button>
-<button class="step-tab" data-step="9" role="tab" type="button"><i class="bx bx-bot"></i><span>কপি/এআই</span></button>
-</nav>
-<section class="form-step active" data-step-title="রোগীর পরিচিতি">
-<div class="card">
-<div class="section-heading"><span class="section-number">১</span><div><h3>রোগী ও কেসের পরিচিতি</h3><p>রোগীর পরিচয় আর কেসের তথ্য আলাদা — শুধু নাম, বয়স ও লিঙ্গ আবশ্যক।</p></div></div>
 
-<div class="id-split">
-  <div class="sub-card">
-    <h4><i class='bx bx-user'></i> রোগী</h4>
-    <div class="grid two tight">
-      <label class="field full"><span>রোগীর নাম <b>*</b></span><input name="patientName" placeholder="পূর্ণ নাম" required=""/></label>
-      <div class="field"><span>বয়স <b>*</b></span>
-        <div class="age-group">
-          <span class="age-part"><input name="ageYears" type="number" min="0" max="120" placeholder="৩৫" inputmode="numeric"/></span>
-          <span class="age-unit">বছর</span>
-          <span class="age-part"><input name="ageMonths" type="number" min="0" max="11" placeholder="০" inputmode="numeric"/></span>
-          <span class="age-unit">মাস</span>
-        </div>
-      </div>
-      <label class="field"><span>লিঙ্গ <b>*</b></span><select id="gender" name="gender" required=""><option value="">নির্বাচন করুন</option><option>পুরুষ</option><option>মহিলা</option><option>অন্যান্য</option><option>বলতে অনিচ্ছুক</option></select></label>
-      <label class="field"><span>মোবাইল</span><input name="mobile" placeholder="রোগী/অভিভাবকের নম্বর" type="tel"/></label>
-      <div class="field"><span>বৈবাহিক অবস্থা</span><div class="pills" data-pills="maritalStatus" data-options="অবিবাহিত|বিবাহিত|তালাকপ্রাপ্ত|বিধবা/বিপত্নীক|প্রযোজ্য নয়"></div></div>
-      <div class="field"><span>পেশা</span><div class="pills" data-pills="occupation" data-options="গৃহিণী|শিক্ষার্থী|চাকরিজীবী|ব্যবসায়ী|কৃষক|শ্রমিক|স্বাস্থ্যকর্মী/ডাক্তার|অবসরপ্রাপ্ত|বেকার|অন্যান্য" data-other="1"></div></div>
-      <label class="field full"><span>ঠিকানা</span><textarea name="address" placeholder="গ্রাম/এলাকা, উপজেলা, জেলা" rows="2"></textarea></label>
-      <label class="field"><span>ওজন</span><input name="weight" placeholder="যেমন: ৬৫ কেজি"/></label>
-      <label class="field"><span>উচ্চতা</span><input name="height" placeholder="যেমন: ৫ ফুট ৬ ইঞ্চি"/></label>
-      <div class="field"><span>রক্তের গ্রুপ</span><div class="pills" data-pills="bloodGroup" data-options="এ পজিটিভ|এ নেগেটিভ|বি পজিটিভ|বি নেগেটিভ|ও পজিটিভ|ও নেগেটিভ|এবি পজিটিভ|এবি নেগেটিভ|জানা নেই"></div></div>
-    </div>
-  </div>
+<div id="caseGate" class="case-gate" hidden></div>
 
-  <div class="sub-card">
-    <h4><i class='bx bx-folder'></i> কেস</h4>
-    <div class="grid two tight">
+<div class="case-work" id="caseWork">
+  <div class="case-workbar">
+    <div class="pt-banner" id="ptBanner" hidden></div>
+    <div class="case-meta" id="caseMeta">
       <label class="field"><span>কেস নম্বর</span><input name="caseNo" placeholder="স্বয়ংক্রিয়"/></label>
       <label class="field"><span>তারিখ</span><input id="visitDate" name="visitDate" type="date"/></label>
-      <div class="field"><span>কেসের ধরন</span><div class="pills" data-pills="caseType" data-options="তীব্র (Acute)|দীর্ঘস্থায়ী (Chronic)|ফলোআপ"></div></div>
-      <div class="field"><span>পরামর্শের ধরন</span><div class="pills" data-pills="visitType" data-options="প্রথমবার|ফলোআপ|অনলাইন|চেম্বার|জরুরি পরামর্শ"></div></div>
-      <div class="field full"><span>প্রধান রোগের বিভাগ</span><div class="pills" data-pills="mainCategory" data-options="দীর্ঘস্থায়ী রোগ|আকস্মিক রোগ|চর্মরোগ|শ্বাসতন্ত্র|পেট ও হজম|মাথা/স্নায়ু|নারী রোগ|শিশু রোগ|মানসিক/আবেগজনিত|অন্যান্য" data-other="1"></div></div>
-      <label class="field full"><span>আগের রোগ নির্ণয়/ডায়াগনসিস</span><textarea name="previousDiagnosis" placeholder="ডাক্তারের দেওয়া নাম, রিপোর্ট অনুযায়ী রোগ, সন্দেহজনক রোগ ইত্যাদি" rows="2"></textarea></label>
     </div>
-    <label class="check-card consent-card"><input name="consent" type="checkbox" value="রোগীর তথ্য কেস বিশ্লেষণের জন্য ব্যবহারের সম্মতি আছে"/><span>রোগীর তথ্য কেস বিশ্লেষণের জন্য ব্যবহারের সম্মতি আছে</span></label>
+  </div>
+  <input type="hidden" name="patientId" id="patientId"/>
+  <input type="hidden" name="patientName" id="patientName"/>
+  <input type="hidden" name="gender" id="gender"/>
+  <input type="hidden" name="ageYears" id="ageYears"/>
+  <input type="hidden" name="ageMonths" id="ageMonths"/>
+  <input type="hidden" name="phone" id="phone"/>
+  <input type="hidden" name="occupation" id="occupation"/>
+  <input type="hidden" name="maritalStatus" id="maritalStatus"/>
+  <input type="hidden" name="address" id="address"/>
+  <input type="hidden" name="weight" id="weight"/>
+  <input type="hidden" name="height" id="height"/>
+  <input type="hidden" name="bloodGroup" id="bloodGroup"/>
+  <input type="hidden" name="caseType" id="caseType"/>
+  <input type="hidden" name="caseMode" id="caseMode"/>
+
+  <div class="case-stepper">
+    <div class="top-panel">
+      <div><span id="stepCounter">ধাপ ১</span><h2 id="currentStepTitle">কেস টেকিং</h2></div>
+      <p class="step-progress-note" id="stepProgressNote"></p>
+    </div>
+    <div class="progress"><span id="progressFill"></span></div>
+    <nav class="step-nav" id="stepNav" role="tablist"></nav>
   </div>
 </div>
+
+<section class="form-step" data-step-title="পূর্ববর্তী কেস ও পরিবর্তন" data-flow="followup" data-step-id="followup">
+<div class="card">
+<div class="section-heading"><span class="section-number">১</span><div><h3>পূর্ববর্তী কেস ও পরিবর্তন</h3><p>শেষ সাক্ষাতের পর কী বদলেছে — ফলোআপের মূল প্রশ্ন।</p></div></div>
+
+<div class="sub-card" id="fuPrevCard">
+  <h4><i class='bx bx-history'></i> আগের কেসের সারাংশ</h4>
+  <div class="case-sum" id="fuPrev">এই রোগীর আগের কেস লোড হচ্ছে…</div>
+</div>
+<div class="sub-card mt">
+  <h4>শেষ সাক্ষাতের পর পরিবর্তন</h4>
+  <div class="field"><span>সামগ্রিক অবস্থা</span>
+    <div class="pills" data-pills="fuOverall" data-options="অনেক ভালো|ভালো|একই|খারাপ|অনেক খারাপ"></div>
+  </div>
+  <div class="grid two tight mt">
+    <div class="field"><span>প্রধান অভিযোগ</span>
+      <div class="pills" data-pills="fuComplaintChange" data-options="চলে গেছে|কমেছে|একই|বেড়েছে|নতুন রূপে"></div>
+    </div>
+    <div class="field"><span>ওষুধ সেবন</span>
+      <div class="pills" data-pills="fuCompliance" data-options="নিয়মিত খেয়েছে|অনিয়মিত|খায়নি|পার্শ্বপ্রতিক্রিয়া"></div>
+    </div>
+  </div>
+  <label class="field mt"><span>কী বদলেছে — রোগীর ভাষায়</span>
+    <textarea name="fuChangeNotes" rows="4" placeholder="কী ভালো হয়েছে, কী আছে, কী নতুন এসেছে, ঘুম-ক্ষুধা-মানসিক অবস্থা"></textarea>
+  </label>
+  <label class="field mt"><span>নতুন লক্ষণ</span>
+    <textarea name="fuNewSymptoms" rows="3" placeholder="শেষ সাক্ষাতের পর যা নতুন দেখা দিয়েছে"></textarea>
+  </label>
+  <label class="field mt"><span>ফিরে আসা / বাকি লক্ষণ</span>
+    <textarea name="fuRemaining" rows="3" placeholder="যা এখনো আছে বা ফিরে এসেছে"></textarea>
+  </label>
+</div>
+<div class="sub-card mt">
+  <h4>বর্তমান সাধারণ অবস্থা</h4>
+  <div class="chips compact" data-checks="fuGenerals" data-options="ঘুম ভালো|ঘুম খারাপ|ক্ষুধা ভালো|ক্ষুধা কম|শক্তি বেড়েছে|দুর্বল|মানসিকভাবে ভালো|উদ্বিগ্ন|কোষ্ঠকাঠিন্য|পাতলা পায়খানা"></div>
+  <label class="field mt"><span>চিকিৎসকের পর্যবেক্ষণ</span>
+    <textarea name="fuObservation" rows="3" placeholder="চেহারা, ভঙ্গি, মেজাজ, জিহ্বা — যা দেখা যাচ্ছে"></textarea>
+  </label>
+</div>
+
 </div>
 </section>
-<section class="form-step" data-step-title="প্রধান অভিযোগ">
+<section class="form-step" data-step-title="প্রধান অভিযোগ" data-flow="guided,followup,acute" data-step-id="chief">
 <div class="card">
-<div class="section-heading"><span class="section-number">২</span><div><h3>প্রধান অভিযোগ</h3><p>প্রতিটি সমস্যার সময়কাল, দিক, তীব্রতা ও বিশেষ বৈশিষ্ট্য লিখুন।</p></div></div>
+<div class="section-heading"><span class="section-number">১</span><div><h3>প্রধান অভিযোগ</h3><p>প্রতিটি সমস্যার সময়কাল, দিক, তীব্রতা ও বিশেষ বৈশিষ্ট্য লিখুন।</p></div></div>
 <div class="quick-add-section" id="quickAddSymptoms">
   <h4>সাধারণ লক্ষণ দ্রুত যোগ করুন</h4>
   <div class="quick-chips" id="quickChips">
@@ -111,15 +120,12 @@
 </div>
 <div aria-live="polite" class="complaints-container" id="complaintsContainer"></div>
 <button class="btn ghost" id="addComplaintBtn" type="button">+ আরও অভিযোগ যোগ করুন</button>
-<div class="grid two mt">
-<label class="field full"><span>সবচেয়ে কষ্টদায়ক অভিযোগ</span><textarea name="priorityComplaint" placeholder="রোগী কোন সমস্যাকে সবচেয়ে গুরুত্বপূর্ণ বলছে? কেন?" rows="3"></textarea></label>
-<label class="field full"><span>রোগীর চিকিৎসা লক্ষ্য/প্রত্যাশা</span><textarea name="caseGoal" placeholder="রোগী কী উন্নতি আশা করছে, কত দ্রুত, কোন বিষয়ে বেশি উদ্বিগ্ন?" rows="3"></textarea></label>
-</div>
+<label class="field mt"><span>সবচেয়ে কষ্টদায়ক অভিযোগ</span><textarea name="priorityComplaint" placeholder="রোগী কোন সমস্যাকে সবচেয়ে গুরুত্বপূর্ণ বলছে?" rows="2"></textarea></label>
 </div>
 </section>
-<section class="form-step" data-step-title="বর্তমান রোগের বিবরণ">
+<section class="form-step" data-step-title="বিশেষ লক্ষণ" data-flow="guided,acute" data-step-id="particulars">
 <div class="card">
-<div class="section-heading"><span class="section-number">৩</span><div><h3>বর্তমান রোগের বিস্তারিত ইতিহাস</h3><p>রোগের শুরু, কারণ, অনুভূতি, বিস্তার ও রোগের গতিপথ লিখুন।</p></div></div>
+<div class="section-heading"><span class="section-number">২</span><div><h3>বিশেষ লক্ষণ</h3><p>রোগের ইতিহাস, গতি ও বৃদ্ধি/উপশম — যে লক্ষণ রোগীকে ব্যক্তিগত করে।</p></div></div>
 <div class="grid two">
 <label class="field full"><span>ধারাবাহিক রোগের গল্প</span><textarea name="illnessStory" placeholder="প্রথমে কী হয়েছিল, তারপর কীভাবে পরিবর্তন হয়েছে, এখন কী অবস্থা—নিজ ভাষায় লিখুন" rows="5"></textarea></label>
 <div class="field"><span>কখন/কীভাবে শুরু</span><div class="pills" data-pills="onsetHow" data-options="হঠাৎ শুরু|ধীরে ধীরে শুরু|নির্দিষ্ট ঘটনার পর|অজানা" data-other="1"></div></div>
@@ -129,38 +135,27 @@
 <div class="field"><span>ব্যথা/সমস্যা ছড়ায় কোথায়</span><div class="chips compact" data-checks="radiation" data-options="ছড়ায় না|ডানদিকে|বামদিকে|উপরের দিকে|নিচের দিকে|পিঠের দিকে|বুকের দিকে|হাতে|পায়ে"></div></div>
 <div class="field"><span>কতক্ষণ থাকে</span><div class="pills" data-pills="episodeDuration" data-options="কয়েক সেকেন্ড|কয়েক মিনিট|প্রায় ১ ঘণ্টা|কয়েক ঘণ্টা|সারাদিন|কয়েকদিন|ক্রমাগত/সবসময়"></div></div>
 <div class="field"><span>কতবার হয়</span><div class="pills" data-pills="episodeFrequency" data-options="দিনে কয়েকবার|দিনে ১ বার|সপ্তাহে কয়েকবার|মাসে কয়েকবার|মাঝে মাঝে (অনিয়মিত)|ক্রমাগত"></div></div>
-<div class="field"><span>কোন সময়ে বেশি</span><div class="chips compact" data-checks="worseTime" data-options="সকালে|দুপুরে|সন্ধ্যায়|রাতে|মধ্যরাতে|ভোরে|নির্দিষ্ট নেই"></div></div>
-<label class="field"><span>আনুষঙ্গিক লক্ষণ</span><textarea name="concomitantSymptoms" placeholder="একসাথে বমি, ঘাম, মাথা ঘোরা, শ্বাসকষ্ট, ভয়, তৃষ্ণা ইত্যাদি" rows="3"></textarea></label>
-<label class="field"><span>আগে/পরে কী হয়</span><textarea name="beforeAfterSymptoms" placeholder="সমস্যার আগে কী লক্ষণ আসে, পরে কী পরিবর্তন হয়" rows="3"></textarea></label>
+<label class="field"><span>আনুষঙ্গিক লক্ষণ</span><textarea name="concomitantSymptoms" placeholder="একসাথে বমি, ঘাম, মাথা ঘোরা, শ্বাসকষ্ট, ভয়, তৃষ্ণা ইত্যাদি" rows="2"></textarea></label>
 <div class="field"><span>রোগের ক্রম/পরিবর্তন</span><div class="pills" data-pills="diseaseProgress" data-options="ক্রমশ বাড়ছে|ক্রমশ কমছে|একই রকম আছে|ওঠানামা করছে"></div></div>
 <label class="field"><span>আগে কী চিকিৎসা নিয়েছেন ও ফল</span><textarea name="treatmentTaken" placeholder="এলোপ্যাথি/হোমিও/হারবাল, কী ফল হয়েছে" rows="3"></textarea></label>
 <label class="field"><span>ওষুধ/খাবারে অস্বাভাবিক প্রতিক্রিয়া</span><textarea name="medicineReaction" placeholder="অ্যালার্জি, অতিরিক্ত সংবেদনশীলতা, পার্শ্বপ্রতিক্রিয়া" rows="3"></textarea></label>
 </div>
 <div class="sub-card warning-card mt"><h4>জরুরি সতর্কতার লক্ষণ</h4><p>থাকলে টিক দিন এবং নোট লিখুন।</p><div class="chips" data-checks="redFlags" data-options="শ্বাসকষ্ট|তীব্র বুক ব্যথা|অজ্ঞান/খিঁচুনি|অতিরিক্ত রক্তপাত|উচ্চ জ্বর দীর্ঘস্থায়ী|দ্রুত ওজন কমা|প্রস্রাব বন্ধ|পক্ষাঘাত/মুখ বেঁকে যাওয়া"></div><div class="redflag-banner" id="redFlagBanner" hidden><i class='bx bxs-error'></i><div><b>জরুরি ক্লিনিক্যাল ফাইন্ডিং</b><p>এটি একটি জরুরি ক্লিনিক্যাল লক্ষণ — প্রয়োজন হলে উপযুক্ত চিকিৎসা বা রেফারেল বিবেচনা করুন।</p><div class="rf-list" id="redFlagList"></div></div></div><label class="field mt"><span>জরুরি নোট</span><textarea name="redFlagNote" placeholder="কখন থেকে, কতটা তীব্র, কী ব্যবস্থা নেওয়া হয়েছে" rows="2"></textarea></label></div>
 </div>
-</section>
-<section class="form-step" data-step-title="বৃদ্ধি ও উপশম কারণ">
-<div class="card">
-<div class="section-heading"><span class="section-number">৪</span><div><h3>বৃদ্ধি ও উপশম কারণ</h3><p>কিসে রোগ বাড়ে বা কমে—হোমিওপ্যাথিতে খুব গুরুত্বপূর্ণ।</p></div></div>
 <div class="grid two top-align">
 <div class="sub-card"><h4>বৃদ্ধি হয়</h4><div class="mod-group"><div class="mod-group-h"><i class='bx bx-time-five'></i> সময়</div><div class="chips compact" data-checks="worseModalities" data-options="সকালে|দুপুরে|সন্ধ্যায়|রাতে|মধ্যরাতে|ভোরে"></div></div><div class="mod-group"><div class="mod-group-h"><i class='bx bx-sun'></i> তাপ ও আবহাওয়া</div><div class="chips compact" data-checks="worseModalities" data-options="গরমে|ঠান্ডায়|আর্দ্রতায়|শুকনো আবহাওয়ায়|বর্ষায়|শীতে|গ্রীষ্মে|বাতাসে|ধুলোয়|রোদে|গোসলের পরে"></div></div><div class="mod-group"><div class="mod-group-h"><i class='bx bx-run'></i> নড়াচড়া ও অবস্থান</div><div class="chips compact" data-checks="worseModalities" data-options="নড়াচড়ায়|বিশ্রামে|হাঁটলে|দৌড়ালে|সিঁড়িতে উঠলে|শুয়ে|ডান কাতে|বাম কাতে|বসলে|দাঁড়ালে"></div></div><div class="mod-group"><div class="mod-group-h"><i class='bx bx-restaurant'></i> খাদ্য</div><div class="chips compact" data-checks="worseModalities" data-options="গরম খাবারে|ঠান্ডা খাবারে|দুধে|মিষ্টিতে|খাওয়ার পরে|খালি পেটে"></div></div><div class="mod-group"><div class="mod-group-h"><i class='bx bx-brain'></i> মানসিক ও অন্যান্য</div><div class="chips compact" data-checks="worseModalities" data-options="রাগে|দুঃখে|ভয় পেলে|চিন্তায়|ঘুম কম হলে|মাসিকের আগে|মাসিকের সময়|মাসিকের পরে"></div></div></div>
 <div class="sub-card"><h4>কমে/আরাম হয়</h4><div class="mod-group"><div class="mod-group-h"><i class='bx bx-sun'></i> তাপ ও বাতাস</div><div class="chips compact" data-checks="betterModalities" data-options="গরমে|ঠান্ডায়|খোলা বাতাসে|গরম সেক দিলে|ঠান্ডা সেক দিলে|গরম পানিতে|ঠান্ডা পানিতে"></div></div><div class="mod-group"><div class="mod-group-h"><i class='bx bx-run'></i> নড়াচড়া ও অবস্থান</div><div class="chips compact" data-checks="betterModalities" data-options="হাঁটলে|বিশ্রামে|শুয়ে|বসলে|মাথা উঁচু করলে|চাপ দিলে|শক্ত করে বাঁধলে"></div></div><div class="mod-group"><div class="mod-group-h"><i class='bx bx-body'></i> শারীরিক নিঃসরণ</div><div class="chips compact" data-checks="betterModalities" data-options="খাবার খেলে|ঢেকুরে|বায়ু ত্যাগে|বমিতে|ঘামে|ঘুমে"></div></div><div class="mod-group"><div class="mod-group-h"><i class='bx bx-group'></i> সঙ্গ</div><div class="chips compact" data-checks="betterModalities" data-options="একা থাকলে|সঙ্গ পেলে"></div></div></div>
 </div>
 <label class="field mt"><span>বৃদ্ধি/উপশমের বিশেষ মন্তব্য</span><textarea name="modalityNotes" placeholder="কোন লক্ষণ কোন অবস্থায় বাড়ে/কমে—বিস্তারিত লিখুন" rows="4"></textarea></label>
-</div>
 </section>
-<section class="form-step" data-step-title="মন ও সাধারণ লক্ষণ">
+<section class="form-step" data-step-title="শারীরিক জেনারেলস" data-flow="guided" data-step-id="generals">
 <div class="card">
-<div class="section-heading"><span class="section-number">৫</span><div><h3>মানসিক ও সাধারণ লক্ষণ</h3><p>স্বভাব, ভয়, খাদ্যরুচি, ক্ষুধা, পিপাসা ও পছন্দ-অপছন্দ।</p></div></div>
-<div class="sub-card"><h4>মানসিক লক্ষণ</h4><div class="chips compact" data-checks="mindSymptoms" data-options="রাগী|শান্ত|সংবেদনশীল|অভিমানী|ভীতু|উদ্বেগ|হতাশা|সন্দেহপ্রবণ|তাড়াহুড়া করে|ধীর/অলস|ভুলে যায়|মনোযোগ কম|একা থাকতে চায়|সঙ্গ পছন্দ|কান্নাকাটি করে|সান্ত্বনায় ভালো|সান্ত্বনায় খারাপ|ঈর্ষা|অপরাধবোধ|অস্থির|শব্দে বিরক্ত|আলোতে বিরক্ত|ভিড় অপছন্দ|পরিচ্ছন্নতা নিয়ে অতিরিক্ত চিন্তা|আত্মবিশ্বাস কম|মৃত্যুভয়|রোগভয়"></div></div>
-<div class="sub-card"><h4>ভয়</h4><div class="chips compact" data-checks="fearSymptoms" data-options="অন্ধকার|একা থাকা|উচ্চতা|পানি|বজ্রপাত|সাপ|কুকুর|চোর|ভূত/অদৃশ্য কিছু|মৃত্যু|রোগ|দারিদ্র্য|পরীক্ষা/মঞ্চ|বন্ধ ঘর"></div></div>
-<div class="grid two mt"><label class="field"><span>মানসিক কারণ/আঘাত</span><textarea name="mentalCause" placeholder="দুঃখ, অপমান, ভয়, প্রেমঘটিত, আর্থিক চাপ, পারিবারিক সমস্যা" rows="3"></textarea></label><div class="field"><span>স্বভাবের পরিবর্তন</span><div class="chips compact" data-checks="personalityChange" data-options="রাগী হয়ে গেছে|শান্ত হয়ে গেছে|অন্তর্মুখী হয়ে গেছে|খিটখিটে হয়ে গেছে|অলস হয়ে গেছে|উদ্বিগ্ন হয়ে গেছে|আগের মতোই আছে"></div></div></div>
+<div class="section-heading"><span class="section-number">৩</span><div><h3>শারীরিক জেনারেলস</h3><p>ক্ষুধা, ঘুম, তাপ, মল-মূত্র, যৌন ও শিশু — সারা শরীরের সাধারণ লক্ষণ।</p></div></div>
 <div class="sub-card mt"><h4>খাদ্যাভ্যাস ও সাধারণ লক্ষণ</h4>
 <div class="grid two">
 <div class="field"><span>ক্ষুধা</span><div class="pills" data-pills="appetite" data-options="বেশি|স্বাভাবিক|কম|নেই|পরিবর্তনশীল"></div></div>
 <div class="field"><span>পিপাসা</span><div class="pills" data-pills="thirst" data-options="বেশি|স্বাভাবিক|কম|একেবারে কম|বারবার অল্প অল্প|একবারে বেশি"></div></div>
-<div class="field"><span>প্রতিদিন পানি</span><div class="pills" data-pills="waterAmount" data-options="১ লিটারের কম|১-২ লিটার|২-৩ লিটার|৩ লিটারের বেশি"></div></div>
-<div class="field"><span>পানীয়ের তাপমাত্রা পছন্দ</span><div class="pills" data-pills="drinkTemperature" data-options="ঠান্ডা|গরম|স্বাভাবিক|বরফ ঠান্ডা"></div></div>
+<div class="field"><span>পানীয়ের তাপমাত্রা</span><div class="pills" data-pills="drinkTemperature" data-options="ঠান্ডা|গরম|স্বাভাবিক|বরফ ঠান্ডা"></div></div>
 </div>
 <h5>পছন্দ</h5><div class="chips compact" data-checks="cravings" data-options="মিষ্টি|নোনতা|টক|ঝাল|মাছ|মাংস|ডিম|দুধ|চা|কফি|ঠান্ডা পানি|গরম খাবার|ভাত|রুটি|বরফ|মাটি/চুন/অখাদ্য"></div>
 <h5>অপছন্দ</h5><div class="chips compact" data-checks="aversions" data-options="মিষ্টি|দুধ|মাংস|মাছ|ডিম|তেল|চর্বি|ঝাল|টক|গন্ধযুক্ত খাবার"></div>
@@ -168,47 +163,82 @@
 <label class="field mt"><span>খাদ্যাভ্যাসের বিশেষ মন্তব্য</span><textarea name="foodNotes" placeholder="সময়মতো খাওয়া, ক্ষুধা লাগলে আচরণ, অস্বাভাবিক রুচি, উপবাসে সমস্যা ইত্যাদি" rows="3"></textarea></label>
 </div>
 </div>
-</section>
-<section class="form-step" data-step-title="শরীরের সিস্টেম">
-<div class="card">
-<div class="section-heading"><span class="section-number">৬</span><div><h3>শরীরের সিস্টেম অনুযায়ী লক্ষণ</h3><p>হজম, মল, প্রস্রাব, ঘুম, ঘাম এবং তাপ সহ্যক্ষমতা।</p></div></div>
 <div class="sub-card"><h4>গ্যাস ও হজম</h4><div class="chips compact" data-checks="digestiveSymptoms" data-options="গ্যাস|ঢেকুর|টক ঢেকুর|বুক জ্বালা|পেট ফাঁপা|বায়ু ত্যাগে আরাম|ঢেকুরে আরাম|কোষ্ঠকাঠিন্য|পাতলা পায়খানা|অসম্পূর্ণ মলত্যাগ|বমিভাব|বমি|পেট ব্যথা|ক্ষুধামন্দা"></div><label class="field mt"><span>হজমের মন্তব্য</span><textarea name="digestionNotes" placeholder="কোন খাবারে, কোন সময়ে, কীভাবে বাড়ে/কমে" rows="3"></textarea></label></div>
 <div class="grid two mt">
-<div class="sub-card"><h4>মল</h4><div class="grid two tight"><div class="field"><span>দিনে কতবার</span><div class="pills" data-pills="stoolFrequency" data-options="দিনে ১ বার|দিনে ২-৩ বার|২-৩ দিনে ১ বার|সপ্তাহে ২-৩ বার|অনিয়মিত"></div></div><div class="field"><span>রং</span><div class="pills" data-pills="stoolColor" data-options="স্বাভাবিক (বাদামি)|কালচে|হলুদাভ|সবুজাভ|ফ্যাকাশে/মাটির রং|লালচে"></div></div><div class="field"><span>গন্ধ</span><div class="pills" data-pills="stoolSmell" data-options="স্বাভাবিক|টক গন্ধ|পচা দুর্গন্ধ|গন্ধহীন"></div></div><div class="field"><span>শক্ত/নরম</span><div class="pills" data-pills="stoolConsistency" data-options="স্বাভাবিক|শক্ত|নরম|পানির মতো|আঠালো"></div></div><label class="field"><span>রক্ত</span><select name="stoolBlood"><option value="">নির্বাচন করুন</option><option>নেই</option><option>সামান্য</option><option>বেশি</option></select></label><label class="field"><span>শ্লেষ্মা</span><select name="stoolMucus"><option value="">নির্বাচন করুন</option><option>নেই</option><option>আছে</option></select></label><label class="field"><span>কৃমি</span><select name="stoolWorm"><option value="">নির্বাচন করুন</option><option>নেই</option><option>আছে</option></select></label><label class="field"><span>বেগ/চাপ</span><select name="stoolUrge"><option value="">নির্বাচন করুন</option><option>স্বাভাবিক</option><option>তাড়াহুড়ার বেগ</option><option>বেগ কম</option><option>অসম্পূর্ণ ভাব</option></select></label><label class="field"><span>ব্যথা/জ্বালা</span><select name="stoolPain"><option value="">নির্বাচন করুন</option><option>নেই</option><option>মলত্যাগের আগে</option><option>মলত্যাগের সময়</option><option>মলত্যাগের পরে</option></select></label><label class="field full"><span>মলের মন্তব্য</span><textarea name="stoolNotes" rows="2"></textarea></label></div></div>
-<div class="sub-card"><h4>প্রস্রাব</h4><div class="grid two tight"><div class="field"><span>বারবার হয়</span><div class="pills" data-pills="urineFrequency" data-options="স্বাভাবিক|বেশি|কম"></div></div><label class="field"><span>জ্বালা</span><select name="urineBurning"><option value="">নির্বাচন করুন</option><option>নেই</option><option>আছে</option></select></label><div class="field"><span>রং</span><div class="pills" data-pills="urineColor" data-options="স্বাভাবিক (হলুদ)|গাঢ় হলুদ|লালচে|ঘোলাটে|বর্ণহীন"></div></div><div class="field"><span>গন্ধ</span><div class="pills" data-pills="urineSmell" data-options="স্বাভাবিক|তীব্র গন্ধ|গন্ধহীন"></div></div><div class="field"><span>রাতে কয়বার</span><div class="pills" data-pills="urineNight" data-options="০ বার|১ বার|২ বার|৩+ বার"></div></div><label class="field"><span>ফোঁটা ফোঁটা</span><select name="urineDripping"><option value="">নির্বাচন করুন</option><option>নেই</option><option>আছে</option></select></label><label class="field"><span>ধরে রাখতে পারে</span><select name="urineRetention"><option value="">নির্বাচন করুন</option><option>স্বাভাবিক</option><option>ধরে রাখতে কষ্ট হয়</option></select></label><label class="field"><span>হঠাৎ বেগ</span><select name="urineUrgency"><option value="">নির্বাচন করুন</option><option>নেই</option><option>আছে</option></select></label><label class="field"><span>ব্যথা</span><select name="urinePain"><option value="">নির্বাচন করুন</option><option>নেই</option><option>আছে</option></select></label><label class="field"><span>তলানি/বালু</span><select name="urineSediment"><option value="">নির্বাচন করুন</option><option>নেই</option><option>আছে</option></select></label><label class="field"><span>অনিচ্ছায় প্রস্রাব</span><select name="urineIncontinence"><option value="">নির্বাচন করুন</option><option>নেই</option><option>হাঁচি/কাশিতে</option><option>ঘুমে</option><option>সবসময়</option></select></label><label class="field full"><span>প্রস্রাবের মন্তব্য</span><textarea name="urineNotes" rows="2"></textarea></label></div></div>
+<div class="sub-card"><h4>মল</h4><div class="grid two tight"><div class="field"><span>দিনে কতবার</span><div class="pills" data-pills="stoolFrequency" data-options="দিনে ১ বার|দিনে ২-৩ বার|২-৩ দিনে ১ বার|সপ্তাহে ২-৩ বার|অনিয়মিত"></div></div><div class="field"><span>রং</span><div class="pills" data-pills="stoolColor" data-options="স্বাভাবিক (বাদামি)|কালচে|হলুদাভ|সবুজাভ|ফ্যাকাশে/মাটির রং|লালচে"></div></div><div class="field"><span>গন্ধ</span><div class="pills" data-pills="stoolSmell" data-options="স্বাভাবিক|টক গন্ধ|পচা দুর্গন্ধ|গন্ধহীন"></div></div><div class="field"><span>শক্ত/নরম</span><div class="pills" data-pills="stoolConsistency" data-options="স্বাভাবিক|শক্ত|নরম|পানির মতো|আঠালো"></div></div><div class="field"><span>রক্ত</span><div class="pills" data-pills="stoolBlood" data-options="নেই|সামান্য|বেশি"></div></div><div class="field"><span>শ্লেষ্মা</span><div class="pills" data-pills="stoolMucus" data-options="নেই|আছে"></div></div><div class="field"><span>বেগ</span><div class="pills" data-pills="stoolUrge" data-options="স্বাভাবিক|তাড়াহুড়ো|অসম্পূর্ণ ভাব"></div></div><label class="field full"><span>মলের মন্তব্য</span><textarea name="stoolNotes" rows="2"></textarea></label></div></div>
+<div class="sub-card"><h4>প্রস্রাব</h4><div class="grid two tight"><div class="field"><span>বারবার হয়</span><div class="pills" data-pills="urineFrequency" data-options="স্বাভাবিক|বেশি|কম"></div></div><div class="field"><span>জ্বালা</span><div class="pills" data-pills="urineBurning" data-options="নেই|আছে"></div></div><div class="field"><span>রং</span><div class="pills" data-pills="urineColor" data-options="স্বাভাবিক (হলুদ)|গাঢ় হলুদ|লালচে|ঘোলাটে|বর্ণহীন"></div></div><div class="field"><span>গন্ধ</span><div class="pills" data-pills="urineSmell" data-options="স্বাভাবিক|তীব্র গন্ধ|গন্ধহীন"></div></div><div class="field"><span>রাতে কয়বার</span><div class="pills" data-pills="urineNight" data-options="০ বার|১ বার|২ বার|৩+ বার"></div></div><div class="field full"><span>অন্যান্য</span><div class="chips compact" data-checks="urineExtras" data-options="ফোঁটা ফোঁটা|ধরে রাখতে কষ্ট|হঠাৎ বেগ|ব্যথা|তলানি/বালু|হাঁচি/কাশিতে অনিচ্ছা|ঘুমে অনিচ্ছা"></div></div><label class="field full"><span>প্রস্রাবের মন্তব্য</span><textarea name="urineNotes" rows="2"></textarea></label></div></div>
 </div>
 <div class="grid two mt">
 <div class="sub-card"><h4>ঘুম ও স্বপ্ন</h4><div class="field"><span>ঘুম</span><div class="pills" data-pills="sleepQuality" data-options="ভালো|কম|বেশি|ভাঙা ভাঙা|ঘুম আসতে দেরি|ভোরে ঘুম ভাঙে"></div></div><h5>ঘুমের ভঙ্গি</h5><div class="chips compact" data-checks="sleepPosition" data-options="ডান কাতে|বাম কাতে|চিৎ হয়ে|উপুড় হয়ে|হাঁটু ভাঁজ করে|মাথা উঁচু করে"></div><h5>স্বপ্ন</h5><div class="chips compact" data-checks="dreams" data-options="সাপ|পানি|মৃত মানুষ|ভয়|চোর|আগুন|পড়ে যাওয়া|উড়ে যাওয়া|ঝগড়া|পরীক্ষা|যৌন স্বপ্ন|একই স্বপ্ন বারবার"></div><label class="field mt"><span>ঘুমের মন্তব্য</span><textarea name="sleepNotes" rows="2"></textarea></label></div>
 <div class="sub-card"><h4>ঘাম ও তাপ সহ্যক্ষমতা</h4><h5>ঘাম</h5><div class="chips compact" data-checks="sweatSymptoms" data-options="বেশি|কম|মাথায়|বগলে|হাতে|পায়ে|দুর্গন্ধ|রাতে|ঘুমে|সহজে ঘামে|টক গন্ধ"></div><label class="field mt"><span>ঘামের মন্তব্য</span><textarea name="sweatNotes" rows="2"></textarea></label><h5>ঠান্ডা/গরম</h5><div class="chips compact" data-checks="thermalSymptoms" data-options="গরম সহ্য করতে পারে না|ঠান্ডা সহ্য করতে পারে না|ফ্যান পছন্দ|কম্বল পছন্দ|খোলা বাতাস পছন্দ|খোলা বাতাস অপছন্দ|গোসল অপছন্দ|ঠান্ডা পানিতে গোসল পছন্দ|গরম পানিতে গোসল পছন্দ"></div><label class="field mt"><span>তাপ সহ্যক্ষমতার মন্তব্য</span><textarea name="thermalNotes" rows="2"></textarea></label></div>
 </div>
-</div>
-</section>
-<section class="form-step" data-step-title="যৌন, নারী ও শিশু ইতিহাস">
-<div class="card">
-<div class="section-heading"><span class="section-number">৭</span><div><h3>যৌন, নারী ও শিশু ইতিহাস</h3><p>প্রাসঙ্গিক হলে পূরণ করুন। লিঙ্গ অনুযায়ী অংশ স্বয়ংক্রিয়ভাবে দেখাবে।</p></div></div>
 <div class="sub-card"><h4>যৌন/প্রজনন সাধারণ তথ্য</h4><div class="chips compact" data-checks="sexualGeneral" data-options="যৌন ইচ্ছা কম|যৌন ইচ্ছা বেশি|যৌন সম্পর্কে উদ্বেগ|সঙ্গমে ব্যথা|যৌন রোগের ইতিহাস|গোপন সমস্যা বলতে লজ্জা/ভয়"></div><label class="field mt"><span>সাধারণ মন্তব্য</span><textarea name="sexualNotes" rows="2"></textarea></label></div>
 <div class="sub-card gender-panel" data-show-for="পুরুষ"><h4>পুরুষের জন্য</h4><div class="chips compact" data-checks="maleSymptoms" data-options="যৌন দুর্বলতা|দ্রুত বীর্যপাত|উত্থান সমস্যা|স্বপ্নদোষ|ধাতুপাত|প্রস্টেটের সমস্যা|অণ্ডকোষে ব্যথা/স্ফীতি|বীর্যে রক্ত/অস্বাভাবিকতা"></div><label class="field mt"><span>পুরুষ ইতিহাসের মন্তব্য</span><textarea name="maleNotes" rows="3"></textarea></label></div>
-<div class="sub-card gender-panel" data-show-for="মহিলা"><h4>মহিলাদের জন্য</h4><div class="grid two"><label class="field"><span>প্রথম মাসিকের বয়স</span><input name="femaleMenarche"/></label><label class="field"><span>মাসিক চক্র</span><select name="femaleCycle"><option value="">নির্বাচন করুন</option><option>নিয়মিত</option><option>অনিয়মিত</option></select></label><label class="field"><span>মাসিক কতদিন থাকে</span><select name="femaleDuration"><option value="">নির্বাচন করুন</option><option>২-৩ দিন</option><option>৪-৫ দিন</option><option>৬-৭ দিন</option><option>৭ দিনের বেশি</option></select></label><label class="field"><span>শেষ মাসিকের তারিখ</span><input name="femaleLmp"/></label><label class="field"><span>রক্তের পরিমাণ</span><select name="femaleFlow"><option value="">নির্বাচন করুন</option><option>কম</option><option>স্বাভাবিক</option><option>বেশি</option><option>অতিরিক্ত</option></select></label><label class="field"><span>রক্তের রং</span><select name="femaleColor"><option value="">নির্বাচন করুন</option><option>উজ্জ্বল লাল</option><option>গাঢ় লাল</option><option>কালচে</option><option>বাদামি</option></select></label><label class="field"><span>ব্যথা</span><select name="femalePain"><option value="">নির্বাচন করুন</option><option>নেই</option><option>মৃদু</option><option>মাঝারি</option><option>তীব্র</option></select></label><label class="field"><span>জমাট</span><select name="femaleClot"><option value="">নির্বাচন করুন</option><option>নেই</option><option>আছে</option></select></label><label class="field"><span>সাদা স্রাব</span><select name="femaleLeucorrhoea"><option value="">নির্বাচন করুন</option><option>নেই</option><option>সাদা</option><option>হলুদাভ</option><option>দুর্গন্ধযুক্ত</option><option>চুলকানিসহ</option></select></label><label class="field"><span>গর্ভাবস্থা</span><select name="femalePregnancy"><option value="">নির্বাচন করুন</option><option>নেই</option><option>চলমান</option><option>অতীতে ছিল</option></select></label><label class="field"><span>প্রসব ইতিহাস</span><select name="femaleDelivery"><option value="">নির্বাচন করুন</option><option>প্রযোজ্য নয়</option><option>স্বাভাবিক প্রসব</option><option>সিজারিয়ান</option></select></label><label class="field"><span>গর্ভপাত/মৃত সন্তান</span><select name="femaleMiscarriage"><option value="">নির্বাচন করুন</option><option>নেই</option><option>১ বার</option><option>২ বার</option><option>৩+ বার</option></select></label><label class="field"><span>মেনোপজ</span><select name="femaleMenopause"><option value="">নির্বাচন করুন</option><option>হয়নি</option><option>হয়েছে</option></select></label><label class="field"><span>দুগ্ধদান</span><select name="femaleLactation"><option value="">নির্বাচন করুন</option><option>না</option><option>হ্যাঁ</option></select></label><label class="field full"><span>নারী রোগ/সমস্যা</span><textarea name="femaleProblems" placeholder="ফাইব্রয়েড, সিস্ট, বন্ধ্যাত্ব, জরায়ু সমস্যা, স্তন সমস্যা ইত্যাদি" rows="3"></textarea></label><label class="field full"><span>মহিলা ইতিহাসের মন্তব্য</span><textarea name="femaleNotes" rows="3"></textarea></label></div></div>
-<div class="sub-card"><h4>শিশুর জন্য / প্রয়োজনে</h4><div class="grid two"><label class="field"><span>জন্ম ইতিহাস</span><textarea name="childBirth" placeholder="স্বাভাবিক/সিজার, সময়মতো/অকাল, জন্ম ওজন" rows="2"></textarea></label><label class="field"><span>বৃদ্ধি ও মাইলফলক</span><textarea name="childMilestone" placeholder="বসা, হাঁটা, কথা বলা, দাঁত ওঠা" rows="2"></textarea></label><label class="field"><span>টিকা</span><select name="childVaccination"><option value="">নির্বাচন করুন</option><option>সম্পূর্ণ</option><option>আংশিক</option><option>হয়নি</option></select></label><label class="field"><span>খাওয়ানো</span><textarea name="childFeeding" rows="2"></textarea></label><label class="field"><span>আচরণ</span><textarea name="childBehavior" rows="2"></textarea></label><label class="field"><span>বারবার সংক্রমণ</span><textarea name="childInfection" rows="2"></textarea></label><label class="field full"><span>শিশু ইতিহাসের মন্তব্য</span><textarea name="childNotes" rows="3"></textarea></label></div></div>
+<div class="sub-card gender-panel" data-show-for="মহিলা"><h4>মহিলাদের জন্য</h4><div class="grid two"><label class="field"><span>প্রথম মাসিকের বয়স</span><input name="femaleMenarche" placeholder="যেমন: ১৩"/></label><div class="field"><span>চক্র</span><div class="pills" data-pills="femaleCycle" data-options="নিয়মিত|অনিয়মিত"></div></div><div class="field"><span>কতদিন</span><div class="pills" data-pills="femaleDuration" data-options="২-৩ দিন|৪-৫ দিন|৬-৭ দিন|৭ দিনের বেশি"></div></div><label class="field"><span>শেষ মাসিক</span><input name="femaleLmp" placeholder="তারিখ"/></label><div class="field"><span>রক্তের পরিমাণ</span><div class="pills" data-pills="femaleFlow" data-options="কম|স্বাভাবিক|বেশি|অতিরিক্ত"></div></div><div class="field"><span>ব্যথা</span><div class="pills" data-pills="femalePain" data-options="নেই|মৃদু|মাঝারি|তীব্র"></div></div><div class="field"><span>জমাট</span><div class="pills" data-pills="femaleClot" data-options="নেই|আছে"></div></div><div class="field"><span>সাদা স্রাব</span><div class="pills" data-pills="femaleLeucorrhoea" data-options="নেই|সাদা|হলুদাভ|দুর্গন্ধযুক্ত|চুলকানিসহ"></div></div><div class="field"><span>গর্ভাবস্থা</span><div class="pills" data-pills="femalePregnancy" data-options="নেই|চলমান|অতীতে ছিল"></div></div><div class="field"><span>প্রসব</span><div class="pills" data-pills="femaleDelivery" data-options="প্রযোজ্য নয়|স্বাভাবিক|সিজারিয়ান"></div></div><div class="field"><span>গর্ভপাত</span><div class="pills" data-pills="femaleMiscarriage" data-options="নেই|১ বার|২ বার|৩+ বার"></div></div><div class="field"><span>মেনোপজ</span><div class="pills" data-pills="femaleMenopause" data-options="হয়নি|হয়েছে"></div></div><label class="field full"><span>নারী রোগ / মন্তব্য</span><textarea name="femaleProblems" placeholder="ফাইব্রয়েড, সিস্ট, বন্ধ্যাত্ব, জরায়ু বা স্তন সমস্যা" rows="2"></textarea></label></div></div>
+<div class="sub-card child-panel" id="childPanel"><h4>শিশুর জন্য</h4><div class="grid two"><label class="field"><span>জন্ম ইতিহাস</span><textarea name="childBirth" placeholder="স্বাভাবিক/সিজার, সময়মতো/অকাল, জন্ম ওজন" rows="2"></textarea></label><label class="field"><span>বৃদ্ধি ও মাইলফলক</span><textarea name="childMilestone" placeholder="বসা, হাঁটা, কথা বলা, দাঁত ওঠা" rows="2"></textarea></label><div class="field"><span>টিকা</span><div class="pills" data-pills="childVaccination" data-options="সম্পূর্ণ|আংশিক|হয়নি"></div></div><label class="field"><span>খাওয়ানো</span><textarea name="childFeeding" rows="2"></textarea></label><label class="field"><span>আচরণ</span><textarea name="childBehavior" rows="2"></textarea></label><label class="field"><span>বারবার সংক্রমণ</span><textarea name="childInfection" rows="2"></textarea></label></div></div>
+</section>
+<section class="form-step" data-step-title="মানসিক ও আবেগিক ইতিহাস" data-flow="guided" data-step-id="mental">
+<div class="card">
+<div class="section-heading"><span class="section-number">৪</span><div><h3>মানসিক ও আবেগিক ইতিহাস</h3><p>মানসিক লক্ষণ, ভয়, কারণ ও ব্যক্তিত্বের পরিবর্তন।</p></div></div>
+<div class="sub-card"><h4>মানসিক লক্ষণ</h4><div class="chips compact" data-checks="mindSymptoms" data-options="রাগী|শান্ত|সংবেদনশীল|অভিমানী|ভীতু|উদ্বেগ|হতাশা|সন্দেহপ্রবণ|তাড়াহুড়া করে|ধীর/অলস|ভুলে যায়|মনোযোগ কম|একা থাকতে চায়|সঙ্গ পছন্দ|কান্নাকাটি করে|সান্ত্বনায় ভালো|সান্ত্বনায় খারাপ|ঈর্ষা|অপরাধবোধ|অস্থির|শব্দে বিরক্ত|আলোতে বিরক্ত|ভিড় অপছন্দ|পরিচ্ছন্নতা নিয়ে অতিরিক্ত চিন্তা|আত্মবিশ্বাস কম|মৃত্যুভয়|রোগভয়"></div></div>
+<div class="sub-card"><h4>ভয়</h4><div class="chips compact" data-checks="fearSymptoms" data-options="অন্ধকার|একা থাকা|উচ্চতা|পানি|বজ্রপাত|সাপ|কুকুর|চোর|ভূত/অদৃশ্য কিছু|মৃত্যু|রোগ|দারিদ্র্য|পরীক্ষা/মঞ্চ|বন্ধ ঘর"></div></div>
+<div class="grid two mt"><label class="field"><span>মানসিক কারণ/আঘাত</span><textarea name="mentalCause" placeholder="দুঃখ, অপমান, ভয়, প্রেমঘটিত, আর্থিক চাপ, পারিবারিক সমস্যা" rows="3"></textarea></label><div class="field"><span>স্বভাবের পরিবর্তন</span><div class="chips compact" data-checks="personalityChange" data-options="রাগী হয়ে গেছে|শান্ত হয়ে গেছে|অন্তর্মুখী হয়ে গেছে|খিটখিটে হয়ে গেছে|অলস হয়ে গেছে|উদ্বিগ্ন হয়ে গেছে|আগের মতোই আছে"></div></div>
+</div>
 </div>
 </section>
-<section class="form-step" data-step-title="ইতিহাস, রিপোর্ট ও পর্যবেক্ষণ">
+<section class="form-step" data-step-title="চিকিৎসা ও পারিবারিক ইতিহাস" data-flow="guided" data-step-id="history">
 <div class="card">
-<div class="section-heading"><span class="section-number">৮</span><div><h3>অতীত, পারিবারিক ইতিহাস, রিপোর্ট ও পর্যবেক্ষণ</h3><p>পুরনো রোগ, পরিবার, ত্বক, চলতি ওষুধ, পরীক্ষা ও চিকিৎসকের পর্যবেক্ষণ।</p></div></div>
+<div class="section-heading"><span class="section-number">৫</span><div><h3>চিকিৎসা ও পারিবারিক ইতিহাস</h3><p>অতীত রোগ, পরিবার, ওষুধ, রিপোর্ট ও পর্যবেক্ষণ।</p></div></div>
 <div class="sub-card"><h4>অতীত ইতিহাস</h4><div class="chips compact" data-checks="pastHistory" data-options="টাইফয়েড|যক্ষা|জন্ডিস|ডায়াবেটিস|উচ্চ রক্তচাপ|হাঁপানি|অপারেশন|দুর্ঘটনা|করোনা|ডেঙ্গু|ম্যালেরিয়া|নিউমোনিয়া|কিডনি রোগ|পাথর|থাইরয়েড|মৃগী|স্ট্রোক|ক্যান্সার|যৌনবাহিত রোগ"></div><label class="field mt"><span>অতীত ইতিহাসের বিস্তারিত</span><textarea name="pastHistoryDetails" placeholder="কবে হয়েছিল, কতদিন, কী চিকিৎসা, কী ফল" rows="3"></textarea></label></div>
 <div class="grid two mt"><label class="field"><span>লক্ষণ চাপা পড়ার ইতিহাস</span><textarea name="suppressionHistory" placeholder="চর্মরোগে মলম, দীর্ঘ অ্যান্টিবায়োটিক, স্টেরয়েড, হরমোন, ব্যথানাশক ইত্যাদি" rows="3"></textarea></label><label class="field"><span>অ্যালার্জি</span><textarea name="allergyHistory" placeholder="ওষুধ, খাবার, ধুলো, ফুলের রেণু, প্রাণী ইত্যাদি" rows="3"></textarea></label><label class="field"><span>আসক্তি/অভ্যাস</span><textarea name="addictionHistory" placeholder="ধূমপান, পান, মদ, মাদক, অতিরিক্ত চা/কফি, রাত জাগা" rows="3"></textarea></label></div>
 <div class="sub-card mt"><h4>পারিবারিক ইতিহাস</h4><div class="chips compact" data-checks="familyHistory" data-options="ডায়াবেটিস|ক্যান্সার|উচ্চ রক্তচাপ|হৃদরোগ|হাঁপানি|মানসিক রোগ|কিডনি রোগ|যক্ষা|চর্মরোগ|আর্থ্রাইটিস|থাইরয়েড|মাইগ্রেন|আসক্তি"></div><label class="field mt"><span>পারিবারিক ইতিহাসের বিস্তারিত</span><textarea name="familyHistoryDetails" placeholder="কোন আত্মীয়, বয়স, রোগের ধরন" rows="3"></textarea></label></div>
 <div class="sub-card mt"><h4>ত্বক, চুল, নখ</h4><div class="chips compact" data-checks="skinSymptoms" data-options="চুলকানি|আঁচিল|একজিমা|সোরিয়াসিস|ফোড়া|দাদ|এলার্জি|চুল পড়া|খুশকি|নখ ভঙ্গুর|ঘা শুকাতে দেরি|রং পরিবর্তন"></div><label class="field mt"><span>ত্বকের বিস্তারিত</span><textarea name="skinNotes" placeholder="স্থান, রং, চুলকানি কখন, স্রাব, গন্ধ, শুকনো/ভেজা" rows="3"></textarea></label></div>
-<div class="sub-card mt"><h4>বর্তমানে খাওয়া ওষুধ</h4><div class="grid two"><label class="field"><span>এলোপ্যাথি</span><textarea name="currentAllopathy" placeholder="নাম, ডোজ, কতদিন" rows="3"></textarea></label><label class="field"><span>হোমিওপ্যাথি</span><textarea name="currentHomeopathy" placeholder="নাম, শক্তি, কতদিন" rows="3"></textarea></label><label class="field"><span>হারবাল/দেশি</span><textarea name="currentHerbal" rows="3"></textarea></label><label class="field"><span>সাপ্লিমেন্ট/ভিটামিন</span><textarea name="currentSupplements" rows="3"></textarea></label><label class="field full"><span>ওষুধে পার্শ্বপ্রতিক্রিয়া/নির্ভরতা</span><textarea name="currentSideEffects" rows="3"></textarea></label></div></div>
-<div class="sub-card mt"><h4>পরীক্ষা ও রিপোর্ট</h4><div class="grid three"><label class="field"><span>রক্তচাপ</span><input name="bp" placeholder="যেমন: ১২০/৮০"/></label><label class="field"><span>নাড়ির গতি</span><input name="pulse"/></label><label class="field"><span>তাপমাত্রা</span><input name="temperature"/></label><label class="field"><span>শ্বাসের হার</span><input name="respiration"/></label><label class="field"><span>অক্সিজেন মাত্রা</span><input name="spo2"/></label><label class="field"><span>রক্তে শর্করা</span><input name="sugar"/></label><label class="field"><span>হিমোগ্লোবিন</span><input name="hb"/></label><label class="field"><span>রক্তের সাধারণ পরীক্ষা</span><select name="cbc"><option value="">নির্বাচন করুন</option><option>করা হয়নি</option><option>স্বাভাবিক</option><option>অস্বাভাবিক</option></select></label><label class="field"><span>প্রস্রাব পরীক্ষা</span><select name="urineReport"><option value="">নির্বাচন করুন</option><option>করা হয়নি</option><option>স্বাভাবিক</option><option>অস্বাভাবিক</option></select></label><label class="field"><span>এক্স-রে</span><select name="xray"><option value="">নির্বাচন করুন</option><option>করা হয়নি</option><option>স্বাভাবিক</option><option>অস্বাভাবিক</option></select></label><label class="field"><span>আল্ট্রাসনোগ্রাম</span><select name="usg"><option value="">নির্বাচন করুন</option><option>করা হয়নি</option><option>স্বাভাবিক</option><option>অস্বাভাবিক</option></select></label><label class="field"><span>হৃদযন্ত্রের রেখাচিত্র</span><select name="ecg"><option value="">নির্বাচন করুন</option><option>করা হয়নি</option><option>স্বাভাবিক</option><option>অস্বাভাবিক</option></select></label><label class="field"><span>ইকো</span><select name="echo"><option value="">নির্বাচন করুন</option><option>করা হয়নি</option><option>স্বাভাবিক</option><option>অস্বাভাবিক</option></select></label><label class="field"><span>সিটি/এমআরআই</span><select name="ctMri"><option value="">নির্বাচন করুন</option><option>করা হয়নি</option><option>স্বাভাবিক</option><option>অস্বাভাবিক</option></select></label><label class="field full"><span>অন্যান্য রিপোর্ট</span><textarea name="otherReports" rows="3"></textarea></label></div></div>
-<div class="sub-card mt"><h4>চিকিৎসকের পর্যবেক্ষণ</h4><div class="grid three"><label class="field"><span>জিহ্বা</span><select name="tongue"><option value="">নির্বাচন করুন</option><option>স্বাভাবিক</option><option>সাদা প্রলেপ</option><option>হলুদ প্রলেপ</option><option>লালচে</option><option>ফাটা</option><option>কাঁপে</option></select></label><label class="field"><span>মুখমণ্ডল</span><select name="face"><option value="">নির্বাচন করুন</option><option>স্বাভাবিক</option><option>ফ্যাকাশে</option><option>লালচে</option><option>ফোলা</option><option>ক্লান্ত দেখায়</option></select></label><label class="field"><span>গন্ধ</span><select name="odour"><option value="">নির্বাচন করুন</option><option>স্বাভাবিক</option><option>দুর্গন্ধ</option><option>টক গন্ধ</option><option>নেই</option></select></label><label class="field"><span>হাঁটা</span><select name="walking"><option value="">নির্বাচন করুন</option><option>স্বাভাবিক</option><option>খোঁড়াচ্ছে</option><option>ধীর</option><option>অস্থির</option></select></label><label class="field"><span>কণ্ঠস্বর</span><select name="voice"><option value="">নির্বাচন করুন</option><option>স্বাভাবিক</option><option>ক্ষীণ</option><option>কর্কশ</option><option>ভাঙা</option></select></label><label class="field"><span>ভঙ্গি</span><select name="posture"><option value="">নির্বাচন করুন</option><option>স্বাভাবিক</option><option>কুঁজো</option><option>শক্ত/সোজা</option><option>নুয়ে থাকে</option></select></label><label class="field"><span>চেহারা/গঠন</span><select name="appearance"><option value="">নির্বাচন করুন</option><option>স্বাভাবিক</option><option>দুর্বল/শীর্ণ</option><option>স্থূল</option><option>রোগা</option><option>ফোলা</option></select></label><label class="field full"><span>অতিরিক্ত পর্যবেক্ষণ</span><textarea name="observationNotes" rows="3"></textarea></label></div></div>
+<div class="sub-card mt"><h4>বর্তমানে খাওয়া ওষুধ</h4><div class="grid two"><label class="field"><span>এলোপ্যাথি</span><textarea name="currentAllopathy" placeholder="নাম, ডোজ, কতদিন" rows="2"></textarea></label><label class="field"><span>হোমিওপ্যাথি</span><textarea name="currentHomeopathy" placeholder="নাম, শক্তি, কতদিন" rows="2"></textarea></label><label class="field full"><span>পার্শ্বপ্রতিক্রিয়া / অন্যান্য (হারবাল, সাপ্লিমেন্ট)</span><textarea name="currentSideEffects" rows="2"></textarea></label></div></div>
+<div class="sub-card mt"><h4>পরীক্ষা ও রিপোর্ট</h4><div class="grid three"><label class="field"><span>রক্তচাপ</span><input name="bp" placeholder="যেমন: ১২০/৮০"/></label><label class="field"><span>নাড়ি</span><input name="pulse" placeholder="/মিনিট"/></label><label class="field"><span>তাপমাত্রা</span><input name="temperature"/></label><label class="field"><span>অক্সিজেন</span><input name="spo2" placeholder="%"/></label><label class="field"><span>রক্তে শর্করা</span><input name="sugar"/></label><label class="field"><span>হিমোগ্লোবিন</span><input name="hb"/></label><label class="field full"><span>রিপোর্ট নোট</span><textarea name="otherReports" placeholder="CBC, প্রস্রাব, এক্স-রে, USG, ECG — যা আছে সংক্ষেপে" rows="2"></textarea></label></div></div>
+<div class="sub-card mt"><h4>চিকিৎসকের পর্যবেক্ষণ</h4><div class="grid two"><div class="field"><span>জিহ্বা</span><div class="pills" data-pills="tongue" data-options="স্বাভাবিক|সাদা প্রলেপ|হলুদ প্রলেপ|লালচে|ফাটা|কাঁপে"></div></div><div class="field"><span>মুখমণ্ডল</span><div class="pills" data-pills="face" data-options="স্বাভাবিক|ফ্যাকাশে|লালচে|ফোলা|ক্লান্ত দেখায়"></div></div><div class="field"><span>চেহারা</span><div class="pills" data-pills="appearance" data-options="স্বাভাবিক|দুর্বল/শীর্ণ|স্থূল|রোগা|ফোলা"></div></div><div class="field"><span>কণ্ঠস্বর</span><div class="pills" data-pills="voice" data-options="স্বাভাবিক|ক্ষীণ|কর্কশ|ভাঙা"></div></div><label class="field full"><span>অতিরিক্ত পর্যবেক্ষণ</span><textarea name="observationNotes" placeholder="গন্ধ, হাঁটা, ভঙ্গি — যা দেখা যাচ্ছে" rows="2"></textarea></label></div></div>
 <label class="field mt"><span>বিশেষ, বিরল ও অদ্ভুত লক্ষণ</span><textarea name="peculiarSymptoms" placeholder="যে লক্ষণ সাধারণ নয়, অদ্ভুত, খুব ব্যক্তিগত বা রোগীর ক্ষেত্রে বিশেষ—বিস্তারিত লিখুন" rows="5"></textarea></label>
 </div>
 </section>
-<section class="form-step" data-step-title="বিশ্লেষণ ও পরবর্তী ধাপ">
+<section class="form-step" data-step-title="হোমিওপ্যাথিক মূল্যায়ন" data-flow="" data-step-id="assessment" data-optional="1">
 <div class="card">
-<div class="section-heading"><span class="section-number">৯</span><div><h3>বিশ্লেষণ ও পরবর্তী ধাপ</h3><p>কেসের সারাংশ দেখুন, রুব্রিক বাছুন, বিশ্লেষণ টুলে যান — তারপর প্রেসক্রিপশন।</p></div></div>
+<div class="section-heading"><span class="section-number">৬</span><div><h3>হোমিওপ্যাথিক মূল্যায়ন</h3><p>টেম্পারামেন্ট, কনস্টিটিউশন ও মায়াজম — ঐচ্ছিক, বাদ দেওয়া যায়।</p></div></div>
 
+<p class="bridge-hint">এই ধাপ ঐচ্ছিক — না থাকলে <b>বাদ দিন</b> চাপুন। টেম্পারামেন্ট, গঠন ও মায়াজম আলাদা টুলে বিশ্লেষণ করে এখানে নথিভুক্ত করা যায়।</p>
+<div class="sub-card">
+  <h4><i class='bx bx-brain'></i> টেম্পারামেন্ট</h4>
+  <div class="chips compact" data-checks="temperament" data-options="স্যাঙ্গুইন (Sanguine)|কলেরিক (Choleric)|মেলাঙ্কোলিক (Melancholic)|ফ্লেগম্যাটিক (Phlegmatic)|নার্ভাস (Nervous)|মিশ্র"></div>
+  <label class="field mt"><span>স্বভাবের বিস্তারিত</span>
+    <textarea name="temperamentNotes" rows="3" placeholder="প্রতিক্রিয়ার ধরন, সামাজিকতা, সিদ্ধান্ত, চাপের সাড়া"></textarea>
+  </label>
+  <div class="bridge-actions">
+    <a class="btn ghost" href="tempraz.html"><i class='bx bx-brain'></i> টেম্পরাজ টুল খুলুন</a>
+  </div>
+</div>
+<div class="sub-card mt">
+  <h4><i class='bx bx-body'></i> কনস্টিটিউশন</h4>
+  <div class="field"><span>গঠন</span>
+    <div class="pills" data-pills="constitution" data-options="কার্বনিক|ফসফরিক|ফ্লোরিক|সালফিউরিক|মিশ্র|অনির্ধারিত" data-other="1"></div>
+  </div>
+  <label class="field mt"><span>গঠনগত পর্যবেক্ষণ</span>
+    <textarea name="constitutionNotes" rows="3" placeholder="দেহগঠন, হাড়, দাঁত, চামড়া, দীর্ঘস্থায়ী প্রবণতা"></textarea>
+  </label>
+</div>
+<div class="sub-card mt">
+  <h4><i class='bx bx-analyse'></i> মায়াজম্যাটিক মূল্যায়ন</h4>
+  <div class="chips compact" data-checks="miasm" data-options="সোরা|সাইকোসিস|সিফিলিস|টিউবারকিউলার|ক্যান্সারিনিক|মিশ্র|অনির্ধারিত"></div>
+  <label class="field mt"><span>মায়াজম নোট</span>
+    <textarea name="miasmNotes" rows="3" placeholder="কোন লক্ষণ কোন মায়াজমের দিকে ইঙ্গিত করছে"></textarea>
+  </label>
+  <div class="bridge-actions">
+    <a class="btn ghost" href="miasm.html"><i class='bx bx-analyse'></i> মায়াজম বিশ্লেষক</a>
+  </div>
+</div>
+
+</div>
+</section>
+<section class="form-step" data-step-title="পর্যালোচনা ও চূড়ান্তকরণ" data-flow="guided,followup,acute" data-step-id="review">
+<div class="card">
+<div class="section-heading"><span class="section-number">৭</span><div><h3>পর্যালোচনা ও চূড়ান্তকরণ</h3><p>সারাংশ দেখুন, রুব্রিক বাছুন, বিশ্লেষণ টুলে যান — তারপর প্রেসক্রিপশন।</p></div></div>
 <!-- ① auto-built summary: what this case actually says, pulled from the
      fields already filled, so the practitioner reviews rather than re-reads -->
 <div class="sub-card">
@@ -237,13 +267,15 @@
 
 <!-- ③ analysis tools -->
 <div class="sub-card mt">
-  <h4><i class='bx bx-analyse'></i> ক্লিনিক্যাল বিশ্লেষণ</h4>
+  <h4><i class='bx bx-analyse'></i> পরবর্তী বিশ্লেষণ</h4>
+  <p class="bridge-hint">কেস নেওয়ার পর — টেম্পারামেন্ট, মায়াজম বা রেপার্টরি। আকস্মিক কেসে তীব্র তত্ত্ব।</p>
   <div class="launch-grid">
-    <a class="launch" href="miasm.html"><i class='bx bx-analyse'></i><span><b>মায়াজম বিশ্লেষক</b><small>৫ মায়াজম · PQRS</small></span></a>
-    <a class="launch" href="tempraz.html"><i class='bx bx-brain'></i><span><b>টেম্পরাজ</b><small>স্বভাব বিশ্লেষণ</small></span></a>
-    <a class="launch" href="acutes.html"><i class='bx bx-sitemap'></i><span><b>তীব্র রোগের তত্ত্ব</b><small>ফ্লো চার্ট</small></span></a>
+    <a class="launch" href="tempraz.html"><i class='bx bx-brain'></i><span><b>টেম্পারামেন্ট</b><small>স্বভাব ও গঠন</small></span></a>
+    <a class="launch" href="miasm.html"><i class='bx bx-analyse'></i><span><b>মায়াজম</b><small>৫ মায়াজম · PQRS</small></span></a>
+    <a class="launch" href="repertory.html?from=case"><i class='bx bx-book-bookmark'></i><span><b>রেপার্টরি</b><small>রুব্রিক বাছাই</small></span></a>
+    <a class="launch" href="acutes.html"><i class='bx bx-sitemap'></i><span><b>তীব্র রোগের তত্ত্ব</b><small>আকস্মিক কেস</small></span></a>
   </div>
-  <div class="sub-card mt"><h5>সম্ভাব্য মায়াজম</h5><div class="chips compact" data-checks="miasm" data-options="সোরা|সাইকোসিস|সিফিলিস|টিউবারকিউলার|ক্যান্সারিনিক|মিশ্র|অনির্ধারিত"></div></div>
+  
 </div>
 
 <!-- ④ prescribing -->
@@ -253,7 +285,7 @@
     <a class="launch" href="materia.html"><i class='bx bx-capsule'></i><span><b>মেটেরিয়া মেডিকা</b><small>৭২৫ ওষুধ মিলিয়ে দেখুন</small></span></a>
     <a class="launch" id="toRxFromCase" href="prescription.html?from=case"><i class='bx bx-receipt'></i><span><b>প্রেসক্রিপশন</b><small>কেস থেকে সরাসরি</small></span></a>
   </div>
-  <div class="grid two"><label class="field"><span>গঠনগত ঔষধ</span><input name="constitutionalRemedy"/></label><label class="field"><span>আকস্মিক ঔষধ</span><input name="acuteRemedy"/></label><label class="field"><span>মধ্যবর্তী ঔষধ</span><input name="intercurrent"/></label><label class="field"><span>নোসোড</span><input name="nosode"/></label><label class="field"><span>বায়োকেমিক</span><input name="biochemic"/></label><label class="field"><span>ফুল-চিকিৎসা প্রয়োজনে</span><input name="flowerTherapy"/></label><div class="field"><span>শক্তি</span><div class="pills" data-pills="potency" data-options="6|12|30|200|1M|10M|50M|CM|LM1|LM2|LM3|অন্যান্য" data-other="1"></div></div><div class="field"><span>ডোজ</span><div class="pills" data-pills="dose" data-options="একক ডোজ (Single dose)|পুনরাবৃত্ত ডোজ (Repeated)|ওয়েট ডোজ (Wet dose)|প্লেসিবো"></div></div><div class="field"><span>পুনরাবৃত্তি</span><div class="pills" data-pills="repetition" data-options="দিনে ৩ বার|দিনে ২ বার|দিনে ১ বার|সপ্তাহে ১ বার|প্রয়োজন অনুযায়ী (SOS)|শুধু ১ ডোজ"></div></div><div class="field"><span>ফলোআপ</span><div class="pills" data-pills="followUp" data-options="৩ দিন পর|৭ দিন পর|১৫ দিন পর|১ মাস পর|প্রয়োজন অনুযায়ী"></div></div><label class="field full"><span>খাদ্য/জীবনযাপন পরামর্শ</span><textarea name="dietAdvice" rows="3"></textarea></label></div>
+  <div class="grid two"><label class="field"><span>গঠনগত ঔষধ</span><input name="constitutionalRemedy"/></label><label class="field"><span>আকস্মিক ঔষধ</span><input name="acuteRemedy"/></label><label class="field"><span>মধ্যবর্তী ঔষধ</span><input name="intercurrent"/></label><label class="field"><span>নোসোড</span><input name="nosode"/></label><label class="field"><span>বায়োকেমিক</span><input name="biochemic"/></label><div class="field"><span>শক্তি</span><div class="pills" data-pills="potency" data-options="6|12|30|200|1M|10M|50M|CM|LM1|LM2|LM3|অন্যান্য" data-other="1"></div></div><div class="field"><span>ডোজ</span><div class="pills" data-pills="dose" data-options="একক ডোজ (Single dose)|পুনরাবৃত্ত ডোজ (Repeated)|ওয়েট ডোজ (Wet dose)|প্লেসিবো"></div></div><div class="field"><span>পুনরাবৃত্তি</span><div class="pills" data-pills="repetition" data-options="দিনে ৩ বার|দিনে ২ বার|দিনে ১ বার|সপ্তাহে ১ বার|প্রয়োজন অনুযায়ী (SOS)|শুধু ১ ডোজ"></div></div><div class="field"><span>ফলোআপ</span><div class="pills" data-pills="followUp" data-options="৩ দিন পর|৭ দিন পর|১৫ দিন পর|১ মাস পর|প্রয়োজন অনুযায়ী"></div></div><label class="field full"><span>খাদ্য/জীবনযাপন পরামর্শ</span><textarea name="dietAdvice" rows="3"></textarea></label></div>
 </div>
 
 <!-- ⑤ export -->
@@ -271,7 +303,13 @@
 </div>
 </div>
 </section>
-<div aria-label="ফর্ম নেভিগেশন" class="form-nav"><button class="btn ghost" id="prevBtn" type="button">← আগের ধাপ</button><button class="btn ghost danger" id="resetBtn" type="button">খসড়া মুছুন</button><button class="btn primary" id="nextBtn" type="button">পরের ধাপ →</button></div>
+<div aria-label="ফর্ম নেভিগেশন" class="form-nav">
+  <button class="btn ghost" id="prevBtn" type="button">← আগে</button>
+  <button class="btn ghost" id="skipBtn" type="button">বাদ দিন</button>
+  <button class="btn ghost danger" id="resetBtn" type="button">খসড়া মুছুন</button>
+  <button class="btn ghost" id="saveStepBtn" type="button">সংরক্ষণ</button>
+  <button class="btn primary" id="nextBtn" type="button">পরের ধাপ →</button>
+</div>
 <div class="autosave-indicator" id="autosaveIndicator"></div>
 </form>
 
@@ -285,6 +323,7 @@
 </div>
 <script src="assets/js/shell.js"></script>
 <script src="assets/js/case-store.js"></script>
+<script src="assets/js/patient-store.js"></script>
 <script src="assets/js/case-form.js"></script>
 </body>
 </html>

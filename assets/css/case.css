@@ -243,7 +243,7 @@
   .rub-txt { flex: 1 1 100%; order: 2; }
   .rub-add { flex-direction: column; }
 
-  /* the step buttons are the primary way through a 9-step form on a phone,
+  /* the step buttons are the primary way through a multi-step form on a phone,
      so they stay reachable instead of scrolling away with the content */
   .form-nav {
     position: sticky; bottom: 0; z-index: 20;
@@ -309,4 +309,127 @@
 .cs-ch{
   flex:0 0 auto; font-size:.75rem; color:var(--text-muted);
   padding:.05rem .35rem; border:1px solid var(--border); border-radius:.75rem;
+}
+
+/* ── case-taking gate (patient / type / path) ── */
+body.is-gating #caseForm > :not(#caseGate) { display: none !important; }
+body.is-gating .form-nav { display: none !important; }
+.case-gate {
+  max-width: 52rem; margin: 0 auto 1.5rem;
+  padding: 1.35rem 1.4rem 1.5rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+}
+.case-gate h2 { margin: 0 0 .3rem; font-size: 1.35rem; }
+.case-gate .cg-lead { margin: 0 0 1.1rem; color: var(--text-muted); font-size: .9rem; line-height: 1.55; }
+.cg-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: .75rem;
+}
+.cg-card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: .4rem;
+  text-align: start; padding: 1.05rem 1.1rem; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--surface2);
+  color: inherit; cursor: pointer; font: inherit; width: 100%;
+  transition: border-color .15s, box-shadow .15s, transform .15s, background .15s;
+}
+.cg-card:hover { border-color: var(--primary); background: var(--surface); box-shadow: var(--shadow); transform: translateY(-1px); }
+.cg-card.primary { border-color: var(--primary); background: var(--primary-bg); }
+.cg-card i {
+  font-size: 1.5rem; color: var(--primary);
+  width: 2.35rem; height: 2.35rem; display: grid; place-items: center;
+  border-radius: .7rem; background: var(--primary-bg);
+}
+.cg-card.primary i { background: var(--surface); }
+.cg-card b { font-size: 1rem; }
+.cg-card span { color: var(--text-muted); font-size: .8rem; line-height: 1.55; }
+.cg-back {
+  display: inline-flex; align-items: center; gap: .3rem;
+  margin-bottom: .85rem; background: none; border: 0;
+  color: var(--primary); cursor: pointer; font: inherit; font-size: .875rem;
+}
+.cg-plist { display: flex; flex-direction: column; gap: .45rem; margin-top: .35rem; }
+.cg-plist a, .cg-plist button {
+  display: flex; align-items: center; gap: .7rem; text-align: start;
+  padding: .75rem .9rem; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--surface2);
+  color: inherit; text-decoration: none; font: inherit; cursor: pointer;
+}
+.cg-plist a:hover, .cg-plist button:hover { border-color: var(--primary); background: var(--surface); }
+.cg-plist .pt-av {
+  display: grid; place-items: center; width: 2.3rem; height: 2.3rem;
+  border-radius: 50%; background: var(--primary-bg); color: var(--primary);
+  font-weight: 700; flex: 0 0 auto;
+}
+
+/* workspace: patient + case no + stepper as one unit */
+.case-work { margin-bottom: 1rem; }
+.case-workbar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.1rem;
+  padding: .75rem 1rem; margin-bottom: .75rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow-sm);
+}
+.pt-banner {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .65rem;
+  flex: 1 1 16rem; min-width: 0;
+}
+.pt-banner[hidden] { display: none !important; }
+.pt-banner .pt-av {
+  display: grid; place-items: center; width: 2.35rem; height: 2.35rem;
+  border-radius: 50%; background: var(--primary); color: #fff; font-weight: 700;
+}
+.pt-banner-id { flex: 1 1 8rem; min-width: 0; }
+.pt-banner-id b { display: block; font-size: .95rem; }
+.pt-banner-id span { color: var(--text-muted); font-size: .75rem; }
+.pt-banner .pt-pill {
+  padding: .12rem .5rem; border-radius: 999px;
+  background: var(--primary-bg); color: var(--primary);
+  border: 0; font-size: .7rem; font-weight: 700;
+}
+.pt-banner .btn { font-size: .75rem; padding: .3rem .6rem; }
+.case-meta {
+  display: flex; flex-wrap: wrap; gap: .55rem .75rem;
+  flex: 0 1 18rem; margin: 0;
+}
+.case-meta .field { flex: 1 1 8rem; min-width: 7rem; }
+.case-meta .field span { font-size: .7rem; color: var(--text-muted); }
+.case-meta input { padding: .45rem .6rem; font-size: .875rem; }
+
+.case-stepper {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .85rem 1rem .7rem;
+  box-shadow: var(--shadow-sm);
+}
+.case-stepper .top-panel { margin-bottom: .45rem; align-items: flex-start; }
+.case-stepper .progress { margin-bottom: .7rem; }
+.case-stepper .step-nav { margin-bottom: 0; padding-bottom: .15rem; }
+.case-stepper .step-tab {
+  flex-direction: row;
+  min-width: 0;
+  padding: .45rem .7rem;
+  gap: .35rem;
+  font-size: .8125rem;
+}
+.case-stepper .step-tab i { font-size: 1.05rem; }
+.case-stepper .step-tab.active .step-mark { border-color: #fff; background: rgba(255,255,255,.25); }
+.step-progress-note { margin: .15rem 0 0; }
+
+.child-panel { display: none; }
+
+.form-nav {
+  flex-wrap: wrap; gap: .45rem; justify-content: flex-start;
+}
+.form-nav #skipBtn { margin-inline-end: auto; }
+.form-nav #nextBtn { margin-inline-start: auto; }
+
+@media (max-width: 700px) {
+  .case-gate { padding: 1.05rem .95rem 1.2rem; }
+  .cg-grid { grid-template-columns: 1fr; }
+  .case-workbar { padding: .7rem .8rem; }
+  .case-meta { flex: 1 1 100%; }
+  .form-nav { gap: .35rem; }
+  .form-nav .btn { flex: 1 1 auto; justify-content: center; }
+  .form-nav #resetBtn { display: none; }
+  .form-nav #nextBtn, .form-nav #skipBtn { margin: 0; flex: 1 1 40%; }
 }

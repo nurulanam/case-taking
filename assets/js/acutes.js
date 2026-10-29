@@ -6,7 +6,8 @@ async function loadData() {
   try {
     const [dataResp, bnResp] = await Promise.all([
       fetch('assets/data/acutes.json'),
-      fetch('assets/data/acutes.bn.json')
+      fetch('assets/data/acutes.bn.json'),
+      window.RemedyStore ? RemedyStore.load() : Promise.resolve()
     ]);
     DATA = await dataResp.json();
     BN = bnResp.ok ? await bnResp.json() : null;
@@ -185,8 +186,16 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 });
 
 // ===== Flow Chart of Acutes (transcribed from Dr. Prafull Vijayakar's original chart) =====
-// R(chart number, english name, bangla name, abbreviation)
-function R(n, en, bn, ab) { return { n: n, en: en, bn: bn, ab: ab }; }
+// R(chart number, catalog id) — names resolve lazily so FLOW can be declared
+// before the catalog fetch finishes.
+function R(n, id) {
+  return {
+    n: n, id: id,
+    get en() { const rx = window.RemedyStore && RemedyStore.get(id); return rx ? rx.name : id; },
+    get bn() { const rx = window.RemedyStore && RemedyStore.get(id); return rx ? (rx.bangla || rx.name) : id; },
+    get ab() { const rx = window.RemedyStore && RemedyStore.get(id); return rx ? (rx.abbr_display || rx.abbr) : id; }
+  };
+}
 
 // western digits -> bangla digits
 function bnNum(v) { return String(v).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]); }
@@ -226,9 +235,9 @@ const FLOW = {
           key: 'sleep', bn: 'ঘুম প্রবল', en: 'Sleep Overpowering', icon: '🛌',
           desc: 'ঘুমে আচ্ছন্ন, জাগিয়ে রাখা যায় না — তাপমাত্রা/তৃষ্ণা বিভাজন নেই',
           remedies: [
-            R(1, 'Opium', 'ওপিয়াম', 'Op.'),
-            R(2, 'Antimonium Tartaricum', 'এন্টিমোনিয়াম টার্টারিকাম', 'Ant-t.'),
-            R(3, 'Nux Moschata', 'নাক্স মসকেটা', 'Nux-m.')
+            R(1, 'op'),
+            R(2, 'ant-t'),
+            R(3, 'nux-m')
           ]
         },
         {
@@ -237,38 +246,38 @@ const FLOW = {
           q: Q_THERMAL, hint: H_THERMAL,
           children: [
             thermal2(T_CHILLY,
-              [ R(4, 'Sepia', 'সিপিয়া', 'Sep.'),
-                R(5, 'Gelsemium', 'জেলসেমিয়াম', 'Gels.'),
-                R(6, 'Acidum Phosphoricum', 'অ্যাসিডাম ফসফরিকাম', 'Ac-ph.'),
-                R(7, 'Ignatia Amara', 'ইগনেশিয়া আমারা', 'Ign.'),
-                R(8, 'Staphysagria', 'স্ট্যাফিসেগ্রিয়া', 'Staph.'),
-                R(9, 'Ipecacuanha', 'আইপিকাকুয়ানহা', 'Ipec.'),
-                R(10, 'Natrum Carbonicum', 'নেট্রাম কার্বনিকাম', 'Nat-c.'),
-                R(11, 'China (Cinchona)', 'চায়না (সিনকোনা)', 'Chin.') ],
-              [ R(12, 'Nux Vomica', 'নাক্স ভোমিকা', 'Nux-v.'),
-                R(13, 'Eupatorium Perfoliatum', 'ইউপেটোরিয়াম পারফোলিয়াটাম', 'Eup-per.'),
-                R(14, 'Phosphorus', 'ফসফরাস', 'Phos.'),
-                R(15, 'Calcarea Carbonica', 'ক্যালকেরিয়া কার্বোনিকা', 'Calc.'),
-                R(16, 'Belladonna', 'বেলাডোনা', 'Bell.'),
-                R(17, 'China (Cinchona)', 'চায়না (সিনকোনা)', 'Chin.'),
-                R(18, 'Silicea', 'সিলিসিয়া', 'Sil.'),
-                R(19, 'Hyoscyamus Niger', 'হায়োসায়ামাস নাইজার', 'Hyos.') ]),
+              [ R(4, 'sep'),
+                R(5, 'gels'),
+                R(6, 'ph-ac'),
+                R(7, 'ign'),
+                R(8, 'staph'),
+                R(9, 'ip'),
+                R(10, 'nat-c'),
+                R(11, 'chin') ],
+              [ R(12, 'nux-v'),
+                R(13, 'eup-per'),
+                R(14, 'phos'),
+                R(15, 'calc'),
+                R(16, 'bell'),
+                R(17, 'chin'),
+                R(18, 'sil'),
+                R(19, 'hyos') ]),
             thermal2(T_HOT,
-              [ R(20, 'Pulsatilla', 'পালসেটিলা', 'Puls.'),
-                R(21, 'Bryonia Alba', 'ব্রায়োনিয়া অ্যালবা', 'Bry.'),
-                R(22, 'Apis Mellifica', 'এপিস মেলিফিকা', 'Apis.'),
-                R(23, 'Lachesis Muta', 'ল্যাকেসিস মুটা', 'Lach.'),
-                R(24, 'Sulphur', 'সালফার', 'Sulph.'),
-                R(25, 'Lycopodium', 'লাইকোপোডিয়াম', 'Lyc.'),
-                R(26, 'Thuja Occidentalis', 'থুজা অক্সিডেন্টালিস', 'Thuj.'),
-                R(27, 'Opium', 'ওপিয়াম', 'Op.'),
-                R(28, 'Carbo Vegetabilis', 'কার্বো ভেজিটেবিলিস', 'Carb-v.') ],
-              [ R(29, 'Bryonia Alba', 'ব্রায়োনিয়া অ্যালবা', 'Bry.'),
-                R(30, 'Natrum Muriaticum', 'নেট্রাম মিউরিয়াটিকাম', 'Nat-m.'),
-                R(31, 'Sulphur', 'সালফার', 'Sulph.'),
-                R(32, 'Lycopodium', 'লাইকোপোডিয়াম', 'Lyc.'),
-                R(33, 'Apis Mellifica', 'এপিস মেলিফিকা', 'Apis.'),
-                R(34, 'Mercurius Solubilis', 'মার্কিউরিয়াস সলুবিলিস', 'Merc.') ])
+              [ R(20, 'puls'),
+                R(21, 'bry'),
+                R(22, 'apis'),
+                R(23, 'lach'),
+                R(24, 'sulph'),
+                R(25, 'lyc'),
+                R(26, 'thuj'),
+                R(27, 'op'),
+                R(28, 'carb-v') ],
+              [ R(29, 'bry'),
+                R(30, 'nat-m'),
+                R(31, 'sulph'),
+                R(32, 'lyc'),
+                R(33, 'apis'),
+                R(34, 'merc') ])
           ]
         }
       ]
@@ -286,13 +295,13 @@ const FLOW = {
           q: Q_THERMAL, hint: H_THERMAL + ' (এই শাখায় তৃষ্ণার বিভাজন নেই)',
           children: [
             Object.assign({}, T_CHILLY, { remedies: [
-              R(35, 'Rhus Toxicodendron', 'রাস টক্সিকোডেন্ড্রন', 'Rhus-t.'),
-              R(35, 'Tarentula Hispanica', 'ট্যারেন্টুলা হিসপানিকা', 'Tarent.')
+              R(35, 'rhus-t'),
+              R(35, 'tarent')
             ]}),
             Object.assign({}, T_HOT, { remedies: [
-              R(36, 'Kali Sulphuricum', 'কালি সালফিউরিকাম', 'Kali-s.'),
-              R(37, 'Mercurius Solubilis', 'মার্কিউরিয়াস সলুবিলিস', 'Merc.'),
-              R(38, 'Tarentula Hispanica', 'ট্যারেন্টুলা হিসপানিকা', 'Tarent.')
+              R(36, 'kali-s'),
+              R(37, 'merc'),
+              R(38, 'tarent')
             ]})
           ]
         },
@@ -302,22 +311,22 @@ const FLOW = {
           q: Q_THERMAL, hint: H_THERMAL,
           children: [
             thermal2(T_CHILLY,
-              [ R(39, 'Arsenicum Album', 'আর্সেনিকাম অ্যালবাম', 'Ars.'),
-                R(40, 'Cina', 'সিনা', 'Cina.'),
-                R(41, 'China (Cinchona)', 'চায়না (সিনকোনা)', 'Chin.') ],
-              [ R(42, 'Nux Vomica', 'নাক্স ভোমিকা', 'Nux-v.'),
-                R(43, 'Chamomilla', 'ক্যামোমিলা', 'Cham.'),
-                R(44, 'Baryta Carbonica', 'বেরাইটা কার্বোনিকা', 'Bar-c.'),
-                R(45, 'Ferrum Metallicum', 'ফেরাম মেটালিকাম', 'Ferr.'),
-                R(46, 'Ferrum Phosphoricum', 'ফেরাম ফসফরিকাম', 'Ferr-p.'),
-                R(47, 'China (Cinchona)', 'চায়না (সিনকোনা)', 'Chin.') ]),
+              [ R(39, 'ars'),
+                R(40, 'cina'),
+                R(41, 'chin') ],
+              [ R(42, 'nux-v'),
+                R(43, 'cham'),
+                R(44, 'bar-c'),
+                R(45, 'ferr'),
+                R(46, 'ferr-p'),
+                R(47, 'chin') ]),
             thermal2(T_HOT,
-              [ R(48, 'Pulsatilla', 'পালসেটিলা', 'Puls.'),
-                R(49, 'Sulphur', 'সালফার', 'Sulph.'),
-                R(50, 'Apis Mellifica', 'এপিস মেলিফিকা', 'Apis.') ],
-              [ R(51, 'Tuberculinum', 'টিউবারকুলিনাম', 'Tub.'),
-                R(52, 'Mercurius Solubilis', 'মার্কিউরিয়াস সলুবিলিস', 'Merc.'),
-                R(53, 'Opium', 'ওপিয়াম', 'Op.') ])
+              [ R(48, 'puls'),
+                R(49, 'sulph'),
+                R(50, 'apis') ],
+              [ R(51, 'tub'),
+                R(52, 'merc'),
+                R(53, 'op') ])
           ]
         },
         {
@@ -327,35 +336,35 @@ const FLOW = {
           children: [
             { key: 'sing', bn: 'গান গায়', en: 'Sings', icon: '🎵', desc: 'জ্বর/প্রলাপের মধ্যে গান গায়',
               remedies: [
-                R(54, 'Belladonna', 'বেলাডোনা', 'Bell.'),
-                R(55, 'Stramonium', 'স্ট্র্যামোনিয়াম', 'Stram.'),
-                R(56, 'Opium', 'ওপিয়াম', 'Op.'),
-                R(57, 'Veratrum Album', 'ভেরাট্রাম অ্যালবাম', 'Verat.')
+                R(54, 'bell'),
+                R(55, 'stram'),
+                R(56, 'op'),
+                R(57, 'verat')
               ]},
             { key: 'verses', bn: 'ছড়া/কবিতা বানায়', en: 'Makes Verses', icon: '📜', desc: 'ছন্দ মিলিয়ে কথা বলে, কবিতা রচনা করে',
               remedies: [
-                R(58, 'Cannabis Indica', 'ক্যানাবিস ইন্ডিকা', 'Cann-i.'),
-                R(59, 'Lachesis Muta', 'ল্যাকেসিস মুটা', 'Lach.'),
-                R(60, 'Coffea Cruda', 'কফিয়া ক্রুডা', 'Coff.'),
-                R(61, 'Antimonium Crudum', 'এন্টিমোনিয়াম ক্রুডাম', 'Ant-c.'),
-                R(62, 'Natrum Muriaticum', 'নেট্রাম মিউরিয়াটিকাম', 'Nat-m.')
+                R(58, 'cann-i'),
+                R(59, 'lach'),
+                R(60, 'coff'),
+                R(61, 'ant-c'),
+                R(62, 'nat-m')
               ]},
             { key: 'loquacity', bn: 'বাচালতা (Loquacity)', en: 'Loquacity', icon: '💬',
               desc: 'একটানা কথা বলে — কথার ধরন দেখে ওষুধ আলাদা হয়',
               q: 'ধাপ ৪ · বাচালতার ধরন', hint: 'কথা কীভাবে বলছে সেটাই নির্ণায়ক।',
               children: [
                 { key: 'fast', bn: 'দ্রুত কথা বলে', en: 'Fast', icon: '⚡',
-                  remedies: [ R(null, 'Lachesis Muta', 'ল্যাকেসিস মুটা', 'Lach.'), R(null, 'Pyrogenium', 'পাইরোজেনিয়াম', 'Pyrog.') ]},
+                  remedies: [ R(null, 'lach'), R(null, 'pyrog') ]},
                 { key: 'irrational', bn: 'অযৌক্তিক কথা', en: 'Irrational', icon: '🌪️',
-                  remedies: [ R(null, 'Lachesis Muta', 'ল্যাকেসিস মুটা', 'Lach.'), R(null, 'Coffea Cruda', 'কফিয়া ক্রুডা', 'Coff.') ]},
+                  remedies: [ R(null, 'lach'), R(null, 'coff') ]},
                 { key: 'business', bn: 'ব্যবসা/কাজের কথা', en: 'Business', icon: '💼',
-                  remedies: [ R(null, 'Bryonia Alba', 'ব্রায়োনিয়া অ্যালবা', 'Bry.') ]},
+                  remedies: [ R(null, 'bry') ]},
                 { key: 'nonsense', bn: 'অর্থহীন বকবক', en: 'Nonsense', icon: '🎭',
-                  remedies: [ R(null, 'Argentum Metallicum', 'আর্জেন্টাম মেটালিকাম', 'Arg-m.') ]},
+                  remedies: [ R(null, 'arg-m') ]},
                 { key: 'one_subject', bn: 'একই বিষয়ে কথা', en: 'One Subject', icon: '🔁',
-                  remedies: [ R(null, 'Argentum Nitricum', 'আর্জেন্টাম নাইট্রিকাম', 'Arg-n.'), R(null, 'Cannabis Indica', 'ক্যানাবিস ইন্ডিকা', 'Cann-i.'), R(null, 'Stramonium', 'স্ট্র্যামোনিয়াম', 'Stram.') ]},
+                  remedies: [ R(null, 'arg-n'), R(null, 'cann-i'), R(null, 'stram') ]},
                 { key: 'curses', bn: 'গালিগালাজ করে', en: 'Curses', icon: '🤬',
-                  remedies: [ R(null, 'Anacardium Orientale', 'অ্যানাকার্ডিয়াম', 'Anac.'), R(null, 'Sanicula', 'স্যানিকুলা', 'Sanic.'), R(null, 'Hepar Sulphuris', 'হিপার সালফিউরিস', 'Hep.'), R(null, 'Nux Vomica', 'নাক্স ভোমিকা', 'Nux-v.'), R(null, 'Tarentula Hispanica', 'ট্যারেন্টুলা হিসপানিকা', 'Tarent.') ]}
+                  remedies: [ R(null, 'anac'), R(null, 'sanic'), R(null, 'hep'), R(null, 'nux-v'), R(null, 'tarent') ]}
               ]}
           ]
         }
@@ -367,9 +376,9 @@ const FLOW = {
       key: 'no_change', bn: 'কোনো পরিবর্তন নেই', en: 'No Change', icon: '😐',
       desc: 'অসুস্থ হয়েও কার্যকলাপ আগের মতোই — অভিযোগ করে না, কাজ চালিয়ে যায়',
       remedies: [
-        R(null, 'Opium', 'ওপিয়াম', 'Op.'),
-        R(null, 'Natrum Muriaticum', 'নেট্রাম মিউরিয়াটিকাম', 'Nat-m.'),
-        R(null, 'Silicea', 'সিলিসিয়া', 'Sil.')
+        R(null, 'op'),
+        R(null, 'nat-m'),
+        R(null, 'sil')
       ]
     }
   ]
@@ -455,79 +464,182 @@ function rxInfo(en) {
 let flowPath = [];     // array of chosen child nodes
 let openRemedyIdx = 0;  // which remedy in the current leaf's list is open below
 
+const AC_AXES = [
+  { id: 'activity', bn: 'কার্যকলাপ', en: 'Activity' },
+  { id: 'type',     bn: 'ধরন',       en: 'Type' },
+  { id: 'thermal',  bn: 'তাপমাত্রা', en: 'Thermal' },
+  { id: 'thirst',   bn: 'তৃষ্ণা',    en: 'Thirst' }
+];
+
+const AC_ICONS = {
+  decreased: 'bx-trending-down', increased: 'bx-trending-up', no_change: 'bx-minus',
+  sleep: 'bx-moon', dullness: 'bx-user',
+  physical: 'bx-run', mental: 'bx-brain', verbal: 'bx-conversation',
+  sing: 'bx-music', verses: 'bx-book', loquacity: 'bx-message-dots',
+  fast: 'bx-timer', irrational: 'bx-shuffle', business: 'bx-briefcase',
+  nonsense: 'bx-ghost', one_subject: 'bx-repeat', curses: 'bx-angry',
+  hot: 'bx-sun', chilly: 'bx-wind',
+  thirsty: 'bx-droplet', thirstless: 'bx-block'
+};
+
 function currentFlowNode() {
   return flowPath.length ? flowPath[flowPath.length - 1] : FLOW;
+}
+
+function axisOf(node) {
+  const k = node && node.key;
+  if (k === 'decreased' || k === 'increased' || k === 'no_change') return 'activity';
+  if (k === 'hot' || k === 'chilly') return 'thermal';
+  if (k === 'thirsty' || k === 'thirstless') return 'thirst';
+  if (k) return 'type';
+  return 'activity';
+}
+
+function currentAxisId() {
+  const node = currentFlowNode();
+  if (node.remedies) return null;
+  const kids = node.children || [];
+  if (kids.some(c => c.key === 'hot' || c.key === 'chilly')) return 'thermal';
+  if (kids.some(c => c.key === 'thirsty' || c.key === 'thirstless')) return 'thirst';
+  if (!flowPath.length) return 'activity';
+  return 'type';
+}
+
+function optIcon(node) {
+  return AC_ICONS[node && node.key] || 'bx-right-arrow-alt';
+}
+
+function displayQ(q) {
+  return String(q || '').replace(/^ধাপ(?:\s*[০-৯0-9]+)?\s*·\s*/, '');
+}
+
+function pickOpt(i) {
+  const opts = currentFlowNode().children || [];
+  if (!opts[i]) return;
+  flowPath = flowPath.concat([opts[i]]);
+  renderFlow();
 }
 
 function renderFlow() {
   document.getElementById('flowBack').disabled = flowPath.length === 0;
   updateTopbarChip();
-  renderSteps();
-  openRemedyIdx = 0;      // a path change always lands on a fresh leaf (or none)
-  renderRightAndBottom();
+  const leaf = !!(currentFlowNode().remedies);
+  document.getElementById('acWorkspace').classList.toggle('is-leaf', leaf);
+  document.getElementById('acAsk').hidden = leaf;
+  document.getElementById('acResult').hidden = !leaf;
+  renderProgress();
+  renderRail();
+  if (leaf) {
+    openRemedyIdx = 0;
+    renderRightAndBottom();
+  } else {
+    renderAsk();
+    const toRx = document.getElementById('flowToRx');
+    if (toRx) toRx.disabled = true;
+  }
 }
 
-// One column per level of the path so far — every column stays visible and
-// clickable (Tempraz-style "everything on one screen"), instead of the old
-// single current-question view with a Back button. Depth is 1–4 levels
-// depending on the branch, so this is a horizontal cascade rather than a
-// fixed column count.
-function renderSteps() {
-  const host = document.getElementById('acSteps');
-  const cols = [{ q: FLOW.q, hint: FLOW.hint, options: FLOW.children }];
-  for (let i = 0; i < flowPath.length; i++) {
-    const cur = flowPath[i];
-    if (cur.remedies) break;               // reached a leaf — no further question
-    cols.push({ q: cur.q, hint: cur.hint, options: cur.children });
-  }
+function renderProgress() {
+  const progress = document.getElementById('acProgress');
+  if (!progress) return;
+  const axis = AC_AXES.find(a => a.id === currentAxisId());
+  progress.textContent = currentFlowNode().remedies
+    ? 'ওষুধের ফলাফল'
+    : `ধাপ ${bnNum(flowPath.length + 1)}${axis ? ` · ${axis.bn}` : ''}`;
+}
 
-  host.innerHTML = cols.map((col, ci) => {
-    const chosen = flowPath[ci] || null;   // option picked at this level, if any
-    const summary = chosen ? `
-      <div class="ac-step-summary" data-jump="${ci}">
-        <span class="ac-step-summary-ic">${chosen.icon || '•'}</span>
-        <span class="ac-step-summary-txt"><b>${chosen.bn}</b></span>
-        <i class='bx bx-chevron-right ac-step-summary-caret'></i>
-      </div>` : '';
-    const options = col.options.map((opt, oi) => {
-      const count = countRemedies(opt);
-      return `<div class="ac-opt ${chosen === opt ? 'chosen' : ''}" data-col="${ci}" data-opt="${oi}"
-                   style="animation-delay:${oi * 0.04}s">
-        <span class="rc-emoji">${opt.icon || '•'}</span>
-        <div class="ac-opt-label">
-          <strong>${opt.bn}</strong>
-          <span>${opt.en}${opt.desc ? ' — ' + opt.desc : ''}</span>
-        </div>
-        <span class="ac-opt-count">${bnNum(count)}</span>
-      </div>`;
-    }).join('');
-    return `<div class="ac-step-col${chosen ? ' answered' : ''}">
-      <div class="ac-step-head">
-        ${summary}
-        <div class="ac-step-q"><i class='bx bx-help-circle'></i> ${col.q || ''}</div>
-        ${col.hint ? `<div class="ac-step-hint">${col.hint}</div>` : ''}
-      </div>
-      <div class="ac-step-options-scroll"><div class="ac-step-options">${options}</div></div>
-    </div>`;
+function renderRail() {
+  const host = document.getElementById('acRail');
+  if (!host) return;
+  const pool = countRemedies(currentFlowNode());
+  const rows = flowPath.map((n, i) => {
+    const ax = AC_AXES.find(a => a.id === axisOf(n));
+    return `<button type="button" class="ac-axis filled" data-jump="${i}">
+      <i class="bx ${optIcon(n)}"></i>
+      <span><small>${ax ? ax.bn : ''}</small><strong>${n.bn}</strong></span>
+    </button>`;
   }).join('');
-
-  host.querySelectorAll('.ac-opt').forEach(el => {
-    el.addEventListener('click', () => {
-      const ci = +el.dataset.col;
-      const opt = cols[ci].options[+el.dataset.opt];
-      flowPath = flowPath.slice(0, ci).concat([opt]);
-      renderFlow();
-    });
-  });
-  host.querySelectorAll('.ac-step-summary').forEach(el => {
+  const empty = flowPath.length
+    ? ''
+    : `<p class="ac-rail-empty">এখনো খালি — ধাপ বেছে নিলে এখানে জমা হবে</p>`;
+  host.innerHTML = `<div class="ac-rail-head">কেস স্ন্যাপশট</div>
+    <div class="ac-axes">${rows}</div>
+    ${empty}
+    <div class="ac-rail-pool"><strong>${bnNum(pool)}</strong><span>${currentFlowNode().remedies ? 'সম্ভাব্য ওষুধ' : 'ওষুধ বাকি'}</span></div>
+    <details class="ac-mobile-snapshot">
+      <summary><span><i class="bx bx-list-check" aria-hidden="true"></i> কেস স্ন্যাপশট <b>${bnNum(flowPath.length)}</b></span><span class="ac-snapshot-toggle">দেখুন <i class="bx bx-chevron-down" aria-hidden="true"></i></span></summary>
+      <div class="ac-snapshot-panel">
+        <p>আগের কোনো নির্বাচন বদলাতে সেটিতে চাপুন</p>
+        <div class="ac-snapshot-choices">${rows || '<span class="ac-snapshot-empty">এখনো কোনো ধাপ বেছে নেওয়া হয়নি।</span>'}</div>
+      </div>
+    </details>`;
+  host.querySelectorAll('[data-jump]').forEach(el => {
     el.addEventListener('click', () => {
       flowPath = flowPath.slice(0, +el.dataset.jump);
       renderFlow();
     });
   });
+}
 
-  // newest column should be the one in view
-  requestAnimationFrame(() => { host.scrollLeft = host.scrollWidth; });
+function renderAsk() {
+  const node = currentFlowNode();
+  const opts = node.children || [];
+  const axis = AC_AXES.find(a => a.id === currentAxisId());
+  const badge = document.getElementById('acStepBadge');
+  if (badge) badge.textContent = axis ? axis.en : `ধাপ ${bnNum(flowPath.length + 1)}`;
+  document.getElementById('acAskQ').textContent = displayQ(node.q);
+  document.getElementById('acAskHint').textContent = node.hint || '';
+  const host = document.getElementById('acOpts');
+  host.classList.remove('hero');
+  host.innerHTML = opts.map((opt, oi) => {
+    const count = countRemedies(opt);
+    return `<button type="button" class="ac-opt" data-opt="${oi}" role="option">
+      <kbd class="ac-opt-k">${bnNum(oi + 1)}</kbd>
+      <span class="ac-opt-ico"><i class="bx ${optIcon(opt)}"></i></span>
+      <span class="ac-opt-label">
+        <strong>${opt.bn}</strong>
+        <em>${opt.en || ''}</em>
+        <span>${opt.desc || ''}</span>
+      </span>
+      <span class="ac-opt-meta">
+        <span class="ac-opt-count">${bnNum(count)}</span>
+        <i class="bx bx-chevron-right" aria-hidden="true"></i>
+      </span>
+    </button>`;
+  }).join('');
+  host.querySelectorAll('.ac-opt').forEach(el => {
+    el.addEventListener('click', () => pickOpt(+el.dataset.opt));
+  });
+  const keys = document.getElementById('acAskKeys');
+  if (keys) {
+    keys.hidden = opts.length === 0;
+    keys.innerHTML = opts.length
+      ? `<kbd>১</kbd>–<kbd>${bnNum(opts.length)}</kbd> নির্বাচন · <kbd>Esc</kbd> পেছনে`
+      : '';
+  }
+}
+
+function onWizardKey(e) {
+  if (!document.body.classList.contains('ac-fit')) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  const leaf = !!(currentFlowNode().remedies);
+  if (!leaf) {
+    let idx = -1;
+    if (e.key >= '1' && e.key <= '9') idx = +e.key - 1;
+    else idx = '১২৩৪৫৬৭৮৯'.indexOf(e.key);
+    if (idx >= 0) {
+      e.preventDefault();
+      pickOpt(idx);
+      return;
+    }
+  }
+  if ((e.key === 'Escape' || e.key === 'Backspace') && flowPath.length) {
+    e.preventDefault();
+    flowPath.pop();
+    renderFlow();
+  }
 }
 
 // Right column: the current leaf's remedies (replaces a generic "analysis
@@ -536,15 +648,31 @@ function renderRightAndBottom() {
   const node = currentFlowNode();
   const scroll = document.getElementById('acRightScroll');
   const countEl = document.getElementById('acRightCount');
+  const select = document.getElementById('acRemedySelect');
 
   if (!node.remedies) {
+    select.replaceChildren();
     countEl.textContent = '';
-    scroll.innerHTML = `<div class="tz-empty"><i class='bx bx-capsule'></i><p>ধাপগুলো শেষ করলে এখানে ওষুধের তালিকা দেখাবে।</p></div>`;
+    scroll.innerHTML = `<div class="ac-empty"><i class='bx bx-capsule'></i><p>ধাপগুলো শেষ করলে এখানে ওষুধের তালিকা দেখাবে।</p></div>`;
     renderBottomEmpty();
+    const toRx = document.getElementById('flowToRx');
+    if (toRx) toRx.disabled = true;
     return;
   }
 
   countEl.textContent = `${bnNum(node.remedies.length)}টি ওষুধ`;
+  select.replaceChildren(...node.remedies.map((r, idx) => {
+    const option = document.createElement('option');
+    option.value = idx;
+    option.textContent = `${r.bn} (${r.ab})`;
+    option.selected = idx === openRemedyIdx;
+    return option;
+  }));
+  select.onchange = () => {
+    openRemedyIdx = Number(select.value);
+    renderRightAndBottom();
+    persistAcutePick(true);
+  };
   scroll.innerHTML = node.remedies.map((r, idx) => {
     const info = rxInfo(r.en);
     return `<div class="ac-rx-row ${idx === openRemedyIdx ? 'open' : ''}" data-idx="${idx}" style="animation-delay:${Math.min(idx, 8) * 0.03}s">
@@ -560,10 +688,45 @@ function renderRightAndBottom() {
     el.addEventListener('click', () => {
       openRemedyIdx = +el.dataset.idx;
       renderRightAndBottom();
+      persistAcutePick(true);
     });
   });
 
   renderBottomFor(node.remedies[openRemedyIdx]);
+  persistAcutePick();
+}
+
+function persistAcutePick(force) {
+  const node = currentFlowNode();
+  const toRx = document.getElementById('flowToRx');
+  if (!node.remedies || !node.remedies.length) {
+    if (toRx) toRx.disabled = true;
+    return;
+  }
+  const r = node.remedies[openRemedyIdx] || node.remedies[0];
+  if (toRx) toRx.disabled = !r;
+  if (!r || !window.Shell || !Shell.pickRemedy) return;
+  const cur = Shell.bridge.get() || {};
+  if (!force && cur.from && cur.from !== 'acutes' && cur.remedy && cur.remedy.name) return;
+  Shell.pickRemedy({
+    from: 'acutes',
+    id: r.id,
+    name: r.en,
+    bangla: r.bn,
+    abbr: r.ab,
+    book: 'তীব্র রোগের তত্ত্ব',
+    shortlist: node.remedies.slice(0, 8).map(x => ({
+      id: x.id, name: x.en, bangla: x.bn, total: x.n || 0, abbr: x.ab
+    }))
+  });
+}
+
+function sendAcuteToRx() {
+  persistAcutePick(true);
+  const node = currentFlowNode();
+  if (!node.remedies || !node.remedies.length) return;
+  if (window.Shell && Shell.toast) Shell.toast('ঔষধ প্রেসক্রিপশনে পাঠানো হচ্ছে…', 'ok');
+  location.href = 'prescription.html?from=acutes';
 }
 
 // Bottom-left: the open remedy's triangle (where Tempraz would put its
@@ -572,14 +735,18 @@ function renderBottomFor(r) {
   const info = rxInfo(r.en);
   const triHost = document.getElementById('acTriHost');
   const detailHost = document.getElementById('acDetailHost');
-  document.getElementById('acDetailName').textContent = `${r.bn} — বিস্তারিত`;
+  document.getElementById('acDetailName').textContent = r.bn;
+  const sub = document.getElementById('acDetailSub');
+  if (sub) sub.textContent = `${r.en || ''}${r.n != null ? ' · চার্ট ' + bnNum(r.n) : ''}`;
+  const abbr = document.getElementById('acDetailAbbr');
+  if (abbr) abbr.textContent = r.ab || '—';
 
   const hasTriangle = !!(info && info.triangle && info.triangle.length === 3);
   triHost.innerHTML = hasTriangle
     ? triangleOnly(info.triangle)
     : (info && info.triangle && info.triangle.length
         ? `<ul class="tri-list">${info.triangle.map(t => `<li>${t}</li>`).join('')}</ul>`
-        : `<div class="tz-empty" style="min-height:120px;"><p>এই ওষুধের ত্রিভুজ তথ্য নেই।</p></div>`);
+        : `<div class="ac-empty"><p>এই ওষুধের ত্রিভুজ তথ্য নেই।</p></div>`);
 
   detailHost.innerHTML = info ? `
     ${info.key_feature ? `<div class="rx-key">${info.key_feature}</div>` : ''}
@@ -597,9 +764,13 @@ function renderBottomFor(r) {
 }
 
 function renderBottomEmpty() {
-  document.getElementById('acTriHost').innerHTML = `<div class="tz-empty" style="min-height:150px;"><i class='bx bx-shape-triangle'></i><p>ওষুধ বেছে নিলে ত্রিভুজ দেখাবে।</p></div>`;
-  document.getElementById('acDetailHost').innerHTML = `<div class="tz-empty" style="min-height:150px;"><p>ওষুধ বেছে নিলে বিস্তারিত দেখাবে।</p></div>`;
+  document.getElementById('acTriHost').innerHTML = `<div class="ac-empty"><i class='bx bx-shape-triangle'></i><p>ওষুধ বেছে নিলে ত্রিভুজ দেখাবে।</p></div>`;
+  document.getElementById('acDetailHost').innerHTML = `<div class="ac-empty"><p>ওষুধ বেছে নিলে বিস্তারিত দেখাবে।</p></div>`;
   document.getElementById('acDetailName').textContent = 'বিস্তারিত';
+  const sub = document.getElementById('acDetailSub');
+  if (sub) sub.textContent = '';
+  const abbr = document.getElementById('acDetailAbbr');
+  if (abbr) abbr.textContent = '—';
 }
 
 function countRemedies(node) {
@@ -665,6 +836,9 @@ function updateTopbarChip() {
 function initFlowWizard() {
   document.getElementById('flowBack').addEventListener('click', () => { flowPath.pop(); renderFlow(); });
   document.getElementById('flowRestart').addEventListener('click', () => { flowPath = []; renderFlow(); });
+  const toRx = document.getElementById('flowToRx');
+  if (toRx) toRx.addEventListener('click', sendAcuteToRx);
+  document.addEventListener('keydown', onWizardKey);
   renderFlow();
   initTopbar();
 }
@@ -715,6 +889,7 @@ function activatePanel(name) {
   document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
   const panel = document.getElementById(`panel-${name}`);
   if (panel) panel.classList.add('active');
+  document.body.classList.toggle('ac-fit', name === 'wizard');
 }
 
 function openPanelFromHash() {
