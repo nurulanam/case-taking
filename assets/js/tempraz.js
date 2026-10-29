@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(r => r.json())
     .then(json => {
       state.data = json;
-      // On compact screens, start with one manageable group instead of a long list.
-      if (window.matchMedia('(max-width: 1100px)').matches && json.categories.length) {
+      // Start with one manageable group; the full list remains available.
+      if (json.categories.length) {
         state.curCat = json.categories[0].id;
       }
       buildLeft();
