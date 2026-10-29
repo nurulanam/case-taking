@@ -51,8 +51,12 @@ function buildLeft() {
   const { temperaments } = state.data;
   const container = document.getElementById('tzTempList');
   container.innerHTML = '';
+  const select = document.getElementById('tzTempSelect');
+  select.replaceChildren();
+  select.onchange = () => selectTemp(select.value);
 
   Object.values(temperaments).forEach(t => {
+    select.add(new Option(t.name, t.id));
     const btn = document.createElement('button');
     btn.className = 'tz-temp-btn';
     btn.id = `tzTb-${t.id}`;
@@ -78,6 +82,12 @@ function buildCatList() {
   const container = document.getElementById('tzCatList');
   container.innerHTML = '';
 
+  const select = document.getElementById('tzCatSelect');
+  select.replaceChildren(new Option('সব লক্ষণ', 'all'));
+  categories.forEach(cat => select.add(new Option(cat.label, cat.id)));
+  select.value = state.curCat;
+  select.onchange = () => selectCat(select.value);
+
   // "All" button
   const allBtn = makeCatBtn('all', 'সব লক্ষণ', 'bx-grid-alt');
   container.appendChild(allBtn);
@@ -99,6 +109,7 @@ function makeCatBtn(id, label, icon) {
 
 function selectTemp(id) {
   state.curTemp = id;
+  document.getElementById('tzTempSelect').value = id;
   // update left buttons
   document.querySelectorAll('.tz-temp-btn').forEach(b => {
     const active = b.dataset.id === id;
@@ -110,6 +121,7 @@ function selectTemp(id) {
 
 function selectCat(id) {
   state.curCat = id;
+  document.getElementById('tzCatSelect').value = id;
   document.querySelectorAll('.tz-cat-btn').forEach(b => {
     const active = b.dataset.cat === id;
     b.classList.toggle('active', active);

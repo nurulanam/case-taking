@@ -44,7 +44,8 @@
               <span class="tz-sel-badge" id="tzSelBadge">০</span>
             </div>
 
-            <!-- 5 temperament buttons -->
+            <!-- Desktop list and compact touch selector share the same state. -->
+            <div class="tz-select-wrap"><select id="tzTempSelect" aria-label="প্রধান স্বভাব"></select><i class='bx bx-chevron-down' aria-hidden="true"></i></div>
             <div class="tz-temp-list" id="tzTempList"></div>
 
             <!-- Footer: clear all -->
@@ -61,6 +62,7 @@
               <span class="tz-left-title">লক্ষণের ধরন</span>
             </div>
             
+            <div class="tz-select-wrap"><select id="tzCatSelect" aria-label="লক্ষণের ধরন"></select><i class='bx bx-chevron-down' aria-hidden="true"></i></div>
             <div class="tz-cat-list" id="tzCatList"></div>
           </div>
 
@@ -93,6 +95,10 @@
               <span class="tz-right-count" id="tzRightCount">০ বৈশিষ্ট্য</span>
             </div>
 
+            <div class="tz-bottom-chart">
+              <div class="tz-bottom-header"><span>স্বভাবের স্কোর</span></div>
+              <div class="tz-chart-container" id="tzRadarChart"></div>
+            </div>
             <div class="tz-right-scroll" id="tzRightScroll">
               <!-- Empty state -->
               <div class="tz-empty" id="tzEmptyState">
@@ -117,15 +123,6 @@
 
           <!-- ════════════ ROW 2: Chart & Remedies ════════════ -->
           <div class="tz-bottom">
-            <div class="tz-bottom-chart">
-              <div class="tz-bottom-header">
-                <span>স্বভাবের স্কোর</span>
-              </div>
-              <!-- filled with an inline SVG radar by tempraz.js — no chart library,
-                   so it renders with the app fully offline like every other panel -->
-              <div class="tz-chart-container" id="tzRadarChart"></div>
-            </div>
-
             <div class="tz-bottom-remedies">
               <div class="tz-bottom-header">
                 <span>সম্ভাব্য ওষুধ</span>

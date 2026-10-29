@@ -579,3 +579,38 @@
   .tz-bottom-header { align-items: flex-start; flex-direction: column; gap: 0.25rem; }
   .tz-rx-list-horiz { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Keep the score close to the selection summary rather than below remedies. */
+.tz-right .tz-bottom-chart {
+  width: 100%; flex: 0 0 auto; border-right: 0; border-bottom: 1px solid var(--border);
+}
+.tz-right .tz-chart-container { height: 170px; min-height: 0; padding: 0.25rem; }
+.tz-right .tz-chart-container svg { max-height: 165px; }
+.tz-select-wrap { display: none; }
+
+@media (max-width: 1100px) {
+  .tz-app {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas: "temps cats" "traits traits" "rubrics rubrics" "remedies remedies";
+  }
+  .tz-col-temps { position: relative; border-right: 1px solid var(--border); }
+  .tz-col-temps .tz-left-header, .tz-col-cats .tz-left-header {
+    min-height: 42px; padding: 0.55rem 0.75rem 0; align-items: center;
+  }
+  .tz-col-temps .tz-sel-badge { display: none; }
+  .tz-temp-list, .tz-cat-list { display: none; }
+  .tz-select-wrap { display: block; position: relative; min-width: 0; margin: 0.3rem 0.65rem 0.7rem; }
+  .tz-select-wrap select {
+    appearance: none; -webkit-appearance: none; display: block; box-sizing: border-box;
+    width: 100%; min-width: 0; max-width: 100%; min-height: 46px;
+    padding: 0.55rem 2rem 0.55rem 0.7rem; border: 1px solid var(--border);
+    border-radius: 9px; background: var(--surface2); color: var(--text);
+    font: inherit; font-size: 0.875rem; font-weight: 700; text-overflow: ellipsis;
+  }
+  .tz-select-wrap i { position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); font-size: 1.2rem; color: var(--primary); pointer-events: none; }
+  .tz-select-wrap select:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .tz-left-foot { position: absolute; right: 0.35rem; top: 0; padding: 0; }
+  .tz-clear-btn { min-height: 40px; font-size: 0.75rem; background: transparent; border-color: transparent; padding: 0.3rem 0.4rem; }
+  .tz-right .tz-chart-container { height: 190px; }
+  .tz-right .tz-chart-container svg { max-height: 185px; }
+}
