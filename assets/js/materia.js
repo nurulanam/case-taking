@@ -137,14 +137,6 @@
     split.style.height = Math.max(MIN_SPLIT, h) + 'px';
   }
 
-  // only offer the filter toggle when the chips actually overflow one row
-  function sizeToolbar() {
-    const bar = document.getElementById('mmToolbar');
-    const sets = document.getElementById('mmSets');
-    if (!bar || !sets || !sets.clientHeight) return;
-    if (bar.classList.contains('open')) return;
-    bar.classList.toggle('no-toggle', sets.scrollHeight <= sets.clientHeight + 2);
-  }
 
   function fail(msg) {
     Shell.toast(msg, 'err');
@@ -182,11 +174,12 @@
 
   function renderFilters() {
     const host = document.getElementById('rxFilters');
+    const scopeHost = document.getElementById('rxScope');
     const { fam, therm } = facetCounts();
     const nFull = S.all.filter(r => r.content_status === 'full').length;
 
     const chip = (cls, on, key, label, n) =>
-      `<button class="mm-fbtn ${cls} ${on ? 'active' : ''}" data-${key}>` +
+      `<button type="button" class="mm-fbtn ${cls} ${on ? 'active' : ''}" aria-pressed="${on}" data-${key}>` +
       `${esc(label)}${n != null ? ` <b>${bn(n)}</b>` : ''}</button>`;
 
     const scopeChips =
@@ -202,13 +195,12 @@
         chip('is-facet', S.facet === 'thermal:' + t, `facet="thermal:${t}"`,
              THERMAL_BN[t], therm.get(t))).join('');
 
+    scopeHost.innerHTML = `<span class="mm-fgrp">${scopeChips}</span>`;
     host.innerHTML =
-      `<span class="mm-fgrp">${scopeChips}</span>` +
-      `<span class="mm-fsep"></span>` +
       chip('is-facet', !S.facet, 'facet=""', 'সব বর্গ', null) +
       famChips + thermChips;
 
-    host.querySelectorAll('[data-scope]').forEach(b => b.addEventListener('click', () => {
+    scopeHost.querySelectorAll('[data-scope]').forEach(b => b.addEventListener('click', () => {
       S.scope = b.dataset.scope;
       // a facet that matches nothing in the new scope would strand the list on
       // an empty result, so drop it (counts now reflect the scope just set)
@@ -223,7 +215,7 @@
       S.letter = ''; S.page = 0;
       renderFilters(); renderAlpha(); renderList();
     }));
-    requestAnimationFrame(sizeToolbar);
+
   }
 
   function renderAlpha() {
@@ -268,11 +260,12 @@
 
     // Paginate rather than truncate, so every remedy stays reachable by
     // browsing even without a search term (see repertory.js for the same pattern).
-    const pages = Math.max(1, Math.ceil(all.length / LIST_CAP));
+    const pageSize = window.matchMedia('(max-width: 900px)').matches ? 20 : LIST_CAP;
+    const pages = Math.max(1, Math.ceil(all.length / pageSize));
     if (S.page >= pages) S.page = pages - 1;
     if (S.page < 0) S.page = 0;
-    const from = S.page * LIST_CAP;
-    const rows = all.slice(from, from + LIST_CAP);
+    const from = S.page * pageSize;
+    const rows = all.slice(from, from + pageSize);
 
     document.getElementById('rxHint').innerHTML = all.length
       ? `${bn(from + 1)}–${bn(from + rows.length)} / <strong>${bn(all.length)}</strong>টি`
@@ -287,7 +280,7 @@
     host.innerHTML = rows.map(r => {
       const full = r.content_status === 'full';
       const on = S.compare.includes(r.id);
-      return `<div class="mm-rx ${S.selected === r.id && S.mode === 'read' ? 'on' : ''}
+      return `<button type="button" aria-pressed="${S.mode === 'compare' ? on : S.selected === r.id}" class="mm-rx ${S.selected === r.id && S.mode === 'read' ? 'on' : ''}
                    ${on ? 'cmp-on' : ''} ${cmpFull && !on ? 'cmp-full' : ''}" data-id="${esc(r.id)}">
         <span class="mm-rx-pick"><i class='bx bx-check'></i></span>
         ${kingdomBadge(r.family)}
@@ -299,7 +292,7 @@
               title="${full ? 'পূর্ণ বাংলা মেটেরিয়া মেডিকা আছে'
                       : hasSrc(r.id) ? 'বাংলা নেই, তবে বোরিকের মূল ইংরেজি পাঠ আছে'
                       : 'শুধু নাম ও রিপার্টরি তথ্য'}">${full ? 'MM' : hasSrc(r.id) ? 'EN' : '—'}</span>
-      </div>`;
+      </button>`;
     }).join('') + pagerHtml(pages);
     host.querySelectorAll('.mm-rx').forEach(el => el.addEventListener('click', () => {
       if (S.mode === 'compare') toggleCompare(el.dataset.id);
@@ -308,7 +301,8 @@
     host.querySelectorAll('.pg-btn').forEach(b => b.addEventListener('click', () => {
       S.page = +b.dataset.p;
       renderList();
-      host.scrollTop = 0;               // a new page starts at its own top
+      host.scrollTop = 0;
+      if (window.matchMedia('(max-width: 900px)').matches) host.scrollIntoView({ block: 'start' });
     }));
   }
 
@@ -344,7 +338,8 @@
     Shell.store.set(STORE, id);
     renderList();
     renderDetail();
-    if (window.matchMedia('(max-width: 900px)').matches) {
+    if (window.matchMedia('(max-width: 900px)').matches && S.mode === 'read') {
+      document.body.classList.add('mm-mobile-detail');
       document.getElementById('detailCol').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
@@ -634,15 +629,27 @@
      expressed as CSS on `body.cmp-mode` — the drug-picture column is simply not
      part of compare mode, so it is hidden by the stylesheet rather than by
      inline styles set from two different functions. */
+  function setPickerOpen(open) {
+    document.body.classList.toggle('cmp-picking', open);
+    const toggle = document.getElementById('cmpPickerToggle');
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.innerHTML = open ? "<i class='bx bx-check'></i> তালিকা বন্ধ" : "<i class='bx bx-plus'></i> ওষুধ বাছুন";
+  }
+
   function setMode(mode) {
     S.mode = mode;
     document.body.classList.toggle('cmp-mode', mode === 'compare');
-    document.querySelectorAll('.mm-mode').forEach(b =>
-      b.classList.toggle('active', b.dataset.mode === mode));
-    document.getElementById('cmpTray').hidden = mode !== 'compare';
+    document.body.classList.remove('mm-mobile-detail');
+    document.querySelectorAll('.mm-mode').forEach(b => {
+      const active = b.dataset.mode === mode;
+      b.classList.toggle('active', active);
+      b.setAttribute('aria-pressed', String(active));
+    });
     document.getElementById('cmpPane').hidden = mode !== 'compare';
+    setPickerOpen(mode === 'compare' && S.compare.length < 2);
     renderList();
-    if (mode === 'compare') { renderTray(); renderCompare(); }
+    if (mode === 'compare') renderCompare();
+    updateCmpCount();
     sizeWorkspace();
   }
 
@@ -654,7 +661,8 @@
       return;
     } else S.compare.push(id);
     Shell.store.set(CMP_STORE, S.compare);
-    renderList(); renderTray(); renderCompare(); updateCmpCount();
+    if (S.compare.length < 2) setPickerOpen(true);
+    renderList(); renderCompare(); updateCmpCount();
   }
 
   function updateCmpCount() {
@@ -662,27 +670,6 @@
     if (!el) return;
     el.hidden = !S.compare.length;
     el.textContent = bn(S.compare.length);
-  }
-
-  function renderTray() {
-    const chips = document.getElementById('cmpChips');
-    const note = document.getElementById('cmpNote');
-    if (!chips) return;
-    if (!S.compare.length) {
-      chips.innerHTML = `<span class="mm-tray-empty">বাঁ দিকের তালিকা থেকে ২–${bn(CMP_MAX)}টি ওষুধে টিক দিন।</span>`;
-    } else {
-      chips.innerHTML = S.compare.map(id => {
-        const rx = S.all.find(r => r.id === id);
-        return `<span class="mm-chip">${esc(rx ? (rx.bangla_name || rx.name) : id)}
-          <button data-id="${esc(id)}" title="সরান"><i class='bx bx-x'></i></button></span>`;
-      }).join('');
-      chips.querySelectorAll('button').forEach(b =>
-        b.addEventListener('click', () => toggleCompare(b.dataset.id)));
-    }
-    if (note) note.textContent = S.compare.length
-      ? `${bn(S.compare.length)}/${bn(CMP_MAX)} নির্বাচিত`
-      : '';
-    updateCmpCount();
   }
 
   function renderCompare() {
@@ -698,13 +685,14 @@
         <i class='bx bx-git-compare'></i>তুলনা করতে অন্তত ২টি ওষুধ বেছে নিন।</td></tr></tbody>`;
       return;
     }
-    title.textContent = picked.map(r => r.bangla_name || r.name).join('  ·  ');
+    title.textContent = `ওষুধ তুলনা · ${bn(picked.length)}টি`;
 
     const head = `<thead><tr>
       <th class="cmp-row-h"></th>
       ${picked.map(r => `<th>
-        <div class="cmp-rx-bn">${esc(r.bangla_name || r.name)}</div>
-        <div class="cmp-rx-en">${esc(r.name)}</div>
+        <div class="cmp-rx-heading"><div><div class="cmp-rx-bn">${esc(r.bangla_name || r.name)}</div>
+        <div class="cmp-rx-en">${esc(r.name)}</div></div>
+        <button type="button" class="cmp-remove" data-id="${esc(r.id)}" aria-label="${esc(r.bangla_name || r.name)} তুলনা থেকে সরান"><i class='bx bx-x' aria-hidden="true"></i></button></div>
       </th>`).join('')}
     </tr></thead>`;
 
@@ -722,7 +710,8 @@
       </tr>`;
     }).join('');
 
-    table.innerHTML = head + `<tbody>${body}</tbody>`;
+    table.innerHTML = head + `<tbody>${body || `<tr><td colspan="${picked.length + 1}" class="mm-empty">দেখানোর মতো পার্থক্য নেই।</td></tr>`}</tbody>`;
+    table.querySelectorAll('.cmp-remove').forEach(button => button.addEventListener('click', () => toggleCompare(button.dataset.id)));
     pane.hidden = S.mode !== 'compare';
   }
 
@@ -802,12 +791,28 @@
     if (clr) clr.addEventListener('click', () => {
       S.compare = [];
       Shell.store.set(CMP_STORE, S.compare);
-      renderList(); renderTray(); renderCompare();
+      renderList(); renderCompare(); updateCmpCount();
+      setPickerOpen(true);
+    });
+    document.getElementById('cmpPickerToggle').addEventListener('click', () => {
+      const open = !document.body.classList.contains('cmp-picking');
+      setPickerOpen(open);
+      if (open) document.getElementById('mmToolbar').scrollIntoView({ block: 'start' });
+    });
+    document.getElementById('cmpPickerDone').addEventListener('click', () => {
+      setPickerOpen(false);
+      document.getElementById('cmpPane').scrollIntoView({ block: 'start' });
+    });
+    document.getElementById('mmBackList').addEventListener('click', () => {
+      document.body.classList.remove('mm-mobile-detail');
+      document.getElementById('rxSearch').focus({ preventScroll: true });
+      document.getElementById('mmToolbar').scrollIntoView({ block: 'start' });
     });
     const diff = document.getElementById('cmpOnlyDiff');
     if (diff) diff.addEventListener('click', () => {
       S.onlyDiff = !S.onlyDiff;
       diff.classList.toggle('on', S.onlyDiff);
+      diff.setAttribute('aria-pressed', String(S.onlyDiff));
       renderCompare();
     });
     const cp = document.getElementById('cmpCopy');
@@ -871,7 +876,11 @@
     const tgl = document.getElementById('mmToggle');
     const sets = document.getElementById('mmSets');
     if (bar && tgl) {
-      tgl.addEventListener('click', () => bar.classList.toggle('open'));
+      tgl.addEventListener('click', () => {
+        bar.classList.toggle('open');
+        tgl.setAttribute('aria-expanded', String(bar.classList.contains('open')));
+        sizeWorkspace();
+      });
       // the chip tray animates its height, so the split can only be re-measured
       // once that settles — measuring on click reads the pre-transition height
       if (sets) sets.addEventListener('transitionend', e => {
@@ -882,7 +891,7 @@
     let t = null;
     window.addEventListener('resize', () => {
       clearTimeout(t);
-      t = setTimeout(() => { sizeToolbar(); sizeWorkspace(); }, 120);
+      t = setTimeout(() => { S.page = 0; renderList(); sizeWorkspace(); }, 120);
     });
   }
 
