@@ -31,9 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
   ])
     .then(([json]) => {
       state.data = json;
+      // Start with one manageable group; the full list remains available.
+      if (json.categories.length) {
+        state.curCat = json.categories[0].id;
+      }
       buildLeft();
       buildCatList();
-      updateStats();
       buildTheory();
       updateChart({ tempScores: {} });
       const firstId = Object.keys(json.temperaments)[0];
@@ -49,8 +52,12 @@ function buildLeft() {
   const { temperaments } = state.data;
   const container = document.getElementById('tzTempList');
   container.innerHTML = '';
+  const select = document.getElementById('tzTempSelect');
+  select.replaceChildren();
+  select.onchange = () => selectTemp(select.value);
 
   Object.values(temperaments).forEach(t => {
+    select.add(new Option(t.name, t.id));
     const btn = document.createElement('button');
     btn.className = 'tz-temp-btn';
     btn.id = `tzTb-${t.id}`;
@@ -76,6 +83,12 @@ function buildCatList() {
   const container = document.getElementById('tzCatList');
   container.innerHTML = '';
 
+  const select = document.getElementById('tzCatSelect');
+  select.replaceChildren(new Option('সব লক্ষণ', 'all'));
+  categories.forEach(cat => select.add(new Option(cat.label, cat.id)));
+  select.value = state.curCat;
+  select.onchange = () => selectCat(select.value);
+
   // "All" button
   const allBtn = makeCatBtn('all', 'সব লক্ষণ', 'bx-grid-alt');
   container.appendChild(allBtn);
@@ -89,6 +102,7 @@ function makeCatBtn(id, label, icon) {
   const btn = document.createElement('button');
   btn.className = 'tz-cat-btn' + (id === state.curCat ? ' active' : '');
   btn.dataset.cat = id;
+  btn.setAttribute('aria-pressed', String(id === state.curCat));
   btn.innerHTML = `<i class="bx ${icon}"></i>${label}`;
   btn.addEventListener('click', () => selectCat(id));
   return btn;
@@ -96,17 +110,23 @@ function makeCatBtn(id, label, icon) {
 
 function selectTemp(id) {
   state.curTemp = id;
+  document.getElementById('tzTempSelect').value = id;
   // update left buttons
   document.querySelectorAll('.tz-temp-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.id === id);
+    const active = b.dataset.id === id;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-pressed', String(active));
   });
   renderMiddle();
 }
 
 function selectCat(id) {
   state.curCat = id;
+  document.getElementById('tzCatSelect').value = id;
   document.querySelectorAll('.tz-cat-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.cat === id);
+    const active = b.dataset.cat === id;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-pressed', String(active));
   });
   renderMiddle();
 }
@@ -164,76 +184,68 @@ function renderMiddle() {
 }
 
 function makeTraitRow(trait, tempId, color, catId) {
-  const sel = state.selections[trait.id];
-  const intensity = sel ? sel.intensity : 0;
-  const isSelected = intensity > 0;
-
   const row = document.createElement('div');
-  row.className = 'tz-trait-row' + (isSelected ? ' selected' : '');
+  row.className = 'tz-trait-row';
   row.dataset.id = trait.id;
   row.style.setProperty('--tc', color);
 
-  // Intensity pips
-  const pips = [1, 2, 3].map(i => {
-    return `<span class="tz-int-pip${i <= intensity ? ' on' : ''}"></span>`;
-  }).join('');
+  const choice = document.createElement('button');
+  choice.type = 'button';
+  choice.className = 'tz-trait-choice';
+  choice.innerHTML = `<i class="bx ${CAT_ICONS[catId] || 'bx-list-ul'} tz-tr-icon" aria-hidden="true"></i><span class="tz-tr-text"></span><span class="tz-tr-check" aria-hidden="true"><i class="bx bx-check"></i></span>`;
+  choice.querySelector('.tz-tr-text').textContent = trait.text;
+  choice.addEventListener('click', () => {
+    setTraitIntensity(trait, tempId, color, state.selections[trait.id] ? 0 : 1);
+  });
+  row.appendChild(choice);
 
-  // same category icon as the group header, repeated beside each trait —
-  // the category (mental/physical/behavioral/stress/core) is real data
-  // already on the trait, this just makes it visible without opening the
-  // group label above
-  const catIcon = CAT_ICONS[catId] || 'bx-list-ul';
-
-  row.innerHTML = `
-    <i class="bx ${catIcon} tz-tr-icon"></i>
-    <span class="tz-tr-text">${trait.text}</span>
-    <span class="tz-int-label">${isSelected ? intensity : ''}</span>
-    <span class="tz-tr-intens">${pips}</span>
-  `;
-
-  row.addEventListener('click', () => toggleTrait(trait, tempId, color));
+  const grades = document.createElement('div');
+  grades.className = 'tz-trait-grades';
+  grades.setAttribute('role', 'group');
+  grades.setAttribute('aria-label', `${trait.text} — তীব্রতা`);
+  const label = document.createElement('span');
+  label.className = 'tz-grade-label';
+  label.textContent = 'তীব্রতা';
+  grades.appendChild(label);
+  ['তীব্র', 'খুব তীব্র', 'প্রচণ্ড'].forEach((text, i) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'tz-grade-btn';
+    button.dataset.grade = i + 1;
+    button.textContent = text;
+    button.addEventListener('click', () => setTraitIntensity(trait, tempId, color, i + 1));
+    grades.appendChild(button);
+  });
+  row.appendChild(grades);
+  updateTraitRowElement(row, state.selections[trait.id]?.intensity || 0);
   return row;
 }
 
-function toggleTrait(trait, tempId, color) {
-  const cur = state.selections[trait.id];
-  const curIntens = cur ? cur.intensity : 0;
-  const nextIntens = (curIntens + 1) % 4;  // 0→1→2→3→0
-
-  if (nextIntens === 0) {
+function setTraitIntensity(trait, tempId, color, intensity) {
+  if (!intensity) {
     delete state.selections[trait.id];
   } else {
     state.selections[trait.id] = {
-      intensity: nextIntens,
-      tempId,
-      color,
-      rubric: trait.rubric,
-      text  : trait.text,
-      scores: trait.scores || {}
+      intensity, tempId, color, rubric: trait.rubric,
+      text: trait.text, scores: trait.scores || {}
     };
   }
-
-  // Update just this row without full re-render
-  updateTraitRow(trait.id, nextIntens, color);
+  const row = document.querySelector(`.tz-trait-row[data-id="${trait.id}"]`);
+  if (row) updateTraitRowElement(row, intensity);
   updateRight();
   updateSelBadge();
   updateClearBtn();
 }
 
-function updateTraitRow(traitId, intensity, color) {
-  const row = document.querySelector(`.tz-trait-row[data-id="${traitId}"]`);
-  if (!row) return;
-
-  const isSelected = intensity > 0;
-  row.classList.toggle('selected', isSelected);
-
-  // pips
-  const pips = row.querySelectorAll('.tz-int-pip');
-  pips.forEach((pip, i) => pip.classList.toggle('on', i < intensity));
-
-  // label
-  const lbl = row.querySelector('.tz-int-label');
-  if (lbl) lbl.textContent = isSelected ? intensity : '';
+function updateTraitRowElement(row, intensity) {
+  row.classList.toggle('selected', intensity > 0);
+  row.querySelector('.tz-trait-choice').setAttribute('aria-pressed', String(intensity > 0));
+  row.querySelector('.tz-trait-grades').hidden = !intensity;
+  row.querySelectorAll('.tz-grade-btn').forEach(button => {
+    const active = Number(button.dataset.grade) === intensity;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -242,10 +254,9 @@ function updateTraitRow(traitId, intensity, color) {
 function updateRight() {
   const sels = Object.values(state.selections);
   const count = sels.length;
-
-  // Update count badge
-  const countBadge = document.getElementById('tzRightCount');
-  if (countBadge) countBadge.textContent = `${toBanglaDigit(count)} বৈশিষ্ট্য`;
+  document.getElementById('tzRubricCount').textContent = `(${toBanglaDigit(count)})`;
+  const dialog = document.getElementById('tzDetailDialog');
+  if (!count && dialog.open) dialog.close();
 
   const emptyState = document.getElementById('tzEmptyState');
   const resultArea = document.getElementById('tzResultArea');
@@ -258,6 +269,7 @@ function updateRight() {
       rxList.innerHTML = '<div class="tz-empty" style="min-height:80px;padding:1rem;"><p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p></div>';
     }
     state.pickedId = null;
+    updateRemedyKeynote();
     const toRx = document.getElementById('tzToRx');
     if (toRx) toRx.disabled = true;
     updateChart({ tempScores: {} });
@@ -333,12 +345,14 @@ function renderTqBox(topTemp, count) {
 function renderPersonality(t) {
   const box = document.getElementById('tzPersonality');
   if (!box) return;
-  if (!t.description && !t.core_nature) { box.style.display = 'none'; return; }
+  const hasDescription = !!(t.description || t.core_nature);
+  if (!hasDescription) { box.style.display = 'none'; return; }
   box.style.display = '';
   box.style.borderLeftColor = t.color;
   box.innerHTML = `
     <i class="bx ${t.icon || 'bx-user'}" style="color:${t.color}"></i>
     <div>
+      <div class="tz-personality-title">স্বভাবের বিবরণ</div>
       ${t.description ? `<p>${t.description}</p>` : ''}
       ${t.core_nature ? `<p class="tz-personality-core">${t.core_nature}</p>` : ''}
     </div>
@@ -421,6 +435,7 @@ function renderRemedies(scores) {
   if (sorted.length === 0) {
     list.innerHTML = '<div class="tz-empty" style="min-height:60px;"><p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p></div>';
     state.pickedId = null;
+    updateRemedyKeynote();
     if (toRx) toRx.disabled = true;
     return;
   }
@@ -431,11 +446,8 @@ function renderRemedies(scores) {
   persistTemprazPick();
   if (toRx) toRx.disabled = false;
 
-  const maxScore = sorted[0][1];
-
   sorted.forEach(([id, score]) => {
     const info = rxMeta(id);
-    const pct  = maxScore > 0 ? (score / maxScore) * 100 : 0;
 
     let keynote = '';
     const curT = state.curTemp && state.data.temperaments[state.curTemp];
@@ -450,30 +462,41 @@ function renderRemedies(scores) {
       }
     }
 
-    const item = document.createElement('div');
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.setAttribute('aria-pressed', String(id === state.pickedId));
     item.className = 'tz-rx-item' + (id === state.pickedId ? ' picked' : '');
     item.dataset.id = id;
     item.innerHTML = `
-      <div class="tz-rx-top">
-        <span class="tz-rx-abbr">${info.abbr}</span>
-        <span class="tz-rx-name">${info.bangla || info.name}</span>
-        <span class="tz-rx-score">${toBanglaDigit(score)}</span>
-      </div>
-      <div class="tz-rx-bar-track">
-        <div class="tz-rx-bar-fill" style="width:${pct.toFixed(1)}%"></div>
-      </div>
-      ${keynote ? `<div class="tz-rx-note">${keynote}</div>` : ''}
+      <span class="tz-rx-top">
+        <span class="tz-rx-abbr">${esc(info.abbr)}</span>
+        <span class="tz-rx-name">${esc(info.bangla || info.name)}</span>
+        <span class="tz-rx-score">${toBanglaDigit(score)} <small>পয়েন্ট</small></span>
+      </span>
+      ${keynote ? `<span class="tz-rx-note">${esc(keynote)}</span>` : ''}
     `;
     item.addEventListener('click', () => {
       state.pickedId = id;
       list.querySelectorAll('.tz-rx-item').forEach(el => {
-        el.classList.toggle('picked', el.dataset.id === id);
+        const picked = el.dataset.id === id;
+        el.classList.toggle('picked', picked);
+        el.setAttribute('aria-pressed', String(picked));
       });
+      updateRemedyKeynote();
       persistTemprazPick(true);
       if (toRx) toRx.disabled = false;
     });
     list.appendChild(item);
   });
+  updateRemedyKeynote();
+}
+
+function updateRemedyKeynote() {
+  const host = document.getElementById('tzRxKeynote');
+  const picked = document.querySelector('#tzRxList .tz-rx-item.picked');
+  const note = picked && picked.querySelector('.tz-rx-note');
+  host.textContent = note ? note.textContent : '';
+  host.hidden = !host.textContent;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -506,28 +529,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const toRx = document.getElementById('tzToRx');
   if (toRx) toRx.addEventListener('click', sendTemprazToRx);
+
+  const dialog = document.getElementById('tzDetailDialog');
+  document.getElementById('tzShowRubrics').addEventListener('click', () => dialog.showModal());
+  document.getElementById('tzDialogClose').addEventListener('click', () => dialog.close());
 });
-
-/* ══════════════════════════════════════════════════════════════
-   STATS (page header)
-══════════════════════════════════════════════════════════════ */
-function updateStats() {
-  const { temperaments } = state.data;
-
-  let totalTraits = 0;
-  const ids = new Set();
-  Object.values(temperaments).forEach(t => {
-    Object.values(t.traits).forEach(arr => { totalTraits += arr.length; });
-    (t.remedies || []).forEach(r => ids.add(r.id));
-  });
-
-  const totalRx = ids.size;
-
-  const elT = document.getElementById('tzTotalTraits');
-  const elR = document.getElementById('tzTotalRemedies');
-  if (elT) elT.textContent = toBanglaDigit(totalTraits);
-  if (elR) elR.textContent = toBanglaDigit(totalRx);
-}
 
 /* ══════════════════════════════════════════════════════════════
    THEORY SECTION

@@ -21,20 +21,7 @@
     <main class="app-content">
       <div class="content-inner">
 
-        <!-- ── Page header (same pattern as every other page's .page-head) ── -->
-        <div class="page-head">
-          <div class="page-icon"><i class='bx bx-brain'></i></div>
-          <div class="page-head-txt">
-            <h2>টেম্পারামেন্ট পদ্ধতি</h2>
-            <p>ডাঃ পরিনাজ হুমরানওয়ালা · স্বভাবভিত্তিক সিমিলিমাম নির্বাচন</p>
-          </div>
-          <div class="page-head-actions">
-            <span class="tb-chip muted"><b id="tzTotalTraits">—</b>&nbsp;বৈশিষ্ট্য</span>
-            <span class="tb-chip muted"><b id="tzTotalRemedies">—</b>&nbsp;ওষুধ</span>
-          </div>
-        </div>
-
-        <!-- ── 4-column + 1 bottom row app ── -->
+        <!-- ── Temperament workspace ── -->
         <div class="tz-app">
 
           <!-- ════════════ COL 1: Temperaments ════════════ -->
@@ -44,7 +31,8 @@
               <span class="tz-sel-badge" id="tzSelBadge">০</span>
             </div>
 
-            <!-- 5 temperament buttons -->
+            <!-- Desktop list and compact touch selector share the same state. -->
+            <div class="tz-select-wrap"><select id="tzTempSelect" aria-label="প্রধান স্বভাব"></select><i class='bx bx-chevron-down' aria-hidden="true"></i></div>
             <div class="tz-temp-list" id="tzTempList"></div>
 
             <!-- Footer: clear all -->
@@ -61,6 +49,7 @@
               <span class="tz-left-title">লক্ষণের ধরন</span>
             </div>
             
+            <div class="tz-select-wrap"><select id="tzCatSelect" aria-label="লক্ষণের ধরন"></select><i class='bx bx-chevron-down' aria-hidden="true"></i></div>
             <div class="tz-cat-list" id="tzCatList"></div>
           </div>
 
@@ -74,79 +63,66 @@
               <div class="tz-mid-sub" id="tzMidSub">বাম পাশ থেকে স্বভাব বেছে নিলে এখানে সংশ্লিষ্ট বৈশিষ্ট্য দেখা যাবে।</div>
             </div>
 
-            <div class="tz-mid-scroll" id="tzMidScroll">
+            <div class="tz-mobile-guide">বৈশিষ্ট্য বেছে নিন, তারপর মাত্রা নির্ধারণ করুন। <a href="#tzResults">ফলাফল দেখুন ↓</a></div>
+            <div class="tz-mid-scroll" id="tzMidScroll" tabindex="0" role="region" aria-label="বৈশিষ্ট্যের তালিকা">
               <!-- Traits injected by JS -->
               <div id="tzTraitList"></div>
             </div>
 
             <div class="tz-mid-foot">
               <i class='bx bx-info-circle'></i>
-              ক্লিক করুন: ১=তীব্র, ২=খুব তীব্র, ৩=প্রচণ্ড, ৪=বাদ
+              বৈশিষ্ট্য বেছে নিয়ে তার তীব্রতা নির্ধারণ করুন।
             </div>
           </div>
 
           <!-- ════════════ COL 4: Rubrics ════════════ -->
-          <div class="tz-right">
-            <div class="tz-right-header">
-              <span class="tz-right-title">নির্বাচনের ফলাফল</span>
-              <span class="tz-right-count" id="tzRightCount">০ বৈশিষ্ট্য</span>
-            </div>
-
-            <div class="tz-right-scroll" id="tzRightScroll">
+          <div class="tz-right" id="tzResults">
+            <div class="tz-summary">
               <!-- Empty state -->
               <div class="tz-empty" id="tzEmptyState">
-                <i class='bx bx-brain'></i>
-                <p>বৈশিষ্ট্য নির্বাচন করলে রুব্রিক ও সম্ভাব্য ওষুধ এখানে দেখা যাবে।</p>
+                <p>নির্বাচিত বৈশিষ্ট্যের রুব্রিক এখানে দেখা যাবে।</p>
               </div>
 
               <div id="tzResultArea" style="display:none;">
                 <!-- TQ score box -->
                 <div class="tz-tq-box" id="tzTqBox" style="display:none;"></div>
 
-                <!-- Personality summary — 2-3 lines from the temperament's own
-                     already-written description/core_nature, not invented here -->
                 <div class="tz-personality" id="tzPersonality" style="display:none;"></div>
-
-                <!-- Rubrics -->
-                <div class="tz-rs-label" style="margin-top:0;">নির্বাচিত রুব্রিক</div>
-                <div class="tz-rubric-list" id="tzRubricList"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ════════════ ROW 2: Chart & Remedies ════════════ -->
-          <div class="tz-bottom">
-            <div class="tz-bottom-chart">
-              <div class="tz-bottom-header">
-                <span>স্বভাবের স্কোর</span>
-              </div>
-              <!-- filled with an inline SVG radar by tempraz.js — no chart library,
-                   so it renders with the app fully offline like every other panel -->
-              <div class="tz-chart-container" id="tzRadarChart"></div>
-            </div>
-
-            <div class="tz-bottom-remedies">
-              <div class="tz-bottom-header">
-                <span>সম্ভাব্য ওষুধ</span>
-                <button class="btn primary btn-sm" id="tzToRx" type="button" disabled>
-                  <i class='bx bx-receipt'></i> প্রেসক্রিপশনে নিন
-                </button>
-              </div>
-              <div class="tz-rx-scroll">
-                <div class="tz-rx-list-horiz" id="tzRxList">
-                  <div class="tz-empty" style="min-height:80px;padding:1rem;">
-                    <p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p>
-                  </div>
+                <div class="tz-result-actions">
+                  <button type="button" class="tz-result-action" id="tzShowRubrics" aria-haspopup="dialog"><i class='bx bx-list-ul' aria-hidden="true"></i> নির্বাচিত রুব্রিক <span id="tzRubricCount"></span></button>
                 </div>
               </div>
             </div>
+
+            <div class="tz-bottom-chart">
+              <div class="tz-bottom-header"><span>স্বভাবের স্কোর</span></div>
+              <div class="tz-chart-container" id="tzRadarChart"></div>
+            </div>
           </div>
+
+          <section class="tz-bottom-remedies" aria-labelledby="tzRemediesTitle">
+            <div class="tz-bottom-header">
+              <span id="tzRemediesTitle">সম্ভাব্য ওষুধ</span>
+              <button class="btn primary btn-sm" id="tzToRx" type="button" disabled><i class="bx bx-receipt"></i> প্রেসক্রিপশনে নিন</button>
+            </div>
+            <p class="tz-rx-disclaimer">স্বভাব-স্কোর সহায়ক মাত্র, চূড়ান্ত সিদ্ধান্ত নয়।</p>
+            <div class="tz-rx-scroll">
+              <div class="tz-rx-list-horiz" id="tzRxList">
+                <div class="tz-empty" style="min-height:80px;padding:1rem;">
+                  <p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p>
+                </div>
+              </div>
+              <p class="tz-rx-keynote" id="tzRxKeynote" hidden></p>
+            </div>
+          </section>
 
         </div>
         <!-- /tz-app -->
 
-        <!-- ── Theory section below ── -->
-        <div class="tz-theory" id="tzTheory"></div>
+        <details class="tz-reference">
+          <summary><i class='bx bx-book-open' aria-hidden="true"></i> পদ্ধতি ও মূলনীতি <i class='bx bx-chevron-down' aria-hidden="true"></i></summary>
+          <div class="tz-theory" id="tzTheory"></div>
+        </details>
 
         <p class="disclaimer">
           টেম্পারামেন্ট পদ্ধতি — ডাঃ পরিনাজ হুমরানওয়ালা রচিত <em>Temperament Types – A Study</em> অবলম্বনে নির্মিত।
@@ -161,6 +137,16 @@
     </footer>
   </div>
 </div>
+
+<dialog class="tz-dialog" id="tzDetailDialog" aria-labelledby="tzDialogTitle">
+  <div class="tz-dialog-head">
+    <h2 id="tzDialogTitle">নির্বাচিত রুব্রিক</h2>
+    <button type="button" id="tzDialogClose" class="tz-dialog-close" aria-label="বন্ধ করুন"><i class='bx bx-x' aria-hidden="true"></i></button>
+  </div>
+  <div class="tz-dialog-body">
+    <div class="tz-rubric-list" id="tzRubricList"></div>
+  </div>
+</dialog>
 
 <script src="assets/js/shell.js"></script>
 <script src="assets/js/remedy-store.js"></script>
