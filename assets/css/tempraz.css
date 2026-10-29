@@ -614,3 +614,12 @@
   .tz-right .tz-chart-container { height: 190px; }
   .tz-right .tz-chart-container svg { max-height: 185px; }
 }
+
+/* Remedies follow the graph in the same results panel on every screen. */
+.tz-app { grid-template-rows: minmax(0, 1fr); grid-template-areas: "temps cats traits rubrics"; }
+.tz-right-scroll .tz-bottom-remedies { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.tz-right-scroll .tz-rx-scroll { overflow: visible; }
+.tz-right-scroll .tz-rx-list-horiz { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+@media (max-width: 1100px) {
+  .tz-app { grid-template-rows: auto; grid-template-areas: "temps cats" "traits traits" "rubrics rubrics"; }
+}
