@@ -269,6 +269,7 @@ function updateRight() {
       rxList.innerHTML = '<div class="tz-empty" style="min-height:80px;padding:1rem;"><p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p></div>';
     }
     state.pickedId = null;
+    updateRemedyKeynote();
     const toRx = document.getElementById('tzToRx');
     if (toRx) toRx.disabled = true;
     updateChart({ tempScores: {} });
@@ -434,6 +435,7 @@ function renderRemedies(scores) {
   if (sorted.length === 0) {
     list.innerHTML = '<div class="tz-empty" style="min-height:60px;"><p>বৈশিষ্ট্য নির্বাচন করলে সম্ভাব্য ওষুধ দেখা যাবে।</p></div>';
     state.pickedId = null;
+    updateRemedyKeynote();
     if (toRx) toRx.disabled = true;
     return;
   }
@@ -480,11 +482,21 @@ function renderRemedies(scores) {
         el.classList.toggle('picked', picked);
         el.setAttribute('aria-pressed', String(picked));
       });
+      updateRemedyKeynote();
       persistTemprazPick(true);
       if (toRx) toRx.disabled = false;
     });
     list.appendChild(item);
   });
+  updateRemedyKeynote();
+}
+
+function updateRemedyKeynote() {
+  const host = document.getElementById('tzRxKeynote');
+  const picked = document.querySelector('#tzRxList .tz-rx-item.picked');
+  const note = picked && picked.querySelector('.tz-rx-note');
+  host.textContent = note ? note.textContent : '';
+  host.hidden = !host.textContent;
 }
 
 /* ══════════════════════════════════════════════════════════════
