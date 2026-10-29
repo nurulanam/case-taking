@@ -507,7 +507,7 @@
       S.picked.clear();
       S.chapter = 'all'; S.search = ''; S.showAll = false; S.page = 0;
       renderLibrary();
-      renderHealth();
+      renderQualityWarning();
       renderChapters();
       renderRubrics();
       renderTray();
@@ -732,7 +732,6 @@
   /* A share that is real but tiny must not print as "০%" — Bönninghausen's 49
      grade-4 entries are the whole point of his top rank, and rounding them to
      zero says the opposite of the truth. */
-  const share = (a, b) => (a > 0 && pct(a, b) === 0) ? '<১%' : bn(pct(a, b)) + '%';
 
   /* Every published figure is recomputed here from the rubrics actually loaded,
      never read from metadata — metadata is a build-time *claim*, and the point
@@ -856,7 +855,6 @@
     }
     host.innerHTML = list.map(e => {
       const on = S.bookMeta && S.bookMeta.id === e.id;
-      const loaded = on && S.book;
       return `<button class="rp-book ${on ? 'selected' : ''}" data-id="${e.id}" type="button">
         <div class="rp-book-top">
           <span class="rp-book-ic" aria-hidden="true">
@@ -864,20 +862,12 @@
           </span>
           <span class="rp-book-title">
             <span class="rp-book-name">${esc(e.name_bn)}</span>
-            <span class="rp-book-en">${esc(e.name_en || '')}</span>
+            ${e.author ? `<span class="rp-book-author">${esc(e.author)}${e.year ? ` · ${esc(e.year)}` : ''}</span>` : (e.year ? `<span class="rp-book-author">${esc(e.year)}</span>` : '')}
+            ${e.status === 'draft' ? '<span class="rp-tag warn">খসড়া ডেটা</span>' : ''}
+            ${e.status === 'generated' ? '<span class="rp-tag warn">স্বয়ংক্রিয় খসড়া</span>' : ''}
           </span>
+          <i class="bx ${on ? 'bx-check-circle' : 'bx-chevron-right'} rp-book-arrow" aria-hidden="true"></i>
         </div>
-        <p>${esc(e.desc_bn || '')}</p>
-        <div class="rp-book-meta">
-          ${e.author ? `<span class="rp-tag">${esc(e.author)}</span>` : ''}
-          ${e.year ? `<span class="rp-tag">${esc(e.year)}</span>` : ''}
-          ${loaded ? `<span class="rp-tag ok">${bn(S.book.stats.chapters)} অধ্যায় · ${bn(S.book.stats.rubrics)} রুব্রিক · ${bn(S.book.stats.remedies)} ওষুধ</span>` : ''}
-          ${e.status === 'draft' ? `<span class="rp-tag warn">খসড়া ডেটা</span>` : ''}
-          ${e.status === 'curated' ? `<span class="rp-tag ok">যাচাই করা</span>` : ''}
-          ${e.status === 'generated' ? `<span class="rp-tag warn">স্বয়ংক্রিয় খসড়া</span>` : ''}
-          ${e.size_note ? `<span class="rp-tag">${esc(e.size_note)}</span>` : ''}
-        </div>
-        <span class="rp-book-pick">${on ? "<i class='bx bx-check-circle'></i> নির্বাচিত" : "<i class='bx bx-download'></i> এই রিপার্টরি ব্যবহার করুন"}</span>
       </button>`;
     }).join('');
 
@@ -892,115 +882,15 @@
 
   }
 
-  /* The grade split decides how a remedy ranks, so it is stated outright. Grades
-     are listed as *found in the data*, highest first — hard-coding 3/2/1 (as this
-     used to) silently hid Bönninghausen's grade 4 and made the listed counts fail
-     to add up to the entry total. */
-  function gradeLine(h) {
-    if (!h.grades.length) return '';
-    const parts = h.grades.map(([g, n]) =>
-      `${bn(g)} — ${bn(n)}টি (${share(n, h.cells)})`);
-    const m = S.book.meta;
-    return `<p style="font-size:0.8125rem;"><strong>গ্রেড:</strong> ${parts.join(' · ')}
-      ${m.grade_note_bn ? `<br><em>${esc(m.grade_note_bn)}</em>` : ''}</p>`;
-  }
-
-  /* Tokens the build could not pin to a remedy are gone from the file, so this
-     is the one figure that can only come from metadata. When it is absent the
-     panel says so rather than leaving a blank that reads as "none dropped". */
-  function droppedLine() {
-    const m = S.book.meta;
-    if (m.dropped_note_bn) return `<p style="font-size:0.8125rem;">${esc(m.dropped_note_bn)}</p>`;
-    if (typeof m.dropped_tokens === 'number')
-      return `<p style="font-size:0.8125rem;"><strong>বাদ পড়া উল্লেখ:</strong> ${bn(m.dropped_tokens)}টি</p>`;
-    return `<p style="font-size:0.8125rem;"><strong>বাদ পড়া উল্লেখ:</strong> এই বিল্ডে হিসাব রাখা হয়নি —
-      সংখ্যাটি শূন্য ধরে নেবেন না।</p>`;
-  }
-
-  function sourceLine() {
-    const s = S.book.meta.source;
-    if (!s) return '';
-    return `<p style="font-size:0.8125rem;"><strong>উৎস:</strong> ${esc(s.edition_bn || '')}
-      ${s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener" style="color:var(--primary);">${esc(s.url)}</a>` : ''}
-      ${esc(s.original_bn || '')} ${esc(s.typography_bn || '')}</p>`;
-  }
-
-  /* Rubrics, distinct names, entries, average width, depth — the size of the
-     book as it actually loaded. `rubricNames` matters because a real repertory
-     repeats a name across chapters (Kent has 62,661 distinct of 66,000), while
-     scaffolding repeats one name endlessly. */
-  function sizeLine(h) {
-    const st = S.book.stats;
-    return `<p><strong>${bn(st.chapters)}</strong>টি অধ্যায় ·
-      <strong>${bn(st.rubrics)}</strong>টি রুব্রিক (আলাদা নাম ${bn(h.rubricNames)}টি) ·
-      <strong>${bn(h.cells)}</strong>টি গ্রেড এন্ট্রি · রুব্রিকপ্রতি গড়ে
-      ${bn((h.cells / Math.max(1, st.rubrics)).toFixed(1))}টি ওষুধ${h.maxLevel
-        ? ` · সাব-রুব্রিক ${bn(h.maxLevel)} স্তর পর্যন্ত` : ''}।</p>`;
-  }
-
-  /* How many of the shared 725-remedy table this particular book can actually
-     reach. Without the denominator the old panel let Bönninghausen's 445 read
-     like the whole roster, hiding that 280 remedies are uncitable here. */
-  function remedyLine(h) {
-    const rest = h.tableSize - h.uniqueNames;
-    return `<p style="font-size:0.8125rem;"><strong>ওষুধ:</strong> যৌথ তালিকার ${bn(h.tableSize)}টির মধ্যে
-      <strong>${bn(h.uniqueNames)}</strong>টি এই বইতে উল্লিখিত (${bn(pct(h.uniqueNames, h.tableSize))}%)।
-      ${rest > 0 ? `বাকি ${bn(rest)}টি এই বইয়ে নেই — অন্য রিপার্টরিতে আছে, তাই তালিকায় রাখা হয়েছে।` : ''}</p>`;
-  }
-
-  /* The app's stated goal is Bangla, so the rubric-name coverage is a
-     first-class health figure rather than a footnote. Counted from the composed
-     names, so it reflects what the reader will actually see in the list. */
-  function banglaLine(h) {
-    const total = h.bnFull + h.bnPartial + h.bnNone;
-    return `<p style="font-size:0.8125rem;"><strong>রুব্রিকের বাংলা নাম:</strong>
-      সম্পূর্ণ বাংলা ${bn(h.bnFull)}টি (${share(h.bnFull, total)}) ·
-      আংশিক ${bn(h.bnPartial)}টি (${share(h.bnPartial, total)}) ·
-      শুধু ইংরেজি ${bn(h.bnNone)}টি (${share(h.bnNone, total)})।
-      ${h.bnPartial + h.bnNone ? 'যে পরিভাষার নির্ভরযোগ্য বাংলা এখনো নেই সেটি ইংরেজিতেই রাখা হয়েছে — ভুল অনুবাদের চেয়ে নিরাপদ।' : ''}</p>`;
-  }
-
-  function mismatchLine(h) {
-    if (!h.mismatch.length) return '';
-    return `<div class="health" style="margin-top:0.75rem;">
-      <div class="health-head"><i class='bx bx-error-circle'></i> মেটাডেটা ও ফাইলের হিসাব মিলছে না</div>
-      <p>ফাইলটি বিল্ডের পরে বদলানো হয়েছে বলে মনে হচ্ছে। উপরের সংখ্যাগুলো ফাইল পড়ে গোনা, তাই সেগুলোই সঠিক।</p>
-      <ul>${h.mismatch.map(t => `<li>${t}</li>`).join('')}</ul>
-    </div>`;
-  }
-
-  function renderHealth() {
-    const host = document.getElementById('healthCard');
-    if (!S.book) { host.innerHTML = ''; return; }
-    const h = S.book.health;
-    if (h.usable) {
-      host.innerHTML = `<div class="health ok">
-        <div class="health-head"><i class='bx bx-check-shield'></i> ডেটা যাচাই উত্তীর্ণ
-          <span style="font-weight:500;color:var(--text-muted);font-size:0.75rem;">— নিচের সব সংখ্যা ফাইল পড়ে গোনা</span>
-        </div>
-        ${sizeLine(h)}
-        ${gradeLine(h)}
-        ${remedyLine(h)}
-        ${banglaLine(h)}
-        ${h.notes.map(n => `<p style="font-size:0.8125rem;">${esc(n)}</p>`).join('')}
-        ${droppedLine()}
-        ${sourceLine()}
-        <p style="font-size:0.8125rem;">কোনো প্লেসহোল্ডার ওষুধের নাম নেই — প্রতিটি রুব্রিক–ওষুধ সম্পর্ক ও গ্রেড মূল বই থেকে পড়া।</p>
-      </div>
-      ${mismatchLine(h)}`;
-      return;
-    }
-    host.innerHTML = `<div class="health">
-      <div class="health-head"><i class='bx bx-error'></i> এই রিপার্টরির ডেটা এখনো খসড়া</div>
-      <p>ইঞ্জিন ঠিকভাবে কাজ করছে, কিন্তু নিচের কারণে <strong>এই ডেটার ফলাফল ক্লিনিক্যালি ব্যবহার করা যাবে না</strong> —
-         আসল রিপার্টরি ফাইল দিলে একই ছক ও র‍্যাঙ্কিং সঠিক ফল দেবে।</p>
-      <ul>${h.flags.map(f => `<li>${f.t}</li>`).join('')}</ul>
-      <p style="margin-top:0.625rem;">যাচাই: ${bn(h.cells)}টি গ্রেড এন্ট্রির মধ্যে ${bn(h.placeholders)}টি
-         প্লেসহোল্ডার নামের ওষুধে (${bn(pct(h.placeholders, h.cells))}%)।</p>
-      ${sizeLine(h)}
-      ${gradeLine(h)}
-    </div>
-    ${mismatchLine(h)}`;
+  // Keep important quality warnings visible without a separate health card.
+  function renderQualityWarning() {
+    const host = document.getElementById('rpQualityWarning');
+    const health = S.book && S.book.health;
+    const warnings = [];
+    if (health && !health.usable) warnings.push('এই রিপার্টরির ডেটা খসড়া; ফলাফল ক্লিনিক্যালি ব্যবহার করা যাবে না।');
+    if (health && health.mismatch.length) warnings.push('ফাইলের তথ্য ও মেটাডেটার হিসাব মিলছে না।');
+    host.textContent = warnings.join(' ');
+    host.hidden = warnings.length === 0;
   }
 
   /* ==================== step 2 ==================== */

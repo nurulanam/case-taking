@@ -638,3 +638,18 @@
   .rp-book { padding: 0.875rem; }
   .rp-book-pick { min-height: 44px; }
 }
+
+/* Compact book choices and a warning only when the data requires attention. */
+.rp-book { justify-content: center; min-height: 88px; }
+.rp-book-top { width: 100%; align-items: center; }
+.rp-book-title { flex: 1; }
+.rp-book-author { display: block; margin-top: 0.2rem; color: var(--text-muted); font-size: 0.8125rem; line-height: 1.4; }
+.rp-book-title .rp-tag { display: inline-block; margin-top: 0.35rem; }
+.rp-book-arrow { flex-shrink: 0; color: var(--primary); font-size: 1.3rem; }
+.rp-quality-warning {
+  margin-bottom: 1rem; padding: 0.75rem 1rem; border: 1px solid #d97706;
+  border-radius: 8px; background: #fffbeb; color: #78350f;
+  font-size: 0.875rem; font-weight: 600; line-height: 1.5;
+}
+[data-theme="dark"] .rp-quality-warning { background: #3b2b10; border-color: #d97706; color: #fde68a; }
+.rp-quality-warning[hidden] { display: none; }
