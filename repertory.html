@@ -64,11 +64,15 @@
           <div class="rp-chapterbar" id="chapterBar">
             <div class="rp-cb-head">
               <span class="rp-cb-label"><i class='bx bx-book-content'></i> অধ্যায়</span>
-              <button class="rp-cb-toggle" id="chapterToggle" type="button">
+              <button class="rp-cb-toggle" id="chapterToggle" type="button" aria-controls="chapterChips" aria-expanded="false">
                 <span class="cb-more">সব অধ্যায় দেখুন</span>
                 <span class="cb-less">কম দেখুন</span>
                 <i class='bx bx-chevron-down'></i>
               </button>
+            </div>
+            <div class="rp-chapter-select-wrap">
+              <label for="chapterSelect">অধ্যায় বেছে নিন</label>
+              <select id="chapterSelect"></select>
             </div>
             <div class="rp-chapters" id="chapterChips"></div>
           </div>
@@ -85,12 +89,16 @@
                   <input type="text" id="rubSearch" placeholder="রুব্রিক খুঁজুন (যেমন: Anxiety, ব্যথা)…" autocomplete="off"/>
                   <button class="clear-x" id="rubSearchClear" style="display:none;"><i class='bx bx-x'></i></button>
                 </div>
-                <div class="rp-recent" id="recentRubrics" hidden></div>
+                <details class="rp-recent-panel" id="recentPanel" hidden>
+                  <summary><i class='bx bx-time-five' aria-hidden="true"></i> সাম্প্রতিক রুব্রিক <span id="recentCount"></span></summary>
+                  <div class="rp-recent" id="recentRubrics"></div>
+                </details>
+                <a class="rp-tray-link" id="trayLink" href="#caseRubrics" hidden>নির্বাচিত রুব্রিক দেখুন</a>
               </div>
               <div class="rp-col-scroll" id="rubricList"></div>
             </div>
 
-            <div class="card rp-col">
+            <div class="card rp-col" id="caseRubrics">
               <div class="rp-col-head">
                 <div class="section-heading" style="margin-bottom:0;">
                   <span class="section-number"><i class='bx bx-collection' style="font-size:1rem"></i></span>

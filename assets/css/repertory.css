@@ -653,3 +653,54 @@
 }
 [data-theme="dark"] .rp-quality-warning { background: #3b2b10; border-color: #d97706; color: #fde68a; }
 .rp-quality-warning[hidden] { display: none; }
+
+/* Clear chapter navigation and touch-friendly rubric selection. */
+.rp-chapter-select-wrap { display: none; }
+.rp-chapterbar .rp-chapters, .rp-chapterbar.open .rp-chapters {
+  max-height: none; overflow: visible; -webkit-mask-image: none; mask-image: none;
+}
+.rp-chapterbar:not(.open):not(.no-toggle) .rp-ch:nth-child(n+9):not(.active) { display: none; }
+.rp-ch:focus-visible, .rub:focus-visible, .rp-recent-chip:focus-visible, .gbtn:focus-visible, .tray-x:focus-visible {
+  outline: 2px solid var(--primary); outline-offset: 2px;
+}
+.rub {
+  appearance: none; width: 100%; min-width: 0; min-height: 48px;
+  background: transparent; color: var(--text); font: inherit; text-align: left;
+}
+.rub:hover::after { display: none; }
+.rub-txt { overflow-wrap: anywhere; }
+.rub-ch { display: block; }
+.rp-recent-panel { margin-top: 0.6rem; }
+.rp-recent-panel[hidden], .rp-tray-link[hidden] { display: none; }
+.rp-recent-panel summary {
+  display: flex; align-items: center; gap: 0.3rem; width: fit-content; min-height: 40px;
+  color: var(--primary); font-size: 0.8125rem; font-weight: 700; cursor: pointer;
+  list-style: none;
+}
+.rp-recent-panel summary::-webkit-details-marker { display: none; }
+.rp-recent-panel summary::after { content: '▾'; margin-left: 0.2rem; }
+.rp-recent-panel[open] summary::after { content: '▴'; }
+.rp-recent { margin-top: 0; padding-top: 0.4rem; border-top: 0; }
+.rp-recent-chip { min-height: 38px; max-width: 100%; }
+.rp-tray-link { display: none; }
+@media (max-width: 1023px) {
+  .rp-chapterbar { padding: 0.75rem; }
+  .rp-chapterbar .rp-chapters, .rp-chapterbar .rp-cb-toggle { display: none; }
+  .rp-cb-head { margin-bottom: 0.4rem; }
+  .rp-chapter-select-wrap { display: block; position: relative; }
+  .rp-chapter-select-wrap label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .rp-chapter-select-wrap select {
+    box-sizing: border-box; width: 100%; min-width: 0; min-height: 48px;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--surface2);
+    color: var(--text); font: inherit; font-weight: 600; padding: 0.5rem 0.75rem;
+  }
+  #pane-2 .rp-col { height: auto; max-height: none; overflow: visible; }
+  #pane-2 .rp-col-scroll { overflow: visible; min-height: 0; }
+  #rubricList, #caseRubrics { scroll-margin-top: 1rem; }
+  .rp-tray-link { display: inline-flex; min-height: 44px; align-items: center; color: var(--primary); font-size: 0.8125rem; font-weight: 700; }
+  .rub { border-color: var(--border); margin-bottom: 0.3rem; }
+  .rub:hover .rp-preview { display: none; }
+  .gbtn, .tray-x { min-width: 44px; min-height: 44px; }
+  .rp-pager { flex-wrap: wrap; }
+  .pg-btn { min-width: 40px; min-height: 44px; }
+}

@@ -46,7 +46,7 @@
     revChapter: null,    // which chapter is expanded in the reversed rubric view
     source: null,        // which English source the step-4 card is showing
     result: null,
-    recentRubrics: []    // Phase 5: track last 20 used rubrics
+    recentRubrics: []    // most recent selections
   };
 
   /* ==================== Phase 5: Repertory UX ==================== */
@@ -281,20 +281,23 @@
     return total;
   }
 
-  // Recent rubrics: track and retrieve last 20 used
+  // Recent selections are book-specific: rubric IDs can overlap across books.
+  const RECENT_KEY = 'repertory_recent_rubrics_v1';
+  const RECENT_LIMIT = 5;
   function trackRecentRubric(rubricId, rubricName) {
-    const RECENT_KEY = 'repertory_recent_rubrics_v1';
+    const book = S.bookMeta && S.bookMeta.id;
     const stored = Shell.store.get(RECENT_KEY, []);
-    const entry = { id: rubricId, name: rubricName, at: new Date().toISOString() };
-    const deduped = stored.filter(r => r.id !== rubricId);
-    deduped.unshift(entry);
-    Shell.store.set(RECENT_KEY, deduped.slice(0, 20)); // keep last 20
-    S.recentRubrics = deduped.slice(0, 20);
+    const entries = Array.isArray(stored) ? stored : [];
+    const deduped = entries.filter(r => r && r.book && !(r.id === rubricId && r.book === book));
+    deduped.unshift({ id: rubricId, name: rubricName, book, at: new Date().toISOString() });
+    Shell.store.set(RECENT_KEY, deduped.slice(0, RECENT_LIMIT));
   }
 
   function getRecentRubrics() {
-    const RECENT_KEY = 'repertory_recent_rubrics_v1';
-    return Shell.store.get(RECENT_KEY, []).slice(0, 20);
+    const stored = Shell.store.get(RECENT_KEY, []);
+    return (Array.isArray(stored) ? stored : [])
+      .filter(r => r && S.bookMeta && r.book === S.bookMeta.id)
+      .slice(0, RECENT_LIMIT);
   }
 
   // Rubric preview: top N remedies for a rubric
@@ -907,43 +910,32 @@
         <span class="ch-nm">${esc(c.bn || c.en)}${c.bn && c.en ? `<span class="ch-en">${esc(c.en)}</span>` : ''}</span>
         <span class="ch-n">${bn(c.rubrics.length)}</span>
       </button>`).join('');
+    const select = document.getElementById('chapterSelect');
+    select.replaceChildren(new Option(`সব অধ্যায় (${bn(S.book.stats.rubrics)})`, 'all'));
+    S.book.chapters.forEach(c => select.add(new Option(`${bn(c.num)}. ${c.bn || c.en} (${bn(c.rubrics.length)})`, c.id)));
+    select.value = S.chapter;
     document.querySelectorAll('#chapterChips .rp-ch').forEach(b => {
-      b.addEventListener('click', () => { S.chapter = b.dataset.ch; S.page = 0; renderChapters(); renderRubrics(); });
+      b.setAttribute('aria-pressed', String(b.dataset.ch === S.chapter));
+      b.addEventListener('click', () => selectChapter(b.dataset.ch));
     });
     sizeChapterBar();
   }
 
-  // only offer the expand toggle when the chips actually overflow two rows
+  function selectChapter(id) {
+    S.chapter = id;
+    S.page = 0;
+    renderChapters();
+    renderRubrics();
+  }
+
   function sizeChapterBar() {
     const bar = document.getElementById('chapterBar');
     const chips = document.getElementById('chapterChips');
-    if (!bar || !chips) return;
-    // a hidden pane measures 0 — decide only once it is actually laid out
-    if (!chips.clientHeight && !bar.classList.contains('open')) return;
-
-    const wasOpen = bar.classList.contains('open');
-    chips.style.transition = 'none'; // disable animation for measurement
-
-    // measure in collapsed state
-    bar.classList.remove('open');
-    const collapsedHeight = chips.clientHeight;
-    const fullHeight = chips.scrollHeight;
-    const fits = fullHeight <= collapsedHeight + 2;
-    bar.classList.toggle('no-toggle', fits);
-
-    if (wasOpen) {
-      bar.classList.add('open');
-    } else {
-      // keep the active chapter visible when the bar is collapsed
-      const active = chips.querySelector('.rp-ch.active');
-      if (active && active.offsetTop > collapsedHeight - 8) {
-        bar.classList.add('open');
-      }
-    }
-
-    // force reflow and restore transition
-    void chips.offsetHeight;
-    chips.style.transition = '';
+    const toggle = document.getElementById('chapterToggle');
+    if (!bar || !chips || !toggle) return;
+    const buttons = [...chips.querySelectorAll('.rp-ch')];
+    bar.classList.toggle('no-toggle', buttons.length <= 8);
+    toggle.setAttribute('aria-expanded', String(bar.classList.contains('open')));
   }
 
   function visibleRubrics() {
@@ -995,20 +987,20 @@
     return scored.map(x => x.rb);
   }
 
-  // Phase 5: recent rubrics live in their own compact strip above the list,
-  // not inside it — so they never eat into the 250-row page the search shares.
+  // Recent rubrics are kept in an optional, compact panel above the results.
   function renderRecentRubrics() {
     const host = document.getElementById('recentRubrics');
     if (!host) return;
-    if (!S.book || S.search.trim()) { host.hidden = true; host.innerHTML = ''; return; }
+    const panel = document.getElementById('recentPanel');
+    if (!S.book || S.search.trim()) { panel.hidden = true; host.innerHTML = ''; return; }
     const recent = getRecentRubrics()
-      .map(r => ({ r, rb: S.book.rubrics.find(x => x.id === r.id) }))
+      .map(r => ({ r, rb: S.book.rubricById.get(r.id) }))
       .filter(x => x.rb)
-      .slice(0, 10);
-    if (!recent.length) { host.hidden = true; host.innerHTML = ''; return; }
-    host.hidden = false;
-    host.innerHTML = `<span class="rp-recent-lbl"><i class='bx bx-time-five'></i> সম্প্রতি</span>` +
-      recent.map(({ rb }) => `
+      .slice(0, RECENT_LIMIT);
+    if (!recent.length) { panel.hidden = true; host.innerHTML = ''; return; }
+    panel.hidden = false;
+    document.getElementById('recentCount').textContent = `(${bn(recent.length)})`;
+    host.innerHTML = recent.map(({ rb }) => `
         <button type="button" class="rp-recent-chip ${S.picked.has(rb.id) ? 'picked' : ''}" data-id="${rb.id}" title="${esc(rb.name)}${rb.bn ? ' — ' + esc(rb.bn) : ''}">
           ${esc(rb.name)}${rb.bn ? `<span class="rp-recent-bn">${esc(rb.bn)}</span>` : ''}
         </button>`).join('');
@@ -1026,11 +1018,12 @@
     // Paginate rather than truncate. Telling someone "250 of 66,000 shown, go
     // search" leaves the rest unreachable by browsing — the pages make every
     // rubric walkable even with no search term.
-    const pages = Math.max(1, Math.ceil(all.length / LIST_CAP));
+    const pageSize = window.matchMedia('(max-width: 1023px)').matches ? 25 : LIST_CAP;
+    const pages = Math.max(1, Math.ceil(all.length / pageSize));
     if (S.page >= pages) S.page = pages - 1;
     if (S.page < 0) S.page = 0;
-    const from = S.page * LIST_CAP;
-    const rows = all.slice(from, from + LIST_CAP);
+    const from = S.page * pageSize;
+    const rows = all.slice(from, from + pageSize);
 
     document.getElementById('rubHint').innerHTML = all.length
       ? `${bn(from + 1)}–${bn(from + rows.length)} / <strong>${bn(all.length)}</strong>টি`
@@ -1053,8 +1046,8 @@
       // a signpost to the rubric that does, not as a pickable row.
       const xref = !rb.n && rb.see.length;
       html += `
-      <div class="rub ${xref ? 'xref' : ''} ${S.picked.has(rb.id) ? 'picked' : ''}" data-id="${rb.id}"
-           ${xref ? '' : `title="রুব্রিক #${idx+1}"`}>
+      <button type="button" class="rub ${xref ? 'xref' : ''} ${S.picked.has(rb.id) ? 'picked' : ''}" data-id="${rb.id}"
+           ${xref ? '' : `aria-pressed="${S.picked.has(rb.id)}" title="রুব্রিক #${idx+1}"`}>
         <span class="rub-plus"><i class='bx ${xref ? 'bx-right-arrow-alt' : (S.picked.has(rb.id) ? 'bx-check' : 'bx-plus')}'></i></span>
         <span class="rub-txt">
           <span class="rub-name">${esc(rb.name)}${rb.bn ? ` <span style="color:var(--text-muted);font-size:0.8125rem;">${esc(rb.bn)}</span>` : ''}${rb.level > 1 ? ` <span class="rub-lvl" title="${bn(rb.level)} স্তরের সাব-রুব্রিক">${'·'.repeat(Math.min(rb.level - 1, 6))}</span>` : ''}</span>
@@ -1062,7 +1055,7 @@
         </span>
         ${xref ? '' : `<span class="rub-n rub-n-${Math.min(rb.n, 50)}" title="${bn(rb.n)} ওষুধ">${bn(rb.n)}</span>`}
         ${xref ? '' : rubricPreview(rb, 5)}
-      </div>`;
+      </button>`;
     });
     if (currentChapter !== null) html += '</div>';
     host.innerHTML = html + pagerHtml(pages);
@@ -1100,7 +1093,10 @@
       S.page = +b.dataset.p;
       renderRubrics();
       const sc = document.getElementById('rubricList');
-      if (sc) sc.scrollTop = 0;         // a new page starts at its own top
+      if (sc) {
+        sc.scrollTop = 0;
+        if (window.matchMedia('(max-width: 1023px)').matches) sc.scrollIntoView({ block: 'start' });
+      }
     }));
   }
 
@@ -1140,13 +1136,20 @@
       const rb = S.book.rubrics.find(r => r.id === id);
       if (rb) trackRecentRubric(id, rb.name);
     }
+    const wasRecent = document.activeElement && document.activeElement.classList.contains('rp-recent-chip');
     save(); renderRubrics(); renderTray();
+    const container = document.getElementById(wasRecent ? 'recentRubrics' : 'rubricList');
+    const replacement = [...container.querySelectorAll('[data-id]')].find(el => el.dataset.id === id);
+    if (replacement) replacement.focus({ preventScroll: true });
   }
 
   function renderTray() {
     const host = document.getElementById('trayList');
     const n = S.picked.size;
     document.getElementById('trayCount').textContent = `${bn(n)}টি রুব্রিক`;
+    const trayLink = document.getElementById('trayLink');
+    trayLink.hidden = !n;
+    trayLink.textContent = `নির্বাচিত রুব্রিক দেখুন (${bn(n)}) ↓`;
     document.getElementById('toStep3').disabled = n === 0;
     document.getElementById('s2Meta').textContent = n ? `${bn(n)}টি নির্বাচিত` : 'অধ্যায় ও লক্ষণ';
     updateChip();
@@ -1164,11 +1167,11 @@
       return `<div class="tray-item" data-id="${id}">
         <div class="tray-top">
           <span class="tray-name">${esc(rb.name)}<small>${esc(rb.chapterLabel)}</small></span>
-          <button class="tray-x" title="সরান"><i class='bx bx-x'></i></button>
+          <button type="button" class="tray-x" title="সরান" aria-label="${esc(rb.name)} সরান"><i class='bx bx-x'></i></button>
         </div>
         <div class="tray-grades">
           <span class="flabel">তীব্রতা:</span>
-          ${[1, 2, 3].map(g => `<button class="gbtn ${inten === g ? 'on' : ''}" data-g="${g}">${bn(g)}</button>`).join('')}
+          ${[1, 2, 3].map(g => `<button type="button" class="gbtn ${inten === g ? 'on' : ''}" data-g="${g}" aria-label="${esc(rb.name)} তীব্রতা ${bn(g)}" aria-pressed="${inten === g}">${bn(g)}</button>`).join('')}
           <span class="rub-n" style="margin-left:auto;">${bn(rb.n)} ওষুধ</span>
         </div>
         <div class="tray-rem">${top}${rb.n > 4 ? ' …' : ''}</div>
@@ -1750,7 +1753,13 @@
       document.getElementById('chapterBar').classList.toggle('open');
       sizeChapterBar();
     });
-    window.addEventListener('resize', () => sizeChapterBar());
+    document.getElementById('chapterSelect').addEventListener('change', e => selectChapter(e.target.value));
+    let compact = window.matchMedia('(max-width: 1023px)').matches;
+    window.addEventListener('resize', () => {
+      sizeChapterBar();
+      const nowCompact = window.matchMedia('(max-width: 1023px)').matches;
+      if (nowCompact !== compact && S.book) { compact = nowCompact; S.page = 0; renderRubrics(); }
+    });
 
     document.getElementById('trayClear').addEventListener('click', () => {
       if (!S.picked.size) return;
