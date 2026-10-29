@@ -24,15 +24,6 @@
     <main class="app-content">
       <div class="content-inner">
 
-        <div class="page-head">
-          <div class="page-icon"><i class='bx bx-book-bookmark'></i></div>
-          <div class="page-head-txt">
-            <h2>রিপার্টরি ও রেপার্টরাইজেশন</h2>
-            <p>রিপার্টরি বেছে নিন → রুব্রিক নির্বাচন করুন → গ্রেড মিলিয়ে ওষুধ র‍্যাঙ্ক করুন → বিস্তারিত মিলিয়ে নিন।</p>
-          </div>
-          <div class="page-head-actions" id="pageActions"></div>
-        </div>
-
         <!-- ===== stepper ===== */ -->
         <div class="rp-steps" id="rpSteps">
           <button class="rp-step active" data-step="1" type="button">
@@ -58,13 +49,11 @@
 
         <!-- ===== STEP 1 · repertory picker ===== -->
         <section class="rp-pane active" id="pane-1">
-          <div class="card">
-            <div class="section-heading">
-              <span class="section-number"><i class='bx bx-library' style="font-size:1rem"></i></span>
-              <div><h3>রিপার্টরি নির্বাচন করুন</h3><p>এখন যেটি আছে সেটি বেছে নিন — পরে আরও রিপার্টরি যোগ করা যাবে</p></div>
+          <div class="card rp-library">
+            <div class="rp-library-head">
+              <div><h2>রিপার্টরি নির্বাচন করুন</h2><p>রুব্রিক খুঁজতে একটি রিপার্টরি বেছে নিন।</p></div>
             </div>
             <div id="repList" class="rp-lib"></div>
-            <div id="repPlanned"></div>
           </div>
           <div id="healthCard"></div>
         </section>

@@ -512,7 +512,6 @@
       renderRubrics();
       renderTray();
       save();
-      Shell.toast(`${entry.name_bn} লোড হয়েছে — ${bn(S.book.stats.rubrics)}টি রুব্রিক, ${bn(S.book.stats.remedies)}টি ওষুধ।`, 'ok');
       if (gotoStep) setStep(gotoStep);
     } catch (e) {
       console.error(e);
@@ -860,11 +859,11 @@
       const loaded = on && S.book;
       return `<button class="rp-book ${on ? 'selected' : ''}" data-id="${e.id}" type="button">
         <div class="rp-book-top">
-          <span class="rp-book-ic" style="${e.color ? `background:${e.color}1a;color:${e.color}` : ''}">
+          <span class="rp-book-ic" aria-hidden="true">
             <i class='bx ${e.icon || 'bx-book-bookmark'}'></i>
           </span>
-          <span style="min-width:0;">
-            <h4>${esc(e.name_bn)}</h4>
+          <span class="rp-book-title">
+            <span class="rp-book-name">${esc(e.name_bn)}</span>
             <span class="rp-book-en">${esc(e.name_en || '')}</span>
           </span>
         </div>
@@ -891,11 +890,6 @@
       });
     });
 
-    const planned = (S.manifest.planned || []);
-    document.getElementById('repPlanned').innerHTML = planned.length
-      ? `<div class="rp-planned"><b>পরে যোগ হবে:</b> ${planned.map(p => esc(p.name_bn)).join(' · ')}।
-         নতুন রিপার্টরি যোগ করতে ফাইলটি <code>assets/data/repatories/</code>-এ রাখুন আর
-         <code>index.json</code>-এ একটি এন্ট্রি দিন — কোড বদলাতে হবে না।</div>` : '';
   }
 
   /* The grade split decides how a remedy ranks, so it is stated outright. Grades
