@@ -345,13 +345,13 @@ function renderPersonality(t) {
   const box = document.getElementById('tzPersonality');
   if (!box) return;
   const hasDescription = !!(t.description || t.core_nature);
-  document.getElementById('tzPersonalityEmpty').hidden = hasDescription;
   if (!hasDescription) { box.style.display = 'none'; return; }
   box.style.display = '';
   box.style.borderLeftColor = t.color;
   box.innerHTML = `
     <i class="bx ${t.icon || 'bx-user'}" style="color:${t.color}"></i>
     <div>
+      <div class="tz-personality-title">স্বভাবের বিবরণ</div>
       ${t.description ? `<p>${t.description}</p>` : ''}
       ${t.core_nature ? `<p class="tz-personality-core">${t.core_nature}</p>` : ''}
     </div>
@@ -519,15 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (toRx) toRx.addEventListener('click', sendTemprazToRx);
 
   const dialog = document.getElementById('tzDetailDialog');
-  document.querySelectorAll('[data-tz-dialog]').forEach(button => {
-    button.addEventListener('click', () => {
-      const personality = button.dataset.tzDialog === 'personality';
-      document.getElementById('tzDialogTitle').textContent = personality ? 'স্বভাবের বিবরণ' : 'নির্বাচিত রুব্রিক';
-      document.getElementById('tzPersonalityPanel').hidden = !personality;
-      document.getElementById('tzRubricsPanel').hidden = personality;
-      dialog.showModal();
-    });
-  });
+  document.getElementById('tzShowRubrics').addEventListener('click', () => dialog.showModal());
   document.getElementById('tzDialogClose').addEventListener('click', () => dialog.close());
 });
 

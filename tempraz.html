@@ -87,9 +87,9 @@
                 <!-- TQ score box -->
                 <div class="tz-tq-box" id="tzTqBox" style="display:none;"></div>
 
+                <div class="tz-personality" id="tzPersonality" style="display:none;"></div>
                 <div class="tz-result-actions">
-                  <button type="button" class="tz-result-action" data-tz-dialog="personality"><i class='bx bx-user' aria-hidden="true"></i> স্বভাবের বিবরণ</button>
-                  <button type="button" class="tz-result-action" data-tz-dialog="rubrics"><i class='bx bx-list-ul' aria-hidden="true"></i> নির্বাচিত রুব্রিক <span id="tzRubricCount"></span></button>
+                  <button type="button" class="tz-result-action" id="tzShowRubrics" aria-haspopup="dialog"><i class='bx bx-list-ul' aria-hidden="true"></i> নির্বাচিত রুব্রিক <span id="tzRubricCount"></span></button>
                 </div>
               </div>
             </div>
@@ -142,15 +142,11 @@
 
 <dialog class="tz-dialog" id="tzDetailDialog" aria-labelledby="tzDialogTitle">
   <div class="tz-dialog-head">
-    <h2 id="tzDialogTitle"></h2>
+    <h2 id="tzDialogTitle">নির্বাচিত রুব্রিক</h2>
     <button type="button" id="tzDialogClose" class="tz-dialog-close" aria-label="বন্ধ করুন"><i class='bx bx-x' aria-hidden="true"></i></button>
   </div>
   <div class="tz-dialog-body">
-    <section id="tzPersonalityPanel" hidden>
-      <div class="tz-personality" id="tzPersonality" style="display:none;"></div>
-      <p class="tz-dialog-empty" id="tzPersonalityEmpty" hidden>এই স্বভাবের জন্য বিস্তারিত বিবরণ পাওয়া যায়নি।</p>
-    </section>
-    <section id="tzRubricsPanel" hidden><div class="tz-rubric-list" id="tzRubricList"></div></section>
+    <div class="tz-rubric-list" id="tzRubricList"></div>
   </div>
 </dialog>
 
