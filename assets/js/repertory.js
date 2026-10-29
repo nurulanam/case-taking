@@ -1313,6 +1313,7 @@
     const host = document.getElementById('cmpBar');
     if (!host) return;
     const n = S.compare.size;
+    host.classList.toggle('is-empty', n === 0);
     if (!n) {
       host.innerHTML = `<span class="cmp-hint">ওষুধের নামের পাশের বাক্সে টিক দিয়ে ২–${bn(CMP_MAX)}টি ওষুধ তুলনা করুন।</span>`;
       return;
