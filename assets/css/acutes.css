@@ -1222,11 +1222,9 @@ body.ac-fit .content-inner, body.ac-fit #panel-wizard.active { flex: none; }
 .ac-rx-row:focus-visible, .ac-axis:focus-visible, .rbc-header:focus-visible, .filter-btn:focus-visible {
   outline: 2px solid var(--primary); outline-offset: 2px;
 }
-/* Make all three clinical points readable immediately when switching remedies. */
-.tri-txt, .tri-dot, .tri-fill { opacity: 1; animation: none; }
-.tri-seg { stroke-dashoffset: 0; animation: none; }
-.tri-grid { grid-template-rows: auto 86px auto; }
-.tri-stage { height: 86px; }
+/* Give the animated triangle enough height to remain legible beside details. */
+.tri-grid { grid-template-rows: auto 140px auto; }
+.tri-stage { height: 140px; }
 .remedy-browser-card:hover { box-shadow: none; }
 .remedy-filters { margin-bottom: 0.9rem; }
 .remedy-browser-grid { gap: 0.5rem; }
@@ -1250,13 +1248,15 @@ body.ac-fit .content-inner, body.ac-fit #panel-wizard.active { flex: none; }
 @media (max-width: 640px) {
   .ac-opt { padding: 0.55rem 0.65rem; }
   .ac-inspect-body { overflow: visible; }
-  .tri-grid { grid-template-rows: auto 62px auto; gap: 0 0.65rem; }
-  .tri-stage { height: 62px; }
+  .tri-grid { grid-template-rows: auto 105px auto; gap: 0 0.65rem; }
+  .tri-stage { height: 105px; }
   .tri-caption { margin-top: 0.35rem; padding-bottom: 0; }
   .rbc-header { padding: 0.7rem 0.75rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .page-panel, .flow-step-anim, .ac-result { animation: none; }
+  .tri-txt, .tri-dot, .tri-fill { opacity: 1; animation: none; }
+  .tri-seg { stroke-dashoffset: 0; animation: none; }
 }
 @media (min-width: 901px) {
   .ac-workspace:not(.is-leaf) { max-width: 62rem; }
@@ -1307,7 +1307,7 @@ body.ac-fit .content-inner, body.ac-fit #panel-wizard.active { flex: none; }
   .ac-ask { flex: 1 1 auto; display: flex; min-height: 0; overflow: hidden; }
   .ac-steps { flex: 1 1 auto; min-height: 0; }
   .ac-step-body { overflow-y: auto; overscroll-behavior: contain; }
-  .ac-ask { flex: 0 0 42%; min-height: 12rem; }
+  .ac-ask { flex: 0 0 48%; min-height: 12rem; }
   .ac-result { flex: 1 1 auto; min-height: 0; overflow: hidden; border-top: 1px solid var(--border); }
   .ac-rxpane, .ac-inspect, .ac-inspect-body { min-height: 0; overflow: hidden; }
   .ac-rxpane-list, .ac-tri, .ac-detail { overflow-y: auto; }
