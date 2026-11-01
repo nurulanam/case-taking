@@ -23,10 +23,10 @@
 
         <!-- ===== mode: read one remedy, or compare several ===== -->
         <div class="mm-modes" id="mmModes">
-          <button class="mm-mode active" data-mode="read" type="button">
+          <button class="mm-mode active" data-mode="read" type="button" aria-pressed="true">
             <i class='bx bx-book-open'></i> বিবরণ
           </button>
-          <button class="mm-mode" data-mode="compare" type="button">
+          <button class="mm-mode" data-mode="compare" type="button" aria-pressed="false">
             <i class='bx bx-git-compare'></i> তুলনা
             <span class="mm-mode-n" id="cmpCount" hidden>০</span>
           </button>
@@ -37,41 +37,37 @@
           <div class="mm-tb-row">
             <div class="m-search mm-tb-search">
               <i class='bx bx-search'></i>
-              <input type="text" id="rxSearch" placeholder="ওষুধ খুঁজুন (বাংলা, ল্যাটিন বা লক্ষণ)…" autocomplete="off"/>
+              <input type="text" id="rxSearch" aria-label="ওষুধ খুঁজুন" placeholder="নাম বা লক্ষণ খুঁজুন…" autocomplete="off"/>
               <button class="clear-x" id="rxSearchClear" style="display:none;"><i class='bx bx-x'></i></button>
             </div>
             <div class="mm-hint" id="rxHint"></div>
-            <button class="mm-tb-toggle" id="mmToggle" type="button">
+            <button class="mm-picker-done btn ghost btn-sm" id="cmpPickerDone" type="button"><i class='bx bx-check'></i> সম্পন্ন</button>
+            <button class="mm-tb-toggle" id="mmToggle" type="button" aria-controls="mmSets" aria-expanded="false">
               <span class="tb-more">সব ফিল্টার</span>
               <span class="tb-less">কম দেখুন</span>
               <i class='bx bx-chevron-down'></i>
             </button>
           </div>
+          <div class="mm-scope" id="rxScope"></div>
           <div class="mm-tb-sets" id="mmSets">
+            <p class="mm-filter-help">ফিল্টারের সংখ্যা খোঁজ ও নির্বাচিত পরিসর অনুযায়ী, বর্ণ বাছাইয়ের আগে।</p>
             <div class="mm-filters" id="rxFilters"></div>
+            <p class="mm-filter-help mm-alpha-label">নামের প্রথম বর্ণ</p>
             <div class="mm-alpha" id="rxAlpha"></div>
           </div>
-        </div>
-
-        <!-- ===== compare tray (compare mode only) ===== -->
-        <div class="mm-tray" id="cmpTray" hidden>
-          <div class="mm-tray-head">
-            <span class="mm-tray-lbl"><i class='bx bx-git-compare'></i> তুলনার জন্য নির্বাচিত</span>
-            <span class="mm-tray-note" id="cmpNote"></span>
-            <button class="btn ghost btn-sm" id="cmpClear" type="button"><i class='bx bx-eraser'></i> মুছুন</button>
-          </div>
-          <div class="mm-tray-chips" id="cmpChips"></div>
         </div>
 
         <div class="mm-split" id="mmSplit">
 
           <!-- ===== left · remedy list ===== -->
           <div class="mm-col" id="listCol">
+            <div class="mm-selection-hint" id="cmpSelectionHint" aria-live="polite" hidden></div>
             <div class="mm-col-scroll" id="rxList"></div>
           </div>
 
           <!-- ===== right · drug picture (read mode) ===== -->
           <div class="mm-col" id="detailCol">
+            <button class="mm-back-list" id="mmBackList" type="button"><i class='bx bx-chevron-left'></i> ওষুধের তালিকা</button>
             <div class="mm-col-scroll" id="rxDetail"></div>
           </div>
 
@@ -82,8 +78,10 @@
           <div class="mm-cmp-bar">
             <div class="mm-cmp-lbl" id="cmpTitle"></div>
             <div class="mm-cmp-acts">
+              <button class="btn ghost btn-sm" id="cmpPickerToggle" type="button" aria-expanded="false"><i class='bx bx-plus'></i> ওষুধ বাছুন</button>
+              <button class="btn ghost btn-sm" id="cmpClear" type="button"><i class='bx bx-x'></i> মুছুন</button>
               <button class="btn ghost btn-sm" id="cmpCopy"><i class='bx bx-copy'></i> কপি</button>
-              <button class="btn ghost btn-sm" id="cmpOnlyDiff">
+              <button class="btn ghost btn-sm" id="cmpOnlyDiff" type="button" aria-pressed="false">
                 <i class='bx bx-filter-alt'></i> <span>শুধু পার্থক্য</span>
               </button>
             </div>
