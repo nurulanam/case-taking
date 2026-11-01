@@ -19,6 +19,12 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+  // Count actual Bangla text, including short clinical entries whose status
+  // records source limitations instead of the literal value 'full'.
+  const hasBanglaDetail = r => Boolean(r.bangla_intro ||
+    ['keynotes', 'mental', 'general', 'particular', 'modalities', 'clinical_uses']
+      .some(key => Array.isArray(r[key]) && r[key].length));
+
   const CMP_MAX = 5;                // 2–5 remedies; beyond that the table stops being readable
   const CMP_STORE = 'materia_compare_v1';
 
@@ -90,7 +96,7 @@
     }
     // remedies with a drug picture first, then alphabetically by Bangla name
     S.all.sort((a, b) =>
-      (b.content_status === 'full') - (a.content_status === 'full') ||
+      Number(hasBanglaDetail(b)) - Number(hasBanglaDetail(a)) ||
       (a.bangla_name || a.name).localeCompare(b.bangla_name || b.name, 'bn'));
 
     renderFilters();
@@ -122,7 +128,14 @@
     if (!split) return;
     // compare mode puts a wide table below the list, so the page is meant to
     // scroll there — pinning the split to one screen would hide the table
-    if (window.innerWidth < 900 || S.mode === 'compare') { split.style.height = ''; return; }
+    if (window.innerWidth <= 900 || S.mode === 'compare') { split.style.height = ''; return; }
+
+    // Expanded filters can be taller than the viewport. Keep both panes usable
+    // and let the page scroll rather than squeezing them into the remainder.
+    if (document.getElementById('mmToolbar').classList.contains('open')) {
+      split.style.height = Math.max(MIN_SPLIT, Math.round(window.innerHeight * 0.7)) + 'px';
+      return;
+    }
 
     split.style.height = '0px';
     const top = split.getBoundingClientRect().top + window.scrollY;   // forces reflow
@@ -145,7 +158,7 @@
     Shell.setChip('লোড হয়নি', 'bx-x-circle');
   }
 
-  const withMM = () => S.all.filter(r => r.content_status === 'full');
+  const withMM = () => S.all.filter(hasBanglaDetail);
 
   function updateChip() {
     Shell.setChip(`${bn(withMM().length)}টি ওষুধের বিবরণ`, 'bx-capsule');
@@ -157,13 +170,13 @@
      thermal state within that scope. Folding them into one radio group meant
      picking a family silently dropped the "has materia medica" constraint, and
      the thermal chips could offer a selection that matched nothing. */
-  const inScope = r => S.scope === 'all' || r.content_status === 'full';
+  const inScope = r => S.scope === 'all' || hasBanglaDetail(r);
 
-  function facetCounts() {
+  function facetCounts(matchingSearch = false) {
     const fam = new Map();
     const therm = new Map();
     S.all.forEach(r => {
-      if (!inScope(r)) return;
+      if (!inScope(r) || (matchingSearch && !matchesSearch(r))) return;
       if (r.family) fam.set(r.family, (fam.get(r.family) || 0) + 1);
       if (r.thermal_en) therm.set(r.thermal_en, (therm.get(r.thermal_en) || 0) + 1);
     });
@@ -176,28 +189,30 @@
     const host = document.getElementById('rxFilters');
     const scopeHost = document.getElementById('rxScope');
     const { fam, therm } = facetCounts();
-    const nFull = S.all.filter(r => r.content_status === 'full').length;
+    const matching = facetCounts(true);
+    const nFull = withMM().length;
+    const inCurrentScope = S.all.filter(r => inScope(r) && matchesSearch(r)).length;
 
     const chip = (cls, on, key, label, n) =>
       `<button type="button" class="mm-fbtn ${cls} ${on ? 'active' : ''}" aria-pressed="${on}" data-${key}>` +
-      `${esc(label)}${n != null ? ` <b>${bn(n)}</b>` : ''}</button>`;
+      `${esc(label)}${n != null ? ` <b class="mm-filter-count">${bn(n)}</b>` : ''}</button>`;
 
     const scopeChips =
-      chip('is-scope', S.scope === 'full', 'scope="full"', 'বিবরণ আছে', nFull) +
+      chip('is-scope', S.scope === 'full', 'scope="full"', 'বাংলা বিবরণ', nFull) +
       chip('is-scope', S.scope === 'all', 'scope="all"', 'সব ওষুধ', S.all.length);
 
     // only offer a facet that actually matches something in the current scope
     const famChips = [...fam.entries()]
       .filter(([, n]) => n >= 3).sort((a, b) => b[1] - a[1])
-      .map(([f, n]) => chip('is-facet', S.facet === 'fam:' + f, `facet="fam:${esc(f)}"`, f, n)).join('');
+      .map(([f, n]) => chip('is-facet', S.facet === 'fam:' + f, `facet="fam:${esc(f)}"`, f, matching.fam.get(f) || 0)).join('');
     const thermChips = ['chilly', 'hot', 'mixed']
       .filter(t => therm.get(t)).map(t =>
         chip('is-facet', S.facet === 'thermal:' + t, `facet="thermal:${t}"`,
-             THERMAL_BN[t], therm.get(t))).join('');
+             THERMAL_BN[t], matching.therm.get(t) || 0)).join('');
 
-    scopeHost.innerHTML = `<span class="mm-fgrp">${scopeChips}</span>`;
+    scopeHost.innerHTML = `<span class="mm-scope-label">মোট</span><span class="mm-fgrp">${scopeChips}</span>`;
     host.innerHTML =
-      chip('is-facet', !S.facet, 'facet=""', 'সব বর্গ', null) +
+      chip('is-facet', !S.facet, 'facet=""', 'সব', inCurrentScope) +
       famChips + thermChips;
 
     scopeHost.querySelectorAll('[data-scope]').forEach(b => b.addEventListener('click', () => {
@@ -230,27 +245,29 @@
       S.page = 0;
       renderAlpha(); renderList();
     }));
+    requestAnimationFrame(sizeWorkspace);
   }
 
-  /* `ignoreLetter` lets the alphabet strip be built from the filter alone,
-     otherwise picking a letter would erase every other letter from the strip. */
-  function visible(ignoreLetter) {
+  // Search matching is shared by results, alphabet and facet counts.
+  function matchesSearch(r) {
     const q = S.search.trim();
     const nq = norm(q);
+    if (!nq) return true;
+    if (norm(r.name).includes(nq) || norm(r.bangla_name).includes(nq)) return true;
+    const hay = [r.bangla_intro, (r.keynotes || []).join(' '), (r.mental || []).join(' '),
+                 (r.general || []).join(' '), (r.particular || []).join(' '),
+                 (r.modalities || []).join(' '), (r.clinical_uses || []).join(' ')].join(' ');
+    return hay.includes(q);
+  }
+
+  /* Ignoring the selected letter keeps every available jump in the strip. */
+  function visible(ignoreLetter) {
     return S.all.filter(r => {
       if (!inScope(r)) return false;
       if (S.facet.startsWith('fam:') && r.family !== S.facet.slice(4)) return false;
       if (S.facet.startsWith('thermal:') && r.thermal_en !== S.facet.slice(8)) return false;
       if (!ignoreLetter && S.letter && (r.bangla_name || r.name).charAt(0) !== S.letter) return false;
-      if (!nq) return true;
-      if (norm(r.name).includes(nq) || norm(r.bangla_name).includes(nq)) return true;
-      // searching the symptom text is what makes this usable as a reference —
-      // e.g. "ডান দিকের মাথা ব্যথা" finds any remedy whose keynote/particular
-      // symptom mentions it, without needing a separate symptom-search mode
-      const hay = [r.bangla_intro, (r.keynotes || []).join(' '), (r.mental || []).join(' '),
-                   (r.general || []).join(' '), (r.particular || []).join(' '),
-                   (r.modalities || []).join(' '), (r.clinical_uses || []).join(' ')].join(' ');
-      return hay.includes(q);
+      return matchesSearch(r);
     });
   }
 
@@ -278,10 +295,10 @@
     }
     const cmpFull = S.compare.length >= CMP_MAX;
     host.innerHTML = rows.map(r => {
-      const full = r.content_status === 'full';
+      const full = hasBanglaDetail(r);
       const on = S.compare.includes(r.id);
       return `<button type="button" aria-pressed="${S.mode === 'compare' ? on : S.selected === r.id}" class="mm-rx ${S.selected === r.id && S.mode === 'read' ? 'on' : ''}
-                   ${on ? 'cmp-on' : ''} ${cmpFull && !on ? 'cmp-full' : ''}" data-id="${esc(r.id)}">
+                   ${S.mode === 'compare' && on ? 'is-compared' : ''} ${S.mode === 'compare' && cmpFull && !on ? 'is-compare-limit' : ''}" data-id="${esc(r.id)}">
         <span class="mm-rx-pick"><i class='bx bx-check'></i></span>
         ${kingdomBadge(r.family)}
         <span class="mm-rx-txt">
@@ -289,7 +306,7 @@
           <span class="mm-rx-en">${esc(r.name)}${r.family ? ' · ' + esc(r.family) : ''}</span>
         </span>
         <span class="mm-tag ${full ? 'full' : hasSrc(r.id) ? 'src' : 'basic'}"
-              title="${full ? 'পূর্ণ বাংলা মেটেরিয়া মেডিকা আছে'
+              title="${full ? 'বাংলা মেটেরিয়া মেডিকার বিবরণ আছে'
                       : hasSrc(r.id) ? 'বাংলা নেই, তবে বোরিকের মূল ইংরেজি পাঠ আছে'
                       : 'শুধু নাম ও রিপার্টরি তথ্য'}">${full ? 'MM' : hasSrc(r.id) ? 'EN' : '—'}</span>
       </button>`;
@@ -378,7 +395,7 @@
       ? `<div class="md-sec"><div class="md-kv">${kv.map(([k, v]) =>
           `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}</div></div>` : '';
 
-    if (rx.content_status !== 'full') {
+    if (!hasBanglaDetail(rx)) {
       // No invented symptoms: say plainly that the picture is not written yet.
       host.innerHTML = head + kvHtml + `
         <div class="health" style="margin-top:1rem;">
@@ -670,6 +687,10 @@
     if (!el) return;
     el.hidden = !S.compare.length;
     el.textContent = bn(S.compare.length);
+    const hint = document.getElementById('cmpSelectionHint');
+    hint.hidden = S.mode !== 'compare';
+    hint.textContent = `${bn(S.compare.length)} / ${bn(CMP_MAX)}টি নির্বাচিত` +
+      (S.compare.length >= CMP_MAX ? ' · নতুন ওষুধ বাছতে আগে একটি সরান' : ' · তুলনার জন্য ২–৫টি বাছুন');
   }
 
   function renderCompare() {
@@ -863,13 +884,13 @@
     const clr = document.getElementById('rxSearchClear');
     inp.addEventListener('input', () => {
       S.search = inp.value;
-      S.page = 0;                       // a new query starts at page one
+      S.letter = ''; S.page = 0;       // a new query starts at page one
       clr.style.display = inp.value ? '' : 'none';
-      renderList();
+      renderFilters(); renderAlpha(); renderList();
     });
     clr.addEventListener('click', () => {
-      inp.value = ''; S.search = ''; S.page = 0; clr.style.display = 'none';
-      renderList(); inp.focus();
+      inp.value = ''; S.search = ''; S.letter = ''; S.page = 0; clr.style.display = 'none';
+      renderFilters(); renderAlpha(); renderList(); inp.focus();
     });
 
     const bar = document.getElementById('mmToolbar');

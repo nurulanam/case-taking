@@ -253,8 +253,8 @@ body.cmp-mode #rxList { max-height: 34vh; }
   font-size: 0.875rem; color: transparent;
 }
 body.cmp-mode .mm-rx-pick { display: flex; }
-.mm-rx.cmp-on .mm-rx-pick { background: var(--primary); border-color: var(--primary); color: #fff; }
-.mm-rx.cmp-full { opacity: 0.45; }        /* five already chosen */
+.mm-rx.is-compared .mm-rx-pick { background: var(--primary); border-color: var(--primary); color: #fff; }
+.mm-rx.is-compare-limit .mm-rx-pick { background: var(--surface2); border-style: dashed; } /* five already chosen */
 
 /* the comparison table */
 .mm-cmp {
@@ -399,7 +399,7 @@ body.cmp-mode #rxList { max-height: 360px; }
 .cmp-rx-heading { display: flex; gap: 0.35rem; justify-content: space-between; align-items: flex-start; }
 .cmp-remove { flex-shrink: 0; display: grid; place-items: center; min-width: 36px; min-height: 36px; background: var(--surface2); color: var(--text); border: 1px solid var(--border); border-radius: 7px; cursor: pointer; font-size: 1.1rem; }
 .mm-cmp-wrap { -webkit-overflow-scrolling: touch; }
-[data-theme="dark"] .mm-mode-n, [data-theme="dark"] .mm-fbtn.is-scope.active, [data-theme="dark"] .mm-alpha button.active, [data-theme="dark"] .mm-rx.cmp-on .mm-rx-pick, [data-theme="dark"] #cmpOnlyDiff.on { color: #082320; }
+[data-theme="dark"] .mm-mode-n, [data-theme="dark"] .mm-fbtn.is-scope.active, [data-theme="dark"] .mm-alpha button.active, [data-theme="dark"] .mm-rx.is-compared .mm-rx-pick, [data-theme="dark"] #cmpOnlyDiff.on { color: #082320; }
 [data-theme="dark"] .mm-rx.on { background: var(--primary-bg); }
 @media (max-width: 900px) {
   .mm-split { gap: 0.65rem; }
@@ -415,7 +415,8 @@ body.cmp-mode #rxList { max-height: 360px; }
   .mm-col-scroll { padding: 0.25rem 0.6rem; }
   .mm-cmp-table .cmp-row-h { width: 5.5rem; min-width: 5.5rem; padding: 0.5rem; }
   .mm-cmp-table td { min-width: 10rem; padding: 0.5rem; }
-  .cmp-remove { min-width: 44px; min-height: 44px; }
+  .cmp-remove { min-width: 40px; min-height: 40px; width: 40px; height: 40px; padding: 0; border: 0; background: transparent; }
+  .cmp-remove i { display: grid; place-items: center; width: 24px; height: 24px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface2); font-size: 1rem; }
   .mm-cmp-acts .btn { min-height: 44px; }
 }
 @media (max-width: 560px) {
@@ -439,4 +440,23 @@ body.cmp-mode.cmp-picking .mm-cmp { order: 3; }
 @media (max-width: 560px) {
   body.cmp-mode.cmp-picking .mm-tb-row { grid-template-columns: minmax(0, 1fr) auto auto; }
   .mm-picker-done { min-height: 44px; }
+}
+
+/* Counts indicate totals in the scope control and search matches in facets. */
+.mm-scope { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; }
+.mm-scope-label, .mm-filter-help { color: var(--text-muted); font-size: 0.75rem; line-height: 1.4; }
+.mm-filter-help { margin: 0 0 0.45rem; }
+.mm-alpha-label { margin: 0.7rem 0 0.35rem; }
+.mm-filter-count { display: inline-block; min-width: 1.4rem; margin-left: 0.15rem; padding: 0.05rem 0.32rem; border-radius: 999px; background: var(--surface); color: var(--text); font-size: 0.7rem; text-align: center; }
+.mm-fbtn.active .mm-filter-count { background: var(--surface); color: var(--text); }
+.mm-selection-hint { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--text-muted); font-size: 0.75rem; line-height: 1.4; }
+.mm-selection-hint[hidden] { display: none; }
+@media (max-width: 560px) {
+  .mm-modes { width: 100%; }
+  .mm-mode { flex: 1 1 0; justify-content: center; }
+  .mm-scope { gap: 0.25rem; }
+  .mm-fgrp { display: flex; flex: 1 1 auto; min-width: 0; }
+  .mm-fgrp .mm-fbtn { flex: 1 1 0; min-width: 0; padding-inline: 0.35rem; }
+  .mm-cmp-acts { flex-wrap: wrap; }
+  .mm-cmp-acts .btn { flex: 1 1 auto; justify-content: center; }
 }
