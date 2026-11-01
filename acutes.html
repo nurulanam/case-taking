@@ -62,7 +62,7 @@
           <h3 id="acAskQ"></h3>
           <p id="acAskHint"></p>
         </div>
-        <div class="ac-opts" id="acOpts" role="listbox"></div>
+        <div class="ac-opts" id="acOpts" role="group" aria-labelledby="acAskQ"></div>
         <p class="ac-ask-keys" id="acAskKeys"></p>
       </section>
 
@@ -134,14 +134,14 @@
       </div>
 
       <div class="remedy-filters">
-        <button class="filter-btn active" data-filter="all">সব</button>
-        <button class="filter-btn" data-filter-activity="increase">কার্যকলাপ বৃদ্ধি</button>
-        <button class="filter-btn" data-filter-activity="decrease">কার্যকলাপ হ্রাস</button>
-        <button class="filter-btn" data-filter-activity="no_change">অপরিবর্তিত</button>
-        <button class="filter-btn" data-filter-thermal="hot">গরম</button>
-        <button class="filter-btn" data-filter-thermal="chilly">শীতার্ত</button>
-        <button class="filter-btn" data-filter-thirst="thirsty">তৃষ্ণার্ত</button>
-        <button class="filter-btn" data-filter-thirst="thirstless">তৃষ্ণাহীন</button>
+        <button type="button" class="filter-btn active" aria-pressed="true" data-filter="all">সব</button>
+        <button type="button" class="filter-btn" aria-pressed="false" data-filter-activity="increase">কার্যকলাপ বৃদ্ধি</button>
+        <button type="button" class="filter-btn" aria-pressed="false" data-filter-activity="decrease">কার্যকলাপ হ্রাস</button>
+        <button type="button" class="filter-btn" aria-pressed="false" data-filter-activity="no_change">অপরিবর্তিত</button>
+        <button type="button" class="filter-btn" aria-pressed="false" data-filter-thermal="hot">গরম</button>
+        <button type="button" class="filter-btn" aria-pressed="false" data-filter-thermal="chilly">শীতার্ত</button>
+        <button type="button" class="filter-btn" aria-pressed="false" data-filter-thirst="thirsty">তৃষ্ণার্ত</button>
+        <button type="button" class="filter-btn" aria-pressed="false" data-filter-thirst="thirstless">তৃষ্ণাহীন</button>
       </div>
 
       <div class="remedy-browser-grid" id="remedyBrowserList"></div>

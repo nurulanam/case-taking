@@ -1199,3 +1199,69 @@
     .ac-rail { align-items: flex-start; }
     .ac-rail-pool { align-self: flex-start; margin-top: 0.35rem; }
   }
+
+/* Compact, content-sized acute workspace. The page scrolls naturally instead
+   of stretching the decision area to fill the viewport or nesting scroll panes. */
+body.ac-fit .app-root { height: auto; min-height: 100dvh; overflow: visible; }
+body.ac-fit .app-main, body.ac-fit .app-content, body.ac-fit .content-inner,
+body.ac-fit #panel-wizard.active { overflow: visible; }
+body.ac-fit .content-inner, body.ac-fit #panel-wizard.active { flex: none; }
+.ac-workspace { flex: none; height: auto; overflow: visible; }
+.ac-body { flex: none; }
+.ac-main, .ac-ask, .ac-result, .ac-inspect, .ac-inspect-body,
+.ac-tri, .ac-detail, .ac-rxpane, .ac-rxpane-list, .ac-rail { height: auto; overflow: visible; }
+.ac-ask, .ac-result { flex: none; }
+.ac-rail-pool { margin-top: 0; }
+.ac-ask { padding: 1rem 1.25rem 1.15rem; }
+.ac-ask-head { margin-bottom: 0.7rem; }
+.ac-ask-keys { margin-top: 0.65rem; }
+.ac-opt { padding-block: 0.55rem; }
+.ac-rx-row { width: 100%; font: inherit; text-align: left; color: inherit; }
+.ac-rx-text { flex: 1; min-width: 0; }
+.ac-rx-name, .ac-rx-text .rx-en { display: block; overflow-wrap: anywhere; }
+.ac-rx-row:focus-visible, .ac-axis:focus-visible, .rbc-header:focus-visible, .filter-btn:focus-visible {
+  outline: 2px solid var(--primary); outline-offset: 2px;
+}
+/* Make all three clinical points readable immediately when switching remedies. */
+.tri-txt, .tri-dot, .tri-fill { opacity: 1; animation: none; }
+.tri-seg { stroke-dashoffset: 0; animation: none; }
+.tri-grid { grid-template-rows: auto 86px auto; }
+.tri-stage { height: 86px; }
+.remedy-browser-card:hover { box-shadow: none; }
+.remedy-filters { margin-bottom: 0.9rem; }
+.remedy-browser-grid { gap: 0.5rem; }
+.rbc-header { padding: 0.7rem 0.9rem; }
+.fc-node { margin-top: 0.65rem; }
+@media (max-width: 900px) {
+  .ac-rail.is-empty .ac-mobile-snapshot { display: none; }
+  .ac-rail.is-empty .ac-rail-pool { margin: 0; }
+  .ac-rail { align-items: flex-start; }
+  .ac-ask { padding: 0.75rem 0.8rem 0.9rem; }
+  .ac-rxpane { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); align-items: center; gap: 0.25rem; padding: 0.4rem 0.65rem; }
+  .ac-rxpane-head { display: block; border: 0; padding: 0; }
+  .ac-rxpane-count { display: block; margin-top: 0.1rem; }
+  .ac-mobile-remedy { padding: 0; }
+  .ac-mobile-remedy select { min-height: 44px; padding-block: 0.45rem; border-radius: 8px; }
+  .ac-rxpane-list { display: none; }
+  .ac-inspect-head { padding: 0.6rem 0.75rem; }
+  .ac-tri { padding: 0.65rem; }
+  .ac-detail { padding: 0.7rem 0.75rem 0.85rem; }
+}
+@media (max-width: 640px) {
+  .ac-opt { padding: 0.55rem 0.65rem; }
+  .ac-inspect-body { overflow: visible; }
+  .tri-grid { grid-template-rows: auto 62px auto; gap: 0 0.65rem; }
+  .tri-stage { height: 62px; }
+  .tri-caption { margin-top: 0.35rem; padding-bottom: 0; }
+  .rbc-header { padding: 0.7rem 0.75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-panel, .flow-step-anim, .ac-result { animation: none; }
+}
+@media (min-width: 901px) {
+  .ac-workspace:not(.is-leaf) { max-width: 62rem; }
+  .ac-workspace.is-leaf { max-width: 84rem; }
+}
+@media (max-height: 520px) {
+  .ac-ask-head p { display: block; }
+}

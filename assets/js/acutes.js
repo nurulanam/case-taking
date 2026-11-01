@@ -115,7 +115,7 @@ function renderRemedyBrowser(filterActivity = null, filterThermal = null, filter
     const actLabel = { increase: 'কার্যকলাপ বৃদ্ধি', decrease: 'কার্যকলাপ হ্রাস', no_change: 'অপরিবর্তিত' };
     const actClass = { increase: 'tag-activity-inc', decrease: 'tag-activity-dec', no_change: 'tag-activity-nc' };
     div.innerHTML = `
-      <div class="rbc-header" onclick="toggleRBC(this)">
+      <div class="rbc-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleRBC(this)">
         <div style="display:flex;align-items:center;gap:0.75rem;min-width:0;">
           <span class="rbc-abbr">${r.abbr}</span>
           <div style="min-width:0;">
@@ -152,6 +152,10 @@ function renderRemedyBrowser(filterActivity = null, filterThermal = null, filter
         <div class="potency-box"><i class='bx bx-injection'></i>${r.potency_bn}</div>
       </div>
     `;
+    const header = div.querySelector('.rbc-header');
+    header.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleRBC(header); }
+    });
     container.appendChild(div);
   });
 }
@@ -162,9 +166,11 @@ function toggleRBC(header) {
   const icon = card.querySelector('.expand-icon');
   const isOpen = body.classList.contains('open');
   document.querySelectorAll('.rbc-body.open').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.rbc-header').forEach(h => h.setAttribute('aria-expanded', 'false'));
   document.querySelectorAll('.expand-icon').forEach(ic => ic.style.transform = '');
   if (!isOpen) {
     body.classList.add('open');
+    header.setAttribute('aria-expanded', 'true');
     icon.style.transform = 'rotate(180deg)';
   }
 }
@@ -172,8 +178,12 @@ function toggleRBC(header) {
 // Filter buttons
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
     const fa = btn.dataset.filterActivity || null;
     const ft = btn.dataset.filterThermal || null;
     const fth = btn.dataset.filterThirst || null;
@@ -552,6 +562,7 @@ function renderRail() {
   const host = document.getElementById('acRail');
   if (!host) return;
   const pool = countRemedies(currentFlowNode());
+  host.classList.toggle('is-empty', flowPath.length === 0);
   const rows = flowPath.map((n, i) => {
     const ax = AC_AXES.find(a => a.id === axisOf(n));
     return `<button type="button" class="ac-axis filled" data-jump="${i}">
@@ -593,7 +604,7 @@ function renderAsk() {
   host.classList.remove('hero');
   host.innerHTML = opts.map((opt, oi) => {
     const count = countRemedies(opt);
-    return `<button type="button" class="ac-opt" data-opt="${oi}" role="option">
+    return `<button type="button" class="ac-opt" data-opt="${oi}">
       <kbd class="ac-opt-k">${bnNum(oi + 1)}</kbd>
       <span class="ac-opt-ico"><i class="bx ${optIcon(opt)}"></i></span>
       <span class="ac-opt-label">
@@ -675,19 +686,21 @@ function renderRightAndBottom() {
   };
   scroll.innerHTML = node.remedies.map((r, idx) => {
     const info = rxInfo(r.en);
-    return `<div class="ac-rx-row ${idx === openRemedyIdx ? 'open' : ''}" data-idx="${idx}" style="animation-delay:${Math.min(idx, 8) * 0.03}s">
-      <div class="ac-rx-no ${r.n ? '' : 'plain'}">${r.n != null ? bnNum(r.n) : (info && info.icon ? info.icon : '•')}</div>
-      <div style="flex:1;min-width:0;">
-        <div class="ac-rx-name">${r.bn} <span class="rx-abbr">${r.ab}</span></div>
-        <div class="rx-en">${r.en}</div>
-      </div>
-    </div>`;
+    return `<button type="button" class="ac-rx-row ${idx === openRemedyIdx ? 'open' : ''}" data-idx="${idx}" aria-pressed="${idx === openRemedyIdx}">
+      <span class="ac-rx-no ${r.n ? '' : 'plain'}">${r.n != null ? bnNum(r.n) : (info && info.icon ? info.icon : '•')}</span>
+      <span class="ac-rx-text">
+        <span class="ac-rx-name">${r.bn} <span class="rx-abbr">${r.ab}</span></span>
+        <span class="rx-en">${r.en}</span>
+      </span>
+    </button>`;
   }).join('');
 
   scroll.querySelectorAll('.ac-rx-row').forEach(el => {
     el.addEventListener('click', () => {
       openRemedyIdx = +el.dataset.idx;
       renderRightAndBottom();
+      const active = scroll.querySelector(`[data-idx="${openRemedyIdx}"]`);
+      if (active) active.focus({ preventScroll: true });
       persistAcutePick(true);
     });
   });
