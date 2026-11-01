@@ -535,16 +535,10 @@ function renderFlow() {
   updateTopbarChip();
   const leaf = !!(currentFlowNode().remedies);
   document.getElementById('acWorkspace').classList.toggle('is-leaf', leaf);
-  document.getElementById('acResult').hidden = !leaf;
   renderProgress();
   renderSteps();
-  if (leaf) {
-    openRemedyIdx = 0;
-    renderRightAndBottom();
-  } else {
-    const toRx = document.getElementById('flowToRx');
-    if (toRx) toRx.disabled = true;
-  }
+  openRemedyIdx = 0;
+  renderRightAndBottom();
 }
 
 function renderProgress() {
@@ -629,9 +623,12 @@ function renderRightAndBottom() {
   const select = document.getElementById('acRemedySelect');
 
   if (!node.remedies) {
-    select.replaceChildren();
+    const placeholder = document.createElement('option');
+    placeholder.textContent = 'ধাপ সম্পূর্ণ হলে ওষুধ দেখাবে';
+    select.replaceChildren(placeholder);
+    select.disabled = true;
     countEl.textContent = '';
-    scroll.innerHTML = `<div class="ac-empty"><i class='bx bx-capsule'></i><p>ধাপগুলো শেষ করলে এখানে ওষুধের তালিকা দেখাবে।</p></div>`;
+    scroll.innerHTML = `<div class="ac-placeholder"><span class="ac-skeleton-lines" aria-hidden="true"><i></i><i></i><i></i></span><p>ধাপ সম্পূর্ণ হলে সম্ভাব্য ওষুধ এখানে দেখাবে।</p></div>`;
     renderBottomEmpty();
     const toRx = document.getElementById('flowToRx');
     if (toRx) toRx.disabled = true;
@@ -639,6 +636,7 @@ function renderRightAndBottom() {
   }
 
   countEl.textContent = `${bnNum(node.remedies.length)}টি ওষুধ`;
+  select.disabled = false;
   select.replaceChildren(...node.remedies.map((r, idx) => {
     const option = document.createElement('option');
     option.value = idx;
@@ -744,11 +742,11 @@ function renderBottomFor(r) {
 }
 
 function renderBottomEmpty() {
-  document.getElementById('acTriHost').innerHTML = `<div class="ac-empty"><i class='bx bx-shape-triangle'></i><p>ওষুধ বেছে নিলে ত্রিভুজ দেখাবে।</p></div>`;
-  document.getElementById('acDetailHost').innerHTML = `<div class="ac-empty"><p>ওষুধ বেছে নিলে বিস্তারিত দেখাবে।</p></div>`;
-  document.getElementById('acDetailName').textContent = 'বিস্তারিত';
+  document.getElementById('acTriHost').innerHTML = `<div class="ac-placeholder"><i class='bx bx-shape-triangle ac-placeholder-icon' aria-hidden="true"></i><p>ওষুধ বাছাই হলে লক্ষণগুলো এখানে দেখাবে।</p></div>`;
+  document.getElementById('acDetailHost').innerHTML = `<div class="ac-placeholder"><span class="ac-skeleton-lines" aria-hidden="true"><i></i><i></i><i></i></span><p>নির্বাচিত ওষুধের বিবরণ এখানে দেখাবে।</p></div>`;
+  document.getElementById('acDetailName').textContent = 'ওষুধ বাছাই হয়নি';
   const sub = document.getElementById('acDetailSub');
-  if (sub) sub.textContent = '';
+  if (sub) sub.textContent = 'ফলাফল এলে বিস্তারিত দেখুন';
   const abbr = document.getElementById('acDetailAbbr');
   if (abbr) abbr.textContent = '—';
 }
