@@ -1166,7 +1166,7 @@
       const top = rems(rb).slice(0, 4).map(r => `${esc(r.bn || r.name)} <b>${bn(r.grade)}</b>`).join(', ');
       return `<div class="tray-item" data-id="${id}">
         <div class="tray-top">
-          <span class="tray-name">${esc(rb.name)}<small>${esc(rb.chapterLabel)}</small></span>
+          <span class="tray-name">${esc(rb.name)}${rb.bn ? `<span class="tray-bn">${esc(rb.bn)}</span>` : ''}<small>${esc(rb.chapterLabel)}</small></span>
           <button type="button" class="tray-x" title="সরান" aria-label="${esc(rb.name)} সরান"><i class='bx bx-x'></i></button>
         </div>
         <div class="tray-grades">
@@ -1254,12 +1254,14 @@
     const body = `<tbody>${shown.map((r, i) => `
       <tr class="${i === 0 ? 'top' : ''}" data-key="${r.key}">
         <th title="${esc(r.name)}">
-          <button type="button" class="rx-cmp ${S.compare.has(r.key) ? 'on' : ''}" data-cmp="${r.key}"
-                  aria-label="${esc(r.name)} তুলনার জন্য বাছুন" aria-pressed="${S.compare.has(r.key)}"><i class='bx bx-check'></i></button>
-          <button type="button" class="rx-nm rx-open" aria-label="${esc(r.name)} বিস্তারিত দেখুন">
-            <span class="${r.placeholder ? 'ph' : ''}">${esc(r.name)}</span>
-            ${r.bangla ? `<span class="rx-bn">${esc(r.bangla)}</span>` : ''}
-          </button>
+          <div class="rx-cell">
+            <button type="button" class="rx-cmp ${S.compare.has(r.key) ? 'on' : ''}" data-cmp="${r.key}"
+                    aria-label="${esc(r.name)} তুলনার জন্য বাছুন" aria-pressed="${S.compare.has(r.key)}"><i class='bx bx-check' aria-hidden="true"></i></button>
+            <button type="button" class="rx-nm rx-open" aria-label="${esc(r.name)} বিস্তারিত দেখুন">
+              <span class="${r.placeholder ? 'ph' : ''}">${esc(r.name)}</span>
+              ${r.bangla ? `<span class="rx-bn">${esc(r.bangla)}</span>` : ''}
+            </button>
+          </div>
         </th>
         <td class="tot">${bn(r.total)}</td>
         <td class="cov">${bn(r.coverage)}/${bn(rubrics.length)}</td>

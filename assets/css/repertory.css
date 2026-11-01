@@ -233,7 +233,8 @@
   margin-bottom: 0.5rem; background: var(--surface);
 }
 .tray-top { display: flex; align-items: flex-start; gap: 0.5rem; }
-.tray-name { flex: 1; min-width: 0; font-size: 0.9375rem; font-weight: 600; color: var(--text); line-height: 1.4; }
+.tray-name { flex: 1; min-width: 0; font-size: 0.9375rem; font-weight: 600; color: var(--text); line-height: 1.4; overflow-wrap: anywhere; }
+.tray-bn { display: block; margin-top: 0.125rem; font-size: 0.875rem; font-weight: 500; color: var(--text); }
 .tray-name small { display: block; font-size: 0.75rem; font-weight: 400; color: var(--text-muted); }
 .tray-x {
   flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
@@ -808,4 +809,18 @@
   .rp-filter-row .rp-check { grid-column: auto; }
   .rp-compare-go, .rp-compare-reset { min-height: 44px; }
   .rp-compare-reset { min-width: 44px; }
+}
+
+/* Keep the comparison control and remedy name together in the sticky column.
+   Only the name wraps; the checkbox retains its own independent hit target. */
+.rp-grid .rx-cell { display: flex; align-items: center; gap: 0.25rem; min-width: 0; }
+.rp-grid th .rx-cell .rx-cmp { flex: 0 0 30px; margin: 0; }
+.rp-grid th .rx-cell .rx-open {
+  display: block; flex: 1 1 0; min-width: 0; max-width: none;
+  white-space: normal; overflow-wrap: anywhere; line-height: 1.35;
+}
+@media (max-width: 1023px) {
+  #pane-3 .rp-grid th .rx-cell { gap: 0; }
+  #pane-3 .rp-grid th .rx-cell .rx-cmp { flex-basis: 40px; width: 40px; height: 44px; margin: 0; }
+  #pane-3 .rp-grid th .rx-cell .rx-open { max-width: none; }
 }
