@@ -535,6 +535,7 @@ function renderFlow() {
   updateTopbarChip();
   const leaf = !!(currentFlowNode().remedies);
   document.getElementById('acWorkspace').classList.toggle('is-leaf', leaf);
+  document.getElementById('acResultJump').hidden = !leaf;
   renderProgress();
   renderSteps();
   openRemedyIdx = 0;
@@ -568,23 +569,40 @@ function renderSteps() {
         <span class="ac-step-option-text"><strong>${opt.bn}</strong>${opt.en ? `<small>${opt.en}</small>` : ''}${opt.desc ? `<span>${opt.desc}</span>` : ''}</span>
         ${choice === opt ? `<i class="bx bx-check ac-step-check" aria-hidden="true"></i>` : ''}
       </button>`).join('') : '';
-    columns.push(`<section class="ac-step-column ${active ? 'is-current' : ''} ${available ? 'is-available' : 'is-pending'}" aria-labelledby="acStepTitle${step}">
-      <div class="ac-step-heading"><span id="acStepTitle${step}">ধাপ ${bnNum(step + 1)}</span>${title ? `<strong>${title}</strong>` : ''}</div>
-      ${available ? `<div class="ac-step-body">${node.hint ? `<p class="ac-step-hint">${node.hint}</p>` : ''}<div class="ac-step-options">${options}</div></div>` : ''}
+    columns.push(`<section class="ac-step-column ${active ? 'is-current' : ''} ${choice ? 'is-complete' : ''} ${available ? 'is-available' : 'is-pending'}" aria-labelledby="acStepTitle${step}">
+      <div class="ac-step-heading"><span id="acStepTitle${step}">ধাপ ${bnNum(step + 1)}</span>${title ? `<strong>${title}</strong>` : ''}${choice ? `<span class="ac-step-chosen"><i class="bx bx-check-circle" aria-hidden="true"></i> ${choice.bn}</span><button type="button" class="ac-step-edit" aria-expanded="false" aria-controls="acStepBody${step}" aria-label="ধাপ ${bnNum(step + 1)} পরিবর্তন করুন">পরিবর্তন</button>` : ''}</div>
+      ${available ? `<div class="ac-step-body" id="acStepBody${step}">${node.hint ? `<p class="ac-step-hint">${node.hint}</p>` : ''}<div class="ac-step-options">${options}</div></div>` : ''}
     </section>`);
     node = choice || null;
   }
   host.innerHTML = columns.join('');
+  host.querySelectorAll('.ac-step-edit').forEach(button => button.addEventListener('click', () => {
+    const column = button.closest('.ac-step-column');
+    const opening = !column.classList.contains('is-editing');
+    host.querySelectorAll('.is-editing').forEach(other => {
+      other.classList.remove('is-editing');
+      other.querySelector('.ac-step-edit').setAttribute('aria-expanded', 'false');
+    });
+    column.classList.toggle('is-editing', opening);
+    button.setAttribute('aria-expanded', String(opening));
+  }));
   host.querySelectorAll('[data-step][data-opt]').forEach(button => button.addEventListener('click', event => {
     const step = Number(button.dataset.step);
     let parent = FLOW;
     for (let i = 0; i < step; i++) parent = flowPath[i];
     const selected = parent.children[Number(button.dataset.opt)];
-    if (flowPath[step] === selected) return;
+    if (flowPath[step] === selected) {
+      const column = button.closest('.ac-step-column');
+      column.classList.remove('is-editing');
+      const edit = column.querySelector('.ac-step-edit');
+      if (edit) { edit.setAttribute('aria-expanded', 'false'); if (event.detail === 0) edit.focus(); }
+      return;
+    }
     flowPath = flowPath.slice(0, step).concat(selected);
     renderFlow();
     if (event.detail === 0) {
       const next = host.querySelector('.is-current .ac-step-option') ||
+        (window.matchMedia('(max-width: 900px)').matches ? host.querySelectorAll('.ac-step-edit')[step] : null) ||
         host.querySelector(`[data-step="${step}"][data-opt="${button.dataset.opt}"]`);
       if (next) next.focus({ preventScroll: true });
     }
@@ -816,6 +834,11 @@ function initFlowWizard() {
   document.getElementById('flowRestart').addEventListener('click', () => { flowPath = []; renderFlow(); });
   const toRx = document.getElementById('flowToRx');
   if (toRx) toRx.addEventListener('click', sendAcuteToRx);
+  document.getElementById('acResultJump').addEventListener('click', () => {
+    document.getElementById('acResult').scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start'
+    });
+  });
   document.addEventListener('keydown', onWizardKey);
   renderFlow();
   initTopbar();

@@ -1339,3 +1339,37 @@ body.ac-fit .content-inner, body.ac-fit #panel-wizard.active { flex: none; }
   .ac-placeholder { padding: 0.6rem; }
   .ac-part-heading { margin-bottom: 0.5rem; }
 }
+
+/* On phones, completed decisions become editable summaries so the current
+   question and the reserved result stay close without losing the full path. */
+.ac-step-chosen, .ac-step-edit, .ac-result-jump { display: none; }
+@media (max-width: 900px) {
+  .ac-ask { padding: 0.55rem; }
+  .ac-steps { gap: 0.35rem; }
+  .ac-step-heading { position: relative; }
+  .ac-step-column.is-complete .ac-step-heading { padding-right: 5.5rem; border-bottom: 0; }
+  .ac-step-column.is-complete.is-editing .ac-step-heading { border-bottom: 1px solid var(--border); }
+  .ac-step-column.is-complete:not(.is-editing) .ac-step-body { display: none; }
+  .ac-step-heading > .ac-step-chosen { display: flex; align-items: center; gap: 0.25rem; color: var(--text); font-size: 0.8125rem; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+  .ac-step-chosen i { color: var(--primary); font-size: 1rem; flex-shrink: 0; }
+  .ac-step-edit { position: absolute; top: 50%; right: 0.4rem; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0.4rem 0.5rem; border: 0; border-radius: 6px; background: transparent; color: var(--primary); font: inherit; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+  .ac-step-edit[aria-expanded="true"] { background: var(--primary-bg); }
+  .ac-step-edit:focus-visible, .ac-result-jump:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .ac-step-column.is-pending .ac-step-heading { padding-block: 0.48rem; }
+  .ac-step-hint { font-size: 0.8125rem; }
+  .ac-step-option { padding: 0.65rem; }
+  .ac-step-option-text strong { font-size: 0.875rem; }
+  .ac-step-option-text small, .ac-step-option-text > span { font-size: 0.75rem; }
+  .ac-result-jump:not([hidden]) { display: flex; justify-content: center; align-items: center; gap: 0.3rem; width: 100%; min-height: 44px; margin-top: 0.5rem; border: 1px solid var(--primary); border-radius: 8px; background: var(--primary-bg); color: var(--primary); font: inherit; font-weight: 700; cursor: pointer; }
+  .ac-result { scroll-margin-top: 4.5rem; }
+  .ac-dose-hint { font-size: 0.75rem; }
+}
+@media (max-width: 640px) {
+  #flowToRx .ac-btn-lbl { display: inline; }
+  #flowToRx { gap: 0.25rem; font-size: 0.75rem; }
+}
+@media (max-width: 560px) {
+  .ac-rxpane { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; }
+  .ac-rxpane-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+  .ac-rxpane-count { margin: 0; }
+}
