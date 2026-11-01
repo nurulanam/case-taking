@@ -571,7 +571,7 @@ function renderSteps() {
       </button>`).join('') : '';
     columns.push(`<section class="ac-step-column ${active ? 'is-current' : ''} ${choice ? 'is-complete' : ''} ${available ? 'is-available' : 'is-pending'}" aria-labelledby="acStepTitle${step}">
       <div class="ac-step-heading"><span id="acStepTitle${step}">ধাপ ${bnNum(step + 1)}</span>${title ? `<strong>${title}</strong>` : ''}${choice ? `<span class="ac-step-chosen"><i class="bx bx-check-circle" aria-hidden="true"></i> ${choice.bn}</span><button type="button" class="ac-step-edit" aria-expanded="false" aria-controls="acStepBody${step}" aria-label="ধাপ ${bnNum(step + 1)} পরিবর্তন করুন">পরিবর্তন</button>` : ''}</div>
-      ${available ? `<div class="ac-step-body" id="acStepBody${step}">${node.hint ? `<p class="ac-step-hint">${node.hint}</p>` : ''}<div class="ac-step-options">${options}</div></div>` : ''}
+      ${available ? `<div class="ac-step-body" id="acStepBody${step}"><div class="ac-step-options">${options}</div></div>` : ''}
     </section>`);
     node = choice || null;
   }
