@@ -1199,3 +1199,175 @@
     .ac-rail { align-items: flex-start; }
     .ac-rail-pool { align-self: flex-start; margin-top: 0.35rem; }
   }
+
+/* Compact, content-sized acute workspace. The page scrolls naturally instead
+   of stretching the decision area to fill the viewport or nesting scroll panes. */
+body.ac-fit .app-root { height: auto; min-height: 100dvh; overflow: visible; }
+body.ac-fit .app-main, body.ac-fit .app-content, body.ac-fit .content-inner,
+body.ac-fit #panel-wizard.active { overflow: visible; }
+body.ac-fit .content-inner, body.ac-fit #panel-wizard.active { flex: none; }
+.ac-workspace { flex: none; height: auto; overflow: visible; }
+.ac-body { flex: none; }
+.ac-main, .ac-ask, .ac-result, .ac-inspect, .ac-inspect-body,
+.ac-tri, .ac-detail, .ac-rxpane, .ac-rxpane-list, .ac-rail { height: auto; overflow: visible; }
+.ac-ask, .ac-result { flex: none; }
+.ac-rail-pool { margin-top: 0; }
+.ac-ask { padding: 1rem 1.25rem 1.15rem; }
+.ac-ask-head { margin-bottom: 0.7rem; }
+.ac-ask-keys { margin-top: 0.65rem; }
+.ac-opt { padding-block: 0.55rem; }
+.ac-rx-row { width: 100%; font: inherit; text-align: left; color: inherit; }
+.ac-rx-text { flex: 1; min-width: 0; }
+.ac-rx-name, .ac-rx-text .rx-en { display: block; overflow-wrap: anywhere; }
+.ac-rx-row:focus-visible, .ac-axis:focus-visible, .rbc-header:focus-visible, .filter-btn:focus-visible {
+  outline: 2px solid var(--primary); outline-offset: 2px;
+}
+/* Give the animated triangle enough height to remain legible beside details. */
+.tri-grid { grid-template-rows: auto 140px auto; }
+.tri-stage { height: 140px; }
+.remedy-browser-card:hover { box-shadow: none; }
+.remedy-filters { margin-bottom: 0.9rem; }
+.remedy-browser-grid { gap: 0.5rem; }
+.rbc-header { padding: 0.7rem 0.9rem; }
+.fc-node { margin-top: 0.65rem; }
+@media (max-width: 900px) {
+  .ac-rail.is-empty .ac-mobile-snapshot { display: none; }
+  .ac-rail.is-empty .ac-rail-pool { margin: 0; }
+  .ac-rail { align-items: flex-start; }
+  .ac-ask { padding: 0.75rem 0.8rem 0.9rem; }
+  .ac-rxpane { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); align-items: center; gap: 0.25rem; padding: 0.4rem 0.65rem; }
+  .ac-rxpane-head { display: block; border: 0; padding: 0; }
+  .ac-rxpane-count { display: block; margin-top: 0.1rem; }
+  .ac-mobile-remedy { padding: 0; }
+  .ac-mobile-remedy select { min-height: 44px; padding-block: 0.45rem; border-radius: 8px; }
+  .ac-rxpane-list { display: none; }
+  .ac-inspect-head { padding: 0.6rem 0.75rem; }
+  .ac-tri { padding: 0.65rem; }
+  .ac-detail { padding: 0.7rem 0.75rem 0.85rem; }
+}
+@media (max-width: 640px) {
+  .ac-opt { padding: 0.55rem 0.65rem; }
+  .ac-inspect-body { overflow: visible; }
+  .tri-grid { grid-template-rows: auto 105px auto; gap: 0 0.65rem; }
+  .tri-stage { height: 105px; }
+  .tri-caption { margin-top: 0.35rem; padding-bottom: 0; }
+  .rbc-header { padding: 0.7rem 0.75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-panel, .flow-step-anim, .ac-result { animation: none; }
+  .tri-txt, .tri-dot, .tri-fill { opacity: 1; animation: none; }
+  .tri-seg { stroke-dashoffset: 0; animation: none; }
+}
+@media (min-width: 901px) {
+  .ac-workspace:not(.is-leaf) { max-width: 62rem; }
+  .ac-workspace.is-leaf { max-width: 84rem; }
+}
+@media (max-height: 520px) {
+  .ac-ask-head p { display: block; }
+}
+
+/* Four reserved decision columns. A column only gains content once its parent
+   choice is known; earlier choices stay visible and can be changed directly. */
+.ac-body { display: flex; flex-direction: column; min-width: 0; }
+.ac-main { flex: 1 1 auto; min-width: 0; }
+.ac-ask { padding: 0.75rem; min-width: 0; }
+.ac-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; min-width: 0; }
+.ac-step-column { min-width: 0; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); overflow: hidden; }
+.ac-step-column.is-current { border-color: var(--primary); }
+.ac-step-column.is-pending { background: var(--surface2); }
+.ac-step-heading { flex: 0 0 auto; display: flex; flex-direction: column; gap: 0.12rem; padding: 0.65rem 0.7rem; border-bottom: 1px solid var(--border); }
+.ac-step-heading > span { font-size: 0.72rem; color: var(--primary); font-weight: 700; }
+.ac-step-heading > strong { color: var(--text); font-size: 0.88rem; line-height: 1.35; }
+.ac-step-column.is-pending .ac-step-heading { border-bottom: 0; }
+.ac-step-body { min-height: 0; padding: 0.6rem; }
+.ac-step-options { display: flex; flex-direction: column; gap: 0.35rem; }
+.ac-step-option { display: flex; align-items: flex-start; gap: 0.45rem; width: 100%; padding: 0.55rem; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.ac-step-option:hover { border-color: var(--primary); background: var(--primary-bg); }
+.ac-step-option:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.ac-step-option.selected { border-color: var(--primary); background: var(--primary-bg); }
+.ac-step-option-icon { flex: 0 0 1.6rem; height: 1.6rem; display: grid; place-items: center; border-radius: 6px; background: var(--surface2); color: var(--primary); }
+.ac-step-option-text { display: flex; flex: 1 1 auto; min-width: 0; flex-direction: column; gap: 0.1rem; overflow-wrap: anywhere; }
+.ac-step-option-text strong { font-size: 0.8125rem; line-height: 1.35; }
+.ac-step-option-text small, .ac-step-option-text > span { font-size: 0.72rem; color: var(--text-muted); line-height: 1.4; }
+.ac-step-check { color: var(--primary); font-size: 1rem; flex-shrink: 0; }
+[data-theme="dark"] .ac-step-option { background: var(--surface2); }
+[data-theme="dark"] .ac-step-option.selected, [data-theme="dark"] .ac-step-option:hover { background: var(--primary-bg); }
+
+/* Desktop uses the original full-height console. The results and option lists
+   scroll independently when their contents exceed the available space. */
+@media (min-width: 901px) and (min-height: 651px) and (pointer: fine) {
+  body.ac-fit .app-root { height: 100dvh; overflow: hidden; }
+  body.ac-fit .app-main, body.ac-fit .app-content, body.ac-fit .content-inner,
+  body.ac-fit #panel-wizard.active { min-height: 0; overflow: hidden; }
+  body.ac-fit .content-inner, body.ac-fit #panel-wizard.active { flex: 1 1 auto; }
+  .ac-workspace, .ac-workspace:not(.is-leaf), .ac-workspace.is-leaf { flex: 1 1 auto; min-height: 0; max-width: none; overflow: hidden; }
+  .ac-body { flex: 1 1 auto; min-height: 0; }
+  .ac-main { overflow: hidden; }
+  .ac-ask { flex: 1 1 auto; display: flex; min-height: 0; overflow: hidden; }
+  .ac-steps { flex: 1 1 auto; min-height: 0; }
+  .ac-step-body { overflow-y: auto; overscroll-behavior: contain; }
+  .ac-ask { flex: 0 0 48%; min-height: 12rem; }
+  .ac-result { flex: 1 1 auto; min-height: 0; overflow: hidden; border-top: 1px solid var(--border); }
+  .ac-rxpane, .ac-inspect, .ac-inspect-body { min-height: 0; overflow: hidden; }
+  .ac-rxpane-list, .ac-tri, .ac-detail { overflow-y: auto; }
+}
+/* Small screens keep all four titles in normal page flow and do not require
+   horizontal scrolling to change an earlier choice. */
+@media (max-width: 900px) {
+  .ac-steps { grid-template-columns: 1fr; gap: 0.4rem; }
+  .ac-step-heading { padding: 0.55rem 0.65rem; }
+  .ac-step-body { padding: 0.55rem; }
+  .ac-step-option { min-height: 44px; }
+  .ac-result { border-top: 1px solid var(--border); }
+}
+
+/* Result panes remain in place from the first decision through the result. */
+.ac-workspace:not(.is-leaf), .ac-workspace.is-leaf { max-width: none; }
+.ac-result { border-top: 1px solid var(--border); animation: none; }
+.ac-part-heading { display: flex; align-items: center; gap: 0.35rem; margin: 0 0 0.65rem; color: var(--text); font-size: 0.8rem; font-weight: 700; }
+.ac-part-heading i { color: var(--primary); font-size: 1rem; }
+.ac-placeholder { display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; padding: 0.75rem; border: 1px dashed var(--border); border-radius: 8px; background: var(--surface); }
+.ac-placeholder p { margin: 0; color: var(--text-muted); font-size: 0.75rem; line-height: 1.5; }
+.ac-placeholder-icon { font-size: 1.6rem; color: var(--text-muted); }
+.ac-skeleton-lines { display: grid; gap: 0.35rem; width: min(100%, 10rem); }
+.ac-skeleton-lines i { display: block; height: 0.4rem; border-radius: 99px; background: var(--border); }
+.ac-skeleton-lines i:nth-child(2) { width: 78%; }
+.ac-skeleton-lines i:nth-child(3) { width: 55%; }
+.ac-mobile-remedy select:disabled { color: var(--text-muted); background: var(--surface2); cursor: default; opacity: 1; }
+@media (max-width: 900px) {
+  .ac-placeholder { padding: 0.6rem; }
+  .ac-part-heading { margin-bottom: 0.5rem; }
+}
+
+/* On phones, completed decisions become editable summaries so the current
+   question and the reserved result stay close without losing the full path. */
+.ac-step-chosen, .ac-step-edit, .ac-result-jump { display: none; }
+@media (max-width: 900px) {
+  .ac-ask { padding: 0.55rem; }
+  .ac-steps { gap: 0.35rem; }
+  .ac-step-heading { position: relative; }
+  .ac-step-column.is-complete .ac-step-heading { padding-right: 5.5rem; border-bottom: 0; }
+  .ac-step-column.is-complete.is-editing .ac-step-heading { border-bottom: 1px solid var(--border); }
+  .ac-step-column.is-complete:not(.is-editing) .ac-step-body { display: none; }
+  .ac-step-heading > .ac-step-chosen { display: flex; align-items: center; gap: 0.25rem; color: var(--text); font-size: 0.8125rem; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+  .ac-step-chosen i { color: var(--primary); font-size: 1rem; flex-shrink: 0; }
+  .ac-step-edit { position: absolute; top: 50%; right: 0.4rem; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0.4rem 0.5rem; border: 0; border-radius: 6px; background: transparent; color: var(--primary); font: inherit; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+  .ac-step-edit[aria-expanded="true"] { background: var(--primary-bg); }
+  .ac-step-edit:focus-visible, .ac-result-jump:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .ac-step-column.is-pending .ac-step-heading { padding-block: 0.48rem; }
+  .ac-step-option { padding: 0.65rem; }
+  .ac-step-option-text strong { font-size: 0.875rem; }
+  .ac-step-option-text small, .ac-step-option-text > span { font-size: 0.75rem; }
+  .ac-result-jump:not([hidden]) { display: flex; justify-content: center; align-items: center; gap: 0.3rem; width: 100%; min-height: 44px; margin-top: 0.5rem; border: 1px solid var(--primary); border-radius: 8px; background: var(--primary-bg); color: var(--primary); font: inherit; font-weight: 700; cursor: pointer; }
+  .ac-result { scroll-margin-top: 4.5rem; }
+  .ac-dose-hint { font-size: 0.75rem; }
+}
+@media (max-width: 640px) {
+  #flowToRx .ac-btn-lbl { display: inline; }
+  #flowToRx { gap: 0.25rem; font-size: 0.75rem; }
+}
+@media (max-width: 560px) {
+  .ac-rxpane { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; }
+  .ac-rxpane-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+  .ac-rxpane-count { margin: 0; }
+}

@@ -38,10 +38,7 @@
        sidebar submenu now (see NAV.acutes.children in shell.js), which
        frees this vertical space for the wizard itself. -->
 
-  <!-- PANEL 1: Flow-chart wizard.
-       Console layout: current progress, a living case snapshot, and
-       one numbered question. Leaf view keeps the snapshot and splits the
-       main pane into remedy list | triangle | confirmation. -->
+  <!-- PANEL 1: Four-column decision workspace and remedy result. -->
   <div id="panel-wizard" class="page-panel active">
     <div class="ac-workspace" id="acWorkspace">
       <header class="ac-toolbar">
@@ -54,19 +51,13 @@
       </header>
 
       <div class="ac-body">
-        <aside class="ac-rail" id="acRail"></aside>
         <div class="ac-main">
-      <section class="ac-ask" id="acAsk">
-        <div class="ac-ask-head">
-          <span class="ac-step-badge" id="acStepBadge">Activity</span>
-          <h3 id="acAskQ"></h3>
-          <p id="acAskHint"></p>
-        </div>
-        <div class="ac-opts" id="acOpts" role="listbox"></div>
-        <p class="ac-ask-keys" id="acAskKeys"></p>
+      <section class="ac-ask" id="acAsk" aria-label="নির্বাচনের ধাপ">
+        <div class="ac-steps" id="acSteps"></div>
+        <button type="button" class="ac-result-jump" id="acResultJump" hidden>ফলাফল দেখুন <i class='bx bx-down-arrow-alt' aria-hidden="true"></i></button>
       </section>
 
-      <section class="ac-result" id="acResult" hidden>
+      <section class="ac-result" id="acResult" aria-label="ফলাফল ও ওষুধের বিবরণ">
         <aside class="ac-rxpane">
           <div class="ac-rxpane-head">
             <span class="ac-rxpane-title"><i class='bx bx-capsule'></i> সম্ভাব্য ওষুধ</span>
@@ -92,8 +83,14 @@
             <p class="ac-dose-hint">ত্রিভুজ ও নিশ্চিতকরণ মিললে <b>এক ডোজ</b> — না মিললে ওষুধ বদলান, পুনরাবৃত্তি নয়।</p>
           </div>
           <div class="ac-inspect-body">
-            <div class="ac-tri" id="acTriHost"></div>
-            <div class="ac-detail" id="acDetailHost"></div>
+            <div class="ac-tri">
+              <h4 class="ac-part-heading"><i class='bx bx-shape-triangle' aria-hidden="true"></i> লক্ষণ ত্রিভুজ</h4>
+              <div id="acTriHost"></div>
+            </div>
+            <div class="ac-detail">
+              <h4 class="ac-part-heading"><i class='bx bx-detail' aria-hidden="true"></i> ওষুধের বিবরণ</h4>
+              <div id="acDetailHost"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -134,14 +131,14 @@
       </div>
 
       <div class="remedy-filters">
-        <button class="filter-btn active" data-filter="all">সব</button>
-        <button class="filter-btn" data-filter-activity="increase">কার্যকলাপ বৃদ্ধি</button>
-        <button class="filter-btn" data-filter-activity="decrease">কার্যকলাপ হ্রাস</button>
-        <button class="filter-btn" data-filter-activity="no_change">অপরিবর্তিত</button>
-        <button class="filter-btn" data-filter-thermal="hot">গরম</button>
-        <button class="filter-btn" data-filter-thermal="chilly">শীতার্ত</button>
-        <button class="filter-btn" data-filter-thirst="thirsty">তৃষ্ণার্ত</button>
-        <button class="filter-btn" data-filter-thirst="thirstless">তৃষ্ণাহীন</button>
+        <button type="button" class="filter-btn active" aria-pressed="true" data-filter="all">সব</button>
+        <button type="button" class="filter-btn" aria-pressed="false" data-filter-activity="increase">কার্যকলাপ বৃদ্ধি</button>
+        <button type="button" class="filter-btn" aria-pressed="false" data-filter-activity="decrease">কার্যকলাপ হ্রাস</button>
+        <button type="button" class="filter-btn" aria-pressed="false" data-filter-activity="no_change">অপরিবর্তিত</button>
+        <button type="button" class="filter-btn" aria-pressed="false" data-filter-thermal="hot">গরম</button>
+        <button type="button" class="filter-btn" aria-pressed="false" data-filter-thermal="chilly">শীতার্ত</button>
+        <button type="button" class="filter-btn" aria-pressed="false" data-filter-thirst="thirsty">তৃষ্ণার্ত</button>
+        <button type="button" class="filter-btn" aria-pressed="false" data-filter-thirst="thirstless">তৃষ্ণাহীন</button>
       </div>
 
       <div class="remedy-browser-grid" id="remedyBrowserList"></div>
