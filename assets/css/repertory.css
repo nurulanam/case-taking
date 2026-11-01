@@ -810,3 +810,17 @@
   .rp-compare-go, .rp-compare-reset { min-height: 44px; }
   .rp-compare-reset { min-width: 44px; }
 }
+
+/* Keep the comparison control and remedy name together in the sticky column.
+   Only the name wraps; the checkbox retains its own independent hit target. */
+.rp-grid .rx-cell { display: flex; align-items: center; gap: 0.25rem; min-width: 0; }
+.rp-grid th .rx-cell .rx-cmp { flex: 0 0 30px; margin: 0; }
+.rp-grid th .rx-cell .rx-open {
+  display: block; flex: 1 1 0; min-width: 0; max-width: none;
+  white-space: normal; overflow-wrap: anywhere; line-height: 1.35;
+}
+@media (max-width: 1023px) {
+  #pane-3 .rp-grid th .rx-cell { gap: 0; }
+  #pane-3 .rp-grid th .rx-cell .rx-cmp { flex-basis: 40px; width: 40px; height: 44px; margin: 0; }
+  #pane-3 .rp-grid th .rx-cell .rx-open { max-width: none; }
+}
