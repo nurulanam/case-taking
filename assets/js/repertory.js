@@ -1279,7 +1279,7 @@
       const top = rems(rb).slice(0, 4).map(r => `${esc(r.bn || r.name)} <b>${bn(r.grade)}</b>`).join(', ');
       return `<div class="tray-item" data-id="${id}">
         <div class="tray-top">
-          <span class="tray-name">${esc(rb.name)}<small>${esc(rb.chapterLabel)}</small></span>
+          <span class="tray-name">${esc(rb.name)}${rb.bn ? `<span class="tray-bn">${esc(rb.bn)}</span>` : ''}<small>${esc(rb.chapterLabel)}</small></span>
           <button class="tray-x" title="সরান"><i class='bx bx-x'></i></button>
         </div>
         <div class="tray-grades">

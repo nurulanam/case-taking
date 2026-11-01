@@ -233,7 +233,8 @@
   margin-bottom: 0.5rem; background: var(--surface);
 }
 .tray-top { display: flex; align-items: flex-start; gap: 0.5rem; }
-.tray-name { flex: 1; min-width: 0; font-size: 0.9375rem; font-weight: 600; color: var(--text); line-height: 1.4; }
+.tray-name { flex: 1; min-width: 0; font-size: 0.9375rem; font-weight: 600; color: var(--text); line-height: 1.4; overflow-wrap: anywhere; }
+.tray-bn { display: block; margin-top: 0.125rem; font-size: 0.875rem; font-weight: 500; color: var(--text); }
 .tray-name small { display: block; font-size: 0.75rem; font-weight: 400; color: var(--text-muted); }
 .tray-x {
   flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
