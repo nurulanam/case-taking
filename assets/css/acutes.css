@@ -1265,3 +1265,59 @@ body.ac-fit .content-inner, body.ac-fit #panel-wizard.active { flex: none; }
 @media (max-height: 520px) {
   .ac-ask-head p { display: block; }
 }
+
+/* Four reserved decision columns. A column only gains content once its parent
+   choice is known; earlier choices stay visible and can be changed directly. */
+.ac-body { display: flex; flex-direction: column; min-width: 0; }
+.ac-main { flex: 1 1 auto; min-width: 0; }
+.ac-ask { padding: 0.75rem; min-width: 0; }
+.ac-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; min-width: 0; }
+.ac-step-column { min-width: 0; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); overflow: hidden; }
+.ac-step-column.is-current { border-color: var(--primary); }
+.ac-step-column.is-pending { background: var(--surface2); }
+.ac-step-heading { flex: 0 0 auto; display: flex; flex-direction: column; gap: 0.12rem; padding: 0.65rem 0.7rem; border-bottom: 1px solid var(--border); }
+.ac-step-heading > span { font-size: 0.72rem; color: var(--primary); font-weight: 700; }
+.ac-step-heading > strong { color: var(--text); font-size: 0.88rem; line-height: 1.35; }
+.ac-step-column.is-pending .ac-step-heading { border-bottom: 0; }
+.ac-step-body { min-height: 0; padding: 0.6rem; }
+.ac-step-hint { margin: 0 0 0.55rem; color: var(--text-muted); font-size: 0.75rem; line-height: 1.45; }
+.ac-step-options { display: flex; flex-direction: column; gap: 0.35rem; }
+.ac-step-option { display: flex; align-items: flex-start; gap: 0.45rem; width: 100%; padding: 0.55rem; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.ac-step-option:hover { border-color: var(--primary); background: var(--primary-bg); }
+.ac-step-option:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.ac-step-option.selected { border-color: var(--primary); background: var(--primary-bg); }
+.ac-step-option-icon { flex: 0 0 1.6rem; height: 1.6rem; display: grid; place-items: center; border-radius: 6px; background: var(--surface2); color: var(--primary); }
+.ac-step-option-text { display: flex; flex: 1 1 auto; min-width: 0; flex-direction: column; gap: 0.1rem; overflow-wrap: anywhere; }
+.ac-step-option-text strong { font-size: 0.8125rem; line-height: 1.35; }
+.ac-step-option-text small, .ac-step-option-text > span { font-size: 0.72rem; color: var(--text-muted); line-height: 1.4; }
+.ac-step-check { color: var(--primary); font-size: 1rem; flex-shrink: 0; }
+[data-theme="dark"] .ac-step-option { background: var(--surface2); }
+[data-theme="dark"] .ac-step-option.selected, [data-theme="dark"] .ac-step-option:hover { background: var(--primary-bg); }
+
+/* Desktop uses the original full-height console. The results and option lists
+   scroll independently when their contents exceed the available space. */
+@media (min-width: 901px) and (min-height: 651px) and (pointer: fine) {
+  body.ac-fit .app-root { height: 100dvh; overflow: hidden; }
+  body.ac-fit .app-main, body.ac-fit .app-content, body.ac-fit .content-inner,
+  body.ac-fit #panel-wizard.active { min-height: 0; overflow: hidden; }
+  body.ac-fit .content-inner, body.ac-fit #panel-wizard.active { flex: 1 1 auto; }
+  .ac-workspace, .ac-workspace:not(.is-leaf), .ac-workspace.is-leaf { flex: 1 1 auto; min-height: 0; max-width: none; overflow: hidden; }
+  .ac-body { flex: 1 1 auto; min-height: 0; }
+  .ac-main { overflow: hidden; }
+  .ac-ask { flex: 1 1 auto; display: flex; min-height: 0; overflow: hidden; }
+  .ac-steps { flex: 1 1 auto; min-height: 0; }
+  .ac-step-body { overflow-y: auto; overscroll-behavior: contain; }
+  .ac-workspace.is-leaf .ac-ask { flex: 0 0 38%; min-height: 12rem; }
+  .ac-result { flex: 1 1 auto; min-height: 0; overflow: hidden; border-top: 1px solid var(--border); }
+  .ac-rxpane, .ac-inspect, .ac-inspect-body { min-height: 0; overflow: hidden; }
+  .ac-rxpane-list, .ac-tri, .ac-detail { overflow-y: auto; }
+}
+/* Small screens keep all four titles in normal page flow and do not require
+   horizontal scrolling to change an earlier choice. */
+@media (max-width: 900px) {
+  .ac-steps { grid-template-columns: 1fr; gap: 0.4rem; }
+  .ac-step-heading { padding: 0.55rem 0.65rem; }
+  .ac-step-body { padding: 0.55rem; }
+  .ac-step-option { min-height: 44px; }
+  .ac-result { border-top: 1px solid var(--border); }
+}

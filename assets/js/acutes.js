@@ -535,15 +535,13 @@ function renderFlow() {
   updateTopbarChip();
   const leaf = !!(currentFlowNode().remedies);
   document.getElementById('acWorkspace').classList.toggle('is-leaf', leaf);
-  document.getElementById('acAsk').hidden = leaf;
   document.getElementById('acResult').hidden = !leaf;
   renderProgress();
-  renderRail();
+  renderSteps();
   if (leaf) {
     openRemedyIdx = 0;
     renderRightAndBottom();
   } else {
-    renderAsk();
     const toRx = document.getElementById('flowToRx');
     if (toRx) toRx.disabled = true;
   }
@@ -558,76 +556,45 @@ function renderProgress() {
     : `ধাপ ${bnNum(flowPath.length + 1)}${axis ? ` · ${axis.bn}` : ''}`;
 }
 
-function renderRail() {
-  const host = document.getElementById('acRail');
-  if (!host) return;
-  const pool = countRemedies(currentFlowNode());
-  host.classList.toggle('is-empty', flowPath.length === 0);
-  const rows = flowPath.map((n, i) => {
-    const ax = AC_AXES.find(a => a.id === axisOf(n));
-    return `<button type="button" class="ac-axis filled" data-jump="${i}">
-      <i class="bx ${optIcon(n)}"></i>
-      <span><small>${ax ? ax.bn : ''}</small><strong>${n.bn}</strong></span>
-    </button>`;
-  }).join('');
-  const empty = flowPath.length
-    ? ''
-    : `<p class="ac-rail-empty">এখনো খালি — ধাপ বেছে নিলে এখানে জমা হবে</p>`;
-  host.innerHTML = `<div class="ac-rail-head">কেস স্ন্যাপশট</div>
-    <div class="ac-axes">${rows}</div>
-    ${empty}
-    <div class="ac-rail-pool"><strong>${bnNum(pool)}</strong><span>${currentFlowNode().remedies ? 'সম্ভাব্য ওষুধ' : 'ওষুধ বাকি'}</span></div>
-    <details class="ac-mobile-snapshot">
-      <summary><span><i class="bx bx-list-check" aria-hidden="true"></i> কেস স্ন্যাপশট <b>${bnNum(flowPath.length)}</b></span><span class="ac-snapshot-toggle">দেখুন <i class="bx bx-chevron-down" aria-hidden="true"></i></span></summary>
-      <div class="ac-snapshot-panel">
-        <p>আগের কোনো নির্বাচন বদলাতে সেটিতে চাপুন</p>
-        <div class="ac-snapshot-choices">${rows || '<span class="ac-snapshot-empty">এখনো কোনো ধাপ বেছে নেওয়া হয়নি।</span>'}</div>
-      </div>
-    </details>`;
-  host.querySelectorAll('[data-jump]').forEach(el => {
-    el.addEventListener('click', () => {
-      flowPath = flowPath.slice(0, +el.dataset.jump);
-      renderFlow();
-    });
-  });
-}
-
-function renderAsk() {
-  const node = currentFlowNode();
-  const opts = node.children || [];
-  const axis = AC_AXES.find(a => a.id === currentAxisId());
-  const badge = document.getElementById('acStepBadge');
-  if (badge) badge.textContent = axis ? axis.en : `ধাপ ${bnNum(flowPath.length + 1)}`;
-  document.getElementById('acAskQ').textContent = displayQ(node.q);
-  document.getElementById('acAskHint').textContent = node.hint || '';
-  const host = document.getElementById('acOpts');
-  host.classList.remove('hero');
-  host.innerHTML = opts.map((opt, oi) => {
-    const count = countRemedies(opt);
-    return `<button type="button" class="ac-opt" data-opt="${oi}">
-      <kbd class="ac-opt-k">${bnNum(oi + 1)}</kbd>
-      <span class="ac-opt-ico"><i class="bx ${optIcon(opt)}"></i></span>
-      <span class="ac-opt-label">
-        <strong>${opt.bn}</strong>
-        <em>${opt.en || ''}</em>
-        <span>${opt.desc || ''}</span>
-      </span>
-      <span class="ac-opt-meta">
-        <span class="ac-opt-count">${bnNum(count)}</span>
-        <i class="bx bx-chevron-right" aria-hidden="true"></i>
-      </span>
-    </button>`;
-  }).join('');
-  host.querySelectorAll('.ac-opt').forEach(el => {
-    el.addEventListener('click', () => pickOpt(+el.dataset.opt));
-  });
-  const keys = document.getElementById('acAskKeys');
-  if (keys) {
-    keys.hidden = opts.length === 0;
-    keys.innerHTML = opts.length
-      ? `<kbd>১</kbd>–<kbd>${bnNum(opts.length)}</kbd> নির্বাচন · <kbd>Esc</kbd> পেছনে`
-      : '';
+// Each column represents a decision in the actual path, not a fixed clinical
+// axis: some branches end early, while others have several subtype decisions.
+function renderSteps() {
+  const host = document.getElementById('acSteps');
+  let node = FLOW;
+  const columns = [];
+  for (let step = 0; step < 4; step++) {
+    const available = node && node.children;
+    const choice = flowPath[step];
+    const active = !!available && step === flowPath.length;
+    const title = available ? displayQ(node.q) : '';
+    const options = available ? available.map((opt, index) => `
+      <button type="button" class="ac-step-option ${choice === opt ? 'selected' : ''}"
+              data-step="${step}" data-opt="${index}" aria-pressed="${choice === opt}">
+        <span class="ac-step-option-icon"><i class="bx ${optIcon(opt)}" aria-hidden="true"></i></span>
+        <span class="ac-step-option-text"><strong>${opt.bn}</strong>${opt.en ? `<small>${opt.en}</small>` : ''}${opt.desc ? `<span>${opt.desc}</span>` : ''}</span>
+        ${choice === opt ? `<i class="bx bx-check ac-step-check" aria-hidden="true"></i>` : ''}
+      </button>`).join('') : '';
+    columns.push(`<section class="ac-step-column ${active ? 'is-current' : ''} ${available ? 'is-available' : 'is-pending'}" aria-labelledby="acStepTitle${step}">
+      <div class="ac-step-heading"><span id="acStepTitle${step}">ধাপ ${bnNum(step + 1)}</span>${title ? `<strong>${title}</strong>` : ''}</div>
+      ${available ? `<div class="ac-step-body">${node.hint ? `<p class="ac-step-hint">${node.hint}</p>` : ''}<div class="ac-step-options">${options}</div></div>` : ''}
+    </section>`);
+    node = choice || null;
   }
+  host.innerHTML = columns.join('');
+  host.querySelectorAll('[data-step][data-opt]').forEach(button => button.addEventListener('click', event => {
+    const step = Number(button.dataset.step);
+    let parent = FLOW;
+    for (let i = 0; i < step; i++) parent = flowPath[i];
+    const selected = parent.children[Number(button.dataset.opt)];
+    if (flowPath[step] === selected) return;
+    flowPath = flowPath.slice(0, step).concat(selected);
+    renderFlow();
+    if (event.detail === 0) {
+      const next = host.querySelector('.is-current .ac-step-option') ||
+        host.querySelector(`[data-step="${step}"][data-opt="${button.dataset.opt}"]`);
+      if (next) next.focus({ preventScroll: true });
+    }
+  }));
 }
 
 function onWizardKey(e) {

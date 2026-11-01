@@ -38,10 +38,7 @@
        sidebar submenu now (see NAV.acutes.children in shell.js), which
        frees this vertical space for the wizard itself. -->
 
-  <!-- PANEL 1: Flow-chart wizard.
-       Console layout: current progress, a living case snapshot, and
-       one numbered question. Leaf view keeps the snapshot and splits the
-       main pane into remedy list | triangle | confirmation. -->
+  <!-- PANEL 1: Four-column decision workspace and remedy result. -->
   <div id="panel-wizard" class="page-panel active">
     <div class="ac-workspace" id="acWorkspace">
       <header class="ac-toolbar">
@@ -54,16 +51,9 @@
       </header>
 
       <div class="ac-body">
-        <aside class="ac-rail" id="acRail"></aside>
         <div class="ac-main">
-      <section class="ac-ask" id="acAsk">
-        <div class="ac-ask-head">
-          <span class="ac-step-badge" id="acStepBadge">Activity</span>
-          <h3 id="acAskQ"></h3>
-          <p id="acAskHint"></p>
-        </div>
-        <div class="ac-opts" id="acOpts" role="group" aria-labelledby="acAskQ"></div>
-        <p class="ac-ask-keys" id="acAskKeys"></p>
+      <section class="ac-ask" id="acAsk" aria-label="নির্বাচনের ধাপ">
+        <div class="ac-steps" id="acSteps"></div>
       </section>
 
       <section class="ac-result" id="acResult" hidden>
