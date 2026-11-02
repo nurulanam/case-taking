@@ -433,3 +433,15 @@ body.is-gating .form-nav { display: none !important; }
   .form-nav #resetBtn { display: none; }
   .form-nav #nextBtn, .form-nav #skipBtn { margin: 0; flex: 1 1 40%; }
 }
+
+/* Safety screen: explicit triage, with no default answer. */
+.case-safety-field { margin: 0; padding: 0; border: 0; min-width: 0; }
+.case-safety-field legend { margin-bottom: 0.6rem; font-weight: 700; color: var(--text); }
+.case-safety-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 0.4rem; }
+.case-safety-options label { display: flex; align-items: flex-start; gap: 0.55rem; min-height: 44px; padding: 0.55rem 0.65rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); cursor: pointer; line-height: 1.4; }
+.case-safety-options label:has(input:checked) { border-color: var(--primary); background: var(--primary-bg); }
+.case-safety-options input { flex: 0 0 auto; width: 18px; height: 18px; margin: 0.15rem 0 0; accent-color: var(--primary); }
+.case-safety-error { margin-top: 0.5rem; color: var(--danger); font-weight: 700; }
+.case-safety-alert { margin-top: 0.75rem; padding: 0.75rem; border: 1px solid var(--danger); border-radius: 8px; background: var(--danger-bg); color: var(--text); line-height: 1.5; }
+.case-safety-alert strong { display: block; color: var(--danger); }
+.case-safety-alert[hidden], .case-safety-error[hidden] { display: none; }

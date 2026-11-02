@@ -59,6 +59,35 @@
   </div>
 </div>
 
+<section class="form-step" data-step-title="জরুরি ঝুঁকি যাচাই" data-flow="guided,followup,acute" data-step-id="safety">
+<div class="card">
+  <div class="section-heading"><span class="section-number"><i class='bx bx-shield-quarter'></i></span><div><h3>জরুরি ঝুঁকি যাচাই</h3><p>বিপজ্জনক বা জরুরি লক্ষণ থাকলে প্রয়োজনীয় জরুরি চিকিৎসা বা রেফারেল নিশ্চিত করুন।</p></div></div>
+  <fieldset class="case-safety-field">
+    <legend>নিচের কোনো জরুরি লক্ষণ আছে কি? <span aria-hidden="true">*</span></legend>
+    <div class="case-safety-options" id="safetyOptions">
+      <label><input type="checkbox" name="red_flag_symptoms" value="chest_pain"/> তীব্র / নতুন বুকব্যথা</label>
+      <label><input type="checkbox" name="red_flag_symptoms" value="breathing_difficulty"/> তীব্র শ্বাসকষ্ট</label>
+      <label><input type="checkbox" name="red_flag_symptoms" value="unconsciousness"/> অজ্ঞান হওয়া / সাড়া কমে যাওয়া</label>
+      <label><input type="checkbox" name="red_flag_symptoms" value="stroke_signs"/> হঠাৎ মুখ বেঁকে যাওয়া, হাত-পা দুর্বল বা কথা জড়িয়ে যাওয়া</label>
+      <label><input type="checkbox" name="red_flag_symptoms" value="severe_bleeding"/> অতিরিক্ত রক্তপাত</label>
+      <label><input type="checkbox" name="red_flag_symptoms" value="seizure"/> খিঁচুনি</label>
+      <label><input type="checkbox" name="red_flag_symptoms" value="severe_allergic_reaction"/> মুখ-জিহ্বা ফুলে যাওয়া বা তীব্র অ্যালার্জি</label>
+      <label><input type="checkbox" name="red_flag_symptoms" value="suicidal_risk"/> নিজেকে ক্ষতি করার তাৎক্ষণিক ঝুঁকি</label>
+      <label><input type="checkbox" name="red_flag_symptoms" value="none"/> এগুলোর কোনোটিই নেই</label>
+      <label><input type="checkbox" name="red_flag_symptoms" value="uncertain"/> নিশ্চিত নই</label>
+    </div>
+    <p id="safetyError" class="case-safety-error" role="alert" hidden>অন্তত একটি উত্তর বেছে নিন।</p>
+  </fieldset>
+  <div class="case-safety-alert" id="safetyAlert" role="alert" hidden><strong>জরুরি মূল্যায়ন প্রয়োজন হতে পারে।</strong> নির্বাচিত লক্ষণের জন্য যথাযথ জরুরি চিকিৎসা বা রেফারেল নিশ্চিত করুন।</div>
+  <label class="field mt"><span>প্রয়োজনীয় ব্যবস্থা</span><select name="triage_action">
+    <option value="">বাছাই করুন</option>
+    <option value="emergency_referred">জরুরি বিভাগে পাঠানো হয়েছে</option>
+    <option value="medical_review">যোগ্য চিকিৎসকের মূল্যায়নের পরামর্শ</option>
+    <option value="no_urgent_action">জরুরি ব্যবস্থা প্রয়োজন হয়নি</option>
+    <option value="pending">এখনো সিদ্ধান্ত হয়নি</option>
+  </select></label>
+</div>
+</section>
 <section class="form-step" data-step-title="পূর্ববর্তী কেস ও পরিবর্তন" data-flow="followup" data-step-id="followup">
 <div class="card">
 <div class="section-heading"><span class="section-number">১</span><div><h3>পূর্ববর্তী কেস ও পরিবর্তন</h3><p>শেষ সাক্ষাতের পর কী বদলেছে — ফলোআপের মূল প্রশ্ন।</p></div></div>
