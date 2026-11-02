@@ -26,6 +26,7 @@
     direct: 'রেপার্টরি'
   };
   const STEP_ICON = {
+    safety: 'bx-shield-quarter',
     followup: 'bx-revision',
     chief: 'bx-list-ul',
     particulars: 'bx-detail',
@@ -411,6 +412,7 @@
     const fresh = startFreshIfAsked();
     initPills();
     initChips();
+    bindSafety();
     bindEvents();
     bindRubricUI();
     bindComplaintRemoval();
@@ -441,6 +443,7 @@
     updateUI();
     updateGenderPanels();
     updateRedFlagBanner();
+    updateSafetyAlert();
     applyIncomingRepertory();
   }
 
@@ -449,7 +452,7 @@
     if (!stepNav) return;
     const steps = visibleStepEls();
     const short = {
-      followup: 'পরিবর্তন', chief: 'অভিযোগ', particulars: 'লক্ষণ',
+      safety: 'জরুরি যাচাই', followup: 'পরিবর্তন', chief: 'অভিযোগ', particulars: 'লক্ষণ',
       generals: 'জেনারেলস', mental: 'মানসিক', history: 'ইতিহাস',
       review: 'পর্যালোচনা'
     };
@@ -478,6 +481,13 @@
   function goToStep(step) {
     const n = totalSteps();
     if (step < 1 || step > n) return;
+    if (step > currentStep && !validateSafety()) {
+      currentStep = 1;
+      updateUI();
+      document.getElementById('safetyError').hidden = false;
+      document.querySelector('#safetyOptions input').focus();
+      return;
+    }
     currentStep = step;
     updateUI();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -559,8 +569,38 @@
     if (downloadBtn) downloadBtn.style.display = last ? 'inline-block' : 'none';
   }
 
+  function validateSafety() {
+    return !!form.querySelector('input[name="red_flag_symptoms"]:checked');
+  }
+
   function validateCurrentStep() {
+    if (currentStepEl() && currentStepEl().dataset.stepId === 'safety' && !validateSafety()) {
+      document.getElementById('safetyError').hidden = false;
+      document.querySelector('#safetyOptions input').focus();
+      return false;
+    }
     return true;
+  }
+
+  function updateSafetyAlert() {
+    const selected = [...form.querySelectorAll('input[name="red_flag_symptoms"]:checked')];
+    document.getElementById('safetyAlert').hidden = !selected.some(el => el.value !== 'none');
+    if (selected.length) document.getElementById('safetyError').hidden = true;
+  }
+
+  function bindSafety() {
+    const options = document.getElementById('safetyOptions');
+    options.addEventListener('change', event => {
+      const target = event.target;
+      if (target.name !== 'red_flag_symptoms') return;
+      if (target.checked) {
+        const exclusive = target.value === 'none' || target.value === 'uncertain';
+        options.querySelectorAll('input').forEach(el => {
+          if (el !== target && (exclusive || el.value === 'none' || el.value === 'uncertain')) el.checked = false;
+        });
+      }
+      updateSafetyAlert();
+    });
   }
 
   function saveCurrentStep() {
@@ -1070,6 +1110,16 @@
      Step 9 opens on what the case actually says. Built from the fields
      already filled rather than asking for anything new, and silent about
      every section left blank. */
+  function safetySummary() {
+    return [...form.querySelectorAll('input[name="red_flag_symptoms"]:checked')]
+      .map(input => input.parentElement.textContent.trim()).join(' · ');
+  }
+
+  function triageSummary() {
+    const select = form.querySelector('[name="triage_action"]');
+    return select && select.value ? select.options[select.selectedIndex].textContent : '';
+  }
+
   function renderCaseSummary() {
     const host = document.getElementById('caseSummary');
     if (!host) return;
@@ -1095,7 +1145,9 @@
       ['অরুচি', getChecks('aversions')],
       ['তাপ সহ্যক্ষমতা', getChecks('thermalSymptoms')],
       ['বিশেষ লক্ষণ', getVal('peculiarSymptoms')],
-      ['জরুরি লক্ষণ', getChecks('redFlags')],
+      ['জরুরি ঝুঁকি যাচাই', safetySummary()],
+      ['প্রয়োজনীয় ব্যবস্থা', triageSummary()],
+      ['জরুরি লক্ষণ (পূর্ববর্তী ফর্ম)', getChecks('redFlags')],
       ['রুব্রিক', rubrics.map(r => r.name).join(' · ')],
     ].filter(([, v]) => v && v.trim());
 
@@ -1529,7 +1581,7 @@
       try { rubrics = JSON.parse(data.rubricsJson) || []; } catch (e) { rubrics = []; }
     }
 
-    if (data.__step) currentStep = Math.min(totalSteps() || 9, Math.max(1, parseInt(data.__step) || 1));
+    if (data.__step && validateSafety()) currentStep = Math.min(totalSteps() || 9, Math.max(1, parseInt(data.__step) || 1));
     markSaved(data);
     Shell.toast('আগের খসড়া ফিরিয়ে আনা হয়েছে।', 'ok');
   }
@@ -1606,6 +1658,8 @@
     }
 
     L.push('=== HOMEOPATHIC CASE (Bangla) ===');
+    put('জরুরি ঝুঁকি যাচাই', safetySummary());
+    put('প্রয়োজনীয় ব্যবস্থা', triageSummary());
     put('CASE TYPE', getVal('caseType') || getVal('visitType'));
     put('PATIENT', [getVal('patientName'), ageText(), getVal('gender')].filter(Boolean).join(', '));
     put('OCCUPATION', getVal('occupation'));
@@ -1696,6 +1750,7 @@
       hour: 'numeric', minute: 'numeric', hour12: true 
     }).format(now);
     out.push(`রিপোর্ট তৈরির সময়: ${dateStr}\n`);
+    pushSection(out, 'জরুরি ঝুঁকি যাচাই', [fieldItem('লক্ষণ', safetySummary()), fieldItem('প্রয়োজনীয় ব্যবস্থা', triageSummary())]);
 
     // AI Instruction
     out.push("┌─────────────────────────────────────────────────┐");
